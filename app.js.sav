@@ -1,0 +1,93 @@
+
+/**
+ * Module dependencies.
+ */
+
+var express = require('express');
+var fs = require('fs');
+var http = require('http');
+var url = require('url');
+var do_refresh = 1;
+var lastimage = 0;
+var global_files;
+var dirlist;
+
+// XXX TODO : make base directory an env option, create accounts
+var basedir = '/data/mhannum/';
+var app = module.exports = express.createServer();
+
+
+// Configuration
+
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(express.static(__dirname + '/public'));
+});
+
+app.configure('development', function(){
+  app.use(express.logger());
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function(){
+  app.use(express.logger());
+  app.use(express.errorHandler());
+});
+
+
+function show(req, res, err, img)
+{
+    //res.writeHead(200, {'Content-Type': 'image/jpeg' });
+    //res.writeHead(200, {'Content-Type': 'image/jpeg' });
+    res.writeHead(200, {'Content-Type': 'image/jpeg' });
+    res.end(img, 'binary');
+}
+
+function showimage(req, res, err, file)
+{
+    if(err) 
+        throw (err);
+
+    fs.readFile(basedir + file, function(err, img) {
+        if(err) 
+            throw (err);
+        show(req, res, err, img);
+    });
+}
+
+function chooseimage(req, res, err, files)
+{
+    var image;
+    if (err) 
+        throw(err);
+//    console.log("In chooseimage.  lastimage is " + lastimage);
+    image = files[lastimage++ % files.length];
+    showimage(req, res, err, image);
+}
+
+app.get('/image.jpeg', function(req, res) {
+    if (do_refresh) {
+        fs.readdir(basedir, function(err, files) {
+            if (err) throw err;
+            global_files = files;
+            chooseimage(req, res, err, files);
+        });
+        do_refresh = 0;
+    }
+    else
+    {
+        chooseimage(req, res, 0, global_files);
+    }
+});
+
+app.get('/', function(req, res) {
+    res.render('index.jade', { locals: {
+        title: 'MYLUNCH.ORG'
+        }
+    });
+});
+
+app.listen(3000, function(){
+});

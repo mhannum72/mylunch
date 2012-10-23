@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/960.css" />
+    <link rel="stylesheet" href="/css/text.css" />
+    <link rel="stylesheet" href="/css/mealdisp.css" />
+</head>
+<body>
+    <div class="container_12">
+
+        <div class="grid_12">
+        <center><h1><%= title %></h1></center>
+        </div>
+        <div class="clear"></div>
+
+        <!-- NOT YET
+        <div class="grid_12">
+        <a href="/"><img src='image1'></a>
+        </div>
+        <div class="clear"></div>
+        -->
+
+        <% if( undefined != user && undefined != user.username && user.username.length > 0  ) { %>
+
+            <div class="grid_12">
+                <h2><%= user.username %></h2>
+            </div>
+            <div class="clear"></div>
+
+        <% } %>
+        
+        <% if( undefined == user || undefined == user.username || user.username.length <= 0 ) { %>
+            <div class="grid_12">
+            <h2><a href='/signin'>Sign in</a></h2>
+            </div>
+            <div class="clear"></div>
+            <div class="grid_12">
+            <h2><a href='/newaccount'>Create an account</a></h2>
+            </div>
+            <div class="clear"></div>
+        <% } %>
+
+        <% if( undefined != user && undefined != user.username && user.username.length > 0 ) {%>
+
+            <div class="grid_12">
+            <h2><a href='/upload'>Upload your lunch!</a></h2>
+            </div>
+            <div class="clear"></div>
+
+            <div class="grid_12">
+            <h2><a href='/editmeals'>Edit Meals</a></h2>
+            </div>
+            <div class="clear"></div>
+
+            <div class="grid_12">
+            <h2><a href='/account'>Update Account Information</a></h2>
+            </div>
+            <div class="clear"></div>
+
+            <% if( user.isAdmin == true ) {%>
+                <div class="grid_12">
+                <h2><a href='/yesreallyanadmin'>Admin Page</a></h2>
+                </div>
+                <div class="clear"></div>
+            <% } %>
+
+            <div class="grid_12">
+            <h2><a href='/signout'>Logout</a></h2>
+            </div>
+            <div class="clear"></div>
+
+        <% } %>
+
+
+    </div> <!-- end .container_12 -->
+</body>
+</html>

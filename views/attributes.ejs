@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Upload Meal</title>
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <link rel="stylesheet" href="/css/960.css" />
+        <link rel="stylesheet" href="/css/mealdisp.css" />
+        <!-- <link rel="stylesheet" href="/css/demo.css" /> -->
+    </head>
+    <body>
+
+
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+        var timeoutFunc = function() {
+            var tmpText = $('#mealreview').val();
+            $.ajax({
+                url: '/savereviewtmp',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    { 
+                        textarea: tmpText, 
+                        username: "<%= meal.username %>",
+                        timestamp: "<%= meal.timestamp %>",
+                        source: "timer"
+                    }),
+                dataType: 'json',
+                complete: function(resp, astat) {
+                    if(astat == "success" && JSON.parse(resp.responseText).message == "saved") {
+                        var now = new Date();
+                        var nowst = now.toLocaleTimeString();
+                        $('#review_status').html("Saved " + nowst);
+                    }
+                }
+            });
+            setTimeout(timeoutFunc, 60000);
+        };
+
+        $(document).ready(function() {
+
+            var tmpReview;
+            var mealReview;
+            var editMode = false;
+
+            <% if(undefined == meal.tmpReview || meal.tmpReview.length <= 0) { %>
+            tmpReview="";
+            <% } else { %>
+            tmpReview="<%= meal.tmpReview.replace(/\n/g, '\\n').replace(/\r/g, '') %>";
+            <% } %>
+
+            <% if(undefined == meal.review || meal.review.length <= 0) { %>
+            mealReview = "";
+            <% } else { %>
+            mealReview="<%= meal.review.replace(/\n/g, '\\n').replace(/\r/g, '') %>";
+            <% } %>
+
+            $.ajaxSetup ({ cache: false });
+
+            function editReviewInt(editTmp) {
+
+                var editReview;
+
+                if(editMode) {
+                    return false;
+                }
+
+                editMode = true;
+
+                if(editTmp && tmpReview != undefined && tmpReview.length > 0) {
+                    editReview = tmpReview;
+                }
+                else {
+                    editReview = mealReview;
+                }
+
+                var textarea = $(document.createElement('textarea'))
+                    .attr('id', 'mealreview')
+                    .attr('form', 'mealattributes')
+                    .attr('name', 'mealreview')
+                    .attr('rows', '20')
+                    .attr('cols', '60')
+                    .attr('class', 'review_edit')
+                    .attr('class', 'mealinfo_input')
+                    .html(editReview);
+
+                var textstatus = $(document.createElement('div'))
+                    .attr('id', 'review_status')
+                    .attr('class', 'grid_8 prefix_4')
+                    .html('Editing');
+
+                $('#edit_review').remove();
+                $('#restore_review').remove();
+                $('#review_text').remove();
+
+                // Send an update once every minute
+                var tid = setTimeout(
+                        timeoutFunc,
+                        60000);
+
+                // TODO maybe a better function than changed
+                textstatus.appendTo('#review_status_div');
+                //textclear.appendTo('#review_status_div');
+                textarea.appendTo('#review_meal');
+                textarea.focus();
+
+                textarea.blur(function() {
+
+                    var tmpText = $('#mealreview').val();
+
+                    if(typeof this.last == 'undefined') {
+                        this.last = Date.now();
+                    }
+                    else if(Date.now() - this.last < 10000) {
+                        return;
+                    }
+                    else {
+                        this.last = Date.now();
+                    }
+
+                    $.ajax({
+                        url: '/savereviewtmp',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(
+                            { 
+                                textarea: tmpText,
+                                username: "<%= meal.username %>",
+                                timestamp: "<%= meal.timestamp %>",
+                                source: "blur"
+                            }
+                        ),
+                        dataType: 'json',
+                        complete: function(resp, astat) {
+                            if(astat == "success" && JSON.parse(resp.responseText).message == "saved") {
+                                var now = new Date();
+                                var nowst = now.toLocaleTimeString();
+                                $('#review_status').html("Saved " + nowst);
+                            }
+                        }
+                    });
+                });
+
+                return false;
+            }
+
+            function editReview() {
+                return editReviewInt(false);
+            }
+
+            function editTmpReview() {
+                return editReviewInt(true);
+            }
+
+            $('#edit_review').click( editReview );
+            $('#restore_review').click( editTmpReview );
+                    
+        });
+
+    </script>
+
+        <div class="container_12">
+
+            <div class="grid_4 prefix_8">
+                <a href="/editmeals">Edit Meals</a>
+            </div>
+            <div class="clear"></div>
+
+            <div class="grid_12"> 
+                <center>
+                <a href='/pics/<%= meal.username %>/<%= meal.timestamp %>'>
+                    <img src='/pics/<%= meal.username %>/<%= meal.timestamp %>'>
+                </a>
+                </center>
+            </div> 
+        </div> <!-- container_12 -->
+
+        <%- include attributes_form %>
+        <div class="clear"></div>
+
+    </body>
+</html>

@@ -1,0 +1,267 @@
+body {
+  background: #123;
+  color: #555;
+  font-size: 18px;
+  height: auto;
+  padding-bottom: 20px;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-family: Georgia, serif;
+  font-weight: normal;
+  padding-top: 20px;
+  text-align: center;
+}
+
+h2 {
+  font-family: Georgia, serif;
+  color: #ddd;
+  font-weight: normal;
+  padding-top: 20px;
+  text-align: center;
+}
+
+p {
+  border: 1px solid #666;
+  overflow: hidden;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.container_12,
+.container_16,
+.container_24 {
+  background-color: #fff;
+  background-repeat: repeat-y;
+  margin-bottom: 20px;
+}
+
+.container_12 {
+}
+
+.container_16 {
+}
+
+.container_24 {
+}
+
+.change_password {
+    color: #0000ff;
+    text-align: center;
+}
+
+.review_meal_text {
+    color: #111111;
+    border: 1px solid #666;
+    border-radius: 3px;
+}
+
+
+textarea {
+    resize: none;
+}
+
+.mealinfo_input {
+    width: 400px;
+}
+
+.editheight {
+    height: 320px;
+    height: auto !important;
+    min-height: 320px;
+}
+
+.mealAttributesPopup {
+    width:440px;
+    z-index:9999;
+    padding:20px;
+}
+
+.maskClass {
+    position:absolute;
+    z-index:9000;
+    left:0;
+    top:0;
+    background-color:#000;
+    display:none;
+}
+
+.editImage {
+    box-shadow:3px 3px 5px #444;
+    -webkit-box-shadow:3px 3px 5px #444;
+    -moz-box-shadow:3px 3px 5px #444;
+}
+
+.mealAttributesPopup {
+    position:absolute;
+    z-index:9999;
+    width:800px;
+    display:none;
+    border-top-width:0px;
+    background:#FFF;
+}
+
+.mealAttributesCloseContainer {
+    text-align: right;
+    border:0px;
+    height: 10px;
+    font-size: 18px;
+}
+
+.mealAttributesCloseContainer a:hover {
+    text-decoration: none;
+    cursor:pointer;
+}
+
+.mealAttributesCloseButton {
+    position:absolute;
+    top:0px;
+    text-align: right;
+    border:0px;
+    font-size: 20px;
+}
+
+.mealAttributesPopup #mealAttributesCloseContainer a:hover {
+    text-decoration: none;
+    cursor:pointer;
+}
+
+#pop_title a:hover {
+    text-decoration: none;
+    cursor:pointer;
+}
+
+.meal_select_menu {
+}
+
+#meal_select_menu_div {
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+#meal_select_menu_div ul {
+    position: absolute;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 324px;
+    left: 0;
+}
+
+#meal_select_menu_div li {
+    float: left;
+    display: block;
+    width: 90px;
+    position: relative;
+    margin: 0 1px;
+    z-index: 10001;
+}
+
+#meal_select_menu_div li a {
+    display: block;
+    padding: 0px 0px 0 0px;
+    height: 40px;
+    background: #fff;
+    text-decoration: none;
+    text-align: center;
+}
+
+#meal_select_menu_div li a:hover {
+    cursor:pointer;
+    color: #f00;
+}
+
+.meal_select_anchor {
+}
+
+.grid_meal_selected {
+    color: #000;
+}
+
+.stars_select_menu {
+}
+
+#stars_select_menu_div {
+    margin:0;
+    padding:0;
+    display: block;
+    height: 40px;
+    list-style:none;
+}
+
+#stars_select_menu_div li {
+    float: left;
+    display: block;
+    vertical-align: middle;
+    width: 0px;
+    position: relative;
+    height: 40px;
+    background-color: #fff;
+    font-size: 26px;
+    z-index: 10002;
+}
+
+.stars_select_menu {
+}
+
+.star_select_menu_selection {
+    width: 42px;
+    font-size: 40px;
+    z-index: 10005;
+}
+
+.stars_select_anchor {
+    width: 42px;
+}
+
+#stars_select_menu_div ul {
+    position: absolute;
+    display: block;
+    list-style: none;
+    padding: 0;
+    margin: -7px 0 0 268px;
+    left: 0;
+}
+
+.grid_review textarea{
+}
+
+.review_text_area {
+    margin: 12px 0 0 10px;
+}
+
+.stars_select_menu a:hover{
+    cursor:pointer;
+    text-decoration: none;
+}
+
+.stars_selected_star_hover {
+    color: #f00 !important;
+}
+
+.stars_unselected_star_hover {
+    color: #BBB !important;
+}
+
+.stars_selected_star {
+    width: 42px;
+    color: #555;
+}
+
+.stars_unselected_star {
+    width: 42px;
+    color: #BBB;
+}
+
+#edit_meals_title h2 {
+    font-family: Georgia, serif;
+    color: #111;
+}

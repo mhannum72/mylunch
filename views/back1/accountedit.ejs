@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Edit Account</title>
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <link rel="stylesheet" href="/css/960.css" />
+        <!-- <link rel="stylesheet" href="/css/demo.css" /> -->
+        <link rel="stylesheet" href="/css/mealdisp.css" />
+    </head>
+    <body>
+    <% var streetTabIndex=1000; %>
+
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+        function addSubmitError(errstr) {
+            var textDiv = $(document.createElement('div'))
+                .attr('id', 'errorline')
+                .attr('class', 'grid_12')
+                .css('text-align', 'center')
+                .html(errstr);
+
+            var textClear = $(document.createElement('div'))
+                .attr('class', 'clear')
+                .attr('id', 'clear');
+
+            textDiv.appendTo("#submiterrors");
+            textClear.appendTo("#submiterrors");
+        }
+
+        var tidx = <%= streetTabIndex %>;
+        var addressLines = 0;
+
+        function addAddressInput(textValue) {
+            var maxAddressLines = 5;
+
+            if(addressLines >= maxAddressLines) {
+                return;
+            }
+
+            addressLines++;
+
+            var textDiv = $(document.createElement('div'))
+                .attr('id', 'streetline');
+
+            var textInput = $(document.createElement('input'))
+                .attr('type', 'text')
+                .attr('name', 'streetinput')
+                .attr('tabindex', tidx++)
+                .attr('value', textValue.trim());
+
+            textDiv.appendTo("#street");
+
+            if(textDiv.index() == 0) {
+                var textPre = $(document.createElement('div'))
+                    .attr('class', 'grid_4')
+                    .attr('id', 'prefix')
+                    .html('Address:');
+
+                var textPost = $(document.createElement('div'))
+                    .attr('class', 'grid_8')
+                    .attr('id', 'textpost');
+
+                var textClear = $(document.createElement('div'))
+                    .attr('class', 'clear')
+                    .attr('id', 'clear');
+
+                textInput.appendTo(textPost);
+                textPre.appendTo(textDiv);
+                textPost.appendTo(textDiv);
+                textClear.appendTo(textDiv);
+
+
+            } else {
+
+                var textPrint = $(document.createElement('div'))
+                    .attr('class', 'grid_8 prefix_4')
+                    .attr('id', 'textpost');
+
+                var textClear = $(document.createElement('div'))
+                    .attr('class', 'clear')
+                    .attr('id', 'clear');
+
+                textInput.appendTo(textPrint);
+                textPrint.appendTo(textDiv);
+                textClear.appendTo(textDiv);
+
+            }
+
+
+            textInput.blur( function() {
+                var $par = $(this).parent().parent();
+
+                if($(this).val().trim() == "" && $par.index() != $par.siblings().length ) {
+                    var redo=false;
+                    if($par.index() == 0) {
+                        redo = true;
+                    }
+
+                    $par.remove();
+                    addressLines--;
+                    if(redo) {
+
+                        // Use the same input to preserve blur logic
+                        var txt=$('#streetline:eq(0) > #textpost > input');
+
+                        var nextDiv = $(document.createElement('div'))
+                            .attr('id', 'streetline');
+
+                        var textPre = $(document.createElement('div'))
+                            .attr('class', 'grid_4')
+                            .attr('id', 'prefix')
+                            .html('Address:');
+
+                        var textPost = $(document.createElement('div'))
+                            .attr('class', 'grid_8')
+                            .attr('id', 'textpost');
+
+                        var textClear = $(document.createElement('div'))
+                            .attr('class', 'clear');
+
+                        txt.appendTo(textPost);
+                        textPre.appendTo(nextDiv);
+                        textPost.appendTo(nextDiv);
+                        textClear.appendTo(nextDiv);
+
+                        $('#streetline:eq(0)').remove();
+                        $('#street').prepend(nextDiv);
+
+                    }
+                }
+
+                if($(this).val().trim() != "" && $par.index() == $par.siblings().length ) {
+                    addAddressInput("");
+                    $('#street > div:last > #textpost > input:text').focus();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+
+            <% if(user.addressStreet == undefined || user.addressStreet.length <= 0) { %>
+
+            addAddressInput("");
+
+            <% } else { %>
+
+            var street = "<%= user.addressStreet %>".split(';;;');
+
+            for(var count=0; count<=street.length ; count++) {
+                if(count < street.length) {
+                    addAddressInput(street[count]);
+                } else {
+                    addAddressInput("");
+                }
+            }
+            <% } %>
+
+            $('#userform').submit(function() {
+                var collectStreet = "";
+                var cnt = 0;
+                var performSubmit = true;
+
+                // Clear all errors
+                $('#submiterrors').empty();
+
+                // Collect my street address
+                $('#street > div').each(function(index, el)  {
+                    var txt = $(el).find('#textpost > input').val().trim();
+                    if(txt.length > 0) {
+                        if(cnt == 0) {
+                            collectStreet = txt;
+                        }
+                        else {
+                            collectStreet = collectStreet + ';;;' + txt;
+                        }
+                        cnt++;
+                    }
+                });
+                $('input[name=streetAll]').val(collectStreet);
+
+                // Collect other address arguments
+                var city = $('#city').val().trim();
+                var state = $('#state').val();
+                var zip = $('#zip').val().trim();
+
+                // If any of these are set, all of them should be set
+                if( city.length > 0 || state.length > 0 || zip.length > 0 || collectStreet.length > 0) {
+                    if(city.length <= 0) {
+                        addSubmitError("City is not specified!");
+                        performSubmit = false;
+                    }
+                    if(state.length <= 0 || state == "") {
+                        addSubmitError("State is not specified!");
+                        performSubmit = false;
+                    }
+                    if(zip.length <= 0) {
+                        addSubmitError("Zipcode is not specified!");
+                        performSubmit = false;
+                    }
+                    if(collectStreet.length <= 0) {
+                        addSubmitError("Street address is not specified!");
+                        performSubmit = false;
+                    }
+                }
+
+                if(zip.length > 0) {
+                    var zipregex = /^[0-9]{5}$/;
+                    if(!zipregex.test(zip)) {
+                        addSubmitError("Invalid Format for Zipcode");
+                        performSubmit = false;
+                    }
+                }
+
+                var phone = $('#phone').val().trim();
+                var phoneregex = /^\d{3}[- ]?\d{3}[- ]?\d{4}$/;
+                if(phone.length > 0) {
+                    if(!phoneregex.test(phone)) {
+                        addSubmitError("Invalid Phone Number format");
+                        performSubmit = false;
+                    }
+                }
+
+                return performSubmit;
+            });
+        });
+
+    </script>
+
+        <% var tabIndex = 1; %>
+
+        <div class="container_12">
+        <form id="userform" method="post" enctype="multipart/form-data">
+        <% if(errmsg.length > 0 ) { %>
+        <div class="grid_12">
+            <span class="errmsg"><%= errmsg %></span>
+        </div>
+        <div class="clear"></div>
+        <% } %>
+
+        <div id="submiterrors">
+        </div>
+
+        <div class="grid_4">
+        Username:
+        </div>
+        <div class="grid_8">
+        <% var username = (user.username == undefined ? "":user.username); %>
+        <%= username %>
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Password:
+        </div>
+        <div class="grid_8">
+            <a href='/changepassword'>
+            <span class="change_password">Click To Change Password</span>
+            </a>
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        First Name:
+        </div>
+        <div class="grid_8">
+        <% var firstName = (user.firstName == undefined ? "":user.firstName); %>
+        <input type="text" name="firstName" value="<%= firstName %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Middle Name:
+        </div>
+        <div class="grid_8">
+        <% var middleName = (user.middleName == undefined ? "":user.middleName); %>
+        <input type="text" name="middleName" value="<%= middleName %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Last Name:
+        </div>
+        <div class="grid_8">
+        <% var lastName = (user.lastName == undefined ? "":user.lastName); %>
+        <input type="text" name="lastName" value="<%= lastName %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Suffix (Jr, Sr, III, etc):
+        </div>
+        <div class="grid_8">
+        <% var suffixName = (user.suffixName == undefined ? "":user.suffixName); %>
+        <input type="text" name="suffixName" value="<%= suffixName %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div id="street">
+        </div>
+
+        <input type="hidden" name="streetAll" />
+
+        <% tabIndex += (streetTabIndex*2); %>
+        <div class="grid_4">
+        City
+        </div>
+        <div class="grid_8">
+        <% var addressCity = (user.addressCity == undefined ? "":user.addressCity); %>
+        <input type="text" id="city" name="city" value="<%= addressCity %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        State
+        </div>
+        <div class="grid_8">
+        <% var addressState = (user.addressState == undefined ? "":user.addressState); %>
+        <select id="state" name="state" tabindex=<%= tabIndex++ %> >
+            <option value=""   <% if(addressState == ""  ) { %>selected="selected"<% } %>>Select State</option>
+            <option value="AL" <% if(addressState == "AL") { %>selected="selected"<% } %>>Alabama</option>
+            <option value="AK" <% if(addressState == "AK") { %>selected="selected"<% } %>>Alaska</option>
+            <option value="AZ" <% if(addressState == "AZ") { %>selected="selected"<% } %>>Arizona</option>
+            <option value="AR" <% if(addressState == "AR") { %>selected="selected"<% } %>>Arkansas</option>
+            <option value="CA" <% if(addressState == "CA") { %>selected="selected"<% } %>>California</option>
+            <option value="CO" <% if(addressState == "CO") { %>selected="selected"<% } %>>Colorado</option>
+            <option value="CT" <% if(addressState == "CT") { %>selected="selected"<% } %>>Connecticut</option>
+            <option value="DE" <% if(addressState == "DE") { %>selected="selected"<% } %>>Delaware</option>
+            <option value="DC" <% if(addressState == "DC") { %>selected="selected"<% } %>>District of Columbia</option>
+            <option value="FL" <% if(addressState == "FL") { %>selected="selected"<% } %>>Florida</option>
+            <option value="GA" <% if(addressState == "GA") { %>selected="selected"<% } %>>Georgia</option>
+            <option value="HI" <% if(addressState == "HI") { %>selected="selected"<% } %>>Hawaii</option>
+            <option value="ID" <% if(addressState == "ID") { %>selected="selected"<% } %>>Idaho</option>
+            <option value="IL" <% if(addressState == "IL") { %>selected="selected"<% } %>>Illinois</option>
+            <option value="IN" <% if(addressState == "IN") { %>selected="selected"<% } %>>Indiana</option>
+            <option value="IA" <% if(addressState == "IA") { %>selected="selected"<% } %>>Iowa</option>
+            <option value="KS" <% if(addressState == "KS") { %>selected="selected"<% } %>>Kansas</option>
+            <option value="KY" <% if(addressState == "KY") { %>selected="selected"<% } %>>Kentucky</option>
+            <option value="LA" <% if(addressState == "LA") { %>selected="selected"<% } %>>Louisiana</option>
+            <option value="ME" <% if(addressState == "ME") { %>selected="selected"<% } %>>Maine</option>
+            <option value="MD" <% if(addressState == "MD") { %>selected="selected"<% } %>>Maryland</option>
+            <option value="MA" <% if(addressState == "MA") { %>selected="selected"<% } %>>Massachusetts</option>
+            <option value="MI" <% if(addressState == "MI") { %>selected="selected"<% } %>>Michigan</option>
+            <option value="MN" <% if(addressState == "MN") { %>selected="selected"<% } %>>Minnesota</option>
+            <option value="MS" <% if(addressState == "MS") { %>selected="selected"<% } %>>Mississippi</option>
+            <option value="MO" <% if(addressState == "MO") { %>selected="selected"<% } %>>Missouri</option>
+            <option value="MT" <% if(addressState == "MT") { %>selected="selected"<% } %>>Montana</option>
+            <option value="NE" <% if(addressState == "NE") { %>selected="selected"<% } %>>Nebraska</option>
+            <option value="NV" <% if(addressState == "NV") { %>selected="selected"<% } %>>Nevada</option>
+            <option value="NH" <% if(addressState == "NH") { %>selected="selected"<% } %>>New Hampshire</option>
+            <option value="NJ" <% if(addressState == "NJ") { %>selected="selected"<% } %>>New Jersey</option>
+            <option value="NM" <% if(addressState == "NM") { %>selected="selected"<% } %>>New Mexico</option>
+            <option value="NY" <% if(addressState == "NY") { %>selected="selected"<% } %>>New York</option>
+            <option value="NC" <% if(addressState == "NC") { %>selected="selected"<% } %>>North Carolina</option>
+            <option value="ND" <% if(addressState == "ND") { %>selected="selected"<% } %>>North Dakota</option>
+            <option value="OH" <% if(addressState == "OH") { %>selected="selected"<% } %>>Ohio</option>
+            <option value="OK" <% if(addressState == "OK") { %>selected="selected"<% } %>>Oklahoma</option>
+            <option value="OR" <% if(addressState == "OR") { %>selected="selected"<% } %>>Oregon</option>
+            <option value="PA" <% if(addressState == "PA") { %>selected="selected"<% } %>>Pennsylvania</option>
+            <option value="RI" <% if(addressState == "RI") { %>selected="selected"<% } %>>Rhode Island</option>
+            <option value="SC" <% if(addressState == "SC") { %>selected="selected"<% } %>>South Carolina</option>
+            <option value="SD" <% if(addressState == "SD") { %>selected="selected"<% } %>>South Dakota</option>
+            <option value="TN" <% if(addressState == "TN") { %>selected="selected"<% } %>>Tennessee</option>
+            <option value="TX" <% if(addressState == "TX") { %>selected="selected"<% } %>>Texas</option>
+            <option value="UT" <% if(addressState == "UT") { %>selected="selected"<% } %>>Utah</option>
+            <option value="VT" <% if(addressState == "VT") { %>selected="selected"<% } %>>Vermont</option>
+            <option value="VA" <% if(addressState == "VA") { %>selected="selected"<% } %>>Virginia</option>
+            <option value="WA" <% if(addressState == "WA") { %>selected="selected"<% } %>>Washington</option>
+            <option value="WV" <% if(addressState == "WV") { %>selected="selected"<% } %>>West Virginia</option>
+            <option value="WI" <% if(addressState == "WI") { %>selected="selected"<% } %>>Wisconsin</option>
+            <option value="WY" <% if(addressState == "WY") { %>selected="selected"<% } %>>Wyoming</option>
+
+
+        </select>
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Zip
+        </div>
+        <div class="grid_8">
+        <% var addressZip = (user.addressZip == undefined ? "":user.addressZip); %>
+        <input type="text" id="zip" name="zip" value="<%= addressZip %>" tabindex=<%= tabIndex++ %> />
+        </div>
+        <div class="clear"></div>
+
+        <div class="grid_4">
+        Phone
+        </div>
+        <div class="grid_8">
+        <% var phone = (user.phone == undefined ? "":user.phone); %>
+        <input type="text" id="phone" name="phone" value="<%= phone %>" tabindex=<%= tabIndex++ %> />
+        </div>
+
+        <div class="grid_4">
+        Maximum Pics
+        </div>
+        <div class="grid_8">
+        <% var maxPics = (user.maxPics == undefined ? "":user.maxPics); %>
+        <% if(editUser.isAdmin) { %>
+        <input type="text" name="maxpics" value="<%= maxPics %>" tabindex=<%= tabIndex++ %> />
+        <% } else { %>
+        <%= maxPics %>
+        <% } %>
+        </div>
+        <div class="clear"></div>
+
+        <% if(editUser.isAdmin) { %>
+        <div class="grid_4">
+            <b>Admin User</b>
+        </div>
+        <div class="grid_8">
+            <select id="admin" name="admin" tabindex=<%= tabIndex++ %> >
+                <option value="No"   <% if(user.isAdmin == false) { %>selected="selected"<% } %>>No</option>
+                <option value="Yes"  <% if(user.isAdmin == true) { %>selected="selected"<% } %>>Yes</option>
+            </select>
+        </div>
+        <div class="clear"></div>
+        <% } %>
+
+        <div class="grid_4">
+        Submit
+        </div>
+        <div class="grid_8">
+        <input type="submit" value="submit" />
+        </div>
+        <div class="clear"></div>
+
+        </form>
+        </div>
+
+    </body>
+</html>
+

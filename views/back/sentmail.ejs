@@ -1,0 +1,14 @@
+<html>
+<head>
+</head>
+<body>
+<b>Thank you</b><br>
+A verification email was sent to <%= user %>.  You should be receiving it shortly.
+<% if (key.length > 0) { %>
+    <br><b>DEBUG MODE</b><br>
+    <a href='/authenticate/<%= key %>'>http://localhost:3000/authenticate/<%= key %></a>
+<% } %>
+
+</body>
+</html>
+

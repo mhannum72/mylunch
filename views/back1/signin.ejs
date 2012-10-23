@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Signin</title>
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/text.css" />
+    <link rel="stylesheet" href="/css/960.css" />
+    <!--    <link rel="stylesheet" href="/css/demo.css" /> -->
+    <link rel="stylesheet" href="/css/mealdisp.css" />
+</head>
+<body>
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+        var hasForgotPasswordLink = false;
+
+        function addForgotPasswordLink() {
+
+            if(hasForgotPasswordLink) {
+                return;
+            }
+
+            var gridDiv = $(document.createElement('div'))
+                .attr('class', 'grid_12')
+                .html('<a href="/forgot_password">Forgot password?</a>');
+
+            var clearDiv = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            gridDiv.appendTo('#forgot_password');
+            clearDiv.appendTo('#forgot_password');
+
+            hasForgotPasswordLink = true;
+        }
+
+        // Append to the submit errors
+        function addSubmitError(errstr) {
+            var textDiv = $(document.createElement('div'))
+                .attr('id', 'errorline')
+                .attr('class', 'grid_12')
+                .css('text-align', 'center')
+                .html(errstr);
+
+            var textClear = $(document.createElement('div'))
+                .attr('class', 'clear')
+                .attr('id', 'clear');
+
+            textDiv.appendTo("#submiterrors");
+            textClear.appendTo("#submiterrors");
+        }
+
+        $(document).ready(function() {
+
+            $.ajaxSetup ({ cache: false });
+
+            $('#signinform').submit(function() {
+                var performSubmit = true;
+                $('#submiterrors').empty();
+
+                var username = $('#username').val();
+                var password = $('#password').val();
+
+                if(username.length <= 0) {
+                    addSubmitError("Please type your username");
+                    performSubmit = false;
+                }
+
+                if(password.length <= 0) {
+                    addSubmitError("Please type your password");
+                    performSubmit = false;
+                }
+
+                if(performSubmit == false)
+                    return false;
+
+                $.getJSON('signincheckpassword',
+                    {
+                        username: username,
+                        password: password
+                    },
+                    function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+                            if(response.errStr == "baduserorpassword") {
+                                addSubmitError("Username or password is incorrect");
+                                addForgotPasswordLink();
+                            }
+                            else {
+                                addSubmitError("Internal error");
+                            }
+                        }
+                        else {
+                            if(response.nextpage != undefined && response.nextpage.length > 0) {
+                                window.location.replace(response.nextpage);
+                            }
+                            else {
+                                window.location.replace("/");
+                            }
+                        }
+                    }
+                );
+
+                // Don't run the default action
+                return false;
+            });
+        });
+
+    </script>
+    <div class="container_12">
+
+    <% if(errmsg.length > 0) { %>
+    <div class="grid_12">
+    <%= errmsg %>
+    </div>
+    <div class="clear"></div>
+    <% } %>
+
+    <div id="forgot_password">
+    </div>
+
+    <div id="submiterrors">
+    </div>
+
+    <div class="grid_12">
+    <h2>Please sign in</h2>
+    </div>
+    <div class="clear"></div>
+
+    <form id="signinform" method="post" enctype="multipart/form-data">
+    <div class="grid_4">
+    Email
+    </div>
+    <div class="grid_8">
+    <input type="text" name="username" id="username" />
+    </div>
+    <div class="clear"></div>
+
+
+    <div class="grid_4">
+    Password
+    </div>
+    <div class="grid_8">
+    <input type="password" name="password" id="password" />
+    </div>
+    <div class="clear"></div>
+
+    <div class="grid_4">
+    Submit
+    </div>
+    <div class="grid_8">
+    <input type="submit" value="submit" />
+    </div>
+    <div class="clear"></div>
+
+    </div> <!-- container_12 -->
+</body>
+</html>

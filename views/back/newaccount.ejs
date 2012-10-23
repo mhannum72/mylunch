@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>New Account</title>
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <link rel="stylesheet" href="/css/960.css" />
+        <!-- <link rel="stylesheet" href="/css/demo.css" /> -->
+        <link rel="stylesheet" href="/css/mealdisp.css" />
+    </head>
+    <body>
+
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+    function addSubmitError(errorstr) {
+        var textDiv = $(document.createElement('div'))
+            .attr('id', 'errorline')
+            .attr('class', 'grid_12')
+            .css('text-align', 'center')
+            .html(errorstr);
+
+        var textClear = $(document.createElement('div'))
+            .attr('class', 'clear')
+            .attr('id', 'clear');
+
+        textDiv.appendTo("#submiterrors");
+        textClear.appendTo("#submiterrors");
+    }
+
+    $(document).ready(function() {
+
+        $('#newuser').submit(function() {
+            var performSubmit = true;
+
+            // Clear all submiterrors
+            $('#submiterrors').empty();
+
+            // Check email address
+            var unregex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9._%+-]+\.[A-Za-z0-9._%+-]{1,16}$/;
+            var username = $('#username').val().trim();
+
+            if(!unregex.test(username)) {
+                addSubmitError('Invalid Email Address');
+                performSubmit = false;
+            }
+
+            // Important: don't trim the password
+            var pwregex = /^[a-zA-Z0-9_.]{6,64}$/;
+            var password = $('#password').val();
+
+            if(!pwregex.test(password)) {
+                addSubmitError('Password must be between 6 and 64 alpha-numeric characters');
+                performSubmit = false;
+            }
+
+            var password_check = $('#password_check').val();
+
+            if(password_check != password) {
+                addSubmitError('Passwords did not match');
+                performSubmit = false;
+            }
+
+            return performSubmit;
+        });
+
+    });
+
+    </script>
+
+    <div class="container_12">
+    <form id="newuser" method="post" enctype="multipart/form-data">
+
+
+    <% if(errmsg.length > 0) { %>
+    <div class="grid_12">
+        <center><%= errmsg %></center>
+    </div>
+    <div class="clear"></div>
+    <% } %>
+
+    <div id="submiterrors">
+    </div>
+
+    <div class="grid_4">
+    Email
+    </div>
+    <div class="grid_8">
+    <input type="text" id="username" name="username" <% if(username.length > 0) { %>value="<%= username %>"<% } %>/>
+    </div>
+    <div class="clear"></div>
+
+    <div class="grid_4">
+    Password
+    </div>
+    <div class="grid_8">
+    <input type="password" id="password" name="password" />
+    </div>
+    <div class="clear"></div>
+
+    <div class="grid_4">
+    Retype Password
+    </div>
+    <div class="grid_8">
+    <input type="password" id="password_check" name="password_check" />
+    </div>
+    <div class="clear"></div>
+
+    <div class="grid_4">
+    Create Account
+    </div>
+    <div class="grid_8">
+    <input type="submit" value="Submit" />
+    </div>
+    <div class="clear"></div>
+
+    </form>
+    </div>
+    </body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+<link rel="stylesheet" href="/css/reset.css" />
+<link rel="stylesheet" href="/css/960.css" />
+<link rel="stylesheet" href="/css/text.css" />
+<link rel="stylesheet" href="/css/mealdisp.css" />
+<link rel="stylesheet" href="/css/screen.css" />
+</head>
+<body>
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+        var tidx = 0;
+
+        function addAddressInput(textValue) {
+
+            textDiv = $(document.createElement('div'))
+                .attr('id', 'streetline');
+
+            textPre = $(document.createElement('div'))
+                .attr('class', 'grid_4')
+                .attr('id', 'prefix');
+
+            textPost = $(document.createElement('div'))
+                .attr('class', 'grid_8')
+                .attr('id', 'textpost');
+
+            textInput = $(document.createElement('input'))
+                .attr('type', 'text')
+                .attr('name', 'streetinput')
+                .attr('tabindex', tidx)
+                .attr('value', textValue.trim());
+
+            tidx++;
+
+            textClear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            textInput.appendTo(textPost);
+            textPre.appendTo(textDiv);
+            textPost.appendTo(textDiv);
+            textClear.appendTo(textDiv);
+            textDiv.appendTo("#street");
+
+            if(textDiv.index() == 0) {
+                textPre.html('Address:');
+            } else {
+                textPre.html('.');
+            }
+
+            textInput.blur( function() {
+                var $par = $(this).parent().parent();
+
+                if($(this).val().trim() == "" && $par.index() != $par.siblings().length ) {
+                    var redo=false;
+                    if($par.index() == 0) {
+                        redo = true;
+                    }
+
+                    $par.remove();
+                    if(redo) {
+                        $('#streetline:eq(0) > #prefix').html('Address:');
+                    }
+                }
+
+                if($(this).val().trim() != "" && $par.index() == $par.siblings().length ) {
+                    addAddressInput("");
+                    $('#street > div:last > #textpost > input:text').focus();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+
+            var street;
+            <% if(addressStreet != undefined && addressStreet.length > 0) { %>
+                street= '<%= addressStreet %>' ;
+            <% } %>
+            var streetLines = street.split(";");
+            var count = 0;
+
+            for(count=0; count<=streetLines.length ; count++) {
+                if(count < streetLines.length) {
+                    addAddressInput(streetLines[count]);
+                } else if (count == streetLines.length) {
+                    addAddressInput("");
+                }
+            }
+        });
+    </script>
+
+    <div class="container_12">
+    </div>
+
+
+    <div class="container_12">
+        <div class="grid_4 suffix_8">
+        addressStreet is <%= addressStreet %>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <input type="hidden" name="streetdata">
+
+    <div class="container_12">
+        <div class="grid_4">test input</div>
+        <div class="grid_8">
+            <input type=text name=testtest tabindex=0 />
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <div id="street" class="container_12">
+    </div>
+
+</body>
+</html>

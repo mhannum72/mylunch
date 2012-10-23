@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<!-- 
+
+TODO:
+* Make the upper left-hand corner menu nicer
+* Make the 'next' and 'previous' page commands SLIDE new pictures on rather than
+  load an entirely new page.
+* Upload should be a pop-up on this page rather than a full-fledged page.  If 
+  you upload via a pop-up, the pictures could shift so that the newly uploaded 
+  picture is shown first.
+
+-->
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Edit Meals</title>
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/960.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <link rel="stylesheet" href="/css/mealdisp.css" />
+    </head>
+    <body>
+
+
+    <script src="/jquery.js"></script>
+    <script type="text/javascript">
+
+
+        function updateMealAjax(meal, newMeal) {
+            $.ajax({
+                url: '/savemeal',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        username: meal.username,
+                        timestamp: meal.timestamp,
+                        meal: newMeal
+                    }),
+                dataType: 'json',
+                complete: function(resp, astat) {
+                }
+            });
+        }
+
+        function showAttributesMealInfo(meal, restaurant, restaurantId, cnt) {
+
+            var username = meal.username;
+            var timestamp = meal.timestamp;
+
+            var popup = $(document.createElement('div'))
+                .attr('id', 'mealAttributes')
+                .attr('name', 'mealAttributes')
+                .attr('class', 'mealAttributesPopup');
+
+            var url = "/pics/" + username + "/" + timestamp;
+
+            var img = $(document.createElement('img'))
+                .attr('src', url);
+
+            var centr = $(document.createElement('center'));
+
+            img.appendTo(centr);
+
+            var closexContainer = $(document.createElement('div'))
+                .attr('id', 'mealAttributesCloseContainer')
+                .attr('name', 'mealAttriutesCloseContainer')
+                .attr('class', 'mealAttributesCloseContainer');
+
+            var closex = $(document.createElement('a'))
+                .attr('id', 'mealAttributesCloseButton')
+                .attr('class', 'mealAttributesCloseButton')
+                .html('x');
+
+            closex.click(function(){
+                    popup.fadeOut(0);
+                    $('#maskFade').css({'display':'none'});
+                    popup.remove();
+            });
+
+            closex.appendTo(closexContainer);
+            closexContainer.appendTo(popup);
+
+            centr.appendTo(popup);
+
+            // Create a class_8 container .. everything goes in here
+            var class8 = $(document.createElement('div'))
+                .attr('id', 'mealAttributesClass8')
+                .attr('name', 'mealAttributesClass8')
+                .attr('class', 'container_8');
+
+            /*
+            var grid_1 = $(document.createElement('div'))
+                .attr('class', 'grid_1')
+                .html('x');
+
+            var grid_1;
+            for(var ii = 0 ; ii < 8 ; ii++) {
+                grid_1[ii] = $(document.createElement('div'))
+                    .attr('class', 'grid_1')
+                    .html('x');
+
+                grid_1[ii].appendTo(class8);
+            }
+
+            var grid_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            grid_clear.appendTo(class8);
+            */
+
+
+            // Create a grid to hold the title
+            var grid_title_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Title');
+
+            var title = "untitled";
+
+            if(undefined != meal.picTitle && meal.picTitle.length > 0) {
+                title = meal.picTitle;
+            }
+
+            var hovertitle = $(document.createElement('a'))
+                .attr('id', 'titleEdit')
+                .attr('class', 'titleEdit')
+                .attr('title', 'click to edit')
+                .html(title);
+
+            // Title grid
+            var grid_title = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_title')
+                .attr('name', 'pop_title');
+
+            hovertitle.appendTo(grid_title);
+
+            hovertitle.click(function(){
+
+                var titleEditInput = $(document.createElement('input'))
+                    .attr('type', 'text')
+                    .attr('class', 'titleEditInput')
+                    .attr('name', 'titleEditInput')
+                    .val(meal.picTitle);
+
+                titleEditInput.appendTo(grid_title);
+                $('#titleEdit').css({'display':'none'});
+
+                titleEditInput.focus();
+
+                // I want certain keys (return or tab) to force a blur
+
+                titleEditInput.blur(function() {
+
+                    if(titleEditInput.val() != meal.picTitle) {
+
+                        var mealcnt = '#mealcnt' + cnt + ' > a';
+
+                            meal.picTitle = titleEditInput.val();
+                            $('#titleEdit').html(meal.picTitle);
+                            $(mealcnt).html(meal.picTitle);
+
+
+                        $.ajax({
+                            url: '/savetitle',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(
+                                {
+                                    username: meal.username,
+                                    timestamp: meal.timestamp,
+                                    title: titleEditInput.val()
+                                }),
+                            dataType: 'json',
+                            complete: function(resp, astat) {
+                            }
+                        });
+                    }
+                    $('#titleEdit').css({'display':'block'});
+                    titleEditInput.remove();
+                });
+            });
+
+            //grid_title.blur(function(){
+            //});
+
+            var grid_title_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            // Append title
+            grid_title_pre.appendTo(class8);
+            grid_title.appendTo(class8);
+            grid_title_clear.appendTo(class8);
+
+            // When uploaded
+            /*
+            var grid_uploaded_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Uploaded');
+
+            var localeDate = new Date(meal.timestamp).toLocaleDateString();
+
+            var grid_uploaded = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_date_uploaded')
+                .attr('name', 'pop_date_uploaded')
+                .html(localeDate);
+
+            var grid_uploaded_clear = $(document.createElement('div'))
+                    .attr('class', 'clear');
+
+            grid_uploaded_pre.appendTo(class8);
+            grid_uploaded.appendTo(class8);
+            grid_uploaded_clear.appendTo(class8);
+            */
+
+            var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+
+            // Which meal
+            var grid_meal_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Meal');
+
+            var grid_meal = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_meal')
+                .attr('name', 'pop_meal')
+                .html(whichmeal);
+
+            // Create the which-meal selection menu
+            var grid_meal_select_div = $(document.createElement('div'))
+                .attr('class', 'meal_select_menu_div')
+                .attr('id', 'meal_select_menu_div')
+                .attr('name', 'meal_select_menu_div')
+                .css({'display': 'none'});
+
+            var grid_meal_select = $(document.createElement('ul'))
+                .attr('class', 'meal_select_menu')
+                .attr('id', 'meal_select_menu')
+                .attr('name', 'meal_select_menu');
+
+            // BREAKFAST
+            var grid_meal_select_meal_breakfast = $(document.createElement('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_breakfast')
+                .attr('id', 'meal_select_menu_breakfast');
+            var grid_meal_select_meal_breakfast_anchor = $(document.createElement('a'))
+                .attr('id', 'meal_select_breakfast_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Breakfast');
+            if(meal.meal == "breakfast") {
+                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+            }
+            
+            grid_meal_select_meal_breakfast_anchor.click(function() {
+                if(meal.meal == "breakfast") {
+                    return;
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "breakfast";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "breakfast");
+            });
+
+            grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
+
+            // LUNCH
+            var grid_meal_select_meal_lunch = $(document.createElement('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_lunch')
+                .attr('id', 'meal_select_menu_lunch');
+
+            var grid_meal_select_meal_lunch_anchor = $(document.createElement('a'))
+                .attr('id', 'meal_select_lunch_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Lunch');
+            if(meal.meal == "lunch") {
+                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_lunch_anchor.click(function() {
+                if(meal.meal == "lunch") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "lunch";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "lunch");
+            });
+            grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
+
+            // DINNER
+            var grid_meal_select_meal_dinner = $(document.createElement('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_dinner')
+                    .attr('id', 'meal_select_menu_dinner');
+            var grid_meal_select_meal_dinner_anchor = $(document.createElement('a'))
+                .attr('id', 'meal_select_dinner_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Dinner');
+            if(meal.meal == "dinner") {
+                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_dinner_anchor.click(function() {
+                if(meal.meal == "dinner") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "dinner";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "dinner");
+            });
+            grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
+
+            // SNACK
+            var grid_meal_select_meal_snack = $(document.createElement('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_snack')
+                .attr('id', 'meal_select_menu_snack');
+
+            var grid_meal_select_meal_snack_anchor = $(document.createElement('a'))
+                .attr('id', 'meal_select_snack_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Snack');
+            if(meal.meal == "snack") {
+                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_snack_anchor.click(function() {
+                if(meal.meal == "snack") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "snack";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "snack");
+            });
+            grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
+
+            // OTHER
+            var grid_meal_select_meal_other = $(document.createElement('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_other')
+                .attr('id', 'meal_select_menu_other');
+            var grid_meal_select_meal_other_anchor = $(document.createElement('a'))
+                .attr('id', 'meal_select_other_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Other');
+            if(meal.meal == "other") {
+                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_other_anchor.click(function() {
+                if(meal.meal == "other") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "other";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "other");
+            });
+            grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
+
+            // build menu
+            grid_meal_select_meal_breakfast.appendTo(grid_meal_select);
+            grid_meal_select_meal_lunch.appendTo(grid_meal_select);
+            grid_meal_select_meal_dinner.appendTo(grid_meal_select);
+            grid_meal_select_meal_snack.appendTo(grid_meal_select);
+            grid_meal_select_meal_other.appendTo(grid_meal_select);
+            grid_meal_select.appendTo(grid_meal_select_div);
+
+            // Define hover behaviors
+            grid_meal.mouseenter(
+                function(){
+                    $('#meal_select_menu_div').css({ 'display': 'block' });
+                }
+            );
+
+            grid_meal_select_div.mouseleave(
+                function(){
+                    $('#meal_select_menu_div').css({ 'display': 'none' });
+                }
+            );
+
+            var grid_meal_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            // Append meal
+            grid_meal_pre.appendTo(class8);
+            grid_meal.appendTo(class8);
+            grid_meal_select_div.appendTo(class8);
+            grid_meal_clear.appendTo(class8);
+
+            var starImg = "unrated.png";
+
+            if(meal.rating != undefined && meal.rating != -1) {
+                starImg = meal.rating + "stars.png";
+            }
+
+            // How many stars
+            var grid_stars_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Rating');
+
+            var grid_stars = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_rating')
+                .attr('name', 'name_rating')
+                .html(starImg);
+            
+            var grid_stars_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            // Append rating
+            grid_stars_pre.appendTo(class8);
+            grid_stars.appendTo(class8);
+            grid_stars_clear.appendTo(class8);
+
+            // If there's a restaurant associated with this meal, link to it
+            if(restaurantId > 0 && restaurant != undefined) {
+            }
+
+            // If there's already a review, display it now
+            var grid_review_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Review');
+
+            var review = "(not reviewed)";
+
+            var grid_review = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_review')
+                .attr('name', 'pop_review');
+
+
+            if (meal.review != undefined && meal.review.length > 0) {
+                review = meal.review;
+            }
+
+            var grid_review_textarea = $(document.createElement('textarea'))
+                .attr('class', 'review_noedit')
+                .attr('id', 'review_text_int')
+                .attr('cols', 60)
+                .attr('rows', 20)
+                .attr('readonly',  true)
+                .attr('disabled', true)
+                .html(review);
+
+            grid_review_textarea.appendTo(grid_review);
+
+            var grid_review_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            grid_review_pre.appendTo(class8);
+            grid_review.appendTo(class8);
+            grid_review_clear.appendTo(class8);
+
+            class8.appendTo(popup);
+
+            var maskWidth = $(window).width();
+            var maskHeight = $(document).height();
+
+            $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
+
+            // Not sure if i want this
+            /*
+            $('#maskFade').click(function() {
+                    popup.fadeOut(0);
+                    $('#maskFade').css({'display':'none'});
+                    popup.remove();
+            });
+            */
+
+            popup.css('top', 30);
+            //var lft = popup.width()/2;
+            // ARRG!  popup.width() doesn't work on chrome ..
+            var lft = 800 / 2;
+            var winw = $(window).width()/2;
+            var popleft = winw - lft;
+            // grid_review_textarea.html('lft is ' + lft + ', winw is ' + winw);
+            popup.css('left', popleft);
+            popup.appendTo('#boxes');
+            popup.fadeIn(500);
+
+        }
+
+        function showAttributes(username, timestamp, cnt) {
+
+            $.getJSON('/ajaxgetmealinfo',
+                    {
+                        username: username,
+                        timestamp: timestamp
+                    },
+                    function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+                            if(response.errStr == "signin") {
+                                window.location.replace("/signin");
+                            }
+                            if(response.errStr == "wronguser") {
+                                window.location.replace("/");
+                            }
+                            // TODO - draw an elegant page for this case
+                            if(response.errStr == "nomeal") {
+                                window.location.replace("/");
+                            }
+                        }
+                        else {
+                            showAttributesMealInfo(response.mealInfo, response.restaurantInfo, response.restaurantId, cnt);
+                        }
+                    });
+        }
+
+
+        $(document).ready(function() {
+            $.ajaxSetup ({ cache: false });
+        });
+
+
+    </script>
+
+
+        <div class="boxesClass" id="boxes">
+        <div class="container_12">
+
+            <div class="grid_4 prefix_8">
+                <!-- maybe a menu here.. ? -->
+                <a href="/upload">Upload a Meal</a>
+            </div>
+            <div class="clear"></div>
+            <div class="grid_4 prefix_8">
+                <!-- maybe a menu here.. ? -->
+                <a href="/signout">Logout</a>
+            </div>
+            <div class="clear"></div>
+
+            <div class="grid_12">
+                <center><h2>Edit Meals</h2></center>
+            </div>
+            <div class="clear"></div>
+
+            <% var endpic; %>
+            <% if(mealinfo && mealinfo.length < user.showPicsPerPage) { %>
+            <%   endpic=mealinfo.length %>
+            <% } else { %>
+            <%   endpic=user.showPicsPerPage; %>
+            <% } %>
+
+            <% if (mealinfo != undefined && endpic > 0 ) { %>
+                <% var cnt; %>
+                <form method="post" enctype="multipart/form-data" name="delete">
+                <% for (cnt=0 ; mealinfo != undefined && cnt < endpic ; cnt++ ) { %>
+                    <% var meal = mealinfo[cnt]; %>
+                    <div class="grid_4 editheight">
+                        <center>
+                        <%
+                        var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                        var hoverDate = new Date(meal.timestamp).toLocaleDateString();
+                        var hovertext = mealtxt + " uploaded " + hoverDate;
+                        %>
+                        <div class='editImage'>
+                            <a href='javascript:void(0)' onclick='showAttributes("<%= meal.username %>", <%= meal.timestamp %>, <%= cnt %>);' title='<%= hovertext %>'>
+                            <img class='editImage' src='/thumbs/<%= meal.username %>/<%= meal.timestamp %>' >
+                        </a>
+                        </div>
+                        <!-- Way to look at the old page for now -->
+                        <!-- <a href='javascript:void(0)' onclick='showAttributes(<%= meal.timestamp %>);'> -->
+                        <div id='mealcnt<%= cnt %>'>
+                        <a href='/attributes/<%= meal.username %>/<%= meal.timestamp %>'>
+                        <% if (meal.picTitle != undefined && meal.picTitle.length > 0) { %>
+                            <%= meal.picTitle %>
+                        <% } else { %>
+                            untitled
+                        <% } %>
+                        </a>
+                        </div>
+                        <!-- TODO - add a 'delete-mode' button which makes this not hidden. -->
+                        <input type="hidden" name="delchk<%= cnt %>" value="<%= meal.username %>/<%= meal.timestamp %>">
+                        </center>
+                    </div>
+                    <% if (cnt % 3 == 2) { %>
+                        <div class="clear"></div>
+                    <% } %>
+                    <div id="edit<%= cnt %>" class="editbox">
+                    </div>
+                <% } %>
+                <% if(cnt % 3 != 2) { %>
+                <div class="clear"></div>
+                <% } %>
+                <div class="grid_12">
+                    <center><input type="hidden" value="Delete Selected"></center>
+                </div>
+                </form>
+            <% } else { %>
+                <b>No Meals to View</b>
+            <% } %>
+
+            <div class="grid_3 suffix_3">
+                <center>
+                <% if( prevpage != undefined && prevpage > 0) { %>
+                        <a href='/editmealsprev/<%= prevpage %>'>Previous Page</a>
+                <% } else { %>
+                .
+                <% } %>
+                </center>
+            </div>
+
+
+            <div class="grid_3 prefix_3">
+                <center>
+                <% if( nextpage != undefined && nextpage > 0) { %>
+                        <a href='/editmeals/<%= nextpage %>'>Next Page</a>
+                <% } %>
+                </center>
+            </div>
+            <div class="clear"></div>
+
+            <% var curpics; %>
+            <div class="grid_3">
+                <% curpics = 3; %>
+                <% if(user.showPicsPerPage == curpics) { %>
+                <center>
+                    <%= curpics %> Pics/Page
+                </center>
+                <% } else { %>
+                <center>
+                    <% if( mealinfo && mealinfo.length > 0 ) { %>
+                    <a href="/editmeals_change_pics/<%= curpics %>/<%= mealinfo[0].timestamp %>"><%= curpics %> Pics/Page</a>
+                    <% } else { %>
+                    <a href="/editmeals_change_pics/<% curpics %>"><% curpics %> Pics/page</a>
+                    <% } %>
+                </center>
+                <% } %>
+            </div>
+
+            <div class="grid_3">
+
+                <% curpics = 9; %>
+                <% if(user.showPicsPerPage == curpics) { %>
+                <center>
+                    <%= curpics %> Pics/Page
+                </center>
+                <% } else { %>
+                <center>
+                    <% if( mealinfo && mealinfo.length > 0 ) { %>
+                    <a href="/editmeals_change_pics/<%= curpics %>/<%= mealinfo[0].timestamp %>"><%= curpics %> Pics/Page</a>
+                    <% } else { %>
+                    <a href="/editmeals_change_pics/<% curpics %>"><% curpics %> Pics/page</a>
+                    <% } %>
+                </center>
+                <% } %>
+
+            </div>
+
+            <div class="grid_3">
+
+                <% curpics = 18; %>
+                <% if(user.showPicsPerPage == curpics) { %>
+                <center>
+                    <%= curpics %> Pics/Page
+                </center>
+                <% } else { %>
+                <center>
+                    <% if( mealinfo && mealinfo.length > 0 ) { %>
+                    <a href="/editmeals_change_pics/<%= curpics %>/<%= mealinfo[0].timestamp %>"><%= curpics %> Pics/Page</a>
+                    <% } else { %>
+                    <a href="/editmeals_change_pics/<% curpics %>"><% curpics %> Pics/page</a>
+                    <% } %>
+                </center>
+                <% } %>
+
+            </div>
+
+            <div class="grid_3">
+
+                <% curpics = 27; %>
+                <% if(user.showPicsPerPage == curpics) { %>
+                <center>
+                    <%= curpics %> Pics/Page
+                </center>
+                <% } else { %>
+                <center>
+                    <% if( mealinfo && mealinfo.length > 0 ) { %>
+                    <a href="/editmeals_change_pics/<%= curpics %>/<%= mealinfo[0].timestamp %>"><%= curpics %> Pics/Page</a>
+                    <% } else { %>
+                    <a href="/editmeals_change_pics/<% curpics %>"><% curpics %> Pics/page</a>
+                    <% } %>
+                </center>
+                <% } %>
+
+            </div>
+
+
+        </div> <!-- container_12 -->
+        </div> <!-- boxes -->
+        <div id="maskFade" class="maskClass"></div>
+    </body>
+</html>
