@@ -1045,14 +1045,15 @@ TODO:
         function drawNextMeals(nextpage) {
 
             // Make this an ajax request that will return enough information
-            .getJSON('/editpagenext',
+            $.getJSON('/editpagenext',
                     {
-                        username: <%= user.username %>,
+                        username: "<%= user.username %>",
                         nextpage: nextpage,
-                        count: <%= user.showPicsPerPage %>;
+                        count: <%= user.showPicsPerPage %>
                     },
                     // Will have errStr, or a 'success' message, mealinfo, nextpage & prevpage
                     function(response) {
+                        console.log("my response is " + response);
                     });
             return 0;
         }
@@ -1107,7 +1108,7 @@ TODO:
                     .html('Next Page');
                     
                 nextAnchor.click(function() {
-                    drawNextMeals(username, nextpage);
+                    drawNextMeals(nextpage);
                 });
 
                 nextCenter.appendTo(nextGrid);

@@ -328,13 +328,13 @@ updateVerifyMealInfoInMongo = function(mealinfo, callback) {
 
 // Get a list of picture information.  Call this the first time with afterTs set
 // to 0, and always pass in the timestamp of the last record.
-getMealInfoFromMongoFwd = function(username, ts, limit, viewDeleted, callback) {
+getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
-        
+
         // It turns out that you should be sorting in the direction of your search to get 
         // sane results.
-        mealInfo.find(  {username: username, timestamp: { $gte: ts }, deleted: viewDeleted } )
+        mealInfo.find(  {username: username, timestamp: { $gte: ts }, deleted: viewDeleted })
         .sort( { timestamp : 1 } ) .limit(limit + 1) .toArray( function(err, results) {
             if(err) throw(err);
 
@@ -369,8 +369,17 @@ getMealInfoFromMongoFwd = function(username, ts, limit, viewDeleted, callback) {
     });
 }
 
+
+getMealInfoFromMongoFwd = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, true, callback);
+}
+
+getMealInfoFromMongoFwdMenu = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, false, callback);
+}
+
 // This is the 'next' case.
-getMealInfoFromMongoRev = function(username, ts, limit, viewDeleted, callback) {
+getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
         
@@ -396,6 +405,15 @@ getMealInfoFromMongoRev = function(username, ts, limit, viewDeleted, callback) {
         });
     });
 }
+
+getMealInfoFromMongoRev = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, true, callback);
+}
+
+getMealInfoFromMongoRevMenu = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, false, callback);
+}
+
 
 getMealInfoFromMongoVerifyRev = function(beforeTs, limit, callback) {
 
@@ -2069,7 +2087,7 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
 
 function editpagenextprev(req, res, next, timestamp, isprev) {
     // No real need to pass this back and forth...
-    var count = req.query.count;
+    var count = parseInt(req.query.count);
     var ts;
 
     if( timestamp == -1) {
@@ -2081,7 +2099,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
 
     if(isprev == false) {
 
-        getMealInfoFromMongoRev(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
+        getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
 
             // Add a hex-id to each of my mealinfos
             if(mealinfo.length == 0 && timestamp != -1) {
@@ -2089,7 +2107,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
                 // Huh?  We shouldn't really get here
                 ts = Date.now();
 
-                getMealInfoFromMongoRev(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
+                getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
 
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.write(JSON.stringify(
@@ -2115,11 +2133,11 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
                 res.end();
                 return;
             }
-        }
+        });
     }
     else { // isprev == true
 
-        getMealInfoFromMongoFwd(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
+        getMealInfoFromMongoFwdMenu(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.write(JSON.stringify(
