@@ -1000,7 +1000,49 @@ TODO:
             return editgrid;
         }
 
-        function nextPrevPageLinks(nextpage, prevpage) {
+        function displayPictureGrid(mealinfo) {
+
+            var showPicsPerPage = <%= user.showPicsPerPage %>;
+            var endpic;
+            var cnt;
+
+            if(mealinfo && mealinfo.length < showPicsPerPage) {
+                endpic = mealinfo.length;
+            }
+            else {
+                endpic = showPicsPerPage;
+            }
+
+            var pictureGrid = $('#pictureGrid');
+            var cnt;
+
+            if(mealinfo!=undefined && endpic > 0) {
+
+                for(cnt = 0 ; cnt < showPicsPerPage ; cnt++) {
+                    if(cnt < endpic) {
+                        var meal = mealinfo[cnt];
+                        var gridpic = pictureDiv(meal, cnt);
+                        gridpic.appendTo(pictureGrid);
+
+                        if(cnt % 3 == 2) {
+                            var divclear = $(document.createElement('div'))
+                                .attr('class', 'clear');
+                            divclear.appendTo(pictureGrid);
+                        }
+                    }
+                    // Do something to clear out the previous stuff
+                    else {
+                    }
+                }
+                
+            }
+            else {
+                gridpic.html('<b>No Meals to View</b>');
+            }
+
+        }
+
+        function NextPrevPageLinks(nextpage, prevpage) {
             var prevGrid;
             var nextGrid;
             var createdPrev=false;
@@ -1042,7 +1084,7 @@ TODO:
                 var nextCenter = $(document.createElement('center'));
 
                 var nextAnchor = $(document.createElement('a'))
-                    .attr('href', 'javascript:void(0)')
+                    .attr('hrev', 'javascript:void(0)')
                     .html('Next Page');
                     
                 nextAnchor.click(function() {
@@ -1070,7 +1112,7 @@ TODO:
             var clearnextprev = $(document.createElement('div'))
                 .attr('class', 'clear');
 
-            nextPrev = $('#nextprev');
+            nextPrev = $('nextprev');
             nextPrev.empty();
 
             if(createdPrev) {
@@ -1082,168 +1124,6 @@ TODO:
             }
 
             clearnextprev.appendTo(nextPrev);
-        }
-
-        function displayPictureGridInner(mealinfo, pictureGrid, showPicsPerPage, nextpage, prevpage)
-        {
-            if(mealinfo && mealinfo.length < showPicsPerPage) {
-                endpic = mealinfo.length;
-            }
-            else {
-                endpic = showPicsPerPage;
-            }
-
-            for(cnt = 0 ; cnt < showPicsPerPage ; cnt++) {
-                if(cnt < endpic) {
-                    var meal = mealinfo[cnt];
-                    var gridpic = pictureDiv(meal, cnt);
-                    gridpic.appendTo(pictureGrid);
-
-                    if(cnt % 3 == 2) {
-                        var divclear = $(document.createElement('div'))
-                            .attr('class', 'clear');
-                        divclear.appendTo(pictureGrid);
-                    }
-                }
-            }
-
-            nextPrevPageLinks(nextpage, prevpage);
-
-        }
-
-        function displayPictureGrid(mealinfo, nextpage, prevpage, isnext) {
-
-            var showPicsPerPage = <%= user.showPicsPerPage %>;
-            var endpic;
-            var cnt;
-
-            var pictureGrid = $('#pictureGrid');
-
-            if(mealinfo!=undefined && mealinfo.length > 0) {
-
-                /*
-                if(isnext) {
-                    if($('#pictureGrid div').length > 0) {
-                        pictureGrid.animate(
-                            {
-                                marginLeft: '-=3000'
-                            }, 1000, 
-                            function() {
-                                console.log('finished animate left-3000 at ' + (new Date()).toLocaleTimeString());
-
-                                var loaded = 0;
-
-                                $('#pictureGrid > img').each(function(index) {
-                                    $(this).load(function (event) {
-                                        loaded++;
-                                        if(loaded == mealinfo.length) {
-                                            $('#pictureGrid').animate(
-                                                {
-                                                    marginLeft: '-=3000'
-                                                }, 1000, function() {} 
-                                            );
-                                        }
-                                    });
-
-
-
-                                });
-
-
-                                $('#pictureGrid').ready(function() {
-                                    pictureGrid.empty();
-                                    displayPictureGridInner(mealinfo, pictureGrid, showPicsPerPage, nextpage, prevpage);
-                                    $('#pictureGrid').css( 'marginLeft', 3000 );
-                                    $('#pictureGrid').ready(function() {
-                                        $('#pictureGrid').animate(
-                                            {
-                                                marginLeft: '-=3000'
-                                            }, 1000, function() {} 
-                                        );
-                                    });
-                                });
-                            });
-                    }
-                    else {
-                        displayPictureGridInner(mealinfo, pictureGrid, showPicsPerPage, nextpage, prevpage);
-                    }
-                }
-                else {
-                    if($('#pictureGrid div').length > 0) {
-                        pictureGrid.animate(
-                            {
-                                marginLeft: '+=3000'
-                            }, 1000, 
-                            function() {
-                                console.log('finished animate left+3000 at ' + (new Date()).toLocaleTimeString());
-                                $('#pictureGrid').ready(function() {
-                                    pictureGrid.empty();
-                                    displayPictureGridInner(mealinfo, pictureGrid, showPicsPerPage, nextpage, prevpage);
-                                    $('#pictureGrid').css( 'marginLeft', -3000 );
-                                    $('#pictureGrid').ready(function() {
-                                        $('#pictureGrid').animate(
-                                            {
-                                                marginLeft: '+=3000'
-                                            }, 1000, function() {} 
-                                        );
-                                    });
-                                });
-                            });
-                    }
-                    else {
-                        displayPictureGridInner(mealinfo, pictureGrid, showPicsPerPage, nextpage, prevpage);
-                    }
-
-
-                }
-
-            */
-                
-            }
-            else {
-                pictureGrid.html('<center><b>No Meals to View</b><center>');
-            }
-
-        }
-
-        function drawNextMeals(nextpage) {
-
-            // Make this an ajax request that will return enough information
-            $.getJSON('/editpagenext',
-                    {
-                        username: "<%= user.username %>",
-                        nextpage: nextpage,
-                        count: <%= user.showPicsPerPage %>
-                    },
-                    function(response) {
-                        if(response.errStr != undefined && response.errStr.length > 0) {
-                            // Send this error to a space at the top..
-                            console.log('editpagenext error: ' + response.errStr);
-                        }
-                        else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage, true);
-                        }
-                    });
-            return 0;
-        }
-
-        function drawPrevMeals(prevpage) {
-            $.getJSON('/editpageprev',
-                    {
-                        username: "<%= user.username %>",
-                        prevpage: prevpage,
-                        count: <%= user.showPicsPerPage %>
-                    },
-                    function(response) {
-                        if(response.errStr != undefined && response.errStr.length > 0) {
-                            // Send this error to a space at the top..
-                            console.log('editpageprev error: ' + response.errStr);
-                        }
-                        else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage, false);
-                        }
-                    });
-            return 0;
         }
 
 
@@ -1276,11 +1156,12 @@ TODO:
             } 
             %>
 
+            displayPictureGrid(minfo);
 
             var nextpage = <%= nextpage != undefined ? nextpage:0 %>;
             var prevpage = <%= prevpage != undefined ? prevpage:0 %>;
 
-            displayPictureGrid(minfo, nextpage, prevpage, true);
+            nextPrevPageLinks(nextpage, prevpage);
 
             // Create the initial mealinfo array:  
             // We only use the picTitle, username, and timestamp.
@@ -1333,6 +1214,25 @@ TODO:
 
             <div nextPrev class='nextprev' id='nextprev' name='nextprev'>
             </div>
+
+            <div class="grid_2 suffix_4">
+                <center>
+                <% if( prevpage != undefined && prevpage > 0) { %>
+                        <a href='/editmealsprev/<%= prevpage %>'>Previous Page</a>
+                <% } else { %>
+                .
+                <% } %>
+                </center>
+            </div>
+
+            <div class="grid_2 prefix_4">
+                <center>
+                <% if( nextpage != undefined && nextpage > 0) { %>
+                    <a href='/editmeals/<%= nextpage %>'>Next Page</a>
+                <% } %>
+                </center>
+            </div>
+            <div class="clear"></div>
 
         </div> <!-- container_12 -->
         </div> <!-- boxes -->

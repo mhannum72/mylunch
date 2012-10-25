@@ -332,9 +332,14 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
+        var projection = {};
+        if(!wholerec) {
+            projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1 };
+        }
+
         // It turns out that you should be sorting in the direction of your search to get 
         // sane results.
-        mealInfo.find(  {username: username, timestamp: { $gte: ts }, deleted: viewDeleted })
+        mealInfo.find(  {username: username, timestamp: { $gte: ts }, deleted: viewDeleted }, projection )
         .sort( { timestamp : 1 } ) .limit(limit + 1) .toArray( function(err, results) {
             if(err) throw(err);
 
@@ -382,8 +387,13 @@ getMealInfoFromMongoFwdMenu = function(username, ts, limit, viewDeleted, callbac
 getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
+
+        var projection = {};
+        if(!wholerec) {
+            projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1 };
+        }
         
-        mealInfo.find(  {username: username, timestamp: { $lte: ts }, deleted: viewDeleted } )
+        mealInfo.find(  {username: username, timestamp: { $lte: ts }, deleted: viewDeleted }, projection )
         .sort( { timestamp : -1 } ) .limit(limit + 1) .toArray( function(err, results) {
             if(err) throw(err);
             var nextpage=0;
@@ -2152,9 +2162,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
     }
 }
 
-// Ajax get info
-app.get('/editpagenext', function(req, res, next) {
-
+function editpagenextprevstart(req, res, next, timestamp, isprev) {
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2179,15 +2187,28 @@ app.get('/editpagenext', function(req, res, next) {
         return;
     }
 
+    editpagenextprev(req, res, next, timestamp, isprev);
+}
+
+app.get('/editpageprev', function(req, res, next) {
+    if(req.query.prevpage == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "badrequest"}));
+        res.end();
+        return;
+    }
+    editpagenextprevstart(req, res, next, parseInt(req.query.prevpage, 10), true);
+});
+
+// Ajax get info
+app.get('/editpagenext', function(req, res, next) {
     if(req.query.nextpage == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "badrequest"}));
         res.end();
         return;
     }
-
-    editpagenextprev(req, res, next, parseInt(req.query.nextpage), false);
-
+    editpagenextprevstart(req, res, next, parseInt(req.query.nextpage, 10), false);
 });
 
 // Ajax check & change password request
