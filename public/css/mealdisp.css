@@ -109,6 +109,14 @@ textarea {
     background:#FFF;
 }
 
+.mealAttributesPopupNofade {
+    position:absolute;
+    z-index:9999;
+    width:800px;
+    border-top-width:0px;
+    background:#FFF;
+}
+
 .mealAttributesCloseContainer {
     text-align: right;
     border:0px;

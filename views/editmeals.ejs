@@ -98,6 +98,7 @@ TODO:
                 .attr('id', 'mealAttributes')
                 .attr('name', 'mealAttributes')
                 .attr('class', 'mealAttributesPopup');
+//                .attr('class', 'mealAttributesPopupNofade');
 
             var url = "/pics/" + username + "/" + timestamp;
 
@@ -900,13 +901,16 @@ TODO:
             });
             */
 
-            popup.css('top', 30);
-            var lft = 800 / 2;
-            var winw = $(window).width()/2;
-            var popleft = winw - lft;
-            popup.css('left', popleft);
-            popup.appendTo('#boxes');
-            popup.fadeIn(500);
+            // Wait for the image to load
+            img.load(function() {
+                var lft = 800 / 2;
+                var winw = $(window).width()/2;
+                var popleft = winw - lft;
+                popup.css('top', 30);
+                popup.css('left', popleft);
+                popup.appendTo('#boxes');
+                popup.fadeIn(500);
+            });
 
         }
 
@@ -1131,64 +1135,16 @@ TODO:
             if(mealinfo != undefined && mealinfo.length > 0) {
                 var loaded = 0;
                 var pictureGridNew = pictureGridInner(mealinfo, showPicsPerPage, function (showImages) {
-
                     loaded++;
 
                     if(loaded == showImages) {
 
-                        var marginLeftMove = isnext?'-=3000':'+=3000';
-                        var marginLeftSet = isnext?3000:-3000;
-                        var marginRightSet = 3000;
-                        var waitAnim = 1;
-
-
-                        if($('#pictureGrid div').length > 0) {
-                            waitAnim++;
-                            $('#pictureGrid').animate(
-                                {
-                                    marginLeft: marginLeftMove,
-                                    marginRight: marginLeftMove
-                                }, 1000, 
-                                function() {
-                                    $('#pictureGrid').remove();
-
-                                    pictureGridNew.css({'display': 'none'});
-                                    pictureGridNew.appendTo($('#pictureGridDiv'));
-                                    pictureGridNew.css({'marginLeft': marginLeftSet});
-                                    pictureGridNew.css({'display': 'block'});
-
-                                    pictureGridNew.animate(
-                                        {
-                                            marginLeft: marginLeftMove,
-                                            marginRight: marginLeftMove
-                                        }, 1000,
-                                        function(){
-                                            pictureGridNew.attr('id', 'pictureGrid');
-                                            nextPrevPageLinks(nextpage, prevpage);
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                        else {
-
-                            $('#pictureGrid').remove();
-
-                            pictureGridNew.css({'display': 'none'});
-                            pictureGridNew.appendTo($('#pictureGridDiv'));
-                            pictureGridNew.css({'marginLeft': marginLeftSet, 'marginRight': marginRightSet});
-                            pictureGridNew.css({'display': 'block'});
-                            pictureGridNew.animate(
-                                {
-                                    marginLeft: marginLeftMove,
-                                    marginRight: marginLeftMove
-                                }, 1000,
-                                function(){
-                                    pictureGridNew.attr('id', 'pictureGrid');
-                                    nextPrevPageLinks(nextpage, prevpage);
-                                }
-                            );
-                        }
+                        $('#pictureGrid').remove();
+                        pictureGridNew.css({'display': 'none'});
+                        pictureGridNew.attr('id', 'pictureGrid');
+                        pictureGridNew.appendTo($('#pictureGridDiv'));
+                        pictureGridNew.css({'display': 'block'});
+                        nextPrevPageLinks(nextpage, prevpage);
                     }
                 });
             }
