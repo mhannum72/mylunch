@@ -1,0 +1,117 @@
+Image: ./testphoto.JPG
+  Format: JPEG (Joint Photographic Experts Group JFIF format)
+  Class: DirectClass
+  Geometry: 1632x1224+0+0
+  Resolution: 72x72
+  Print size: 22.6667x17
+  Units: PixelsPerInch
+  Type: TrueColor
+  Endianess: Undefined
+  Colorspace: RGB
+  Depth: 8-bit
+  Channel depth:
+    red: 8-bit
+    green: 8-bit
+    blue: 8-bit
+  Channel statistics:
+    Red:
+      min: 0 (0)
+      max: 255 (1)
+      mean: 103.204 (0.40472)
+      standard deviation: 81.4654 (0.319472)
+      kurtosis: -0.996308
+      skewness: 0.522254
+    Green:
+      min: 3 (0.0117647)
+      max: 255 (1)
+      mean: 95.6563 (0.375123)
+      standard deviation: 78.5989 (0.308231)
+      kurtosis: -0.757342
+      skewness: 0.681749
+    Blue:
+      min: 0 (0)
+      max: 255 (1)
+      mean: 80.7987 (0.316858)
+      standard deviation: 69.519 (0.272623)
+      kurtosis: -0.348547
+      skewness: 0.895259
+  Image statistics:
+    Overall:
+      min: 0 (0)
+      max: 255 (1)
+      mean: 93.2196 (0.365567)
+      standard deviation: 76.697 (0.300772)
+      kurtosis: -0.649256
+      skewness: 0.721933
+  Rendering intent: Undefined
+  Interlace: None
+  Background color: white
+  Border color: rgb(223,223,223)
+  Matte color: grey74
+  Transparent color: black
+  Compose: Over
+  Page geometry: 1632x1224+0+0
+  Dispose: Undefined
+  Iterations: 0
+  Compression: JPEG
+  Quality: 96
+  Orientation: TopLeft
+  Properties:
+    date:create: 2012-10-25T17:08:12-04:00
+    date:modify: 2012-10-25T17:07:52-04:00
+    exif:ApertureValue: 4312/1707
+    exif:BrightnessValue: 3400/3023
+    exif:ColorSpace: 1
+    exif:ComponentsConfiguration: 0, 0, 0, 1
+    exif:DateTime: 2012:10:25 16:50:01
+    exif:DateTimeDigitized: 2012:10:25 16:50:01
+    exif:DateTimeOriginal: 2012:10:25 16:50:01
+    exif:ExifImageLength: 2448
+    exif:ExifImageWidth: 3264
+    exif:ExifOffset: 198
+    exif:ExifVersion: 48, 50, 50, 49
+    exif:ExposureMode: 0
+    exif:ExposureProgram: 2
+    exif:ExposureTime: 1/20
+    exif:Flash: 16
+    exif:FlashPixVersion: 48, 49, 48, 48
+    exif:FNumber: 12/5
+    exif:FocalLength: 107/25
+    exif:FocalLengthIn35mmFilm: 35
+    exif:GPSImgDirection: 738194/2729
+    exif:GPSImgDirectionRef: T
+    exif:GPSInfo: 588
+    exif:GPSLatitude: 40/1, 4196/100, 0/1
+    exif:GPSLatitudeRef: N
+    exif:GPSLongitude: 73/1, 4858/100, 0/1
+    exif:GPSLongitudeRef: W
+    exif:GPSTimeStamp: 20/1, 49/1, 5588/100
+    exif:ISOSpeedRatings: 200
+    exif:Make: Apple
+    exif:MeteringMode: 5
+    exif:Model: iPhone 4S
+    exif:Orientation: 1
+    exif:ResolutionUnit: 2
+    exif:SceneCaptureType: 0
+    exif:SensingMethod: 2
+    exif:ShutterSpeedValue: 2779/643
+    exif:Software: 6.0
+    exif:SubjectArea: 1631, 1223, 881, 881
+    exif:WhiteBalance: 0
+    exif:XResolution: 72/1
+    exif:YCbCrPositioning: 1
+    exif:YResolution: 72/1
+    jpeg:colorspace: 2
+    jpeg:sampling-factor: 2x2,1x1,1x1
+    signature: df68d598ac40b0fdcb0f4e2510164d99b16546b6c8e5eb26897700cfc4770c8a
+  Profiles:
+    Profile-exif: 4092 bytes
+  Artifacts:
+    verbose: true
+  Tainted: False
+  Filesize: 592KBB
+  Number pixels: 1.998MB
+  Pixels per second: 33.29MB
+  User time: 0.030u
+  Elapsed time: 0:01.059
+  Version: ImageMagick 6.6.9-7 2012-04-30 Q16 http://www.imagemagick.org

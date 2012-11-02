@@ -1309,7 +1309,7 @@ function restaurantInfo(name, username) {
 }
 
 // Create an empty mealinfo object with default attributes.
-function mealInfo(user, name, title, size, width, height, depth, type, features) {
+function mealInfo(user, name, title, size, width, height, depth, type) {
 
     // Username of uploader
     this.username = user.username;
@@ -1372,9 +1372,6 @@ function mealInfo(user, name, title, size, width, height, depth, type, features)
 
     // The user hasn't submitted anything yet
     this.tmpReview = "";
-
-    // Features includes longitude, latitude, direction, createtime, etc.
-    this.features = features;
 }
 
 // Create a thumbnail object for mongo.
@@ -3009,21 +3006,6 @@ function editmealsPostDeleteMeals(req, res, next, isprev) {
     }
 }
 
-app.post('/editmealsuploadfail', function(req, res, next) {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write('Failure');
-    res.end();
-});
-
-/*
-app.post('/editmealsupload', function(req, res, next) {
-
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write('Success');
-    res.end();
-});
-*/
-
 function editmealsPost(req, res, next, isprev) {
 
     // Sanity check - verify this user
@@ -3141,106 +3123,6 @@ function upload_internal_2(req, res, next, mealinfo, image, thumbwidth, thumbhei
     });
 }
 
-
-function edit_upload_internal_2(req, res, next, mealinfo, image, thumbwidth, thumbheight) {
-
-    var mealthumb = new mealThumb(mealinfo, image, req.files.inputUpload.type);
-    setMealThumbInMongo(mealthumb, function(mterr, object) {
-
-        if(mterr) throw (mterr);
-
-        // Send back to the upload page
-        // res.redirect('/upload');
-        // Send to the display page
-//        res.redirect('/attributes/' + mealinfo.username + '/' + mealinfo.timestamp);
-//        res.redirect('/editmeals');
-        var successResp = "SUCCESS " + mealinfo.timestamp;
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write(successResp);
-        res.end();
-    });
-}
-
-
-function edit_upload_internal_1(req, res, next, image, mealinfo) {
-
-    // Fill in mealinfo information
-    overlayMealInfo(req, mealinfo);
-
-    req.session.user.numPics++;
-
-    updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) { 
-        if(err) throw(err);
-    });
-
-    // TODO: Compress this image maybe?
-    var mealpic = new mealPic(mealinfo, image, req.files.inputUpload.type);
-    setMealPicInMongo(mealpic, function(err, object) {
-
-        // Throw it if you got it
-        if(err) throw(err);
-
-        // Set mealInfo
-        setMealInfoInMongo(mealinfo, function(merror, object) {
-
-            // Throw down
-            if(merror) throw(merror);
-
-            if(mealinfo.width <= maxThumbWidth && mealinfo.height <= maxThumbHeight) {
-                edit_upload_internal_2(req, res, next, mealinfo, image, mealinfo.width, mealinfo.height );
-                return;
-            }
-
-            // Scale to thumbnail dimensions
-            var scaleThumbWidth;
-            var scaleThumbHeight;
-
-            // Scale to whichever is the furthest out of whack.
-            if(mealinfo.width > maxThumbWidth && mealinfo.height > maxThumbHeight) {
-                // Scaled difference
-                var testwidth = mealinfo.width / maxThumbWidth;
-                var testheight = mealinfo.height / maxThumbHeight;
-
-                // Width is further out of whack, so scale to width
-                if (testwidth > testheight) {
-                    scaleThumbWidth = maxThumbWidth;
-                    scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
-                }
-                // Height is further out of whack, so scale to width
-                else {
-                    scaleThumbHeight = maxThumbHeight;
-                    scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
-                }
-            }
-            // Only the width is out of bounds
-            else if(mealinfo.width > maxThumbWidth) {
-                scaleThumbWidth = maxThumbWidth;
-                scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
-            }
-            // Only the height is out of bounds
-            else {
-                scaleThumbHeight = maxThumbHeight;
-                scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
-            }
-
-            // Resize to thumb
-            im.resize( { 
-                srcData: image,
-                width: scaleThumbWidth,
-                height: scaleThumbHeight
-            }, // The resized image is stdout.
-            function(err, stdout, stderr) {
-
-                if(err) throw (err);
-                edit_upload_internal_2(req, res, next, mealinfo, stdout, scaleThumbWidth, scaleThumbHeight);
-                return;
-            });
-        });
-    });
-
-
-}
-
 function upload_internal_1(req, res, next, image, mealinfo) {
 
     // Fill in mealinfo information
@@ -3318,206 +3200,54 @@ function upload_internal_1(req, res, next, image, mealinfo) {
     });
 }
 
-function imageFeatures(path, callback) {
-    var features = {}; 
-    // TODO - break and join this so that its readable
-    var format='Type|%m\nWidth|%[width]\nHeight|%[height]\nDepth|%[depth]\nDatetime|%[EXIF:DateTime]\nCreateDate|%[EXIF:DateTimeOriginal]\nLat|%[EXIF:GPSLatitude]\nLong|%[EXIF:GPSLongitude]\nDirection|%[EXIF:GPSImgDirection]\nLatRef|%[EXIF:GPSLatitudeRef]\nLongRef|%[EXIF:GPSLongitudeRef]\n';
-        im.identify(['-format', format, path ], function(error, out) {
-
-        if(error) {
-            callback(error);
-        }
-
-        // Parse features. 
-        var lines = out.toString().split(/\n/);
-        for(var i = 0 ; i < lines.length ; i++) {
-            var line = lines[i].trim();
-            var array = line.split(/\|/);
-            if(array[0] == 'Width' && array[1] != undefined && array[1].length > 0) {
-                features.width = parseInt(array[1], 10);
-            }
-            else if(array[0] == 'Height' && array[1] != undefined && array[1].length > 0) {
-                features.height = parseInt(array[1], 10);
-            }
-            else if(array[0] == 'Depth' && array[1] != undefined && array[1].length > 0) {
-                features.depth = parseInt(array[1], 10);
-            }
-            else if(array[0] == 'Type' && array[1] != undefined && array[1].length > 0) {
-                features.type = array[1];
-            }
-            else if(array[0] == 'Datetime' && array[1] != undefined && array[1].length > 0) {
-                var dayTime = array[1].split(/ /);
-                var dayComp = dayTime[0].split(/:/);
-                var timeComp = dayTime[1].split(/:/);
-
-                var year = parseInt(dayComp[0], 10);
-                var month = parseInt(dayComp[1], 10);
-                var day = parseInt(dayComp[2], 10);
-                var hour = parseInt(timeComp[0], 10);
-                var min = parseInt(timeComp[1], 10);
-                var sec = parseInt(timeComp[2], 10);
-
-                features.datetime = new Date(year, month, day, hour, min, sec);
-            }
-            else if(array[0] == 'CreateDate' && array[1] != undefined && array[1].length > 0) {
-                var dayTime = array[1].split(/ /);
-                var dayComp = dayTime[0].split(/:/);
-                var timeComp = dayTime[1].split(/:/);
-
-                var year = parseInt(dayComp[0], 10);
-                var month = parseInt(dayComp[1], 10);
-                var day = parseInt(dayComp[2], 10);
-                var hour = parseInt(timeComp[0], 10);
-                var min = parseInt(timeComp[1], 10);
-                var sec = parseInt(timeComp[2], 10);
-
-                features.createDate = new Date(year, month, day, hour, min, sec);
-            }
-            else if(array[0] == 'Lat' && array[1] != undefined && array[1].length > 0) {
-                // The format is 'DEGREES/1, MINUTES/100, SECONDS/?'
-                var components = array[1].split(/, /);
-                var degrees = components[0].split(/\//);
-                var minutes = components[1].split(/\//);
-                var seconds = components[2].split(/\//);
-                features.latitude = ( parseInt(degrees[0], 10) ) + 
-                                    ( ( parseInt(minutes[0], 10) / 60 ) / 100 ) +
-                                    ( ( parseInt(seconds[0], 10) / ( 60 * 60 ) ) / 10000 );
-            }
-            else if(array[0] == 'Long' && array[1] != undefined && array[1].length > 0) {
-                var components = array[1].split(/, /);
-                var degrees = components[0].split(/\//);
-                var minutes = components[1].split(/\//);
-                var seconds = components[2].split(/\//);
-                features.longitude= ( parseInt(degrees[0], 10) ) + 
-                                    ( ( parseInt(minutes[0], 10) / 60 ) / 100 ) +
-                                    ( ( parseInt(seconds[0], 10) / ( 60 * 60 ) ) / 10000 );
-
-            }
-            else if(array[0] == 'Direction' && array[1] != undefined && array[1].length > 0) {
-                var components = array[1].split(/\//);
-                features.direction = ( parseInt(components[0], 10) / parseInt(components[1], 10) );
-            }
-            else if(array[0] == 'LatRef' && array[1] != undefined && array[1].length > 0) {
-                features.latitudeRef = array[1];
-            }
-            else if(array[0] == 'LongRef' && array[1] != undefined && array[1].length > 0) {
-                features.longitudeRef = array[1];
-            }
-        }
-
-        if( features.latitudeRef == 'S' && features.latitude > 0) {
-            features.latitude = -features.latitude;
-        }
-
-        if( features.longitudeRef == 'W' && features.longitude > 0) {
-            features.longitude = -features.longitude;
-        }
-
-        callback(null, features);
-    });
-}
-
-function editMealsUploadPost(req, res, next) {
-    imageFeatures(req.files.inputUpload.path, function(err, features) {
-
-        if(err) {
-            console.log("Error identifying uploaded file: " + req.files.inputUpload.path);
-            req.session.uploadmsg = "Error uploading your file!";
-
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(req.session.uploadmsg);
-            res.end();
-
-            return;
-        }
-
-        if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
-            fs.readFile(req.files.inputUpload.path, "binary", function(error, image) {
-                var mealinfo = new mealInfo(
-                    req.session.user, 
-                    req.files.inputUpload.name, 
-                    "", 
-                    req.files.inputUpload.size, 
-                    features.width,
-                    features.height,
-                    features.depth,
-                    req.files.inputUpload.type,
-                    features);
-                edit_upload_internal_1(req, res, next, image, mealinfo );
-            });
-            return;
-        }
-
-        var scaleWidth;
-        var scaleHeight;
-
-        // For this case, scale to whichever is the furthest out of whack.
-        if(features.width > maxMealWidth && features.height > maxMealHeight) {
-            // Scaled difference
-            var testwidth = features.width / maxMealWidth;
-            var testheight = features.height / maxMealHeight;
-
-            // Width is further out of whack, so scale to width
-            if (testwidth > testheight) {
-                scaleWidth = maxMealWidth;
-                scaleHeight = (maxMealWidth / features.width) * features.height;
-            }
-            // Height is further out of whack, so scale to width
-            else {
-                scaleHeight = maxMealHeight;
-                scaleWidth = (maxMealHeight / features.height) * features.width;
-            }
-        }
-        // Only the width is out of bounds
-        else if(features.width > maxMealWidth) {
-            scaleWidth = maxMealWidth;
-            scaleHeight = (maxMealWidth / features.width) * features.height;
-        }
-        // Only the height is out of bounds
-        else {
-            scaleHeight = maxMealHeight;
-            scaleWidth = (maxMealHeight / features.height) * features.width;
-        }
-
-        // Okay - resize this and then upload
-        im.resize( { 
-            srcPath: req.files.inputUpload.path,
-            width: scaleWidth, 
-            height: scaleHeight
-        }, // The resized image is stdout.
-        function(err, stdout, stderr) {
-            // There will be a new size here ..
-                var mealinfo = new mealInfo(
-                    req.session.user, 
-                    req.files.inputUpload.name, 
-                    "", 
-                    stdout.length,
-                    scaleWidth,
-                    scaleHeight,
-                    features.depth,
-                    req.files.inputUpload.type);
-                edit_upload_internal_1(req, res, next, stdout, mealinfo);
-        });
-
-        return;
-    });
-
-
-}
-
 function uploadPost(req, res, next) {
 
     // Read the file from disk - TODO find a way to keep this in memory.
-    // Actually, I could read the file first, and then pass it as an arg
-    // into features
     // fs.readFile(req.files.upload.path, "binary", function(error, image) {
     // im.identify(req.files.upload.path, function(error, features) {
     // im.identify(['-verbose', req.files.upload.path, function(error, out) {
     //
     //
-    imageFeatures(req.files.upload.path, function(err, features) {
+    var features;
+    var format='Type|%m\nWidth|%[width]\nHeight|%[height]\nDatetime|%[EXIF:DateTime]\nCreateDate|%[EXIF:DateTimeOriginal]\nLat|%[EXIF:GPSLatitude]\nLong|%[EXIF:GPSLongitude]\nLatRef|%[EXIF:GPSLatitudeRef]\nLongRef|%[EXIF:GPSLongitudeRef]\n';
+        im.identify(['-format', format, req.files.upload.path ], function(error, out) {
 
-        if(err) {
+            var lines = out.toString().split(/\n/);
+            for(var i = 0 ; i < lines.length ; i++) {
+                var line = lines[i].trim();
+                var array = line.split(/\|/);
+                /*
+                var property = array[0];
+                var value = array[1];
+                */
+                if(array[0] == 'Width') {
+                    features.width = parseInt(array[1]);
+                }
+                else if(array[0] == 'Height') {
+                    features.height = parseInt(array[1]);
+                }
+                else if(array[0] == 'Type') {
+                    features.type = array[1];
+                }
+                else if(array[0] == 'Datetime') {
+                    features.datetime = array[1];
+                }
+                else if(array[0] == 'CreateDate') {
+                    features.createDate = array[1];
+                }
+                else if(array[0] == 'Lat') {
+                }
+                //line = regEx.exec(lines[i]);
+                //console.log('(' + property +  ') -> (' + value + ')');
+            }
+
+
+
+        // TODO: create and parse features
+
+        // TODO: this got triggered - fix it.
+        if(error) {
+            // Fix this
             console.log("Error identifying uploaded file: " + req.files.upload.path);
             req.session.uploadmsg = "Error uploading your file!";
 
@@ -3541,8 +3271,7 @@ function uploadPost(req, res, next) {
                     features.width,
                     features.height,
                     features.depth,
-                    req.files.upload.type,
-                    features);
+                    req.files.upload.type);
                 upload_internal_1(req, res, next, image, mealinfo );
             });
             return;
@@ -3623,10 +3352,6 @@ app.get('/upload', function(req, res, next) {
         uploadflag:true,
         meal: new mealInfo(req.session.user)
     });
-});
-
-app.post('/editmealsupload', function(req, res, next) {
-    editMealsUploadPost(req, res, next);
 });
 
 app.post('/upload', function(req, res, next) {

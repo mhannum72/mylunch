@@ -89,6 +89,75 @@ TODO:
             textAreaWidthCols = 57;
         }
 
+        function uploadMealPopup() {
+
+            var hiddenElements = $('#hiddenElements');
+
+            hiddenElements.empty();
+
+            var hiddenIFrame = $(document.createElement('iframe'))
+                .attr('style', 'width:0px;height:0px;border:0px;')
+                .attr('id', 'hiddenIFrame')
+                .attr('name', 'hiddenIFrame');
+
+            hiddenIFrame.appendTo(hiddenElements);
+
+            var uploadForm = $(document.createElement('form'))
+                .attr('id', 'uploadForm')
+                .attr('name', 'uploadForm')
+                .attr('method', 'post')
+                .attr('enctype', 'multipart/form-data')
+                .attr('action', '/editmealsupload')
+                .attr('target', 'hiddenIFrame');
+
+            uploadForm.appendTo(hiddenIFrame);
+
+            // Wait for the html of the hidden iframe to change: tells you that
+            // the upload was successful.
+            var fileUpload = $(document.createElement('input'))
+                .attr('type', 'file')
+                .attr('name', 'inputUpload')
+                .attr('id', 'inputUpload');
+
+            // TODO - this could be slow.. maybe i could show a popup saying that things are uploading?
+            function checkUploaded() {
+
+                var hiddenIFrame = $('#hiddenIFrame');
+                var bodyText = hiddenIFrame.contents().find('body').html();
+                var regex = /^SUCCESS [0-9]+$/;
+
+                // TODO: put a reasonable hard-timeout here...
+                if(bodyText == "") {
+                    setTimeout(checkUploaded, 1000);
+                    return;
+                }
+
+                // Success case 
+                if(regex.test(bodyText)) {
+                    var tstring = bodyText.split(" ").pop();
+                    var timestamp = parseInt(tstring, 10);
+                    $('#pictureGridDiv').html('');
+                    drawNextMeals(timestamp);
+                    showAttributes('<%= user.username %>', timestamp, 0);
+                    return;
+                }
+
+                // Failure case .. not sure what to do.. print it to an error div?
+                /* Unexpected stuff.. */
+
+            }
+
+            fileUpload.change(function() {
+                uploadForm.submit();
+                setTimeout(checkUploaded, 1000);
+            });
+
+            fileUpload.appendTo(uploadForm);
+
+            $('#inputUpload').click();
+
+        } /* uploadMealPopup */
+
         function showAttributesMealInfo(meal, restaurant, restaurantId, cnt) {
 
             var username = meal.username;
@@ -98,7 +167,6 @@ TODO:
                 .attr('id', 'mealAttributes')
                 .attr('name', 'mealAttributes')
                 .attr('class', 'mealAttributesPopup');
-//                .attr('class', 'mealAttributesPopupNofade');
 
             var url = "/pics/" + username + "/" + timestamp;
 
@@ -120,9 +188,9 @@ TODO:
                 .html('x');
 
             closex.click(function(){
-                    popup.fadeOut(0);
-                    $('#maskFade').css({'display':'none'});
-                    popup.remove();
+                popup.fadeOut(0);
+                $('#maskFade').css({'display':'none'});
+                popup.remove();
             });
 
             closex.appendTo(closexContainer);
@@ -135,27 +203,6 @@ TODO:
                 .attr('id', 'mealAttributesClass8')
                 .attr('name', 'mealAttributesClass8')
                 .attr('class', 'container_8');
-
-            /*
-            var grid_1 = $(document.createElement('div'))
-                .attr('class', 'grid_1')
-                .html('x');
-
-            var grid_1;
-            for(var ii = 0 ; ii < 8 ; ii++) {
-                grid_1[ii] = $(document.createElement('div'))
-                    .attr('class', 'grid_1')
-                    .html('x');
-
-                grid_1[ii].appendTo(class8);
-            }
-
-            var grid_clear = $(document.createElement('div'))
-                .attr('class', 'clear');
-
-            grid_clear.appendTo(class8);
-            */
-
 
             // Create a grid to hold the title
             var grid_title_pre = $(document.createElement('div'))
@@ -200,12 +247,11 @@ TODO:
                 function blurTitleInput(meal, titleEditInput, keepcurrent) {
                     if(titleEditInput.val() != meal.picTitle && keepcurrent == 0) {
 
-                        var mealcnt = '#mealcnt' + cnt + ' > a';
+                        var mealcnt = '#mealcnt' + cnt;
 
-                            meal.picTitle = titleEditInput.val();
-                            $('#titleEdit').html(meal.picTitle);
-                            $(mealcnt).html(meal.picTitle);
-
+                        meal.picTitle = titleEditInput.val();
+                        $('#titleEdit').html(meal.picTitle);
+                        $(mealcnt).html(meal.picTitle);
 
                         $.ajax({
                             url: '/savetitle',
@@ -840,12 +886,6 @@ TODO:
                 $('#review_text_int').addClass('review_edit');
                 $('#review_text_int').attr('readonly', false);
 
-                    /*
-                grid_review_textarea.removeClass('review_noedit');
-                grid_review_textarea.addClass('review_edit');
-                grid_review_textarea.attr('readonly', false);
-                */
-
                 // Zap the not-reviewed placeholder
                 if(meal.review == undefined || meal.review.length <= 0) {
                     //grid_review_textarea.html('');
@@ -888,7 +928,8 @@ TODO:
             class8.appendTo(popup);
 
             var maskWidth = $(window).width();
-            var maskHeight = $(document).height();
+//            var maskHeight = $(document).height();
+            var maskHeight = '1200px';
 
             $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
 
@@ -994,6 +1035,9 @@ TODO:
                 mealcnt.html('untitled');
             }
 
+            // TODO: if you CLICK on this, allow users to change the title 
+            // (like in Mac-OS).
+
             mealcnt.appendTo(center);
 
             var delchk = 'delchk' + cnt;
@@ -1025,7 +1069,6 @@ TODO:
                 return;
             }
 
-
             if(undefined != prevpage && prevpage > 0) {
                 prevGrid = $(document.createElement('div'))
                     .attr('class', 'grid_2');
@@ -1033,8 +1076,8 @@ TODO:
                 var prevCenter = $(document.createElement('center'));
 
                 var prevAnchor = $(document.createElement('a'))
-                        .attr('href', 'javascript:void(0)')
-                        .html('Previous Page');
+                    .attr('href', 'javascript:void(0)')
+                    .html('Previous Page');
 
                 prevAnchor.click(function() {
                     drawPrevMeals(prevpage);
@@ -1149,7 +1192,11 @@ TODO:
                 });
             }
             else {
-                pictureGridDiv.html('<center><b>No Meals to View</b><center>');
+                // TODO - if this is the first time that a user has logged on, 
+                // maybe a friendly 'To get you started' popup .. ?
+                // Make this a pop-up - something that's informative.  It'll
+                // be something you just dismiss.
+                $('#pictureGridDiv').html('<center><b>No Meals to View</b><center>');
             }
 
         }
@@ -1194,7 +1241,6 @@ TODO:
             return 0;
         }
 
-
         $(document).ready(function() {
             $.ajaxSetup ({ cache: false });
 
@@ -1224,37 +1270,10 @@ TODO:
             } 
             %>
 
-
             var nextpage = <%= nextpage != undefined ? nextpage:0 %>;
             var prevpage = <%= prevpage != undefined ? prevpage:0 %>;
 
             displayPictureGrid(minfo, nextpage, prevpage, true);
-
-            // Create the initial mealinfo array:  
-            // We only use the picTitle, username, and timestamp.
-
-            // Disable the tab key
-            /*
-            $(document).keydown(function(e) {
-                var code = (e.keyCode ? e.keyCode : e.which);
-                switch(code) {
-                    case 9:
-                        return false;
-                        break;
-                }
-            });
-            */
-
-            /*
-            var str = "";
-
-            $.each($.browser, function(i, val) {
-                str += i + " : " + val + ";";
-                });
-
-            alert(str);
-            */
-
         });
 
 
@@ -1266,7 +1285,7 @@ TODO:
 
             <div class="grid_2 prefix_10">
                 <!-- maybe a menu here.. ? -->
-                <a href="/upload">Upload a Meal</a>
+                <a href='javascript:void(0)' onclick='uploadMealPopup()'>Upload a Meal</a>
             </div>
             <div class="clear"></div>
             <div class="grid_2 prefix_10">
@@ -1288,5 +1307,6 @@ TODO:
         </div> <!-- container_12 -->
         </div> <!-- boxes -->
         <div id="maskFade" class="maskClass"></div>
+        <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
     </body>
 </html>

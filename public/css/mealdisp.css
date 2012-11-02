@@ -85,6 +85,17 @@ textarea {
     padding:20px;
 }
 
+.uploadMealPopup {
+    width:440px;
+    padding:20px;
+    position:absolute;
+    z-index:9999;
+    width:800px;
+    display:none;
+    border-top-width:0px;
+    background:#FFF;
+}
+
 .maskClass {
     position:absolute;
     z-index:9000;
@@ -115,6 +126,26 @@ textarea {
     width:800px;
     border-top-width:0px;
     background:#FFF;
+}
+
+.uploadMealCloseContainer {
+    text-align: right;
+    border:0px;
+    height: 10px;
+    font-size: 18px;
+}
+
+.uploadMealCloseContainer a:hover {
+    text-decoration: none;
+    cursor:pointer;
+}
+
+.uploadMealCloseButton {
+    position:absolute;
+    top:0px;
+    text-align: right;
+    border:0px;
+    font-size: 20px;
 }
 
 .mealAttributesCloseContainer {

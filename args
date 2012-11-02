@@ -1,0 +1,9 @@
+identify -format 'Type|%m
+Width|%[width]
+Height|%[height]
+Datetime|%[EXIF:DateTime]
+CreateDate|%[EXIF:DateTimeOriginal]
+Lat|%[EXIF:GPSLatitude]
+Long|%[EXIF:GPSLongitude]
+LatRef|%[EXIF:GPSLatitudeRef]
+LongRef|%[EXIF:GPSLongitudeRef]'
