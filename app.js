@@ -334,6 +334,7 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
 
         var projection = {};
         if(!wholerec) {
+            //projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1, 'thumbWidth' : 1, 'thumbHeight' : 1 };
             projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1 };
         }
 
@@ -390,6 +391,7 @@ getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholere
 
         var projection = {};
         if(!wholerec) {
+            //projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1, 'thumbWidth' : 1, 'thumbHeight' : 1 };
             projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1 };
         }
         
@@ -2104,7 +2106,7 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
 
 function editpagenextprev(req, res, next, timestamp, isprev) {
     // No real need to pass this back and forth...
-    var count = parseInt(req.query.count);
+    var count = parseInt(req.query.count, 10);
     var ts;
 
     if( timestamp == -1) {
@@ -2122,6 +2124,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
             if(mealinfo.length == 0 && timestamp != -1) {
 
                 // Huh?  We shouldn't really get here
+                console.log('illogical state in editpagenextprev: next record not found?');
                 ts = Date.now();
 
                 getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, function(err, mealinfo, nextpage, prevpage) {
@@ -2199,6 +2202,44 @@ function editpagenextprevstart(req, res, next, timestamp, isprev) {
 
 // Do the 'nextpage' & lookup picture logic first.
 app.get('/deletemeal', function(req, res, next) {
+
+    if(req.session.user == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "signin"}));
+        res.end();
+        return;
+    }
+
+    if(req.session.user.username != req.query.username) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "signin"}));
+        res.end();
+        return;
+    }
+
+    // We're authenticated.. get the nextpage mealinfo.
+    getMealInfoFromMongoRevMenu(
+        req.session.user.username, 
+        parseInt(req.query.nextpage, 10), 
+        1, 
+        false, 
+        function(err, mealinfo, nextpage, prevpage) {
+
+            if(err) throw(err);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.write(JSON.stringify(
+                    {
+                        message: "success",
+                        mealInfo: mealinfo,
+                        nextpage: nextpage
+                    }
+                )
+            );
+            res.end();
+            return;
+        }
+    );
+    // TODO: actually delete the meal requested
 });
 
 app.get('/editpageprev', function(req, res, next) {

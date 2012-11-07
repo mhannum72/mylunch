@@ -993,6 +993,36 @@ TODO:
                         nextpage: page_globals.nextPage
                     },
                     function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+                            if(response.errStr == "signin") {
+                                window.location.replace("/signin");
+                            }
+                            else {
+                                console.log("getJSON response error is ", response.errStr);
+                                window.location.replace("/");
+                            }
+                            return;
+                        }
+
+                        // Success case
+                        if(response.mealInfo != undefined && response.mealInfo.length >= 1) {
+
+                            // There's only one meal here- we'll be called when that loads
+                            var newInternal = pictureDivInternal(response.mealInfo[0], function (showImages) {
+                                newInternal.appendTo(lastGrid);
+                                nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
+                            });
+
+                        }
+                        else {
+                            lastGrid.remove();
+                            nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
+                        }
+
+                        popup.fadeOut(0);
+                        $('#maskFade').css({'display':'none'});
+                        popup.remove();
+
                     });
 
                 // Walk gridpics, copying each into the last
@@ -1008,14 +1038,17 @@ TODO:
                         }
                         nxtin.remove();
                         nxtin.appendTo(editGrid);
+
+                        // Remap id
+                        var tsId = nextGrid.attr('id');
+                        nextGrid.removeAttr('id');
+                        editGrid.removeAttr('id');
+                        editGrid.attr('id', tsId);
+
                         editGrid = nextGrid;
                     }
 
                     nextGrid = nextGrid.next();
-                }
-
-                if(editGrid !== lastGrid) {
-                    console.log('Ooops!  Something went very wrong ..');
                 }
             });
 
@@ -1081,22 +1114,11 @@ TODO:
                     });
         }
 
-        function pictureDiv(meal, mealIdx, callback, lastpic) {
-
-            var gridId = 'gridIndex' + mealIdx;
-            var tsId = 'gridTimestamp' + meal.timestamp;
-
-            // Id this with both an index and a timestamp
-            var editgrid = $(document.createElement('div'))
-                .attr('id', gridId)
-                .attr('id', tsId)
-                .attr('class', 'grid_4 editheight editgrid');
+        function pictureDivInternal(meal, callback, lastpic) {
 
             // I can manipulate this directly in the delete code.
             var editInternal = $(document.createElement('div'))
                 .attr('class', 'editGridInternal');
-
-            editInternal.appendTo(editgrid);
 
             var center = $(document.createElement('center'));
             center.appendTo(editInternal);
@@ -1110,13 +1132,18 @@ TODO:
 
             editImageDiv.appendTo(center);
 
+            var onClickStr = 'showAttributes("' + meal.username + '",' + meal.timestamp + ');';
+
             var anchor = $(document.createElement('a'))
                 .attr('href', 'javascript:void(0)')
+                .attr('onclick', onClickStr)
                 .attr('title', hoverTxt);
                 
+            /*
             anchor.click(function() {
                 showAttributes(meal.username, meal.timestamp);
             });
+            */
 
             anchor.appendTo(editImageDiv);
 
@@ -1146,6 +1173,24 @@ TODO:
 
             titletext.appendTo(center);
 
+            return editInternal;
+        }
+
+
+        function pictureDiv(meal, callback, lastpic) {
+
+            var tsId = 'gridTimestamp' + meal.timestamp;
+
+            // Id this with both an index and a timestamp
+            var editgrid = $(document.createElement('div'))
+                .attr('id', tsId)
+                .attr('class', 'grid_4 editheight editgrid');
+
+            // Create an internal pictureDiv that I can switchout in the delete code
+            var editInternal = pictureDivInternal(meal, callback, lastpic);
+
+            editInternal.appendTo(editgrid);
+
             // Return the top-level thing
             return editgrid;
         }
@@ -1171,6 +1216,7 @@ TODO:
 
                 var prevCenter = $(document.createElement('center'));
 
+                // TODO - maybe change the href to an onclick ..?
                 var prevAnchor = $(document.createElement('a'))
                     .attr('href', 'javascript:void(0)')
                     .html('Previous Page');
@@ -1252,7 +1298,7 @@ TODO:
             for(cnt = 0 ; cnt < showPicsPerPage ; cnt++) {
                 if(cnt < endpic) {
                     var meal = mealinfo[cnt];
-                    var gridpic = pictureDiv(meal, cnt, callback, endpic);
+                    var gridpic = pictureDiv(meal, callback, endpic);
 
                     gridpic.appendTo(pictureGrid);
 

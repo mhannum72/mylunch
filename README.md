@@ -3,6 +3,11 @@ mylunch
 
 Personal project: a website where people can upload pictures of their meals.
 
+TODO - keep in the back of your mind:
+
+verify that the jquery onclick works correctly for replacing prev and next pages .. 
+you had issues with this.
+
 users
 -
 username (email address) - will be unique in this table
