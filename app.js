@@ -1364,6 +1364,10 @@ function mealInfo(user, name, title, size, width, height, depth, type, features)
     this.whenDeleted = 0;
     this.deleted = false;
 
+    // Thumbwidth & thumbheight placeholders
+    this.thumbWidth = -1;
+    this.thumbHeight = -1;
+
     // Restaurant: reference to the restaurants table
     this.restaurantId = -1;
 
@@ -2192,6 +2196,10 @@ function editpagenextprevstart(req, res, next, timestamp, isprev) {
 
     editpagenextprev(req, res, next, timestamp, isprev);
 }
+
+// Do the 'nextpage' & lookup picture logic first.
+app.get('/deletemeal', function(req, res, next) {
+});
 
 app.get('/editpageprev', function(req, res, next) {
     if(req.query.prevpage == undefined) {
@@ -3161,11 +3169,50 @@ function edit_upload_internal_2(req, res, next, mealinfo, image, thumbwidth, thu
     });
 }
 
-
 function edit_upload_internal_1(req, res, next, image, mealinfo) {
+
+    // Scale to thumbnail dimensions
+    var scaleThumbWidth;
+    var scaleThumbHeight;
 
     // Fill in mealinfo information
     overlayMealInfo(req, mealinfo);
+
+    // Scale to whichever is the furthest out of whack.
+    if(mealinfo.width > maxThumbWidth && mealinfo.height > maxThumbHeight) {
+        // Scaled difference
+        var testwidth = mealinfo.width / maxThumbWidth;
+        var testheight = mealinfo.height / maxThumbHeight;
+
+        // Width is further out of whack, so scale to width
+        if (testwidth > testheight) {
+            scaleThumbWidth = maxThumbWidth;
+            scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
+        }
+        // Height is further out of whack, so scale to width
+        else {
+            scaleThumbHeight = maxThumbHeight;
+            scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
+        }
+    }
+    // Only the width is out of bounds
+    else if(mealinfo.width > maxThumbWidth) {
+        scaleThumbWidth = maxThumbWidth;
+        scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
+    }
+    // Only the height is out of bounds
+    else if(mealinfo.height > maxThumbHeight){
+        scaleThumbHeight = maxThumbHeight;
+        scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
+    }
+    else {
+        scaleThumbHeight = mealinfo.height;
+        scaleThumbWidth = mealinfo.width;
+    }
+
+    // Set thumb width and height in mealinfo
+    mealinfo.thumbWidth = scaleThumbWidth;
+    mealinfo.thumbHeight = scaleThumbHeight;
 
     req.session.user.numPics++;
 
@@ -3189,38 +3236,6 @@ function edit_upload_internal_1(req, res, next, image, mealinfo) {
             if(mealinfo.width <= maxThumbWidth && mealinfo.height <= maxThumbHeight) {
                 edit_upload_internal_2(req, res, next, mealinfo, image, mealinfo.width, mealinfo.height );
                 return;
-            }
-
-            // Scale to thumbnail dimensions
-            var scaleThumbWidth;
-            var scaleThumbHeight;
-
-            // Scale to whichever is the furthest out of whack.
-            if(mealinfo.width > maxThumbWidth && mealinfo.height > maxThumbHeight) {
-                // Scaled difference
-                var testwidth = mealinfo.width / maxThumbWidth;
-                var testheight = mealinfo.height / maxThumbHeight;
-
-                // Width is further out of whack, so scale to width
-                if (testwidth > testheight) {
-                    scaleThumbWidth = maxThumbWidth;
-                    scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
-                }
-                // Height is further out of whack, so scale to width
-                else {
-                    scaleThumbHeight = maxThumbHeight;
-                    scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
-                }
-            }
-            // Only the width is out of bounds
-            else if(mealinfo.width > maxThumbWidth) {
-                scaleThumbWidth = maxThumbWidth;
-                scaleThumbHeight = (maxThumbWidth / mealinfo.width) * mealinfo.height;
-            }
-            // Only the height is out of bounds
-            else {
-                scaleThumbHeight = maxThumbHeight;
-                scaleThumbWidth = (maxThumbHeight / mealinfo.height) * mealinfo.width;
             }
 
             // Resize to thumb

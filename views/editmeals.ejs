@@ -26,6 +26,20 @@ TODO:
     <script src="/jquery.js"></script>
     <script type="text/javascript">
 
+        function global_editmeals(username, showPicsPerPage, nextPage, prevPage) {
+            this.username = username;
+            this.showPicsPerPage = showPicsPerPage;
+            this.nextPage = nextPage;
+            this.prevPage = prevPage;
+            return this;
+        }
+
+        var page_globals = global_editmeals(
+                "<%= user.username %>", 
+                <%= user.showPicsPerPage %>,
+                <%= nextpage != undefined ? nextpage:0 %>,
+                <%= prevpage != undefined ? prevpage:0 %>);
+
         function updateReviewAjax(meal, review) {
             $.ajax({
                 url: '/savereview',
@@ -89,6 +103,10 @@ TODO:
             textAreaWidthCols = 57;
         }
 
+        // TODO
+        function toggleDeleteMode() {
+        }
+
         function uploadMealPopup() {
 
             var hiddenElements = $('#hiddenElements');
@@ -97,8 +115,8 @@ TODO:
 
             var hiddenIFrame = $(document.createElement('iframe'))
                 .attr('style', 'width:0px;height:0px;border:0px;')
-                .attr('id', 'hiddenIFrame')
-                .attr('name', 'hiddenIFrame');
+                .attr('name', 'hiddenIFrame')
+                .attr('id', 'hiddenIFrame');
 
             hiddenIFrame.appendTo(hiddenElements);
 
@@ -126,7 +144,13 @@ TODO:
                 var bodyText = hiddenIFrame.contents().find('body').html();
                 var regex = /^SUCCESS [0-9]+$/;
 
-                // TODO: put a reasonable hard-timeout here...
+                // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
+                // if the timeout expires, reload the 'main' page with a special
+                // tag that says 'edit the first picture if it's greater than the 
+                // first picture I've ever seen (pass that in the request).  Otherwise, 
+                // print an error message.
+                //
+                // TODO: what's the bottleneck here?
                 if(bodyText == "") {
                     setTimeout(checkUploaded, 1000);
                     return;
@@ -138,7 +162,7 @@ TODO:
                     var timestamp = parseInt(tstring, 10);
                     $('#pictureGridDiv').html('');
                     drawNextMeals(timestamp);
-                    showAttributes('<%= user.username %>', timestamp, 0);
+                    showAttributes(page_globals.username, timestamp, 0);
                     return;
                 }
 
@@ -158,14 +182,14 @@ TODO:
 
         } /* uploadMealPopup */
 
-        function showAttributesMealInfo(meal, restaurant, restaurantId, cnt) {
+        // Meal attributes / edit modal
+        function showAttributesMealInfo(meal, restaurant, restaurantId) {
 
             var username = meal.username;
             var timestamp = meal.timestamp;
 
             var popup = $(document.createElement('div'))
                 .attr('id', 'mealAttributes')
-                .attr('name', 'mealAttributes')
                 .attr('class', 'mealAttributesPopup');
 
             var url = "/pics/" + username + "/" + timestamp;
@@ -179,7 +203,6 @@ TODO:
 
             var closexContainer = $(document.createElement('div'))
                 .attr('id', 'mealAttributesCloseContainer')
-                .attr('name', 'mealAttriutesCloseContainer')
                 .attr('class', 'mealAttributesCloseContainer');
 
             var closex = $(document.createElement('a'))
@@ -201,7 +224,6 @@ TODO:
             // Create a class_8 container .. everything goes in here
             var class8 = $(document.createElement('div'))
                 .attr('id', 'mealAttributesClass8')
-                .attr('name', 'mealAttributesClass8')
                 .attr('class', 'container_8');
 
             // Create a grid to hold the title
@@ -224,8 +246,7 @@ TODO:
             // Title grid
             var grid_title = $(document.createElement('div'))
                 .attr('class', 'grid_5')
-                .attr('id', 'pop_title')
-                .attr('name', 'pop_title');
+                .attr('id', 'pop_title');
 
             hovertitle.appendTo(grid_title);
 
@@ -245,13 +266,14 @@ TODO:
                 titleEditInput.focus();
 
                 function blurTitleInput(meal, titleEditInput, keepcurrent) {
+
                     if(titleEditInput.val() != meal.picTitle && keepcurrent == 0) {
 
-                        var mealcnt = '#mealcnt' + cnt;
+                        var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
 
                         meal.picTitle = titleEditInput.val();
                         $('#titleEdit').html(meal.picTitle);
-                        $(mealcnt).html(meal.picTitle);
+                        $(titleEdit).html(meal.picTitle);
 
                         $.ajax({
                             url: '/savetitle',
@@ -302,7 +324,10 @@ TODO:
             grid_title.appendTo(class8);
             grid_title_clear.appendTo(class8);
 
-            // When uploaded.  Maybe this belongs somewhere else?  will think about it.
+            // When uploaded.  Maybe this belongs somewhere else?  maybe there should be 
+            // an inputable calendar (i think theres a jquery plugin for that)?  
+            // will think about it.
+            //
             /*
             var grid_uploaded_pre = $(document.createElement('div'))
                 .attr('class', 'grid_3')
@@ -313,7 +338,6 @@ TODO:
             var grid_uploaded = $(document.createElement('div'))
             .attr('class', 'grid_5')
                 .attr('id', 'pop_date_uploaded')
-                .attr('name', 'pop_date_uploaded')
                 .html(localeDate);
 
             var grid_uploaded_clear = $(document.createElement('div'))
@@ -334,14 +358,12 @@ TODO:
             var grid_meal = $(document.createElement('div'))
                 .attr('class', 'grid_5')
                 .attr('id', 'pop_meal')
-                .attr('name', 'pop_meal')
                 .html(whichmeal);
 
             // Create the which-meal selection menu
             var grid_meal_select_div = $(document.createElement('div'))
                 .attr('class', 'meal_select_menu_div')
                 .attr('id', 'meal_select_menu_div')
-                .attr('name', 'meal_select_menu_div')
                 .css({'display': 'none'});
 
             var grid_meal_select = $(document.createElement('ul'))
@@ -426,9 +448,9 @@ TODO:
 
             // DINNER
             var grid_meal_select_meal_dinner = $(document.createElement('li'))
-                    .attr('class', 'meal_select_menu_selection')
-                    .attr('name', 'meal_select_menu_dinner')
-                    .attr('id', 'meal_select_menu_dinner');
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_dinner')
+                .attr('id', 'meal_select_menu_dinner');
             var grid_meal_select_meal_dinner_anchor = $(document.createElement('a'))
                 .attr('id', 'meal_select_dinner_anchor')
                 .attr('class', 'meal_select_anchor')
@@ -465,7 +487,6 @@ TODO:
                 .attr('class', 'meal_select_menu_selection')
                 .attr('name', 'meal_select_menu_snack')
                 .attr('id', 'meal_select_menu_snack');
-
             var grid_meal_select_meal_snack_anchor = $(document.createElement('a'))
                 .attr('id', 'meal_select_snack_anchor')
                 .attr('class', 'meal_select_anchor')
@@ -576,8 +597,7 @@ TODO:
             // Create a sub-div that will contain the star-elements
             var grid_stars_select_div = $(document.createElement('div'))
                 .attr('class', 'stars_select_menu_div')
-                .attr('id', 'stars_select_menu_div')
-                .attr('name', 'stars_select_menu_div');
+                .attr('id', 'stars_select_menu_div');
 
             // Start an unordered list
             var grid_stars_select = $(document.createElement('ul'))
@@ -925,6 +945,87 @@ TODO:
             grid_review.appendTo(class8);
             grid_review_clear.appendTo(class8);
 
+            // Delete this picture logic here. 
+            var deletePre = $(document.createElement('div'))
+                .attr('class', 'grid_3 delete_pre')
+                .attr('id', 'delete_pre')
+                .html('Delete');
+
+            var deleteLink = $(document.createElement('div'))
+                .attr('class', 'grid_5 delete_link')
+                .attr('id', 'delete_link');
+
+            var deleteAnchor = $(document.createElement('a'))
+                .attr('class', 'delete_link_anchor')
+                .attr('id', 'delete_link_anchor')
+                .attr('href', 'javascript:void(0)')
+                .attr('title', 'Delete this Meal')
+                .html('Delete this Meal');
+
+            var deleteClear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            // This is a getJSON request:
+            // 
+            // REQUEST
+            // * The username
+            // * The timestamp of the deleted meal
+            // * The timestamp of nextpage (if it exists)
+            //
+            // RESPONSE
+            // * mealinfo of the new lastpicture (if it exists)
+            // * new nextpage info (if it exists)
+            //
+            // The getJSON request and this delete-copy run concurrently.
+            // It will be up to the ajax response function to load the new 
+            // mealinfo and dismiss the modal.
+
+            deleteAnchor.click(function() {
+
+                var editGrid = $('#gridTimestamp' + meal.timestamp);
+                var nextGrid = editGrid.next('.editgrid');
+                var lastGrid = $('.editgrid').last();
+
+                $.getJSON('/deletemeal',
+                    {
+                        username: meal.username,
+                        timestamp: meal.timestamp,
+                        nextpage: page_globals.nextPage
+                    },
+                    function(response) {
+                    });
+
+                // Walk gridpics, copying each into the last
+                while(nextGrid && nextGrid.length) {
+
+                    var intnl = editGrid.find('.editGridInternal');
+                    var nxtin = nextGrid.find('.editGridInternal');
+
+                    if(nxtin && nxtin.length) {
+
+                        if(intnl && intnl.length) {
+                            intnl.remove();
+                        }
+                        nxtin.remove();
+                        nxtin.appendTo(editGrid);
+                        editGrid = nextGrid;
+                    }
+
+                    nextGrid = nextGrid.next();
+                }
+
+                if(editGrid !== lastGrid) {
+                    console.log('Ooops!  Something went very wrong ..');
+                }
+            });
+
+            deleteAnchor.appendTo(deleteLink);
+
+            // Append to modal
+            deletePre.appendTo(class8);
+            deleteLink.appendTo(class8);
+            deleteClear.appendTo(class8);
+
             class8.appendTo(popup);
 
             var maskWidth = $(window).width();
@@ -933,14 +1034,11 @@ TODO:
 
             $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
 
-            // Not sure if i want this
-            /*
             $('#maskFade').click(function() {
                     popup.fadeOut(0);
                     $('#maskFade').css({'display':'none'});
                     popup.remove();
             });
-            */
 
             // Wait for the image to load
             img.load(function() {
@@ -955,7 +1053,7 @@ TODO:
 
         }
 
-        function showAttributes(username, timestamp, cnt) {
+        function showAttributes(username, timestamp) {
 
             $.getJSON('/ajaxgetmealinfo',
                     {
@@ -978,17 +1076,30 @@ TODO:
                             }
                         }
                         else {
-                            showAttributesMealInfo(response.mealInfo, response.restaurantInfo, response.restaurantId, cnt);
+                            showAttributesMealInfo(response.mealInfo, response.restaurantInfo, response.restaurantId);
                         }
                     });
         }
 
-        function pictureDiv(meal, cnt, callback, lastpic) {
-            var editgrid= $(document.createElement('div'))
-                .attr('class', 'grid_4 editheight');
+        function pictureDiv(meal, mealIdx, callback, lastpic) {
+
+            var gridId = 'gridIndex' + mealIdx;
+            var tsId = 'gridTimestamp' + meal.timestamp;
+
+            // Id this with both an index and a timestamp
+            var editgrid = $(document.createElement('div'))
+                .attr('id', gridId)
+                .attr('id', tsId)
+                .attr('class', 'grid_4 editheight editgrid');
+
+            // I can manipulate this directly in the delete code.
+            var editInternal = $(document.createElement('div'))
+                .attr('class', 'editGridInternal');
+
+            editInternal.appendTo(editgrid);
 
             var center = $(document.createElement('center'));
-            center.appendTo(editgrid);
+            center.appendTo(editInternal);
 
             var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
             var hoverDate = new Date(meal.timestamp).toLocaleDateString();
@@ -1004,7 +1115,7 @@ TODO:
                 .attr('title', hoverTxt);
                 
             anchor.click(function() {
-                showAttributes(meal.username, meal.timestamp, cnt);
+                showAttributes(meal.username, meal.timestamp);
             });
 
             anchor.appendTo(editImageDiv);
@@ -1023,32 +1134,17 @@ TODO:
 
             image.appendTo(anchor);
 
-            var mealcnttxt = 'mealcnt' + cnt;
-
-            var mealcnt = $(document.createElement('div'))
-                .attr('id', mealcnttxt);
+            var titletext = $(document.createElement('div'))
+                .attr('class', 'titleText');
 
             if(meal.picTitle != undefined && meal.picTitle.length > 0) {
-                mealcnt.html(meal.picTitle);
+                titletext.html(meal.picTitle);
             }
             else {
-                mealcnt.html('untitled');
+                titletext.html('untitled');
             }
 
-            // TODO: if you CLICK on this, allow users to change the title 
-            // (like in Mac-OS).
-
-            mealcnt.appendTo(center);
-
-            var delchk = 'delchk' + cnt;
-            var delchkval = meal.username + '/' + meal.timestamp;
-
-            var deletemeal = $(document.createElement('input'))
-                .attr('type', 'hidden')
-                .attr('name', delchk)
-                .attr('value', delchkval);
-
-            deletemeal.appendTo(center);
+            titletext.appendTo(center);
 
             // Return the top-level thing
             return editgrid;
@@ -1135,6 +1231,10 @@ TODO:
             }
 
             clearnextprev.appendTo(nextPrev);
+
+            // Update globals
+            page_globals.nextPage = nextPage;
+            page_globals.prevPage = prevPage;
         }
 
         function pictureGridInner(mealinfo, showPicsPerPage, callback)
@@ -1153,6 +1253,7 @@ TODO:
                 if(cnt < endpic) {
                     var meal = mealinfo[cnt];
                     var gridpic = pictureDiv(meal, cnt, callback, endpic);
+
                     gridpic.appendTo(pictureGrid);
 
                     if(cnt % 3 == 2) {
@@ -1161,7 +1262,6 @@ TODO:
                         divclear.appendTo(pictureGrid);
                     }
                 }
-            
             }
 
             return pictureGrid;
@@ -1169,10 +1269,7 @@ TODO:
 
         function displayPictureGrid(mealinfo, nextpage, prevpage, isnext) {
 
-            var showPicsPerPage = <%= user.showPicsPerPage %>;
-            var endpic;
-            var cnt;
-
+            var showPicsPerPage = page_globals.showPicsPerPage;
             var pictureGridContainer = $('#pictureGridContainer');
 
             if(mealinfo != undefined && mealinfo.length > 0) {
@@ -1206,9 +1303,9 @@ TODO:
             // Make this an ajax request that will return enough information
             $.getJSON('/editpagenext',
                     {
-                        username: "<%= user.username %>",
+                        username: page_globals.username,
                         nextpage: nextpage,
-                        count: <%= user.showPicsPerPage %>
+                        count: page_globals.showPicsPerPage
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1225,9 +1322,9 @@ TODO:
         function drawPrevMeals(prevpage) {
             $.getJSON('/editpageprev',
                     {
-                        username: "<%= user.username %>",
+                        username: page_globals.username,
                         prevpage: prevpage,
-                        count: <%= user.showPicsPerPage %>
+                        count: page_globals.showPicsPerPage
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1246,11 +1343,13 @@ TODO:
 
             var minfo = new Array();
 
-            function truncMeal(username, timestamp, picTitle, meal) {
+            function truncMeal(username, timestamp, picTitle, meal, thumbWidth, thumbHeight) {
                 this.username = username;
                 this.timestamp = timestamp;
                 this.picTitle = picTitle;
                 this.meal = meal;
+                this.thumbWidth = thumbWidth;
+                this.thumbHeight = thumbHeight;
                 return this;
             }
             
@@ -1260,20 +1359,20 @@ TODO:
                     var meal = mealinfo[i];
             %>
 
-                minfo[<%= i %>] = new truncMeal(
-                        "<%= meal.username %>", 
-                        <%= meal.timestamp %>,
-                        "<%= meal.picTitle %>",
-                        "<%= meal.meal %>" );
+            // Start meals
+            minfo[<%= i %>] = new truncMeal(
+                    "<%= meal.username %>",
+                    <%= meal.timestamp %>,
+                    "<%= meal.picTitle %>",
+                    "<%= meal.meal %>",
+                    <%= meal.thumbWidth %>,
+                    <%= meal.thumbHeight %>);
             <%
                 }  
             } 
             %>
 
-            var nextpage = <%= nextpage != undefined ? nextpage:0 %>;
-            var prevpage = <%= prevpage != undefined ? prevpage:0 %>;
-
-            displayPictureGrid(minfo, nextpage, prevpage, true);
+            displayPictureGrid(minfo, page_globals.nextpage, page_globals.prevpage, true);
         });
 
 
@@ -1288,6 +1387,13 @@ TODO:
                 <a href='javascript:void(0)' onclick='uploadMealPopup()'>Upload a Meal</a>
             </div>
             <div class="clear"></div>
+
+            <div class="grid_2 prefix_10">
+                <div id='deleteModeDiv'> </div>
+                <!-- Not sure about 'deletemode' yet -->
+            </div>
+            <div class="clear"></div>
+
             <div class="grid_2 prefix_10">
                 <!-- maybe a menu here.. ? -->
                 <a href="/signout">Logout</a>
