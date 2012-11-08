@@ -2203,6 +2203,27 @@ function editpagenextprevstart(req, res, next, timestamp, isprev) {
 // Do the 'nextpage' & lookup picture logic first.
 app.get('/deletemeal', function(req, res, next) {
 
+    if(req.query.prevpage == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    if(req.query.nextpage == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    if(req.query.count == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "badrequest"}));
+        res.end();
+        return;
+    }
+    
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "signin"}));
@@ -2217,28 +2238,57 @@ app.get('/deletemeal', function(req, res, next) {
         return;
     }
 
-    // We're authenticated.. get the nextpage mealinfo.
-    getMealInfoFromMongoRevMenu(
-        req.session.user.username, 
-        parseInt(req.query.nextpage, 10), 
-        1, 
-        false, 
-        function(err, mealinfo, nextpage, prevpage) {
+    var nextPage = parseInt(req.query.nextpage, 10);
+    var prevPage = parseInt(req.query.prevpage, 10);
+    var count = parseInt(req.query.count, 10);
 
-            if(err) throw(err);
+    // Always do the delete first.. if it's a prevpage, you'll always set 
+    // nextpage to 0 anyway.
+    if(prevPage > 0) {
+        getMealInfoFromMongoFwdMenu(
+                req.session.user.username, 
+                prevPage, 
+                count, 
+                false, 
+                function(err, mealinfo, nextpage, prevpage) {
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.write(JSON.stringify(
                     {
                         message: "success",
-                        mealInfo: mealinfo,
-                        nextpage: nextpage
-                    }
-                )
-            );
+                        mealinfo: mealinfo,
+                        nextpage: 0,
+                        prevpage: prevpage
+                    }));
             res.end();
-            return;
-        }
-    );
+        }); // getMealInfoFromMongoFwd
+    }
+    else {
+
+        // We're authenticated.. get the nextpage mealinfo.
+        getMealInfoFromMongoRevMenu(
+                req.session.user.username, 
+                nextPage, 
+                count, 
+                false, 
+                function(err, mealinfo, nextpage, prevpage) {
+
+                    if(err) throw(err);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.write(JSON.stringify(
+                            {
+                                message: "success",
+                                mealinfo: mealinfo,
+                                nextpage: nextpage,
+                                prevpage: 0     // Not used in this case
+                            }
+                            )
+                        );
+                    res.end();
+                    return;
+                }
+        );
+    }
     // TODO: actually delete the meal requested
 });
 

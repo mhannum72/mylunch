@@ -118,8 +118,6 @@ TODO:
                 .attr('name', 'hiddenIFrame')
                 .attr('id', 'hiddenIFrame');
 
-            hiddenIFrame.appendTo(hiddenElements);
-
             var uploadForm = $(document.createElement('form'))
                 .attr('id', 'uploadForm')
                 .attr('name', 'uploadForm')
@@ -137,6 +135,9 @@ TODO:
                 .attr('name', 'inputUpload')
                 .attr('id', 'inputUpload');
 
+            hiddenIFrame.appendTo(hiddenElements);
+
+
             // TODO - this could be slow.. maybe i could show a popup saying that things are uploading?
             function checkUploaded() {
 
@@ -151,7 +152,8 @@ TODO:
                 // print an error message.
                 //
                 // TODO: what's the bottleneck here?
-                if(bodyText == "") {
+                if(null == bodyText || bodyText == "") {
+                    console.log('checkUploaded bodyText is null - resetting timeout');
                     setTimeout(checkUploaded, 1000);
                     return;
                 }
@@ -160,10 +162,14 @@ TODO:
                 if(regex.test(bodyText)) {
                     var tstring = bodyText.split(" ").pop();
                     var timestamp = parseInt(tstring, 10);
+                    console.log('checkUploaded timestamp is ' + timestamp);
                     $('#pictureGridDiv').html('');
                     drawNextMeals(timestamp);
                     showAttributes(page_globals.username, timestamp, 0);
                     return;
+                }
+                else {
+                    console.log('checkUploaded didnt match regex - bodyText is ' + bodyText);
                 }
 
                 // Failure case .. not sure what to do.. print it to an error div?
@@ -975,6 +981,8 @@ TODO:
             // RESPONSE
             // * mealinfo of the new lastpicture (if it exists)
             // * new nextpage info (if it exists)
+            // * previous page meals if this was the last meal on the page
+            // * previous page prevpage if this was the last meal on the page
             //
             // The getJSON request and this delete-copy run concurrently.
             // It will be up to the ajax response function to load the new 
@@ -984,13 +992,31 @@ TODO:
 
                 var editGrid = $('#gridTimestamp' + meal.timestamp);
                 var nextGrid = editGrid.next('.editgrid');
+                var firstGrid = $('.editgrid').first();
                 var lastGrid = $('.editgrid').last();
+                var prevPage = 0;
+                var count = 1;
+                var lastPic = false;
+
+                // If this is the last remaining picture on this page, request the previous page
+                if(firstGrid.attr('id') == lastGrid.attr('id')) {
+                    lastPic = true;
+                    if(page_globals.prevPage > 0) {
+                        count = page_globals.showPicsPerPage;
+                        prevPage = page_globals.prevPage;
+                    }
+                    if(page_globals.nextPage > 0) {
+                        console.log('deleteAnchor.click: page_globals nextPage is set for empty page?');
+                    }
+                }
 
                 $.getJSON('/deletemeal',
                     {
                         username: meal.username,
                         timestamp: meal.timestamp,
-                        nextpage: page_globals.nextPage
+                        nextpage: page_globals.nextPage,
+                        prevpage: prevPage,
+                        count: count
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1004,19 +1030,29 @@ TODO:
                             return;
                         }
 
-                        // Success case
-                        if(response.mealInfo != undefined && response.mealInfo.length >= 1) {
-
-                            // There's only one meal here- we'll be called when that loads
-                            var newInternal = pictureDivInternal(response.mealInfo[0], function (showImages) {
-                                newInternal.appendTo(lastGrid);
-                                nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
-                            });
-
+                        // If this was the last picture on the page & mealinfo is set, these meals belong
+                        // to the previous page.  displayPictureGrid handles everything.
+                        if(lastPic) {
+                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
                         }
                         else {
-                            lastGrid.remove();
-                            nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
+
+                            // Success case
+                            if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
+
+                                // There's only one meal here- we'll be called when that loads
+                                var newInternal = pictureDivInternal(response.mealinfo[0], function (showImages) {
+                                    newInternal.appendTo(lastGrid);
+                                    nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
+                                });
+
+                            }
+                            else {
+
+                                lastGrid.remove();
+                                nextPrevPageLinks(parseInt(response.nextpage, 10), page_globals.prevPage);
+
+                            }
                         }
 
                         popup.fadeOut(0);
@@ -1259,7 +1295,7 @@ TODO:
 
             if(createdPrev && createdNext) {
                 prevGrid.addClass('suffix_4');
-                nextGrid.addClass('previx_4');
+                nextGrid.addClass('prefix_4');
             }
 
             var clearnextprev = $(document.createElement('div'))
@@ -1279,8 +1315,8 @@ TODO:
             clearnextprev.appendTo(nextPrev);
 
             // Update globals
-            page_globals.nextPage = nextPage;
-            page_globals.prevPage = prevPage;
+            page_globals.nextPage = nextpage;
+            page_globals.prevPage = prevpage;
         }
 
         function pictureGridInner(mealinfo, showPicsPerPage, callback)
@@ -1310,10 +1346,9 @@ TODO:
                 }
             }
 
-            return pictureGrid;
-        }
+            return pictureGrid; }
 
-        function displayPictureGrid(mealinfo, nextpage, prevpage, isnext) {
+        function displayPictureGrid(mealinfo, nextpage, prevpage) {
 
             var showPicsPerPage = page_globals.showPicsPerPage;
             var pictureGridContainer = $('#pictureGridContainer');
@@ -1339,6 +1374,7 @@ TODO:
                 // maybe a friendly 'To get you started' popup .. ?
                 // Make this a pop-up - something that's informative.  It'll
                 // be something you just dismiss.
+                $('#pictureGrid').empty();
                 $('#pictureGridDiv').html('<center><b>No Meals to View</b><center>');
             }
 
@@ -1359,7 +1395,7 @@ TODO:
                             console.log('editpagenext error: ' + response.errStr);
                         }
                         else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage, true);
+                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
                         }
                     });
             return 0;
@@ -1378,7 +1414,7 @@ TODO:
                             console.log('editpageprev error: ' + response.errStr);
                         }
                         else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage, false);
+                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
                         }
                     });
             return 0;
@@ -1418,7 +1454,7 @@ TODO:
             } 
             %>
 
-            displayPictureGrid(minfo, page_globals.nextpage, page_globals.prevpage, true);
+            displayPictureGrid(minfo, page_globals.nextPage, page_globals.prevPage);
         });
 
 
