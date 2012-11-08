@@ -5,7 +5,6 @@ Personal project: a website where people can upload pictures of their meals.
 
 Next up: 
 * Implement the actual 'delete' code in node.js
-* Implement the 'prev-page' code in node.js
 
 TODO - keep in the back of your mind:
 

@@ -2240,56 +2240,65 @@ app.get('/deletemeal', function(req, res, next) {
 
     var nextPage = parseInt(req.query.nextpage, 10);
     var prevPage = parseInt(req.query.prevpage, 10);
+    var timestamp = parseInt(req.query.timestamp, 10);
     var count = parseInt(req.query.count, 10);
 
-    // Always do the delete first.. if it's a prevpage, you'll always set 
-    // nextpage to 0 anyway.
-    if(prevPage > 0) {
-        getMealInfoFromMongoFwdMenu(
-                req.session.user.username, 
-                prevPage, 
-                count, 
-                false, 
-                function(err, mealinfo, nextpage, prevpage) {
+    setDeleteFlagInMongo(req.query.username, timestamp, function(err, updated) {
 
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.write(JSON.stringify(
-                    {
-                        message: "success",
-                        mealinfo: mealinfo,
-                        nextpage: 0,
-                        prevpage: prevpage
-                    }));
-            res.end();
-        }); // getMealInfoFromMongoFwd
-    }
-    else {
+        req.session.user.numPics -= 1;
+        updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) {
+            if(err) throw(err);
 
-        // We're authenticated.. get the nextpage mealinfo.
-        getMealInfoFromMongoRevMenu(
-                req.session.user.username, 
-                nextPage, 
-                count, 
-                false, 
-                function(err, mealinfo, nextpage, prevpage) {
+            // I could probably run this code asynchronous to the delete to 
+            // gain a little performance- the risk is that the user will 
+            // page around a bit, and see the deleted record. 
+            if(prevPage > 0) {
+                getMealInfoFromMongoFwdMenu(
+                    req.session.user.username, 
+                    prevPage, 
+                    count, 
+                    false, 
+                    function(err, mealinfo, nextpage, prevpage) {
 
-                    if(err) throw(err);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.write(JSON.stringify(
-                            {
-                                message: "success",
-                                mealinfo: mealinfo,
-                                nextpage: nextpage,
-                                prevpage: 0     // Not used in this case
-                            }
-                            )
-                        );
-                    res.end();
-                    return;
-                }
-        );
-    }
-    // TODO: actually delete the meal requested
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.write(JSON.stringify(
+                                {
+                                    message: "success",
+                                    mealinfo: mealinfo,
+                                    nextpage: 0,
+                                    prevpage: prevpage
+                                }));
+                        res.end();
+                    }); // getMealInfoFromMongoFwd
+            }
+            else {
+
+                // We're authenticated.. get the nextpage mealinfo.
+                getMealInfoFromMongoRevMenu(
+                        req.session.user.username, 
+                        nextPage, 
+                        count, 
+                        false, 
+                        function(err, mealinfo, nextpage, prevpage) {
+
+                            if(err) throw(err);
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.write(JSON.stringify(
+                                    {
+                                        message: "success",
+                                        mealinfo: mealinfo,
+                                        nextpage: nextpage,
+                                        prevpage: 0     // Not used in this case
+                                    }
+                                    )
+                                );
+                            res.end();
+                            return;
+                        }
+                );
+            }
+        });
+    });
 });
 
 app.get('/editpageprev', function(req, res, next) {
