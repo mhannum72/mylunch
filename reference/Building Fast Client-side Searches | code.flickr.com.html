@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" lang="en">
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" lang="en">
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" lang="en">
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html lang="en"><!--<![endif]--><!--
+	generated in 0.328 seconds
+	40498 bytes batcached for 300 seconds
+--><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>Building Fast Client-side Searches | code.flickr.com</title>
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="stylesheet" type="text/css" media="all" href="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/style.css">
+<link rel="pingback" href="http://code.flickr.com/xmlrpc.php">
+<!--[if lt IE 9]>
+<script src="http://s2.wp.com/wp-content/themes/pub/twentyeleven/js/html5.js?m=1315596887g" type="text/javascript"></script>
+<![endif]-->
+		<script type="text/javascript" async="" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/quant.js"></script><script src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/remote-login.php" type="text/javascript"></script>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+			if ( 'function' === typeof WPRemoteLogin ) {
+				document.cookie = "wordpress_test_cookie=test; path=/";
+				if ( document.cookie.match( /(;|^)\s*wordpress_test_cookie\=/ ) ) {
+					WPRemoteLogin();
+				}
+			}
+		/* ]]> */
+		</script>
+		<link rel="alternate" type="application/rss+xml" title="code.flickr.com » Feed" href="http://code.flickr.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="code.flickr.com » Comments Feed" href="http://code.flickr.com/comments/feed/">
+<script type="text/javascript">
+/* <![CDATA[ */
+function addLoadEvent(func){var oldonload=window.onload;if(typeof window.onload!='function'){window.onload=func;}else{window.onload=function(){oldonload();func();}}}
+/* ]]> */
+</script>
+<link rel="stylesheet" id="all-css-0" href="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/a.css" type="text/css" media="all">
+<script type="text/javascript" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/a.js"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://flickrcode.wordpress.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://flickrcode.wordpress.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="[changelog] High Definition Kitten Tuesday (New HD Search&nbsp;option)" href="http://code.flickr.com/2009/03/17/changelog-high-definition-kitten-tuesday-new-hd-search-option/">
+<link rel="next" title="Tags in&nbsp;Space" href="http://code.flickr.com/2009/03/20/tags-in-space/">
+<meta name="generator" content="WordPress.com">
+<link rel="canonical" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/">
+<link rel="shortlink" href="http://wp.me/p2DMyG-bl">
+<link rel="alternate" type="application/json+oembed" href="http://public-api.wordpress.com/oembed/1.0/?format=json&amp;url=http%3A%2F%2Fcode.flickr.com%2F2009%2F03%2F18%2Fbuilding-fast-client-side-searches%2F&amp;for=wpcom-auto-discovery"><link rel="alternate" type="application/xml+oembed" href="http://public-api.wordpress.com/oembed/1.0/?format=xml&amp;url=http%3A%2F%2Fcode.flickr.com%2F2009%2F03%2F18%2Fbuilding-fast-client-side-searches%2F&amp;for=wpcom-auto-discovery"><link rel="shortcut icon" type="image/x-icon" href="http://s2.wp.com/i/favicon.ico?m=1311976025g" sizes="16x16 24x24 32x32 48x48">
+<link rel="icon" type="image/x-icon" href="http://s2.wp.com/i/favicon.ico?m=1311976025g" sizes="16x16 24x24 32x32 48x48">
+<link rel="apple-touch-icon-precomposed" href="http://s0.wp.com/i/webclip.png?m=1311618091g">
+<link rel="openid.server" href="http://flickrcode.wordpress.com/?openidserver=1">
+<link rel="openid.delegate" href="http://flickrcode.wordpress.com/">
+<link rel="search" type="application/opensearchdescription+xml" href="http://code.flickr.com/osd.xml" title="code.flickr.com">
+<link rel="search" type="application/opensearchdescription+xml" href="http://wordpress.com/opensearch.xml" title="WordPress.com">
+		<style>
+		/* <![CDATA[ */
+		/* Block: reblog */
+		
+		.reblog-from img                   { margin: 0 10px 0 0; vertical-align: middle; padding: 0; border: 0; }
+		.reblogger-note img.avatar         { float: left; padding: 0; border: 0; }
+		.reblogger-note-content            { margin: 0 0 20px; }
+		.reblog-post .wpcom-enhanced-excerpt-content { border-left: 3px solid #eee; padding-left: 15px; }
+		.reblog-post ul.thumb-list         { display: block; list-style: none; margin: 2px 0; padding: 0; clear: both; }
+		.reblog-post ul.thumb-list li      { display: inline; margin: 0; padding: 0 1px; border: 0; }
+		.reblog-post ul.thumb-list li a    { margin: 0; padding: 0; border: 0; }
+		.reblog-post ul.thumb-list li img  { margin: 0; padding: 0; border: 0; }
+		
+		.reblog-post .wpcom-enhanced-excerpt { clear: both; }
+		
+		.reblog-post .wpcom-enhanced-excerpt address,
+		.reblog-post .wpcom-enhanced-excerpt li,
+		.reblog-post .wpcom-enhanced-excerpt h1,
+		.reblog-post .wpcom-enhanced-excerpt h2,
+		.reblog-post .wpcom-enhanced-excerpt h3,
+		.reblog-post .wpcom-enhanced-excerpt h4,
+		.reblog-post .wpcom-enhanced-excerpt h5,
+		.reblog-post .wpcom-enhanced-excerpt h6,
+		.reblog-post .wpcom-enhanced-excerpt p { font-size: 100% !important; }
+		
+		.reblog-post .wpcom-enhanced-excerpt blockquote,
+		.reblog-post .wpcom-enhanced-excerpt pre,
+		.reblog-post .wpcom-enhanced-excerpt code,
+		.reblog-post .wpcom-enhanced-excerpt q { font-size: 98% !important; }
+		
+
+		/* ]]> */		
+		</style>
+		<meta name="application-name" content="code.flickr.com"><meta name="msapplication-window" content="width=device-width;height=device-height"><meta name="msapplication-task" content="name=Subscribe;action-uri=http://code.flickr.com/feed/;icon-uri=http://s2.wp.com/i/favicon.ico">	<style type="text/css">
+			#site-title,
+		#site-description {
+			position: absolute !important;
+			clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+			clip: rect(1px, 1px, 1px, 1px);
+		}
+		</style>
+	
+	<link rel="stylesheet" type="text/css" href="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/a_002.css">
+<link rel="stylesheet" type="text/css" id="gravatar-card-css" href="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/hovercard.css"><link rel="stylesheet" type="text/css" id="gravatar-card-services-css" href="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/services.css"></head>
+
+<body class="single single-post postid-703 single-format-standard typekit-enabled singular two-column right-sidebar highlander-enabled highlander-light">
+<div id="page" class="hfeed">
+	<header id="branding" role="banner">
+			<hgroup>
+				<h1 id="site-title"><span><a href="http://code.flickr.com/" title="code.flickr.com" rel="home">code.flickr.com</a></span></h1>
+				<h2 id="site-description"></h2>
+			</hgroup>
+
+						<a href="http://code.flickr.com/">
+									<img src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/code-flickr-com-drawn-header-grey-large.png" alt="" height="157" width="1000">
+							</a>
+			
+							<div class="only-search with-image">
+					<form method="get" id="searchform" action="http://code.flickr.com/">
+		<label for="s" class="assistive-text">Search</label>
+		<input class="field" name="s" id="s" placeholder="Search" type="text">
+		<input class="submit" name="submit" id="searchsubmit" value="Search" type="submit">
+	</form>
+				</div>
+			
+			<nav id="access" role="navigation">
+				<h3 class="assistive-text">Main menu</h3>
+								<div class="skip-link"><a class="assistive-text" href="#content" title="Skip to primary content">Skip to primary content</a></div>
+				<div class="skip-link"><a class="assistive-text" href="#secondary" title="Skip to secondary content">Skip to secondary content</a></div>
+								<div class="menu-menu-container"><ul id="menu-menu" class="menu"><li id="menu-item-2084" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2084"><a href="http://www.flickr.com/">Flickr</a></li>
+<li id="menu-item-2085" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2085"><a href="http://blog.flickr.net/">Flickr Blog</a></li>
+<li id="menu-item-2250" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2250"><a href="http://twitter.com/flickr">@flickr</a></li>
+<li id="menu-item-2086" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2086"><a href="http://twitter.com/flickrapi">@flickrapi</a></li>
+<li id="menu-item-2087" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2087"><a href="http://developer.flickr.com/">Developer Guidelines</a></li>
+<li id="menu-item-2088" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2088"><a href="http://www.flickr.com/services/api/">API</a></li>
+<li id="menu-item-2089" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2089"><a href="http://www.flickr.com/jobs/">Jobs</a></li>
+</ul></div>			</nav><!-- #access -->
+	</header><!-- #branding -->
+
+
+	<div id="main">
+
+		<div id="primary">
+			<div id="content" role="main">
+
+				
+					<nav id="nav-single">
+						<h3 class="assistive-text">Post navigation</h3>
+						<span class="nav-previous"><a href="http://code.flickr.com/2009/03/17/changelog-high-definition-kitten-tuesday-new-hd-search-option/" rel="prev"><span class="meta-nav">←</span> Previous</a></span>
+						<span class="nav-next"><a href="http://code.flickr.com/2009/03/20/tags-in-space/" rel="next">Next <span class="meta-nav">→</span></a></span>
+					</nav><!-- #nav-single -->
+
+					
+<article id="post-703" class="post-703 post type-post status-publish format-standard hentry category-uncategorized tag-frontend tag-javascript tag-optimization tag-yui">
+	<header class="entry-header">
+		<h1 class="entry-title">Building Fast Client-side&nbsp;Searches</h1>
+
+				<div class="entry-meta">
+			<span class="sep">Posted on </span><a href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/" title="3:59 pm" rel="bookmark"><time class="entry-date" datetime="2009-03-18T15:59:42+00:00" pubdate="">March 18, 2009</time></a><span class="by-author"> <span class="sep"> by </span> <span class="author vcard"><a class="url fn n" href="http://code.flickr.com/author/rharmes/" title="View all posts by Ross Harmes" rel="author">Ross Harmes</a></span></span>		</div><!-- .entry-meta -->
+			</header><!-- .entry-header -->
+
+	<div class="entry-content">
+		<p>Yesterday we released <a href="http://blog.flickr.net/en/2009/03/17/find-people-faster/">a new people selector widget</a>
+ (which we’ve been calling Bo Selecta internally). This widget downloads
+ a list of all of your contacts, in JavaScript, in under 200ms (this is 
+true even for members with 10,000+ contacts). In order to get this level
+ of performance, we had to completely rethink how we send data from the 
+server to the client.</p>
+<h2 style="margin-bottom: 12px;">Server Side: Cache Everything</h2>
+<p>To make this data available quickly from the server, we maintain and 
+update a per-member cache in our database, where we store each member’s 
+contact list in a text blob — this way it’s a single quick DB query to 
+retrieve it. We can format this blob in any way we want: XML, JSON, etc.
+ Whenever a member updates their information, we update the cache for 
+all of their contacts. Since a single member who changes their contact 
+information can require updating the contacts cache for hundreds or even
+ thousands of other members, we rely upon prioritized tasks in <a href="http://code.flickr.com/blog/2008/09/26/flickr-engineers-do-it-offline/">our offline queue system</a>.</p>
+<h2 style="margin-bottom: 12px;">Testing the Performance of Different Data Formats</h2>
+<p>Despite the fact that our backend system can deliver the contact list
+ data very quickly, we still don’t want to unnecessarily fetch it for 
+each page load. This means that we need to defer loading until it’s 
+needed, and that we have to be able to request, download, and parse the 
+contact list in the amount of time it takes a member to go from hovering
+ over a text field to typing a name.</p>
+<p>With this goal in mind, we started testing various data formats, and 
+recording the average amount of time it took to download and parse each 
+one. We started with Ajax and XML; this proved to be the slowest by far,
+ so much so that the larger test cases wouldn’t even run to completion 
+(the tags used to create the XML structure also added a lot of weight to
+ the filesize). It appeared that using XML was out of the question. </p>
+<h2 style="margin-bottom: 12px;">BoSelectaJsonGoodFunTimes: eval() is Slow</h2>
+<p><a href="http://www.flickr.com/photos/dchousegrooves/2539003507/" title="DJ Bo Selecta on the decks by dchousegrooves, on Flickr"><img src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/2539003507_02728b3e80.jpg" alt="DJ Bo Selecta on the decks" height="375" width="500"></a></p>
+<p>Next we tried using Ajax to fetch the list in the JSON format (and 
+having eval() parse it). This was a major improvement, both in terms of 
+filesize across the wire and parse time.</p>
+<p>While all of our tests ran to completion (even the 10,000 contacts 
+case), parse time per contact was not the same for each case; it 
+geometrically increased as we increased the number of contacts, up to 
+the point where the 10,000 contact case took over 80 seconds to parse — 
+400 times slower than our goal of 200ms. It seemed that JavaScript had a
+ problem manipulating and eval()ing very large strings, so this approach
+ wasn’t going to work either.</p>
+<table class="data-table">
+<tbody>
+<tr class="header">
+<th>Contacts</th>
+<th>File Size (KB)</th>
+<th>Parse Time (ms)</th>
+<th>File Size per Contact (KB)</th>
+<th>Parse Time per Contact (ms)</th>
+</tr>
+<tr>
+<td class="s4">10,617</td>
+<td class="s5">1536</td>
+<td class="s5">81312</td>
+<td class="s6">0.14</td>
+<td class="s7">7.66</td>
+</tr>
+<tr class="odd">
+<td class="s8">4,878</td>
+<td class="s9">681</td>
+<td class="s9">18842</td>
+<td class="s10">0.14</td>
+<td class="s11">3.86</td>
+</tr>
+<tr>
+<td class="s8">2,979</td>
+<td class="s9">393</td>
+<td class="s9">6987</td>
+<td class="s10">0.13</td>
+<td class="s11">2.35</td>
+</tr>
+<tr class="odd">
+<td class="s8">1,914</td>
+<td class="s9">263</td>
+<td class="s9">3381</td>
+<td class="s10">0.14</td>
+<td class="s11">1.77</td>
+</tr>
+<tr>
+<td class="s8">1,363</td>
+<td class="s9">177</td>
+<td class="s9">1837</td>
+<td class="s10">0.13</td>
+<td class="s11">1.35</td>
+</tr>
+<tr class="odd">
+<td class="s8">798</td>
+<td class="s9">109</td>
+<td class="s9">852</td>
+<td class="s10">0.14</td>
+<td class="s11">1.07</td>
+</tr>
+<tr>
+<td class="s8">644</td>
+<td class="s9">86</td>
+<td class="s9">611</td>
+<td class="s10">0.13</td>
+<td class="s11">0.95</td>
+</tr>
+<tr class="odd">
+<td class="s8">325</td>
+<td class="s9">44</td>
+<td class="s9">252</td>
+<td class="s10">0.14</td>
+<td class="s11">0.78</td>
+</tr>
+<tr>
+<td class="s8">260</td>
+<td class="s9">36</td>
+<td class="s9">205</td>
+<td class="s10">0.14</td>
+<td class="s11">0.79</td>
+</tr>
+<tr class="odd">
+<td class="s8">165</td>
+<td class="s9">24</td>
+<td class="s9">111</td>
+<td class="s10">0.15</td>
+<td class="s11">0.67</td>
+</tr>
+</tbody>
+</table>
+<h2 style="margin-bottom: 12px;">JSON and Dynamic Script Tags: Fast but Insecure</h2>
+<p>Working with the theory that large string manipulation was the 
+problem with the last approach, we switched from using Ajax to instead 
+fetching the data using a dynamically generated script tag. This means 
+that the contact data was never treated as string, and was instead 
+executed as soon as it was downloaded, just like any other JavaScript 
+file. The difference in performance was shocking: 89ms to parse 10,000 
+contacts (a reduction of 3 orders of magnitude), while the smallest case
+ of 172 contacts only took 6ms. The parse time per contact actually <i>decreased</i>
+ the larger the list became. This approach looked perfect, except for 
+one thing:  in order for this JSON to be executed, we had to wrap it in a
+ callback method. Since it’s executable code, any website in the world 
+could use the same approach to download a Flickr member’s contact list. 
+ This was a deal breaker.</p>
+<table class="data-table">
+<tbody>
+<tr class="header">
+<th>Contacts</th>
+<th>File Size (KB)</th>
+<th>Parse Time (ms)</th>
+<th>File Size per Contact (KB)</th>
+<th>Parse Time per Contact (ms)</th>
+</tr>
+<tr>
+<td class="s4">10,709</td>
+<td class="s5">1105</td>
+<td class="s5">89</td>
+<td class="s6">0.10</td>
+<td class="s7">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">4,877</td>
+<td class="s9">508</td>
+<td class="s9">41</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">2,979</td>
+<td class="s9">308</td>
+<td class="s9">26</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">1,915</td>
+<td class="s9">197</td>
+<td class="s9">19</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">1,363</td>
+<td class="s9">140</td>
+<td class="s9">15</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">800</td>
+<td class="s9">83</td>
+<td class="s9">11</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">644</td>
+<td class="s9">67</td>
+<td class="s9">9</td>
+<td class="s10">0.10</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">325</td>
+<td class="s9">35</td>
+<td class="s9">8</td>
+<td class="s10">0.11</td>
+<td class="s11">0.02</td>
+</tr>
+<tr>
+<td class="s8">260</td>
+<td class="s9">27</td>
+<td class="s9">7</td>
+<td class="s10">0.10</td>
+<td class="s11">0.03</td>
+</tr>
+<tr class="odd">
+<td class="s8">172</td>
+<td class="s9">18</td>
+<td class="s9">6</td>
+<td class="s10">0.10</td>
+<td class="s11">0.03</td>
+</tr>
+</tbody>
+</table>
+<h2 style="margin-bottom: 12px;">Going Custom</h2>
+<p><a href="http://www.flickr.com/photos/brianauer/2722866656/" title="Custom Ride by Brian Auer, on Flickr"><img src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/2722866656_5d5a9163e4.jpg" alt="Custom Ride" height="333" width="500"></a></p>
+<p>Having set the performance bar pretty high with the last approach, we
+ dove into custom data formats. The challenge would be to create a 
+format that we could parse ourselves, using JavaScript’s String and 
+RegExp methods, that would also match the speed of JSON executed 
+natively.  This would allow us to use Ajax again, but keep the data 
+restricted to our domain. </p>
+<p>Since we had already discovered that some methods of string 
+manipulation didn’t perform well on large strings, we restricted 
+ourselves to a method that we knew to be fast: split(). We used control 
+characters to delimit each contact, and a different control character to
+ delimit the fields within each contact. This allowed us to parse the 
+string into contact objects with one split, then loop through that array
+ and split again on each string. </p>
+<pre style="margin-bottom: 14px;">that.contacts = o.responseText.split("\c");
+
+for (var n = 0, len = that.contacts.length, contactSplit; n &lt; len; n++) {
+
+	contactSplit = that.contacts[n].split("\a");
+
+	that.contacts[n] = {};
+	that.contacts[n].n = contactSplit[0];
+	that.contacts[n].e = contactSplit[1];
+	that.contacts[n].u = contactSplit[2];
+	that.contacts[n].r = contactSplit[3];
+	that.contacts[n].s = contactSplit[4];
+	that.contacts[n].f = contactSplit[5];
+	that.contacts[n].a = contactSplit[6];
+	that.contacts[n].d = contactSplit[7];
+	that.contacts[n].y = contactSplit[8];
+}
+</pre>
+<p> Though this technique sounds like it would be slow, it actually 
+performed on par with native JSON parsing (it was a little faster for 
+cases containing less than 1000 contacts, and a little slower for those 
+over 1000). It also had the smallest filesize: 80% the size of the JSON 
+data for the same number of contacts. This is the format that we ended 
+up using.</p>
+<table class="data-table">
+<tbody>
+<tr class="header">
+<th>Contacts</th>
+<th>File Size (KB)</th>
+<th>Parse Time (ms)</th>
+<th>File Size per Contact (KB)</th>
+<th>Parse Time per Contact (ms)</th>
+</tr>
+<tr>
+<td class="s4">10,741</td>
+<td class="s5">818</td>
+<td class="s5">173</td>
+<td class="s6">0.08</td>
+<td class="s7">0.02</td>
+</tr>
+<tr class="odd">
+<td class="s8">4,877</td>
+<td class="s9">375</td>
+<td class="s9">50</td>
+<td class="s10">0.08</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">2,979</td>
+<td class="s9">208</td>
+<td class="s9">34</td>
+<td class="s10">0.07</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">1,916</td>
+<td class="s9">144</td>
+<td class="s9">21</td>
+<td class="s10">0.08</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">1,363</td>
+<td class="s9">93</td>
+<td class="s9">16</td>
+<td class="s10">0.07</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">800</td>
+<td class="s9">58</td>
+<td class="s9">10</td>
+<td class="s10">0.07</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">644</td>
+<td class="s9">46</td>
+<td class="s9">8</td>
+<td class="s10">0.07</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">325</td>
+<td class="s9">24</td>
+<td class="s9">4</td>
+<td class="s10">0.07</td>
+<td class="s11">0.01</td>
+</tr>
+<tr>
+<td class="s8">260</td>
+<td class="s9">14</td>
+<td class="s9">3</td>
+<td class="s10">0.05</td>
+<td class="s11">0.01</td>
+</tr>
+<tr class="odd">
+<td class="s8">160</td>
+<td class="s9">13</td>
+<td class="s9">3</td>
+<td class="s10">0.08</td>
+<td class="s11">0.02</td>
+</tr>
+</tbody>
+</table>
+<h2 style="margin-bottom: 12px;">Searching</h2>
+<p><a href="http://www.flickr.com/photos/dafuriousd/2870299882/" title="Ben to the Rescue by dafuriousd, on Flickr"><img src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/2870299882_54f39775bd.jpg" alt="Ben to the Rescue" height="332" width="500"></a></p>
+<p>Now that we have a giant array of contacts in JavaScript, we needed a
+ way to search through them and select one. For this, we used YUI’s 
+excellent <a href="http://developer.yahoo.com/yui/autocomplete/">AutoComplete widget</a>.
+ To get the data into the widget, we created a DataSource object that 
+would execute a function to get results. This function simply looped 
+through our contact array and matched the given query against four 
+different properties of each contact, using a regular expression (RegExp
+ objects turned out to be extremely well-suited for this, with the 
+average search time for the 10,000 contacts case coming in under 38ms). 
+After the results were collected, the AutoComplete widget took care of 
+everything else, including caching the results.</p>
+<p>There was one optimization we made to our AutoComplete configuration 
+that was particularly effective. Regardless of how much we optimized our
+ search method, we could never get results to return in less than 200ms 
+(even for trivially small numbers of contacts). After a lot of profiling
+ and hair pulling, we found the queryDelay setting. This is set to 200ms
+ by default, and artificially delays every search in order to reduce UI 
+flicker for quick typists. After setting that to 0, we found our search 
+times improved dramatically. </p>
+<h2 style="margin-bottom: 12px;">The End Result</h2>
+<div style="margin: 0 auto; text-align: center;">
+<object type="application/x-shockwave-flash" data="Building%20Fast%20Client-side%20Searches%20|%20code.flickr.com_files/stewart.swf" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" height="229" width="400"><param name="flashvars" value="intl_lang=en-us&amp;photo_secret=7d60e13b0d&amp;photo_id=3328806159"><param name="movie" value="http://www.flickr.com/apps/video/stewart.swf?v=68975"><param name="bgcolor" value="#000000"><param name="allowFullScreen" value="true"><embed type="application/x-shockwave-flash" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/stewart.swf" bgcolor="#000000" allowfullscreen="true" flashvars="intl_lang=en-us&amp;photo_secret=7d60e13b0d&amp;photo_id=3328806159" height="229" width="400"></object>
+</div>
+<p>Head over to your <a href="http://www.flickr.com/people/me/contacts/">Contact List</a> page and give it a whirl. We are also using the Bo Selecta with <a href="http://www.flickr.com/mail/write/">FlickrMail</a> and the Share This widget on each photo page. </p>
+<div id="jp-post-flair" class="sharedaddy sd-like-enabled sd-sharing-enabled"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-email share-service-visible"><a rel="nofollow" class="share-email sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=email&amp;nb=1" title="Click to email this to a friend"><span>Email</span></a></li><li class="share-twitter"><a rel="nofollow" class="share-twitter sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=twitter&amp;nb=1" title="Click to share on Twitter" id="sharing-twitter-703"><span>Twitter</span></a></li><li class="share-facebook"><a rel="nofollow" class="share-facebook sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=facebook&amp;nb=1" title="Share on Facebook" id="sharing-facebook-703"><span>Facebook</span></a></li><li class="share-tumblr"><a rel="nofollow" class="share-tumblr sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=tumblr&amp;nb=1" title="Click to share on Tumblr"><span>Tumblr</span></a></li><li class="share-reddit"><a rel="nofollow" class="share-reddit sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=reddit&amp;nb=1" title="Click to share on Reddit"><span>Reddit</span></a></li><li><a href="#" class="sharing-anchor sd-button share-more"><span>More</span></a></li><li class="share-end"></li></ul><div class="sharing-hidden"><div class="inner" style="display: none;"><ul><li class="share-google-plus-1"><a rel="nofollow" class="share-google-plus-1 sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=google-plus-1&amp;nb=1" title="Click to share on Google+" id="sharing-google-703"><span>Google +1</span></a></li><li class="share-stumbleupon"><a rel="nofollow" class="share-stumbleupon sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=stumbleupon&amp;nb=1" title="Click to share on StumbleUpon"><span>StumbleUpon</span></a></li><li class="share-end"></li><li class="share-linkedin"><a rel="nofollow" class="share-linkedin sd-button share-icon" href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?share=linkedin&amp;nb=1" title="Click to share on LinkedIn" id="sharing-linkedin-703"><span>LinkedIn</span></a></li><li class="share-end"></li></ul></div></div><div class="sharing-clear"></div></div></div></div><div class="wpl-likebox sd-block sd-like"><h3 class="sd-title">Like this:</h3><div class="sd-content"><div id="like-703" class="wpl-button "><a href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/?like=1&amp;_wpnonce=d9735f9ad4" title="I like this." class="like needs-login sd-button" rel="nofollow"><span>Like</span></a></div><div class="wpl-count sd-like-count">Be the first to like this.</div></div></div></div>			</div><!-- .entry-content -->
+
+	<footer class="entry-meta">
+		This entry was posted in <a href="http://code.flickr.com/category/uncategorized/" title="View all posts in Uncategorized" rel="category tag">Uncategorized</a> and tagged <a href="http://code.flickr.com/tag/frontend/" rel="tag">frontend</a>, <a href="http://code.flickr.com/tag/javascript/" rel="tag">javascript</a>, <a href="http://code.flickr.com/tag/optimization/" rel="tag">optimization</a>, <a href="http://code.flickr.com/tag/yui/" rel="tag">yui</a> by <a href="http://code.flickr.com/author/rharmes/">Ross Harmes</a>. Bookmark the <a href="http://code.flickr.com/2009/03/18/building-fast-client-side-searches/" title="Permalink to Building Fast Client-side&nbsp;Searches" rel="bookmark">permalink</a>.		
+				<div id="author-info">
+			<div id="author-avatar">
+				<img id="grav-e6bd0ddcceb9201ec0aa0d21db9080c9-0" alt="" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/e6bd0ddcceb9201ec0aa0d21db9080c9.jpeg" class="avatar avatar-68 grav-hashed grav-hijack" height="68" width="68">			</div><!-- #author-avatar -->
+			<div id="author-description">
+				<h2>About Ross Harmes</h2>
+				I'm lucky enough to lead one of the best frontend teams in the business at Flickr. Want to join? We're <a href="http://www.flickr.com/jobs/fe/">hiring</a>!				<div id="author-link">
+					<a href="http://code.flickr.com/author/rharmes/" rel="author">
+						View all posts by Ross Harmes <span class="meta-nav">→</span>					</a>
+				</div><!-- #author-link	-->
+			</div><!-- #author-description -->
+		</div><!-- #author-info -->
+			</footer><!-- .entry-meta -->
+</article><!-- #post-703 -->
+
+						<div id="comments">
+	
+	
+	
+	
+									
+</div><!-- #comments -->
+
+				
+			</div><!-- #content -->
+		</div><!-- #primary -->
+
+	</div><!-- #main -->
+
+	<footer id="colophon" role="contentinfo">
+
+			
+
+			<div id="site-generator">
+				Theme: Twenty Eleven <span class="sep"> | </span>				Powered by <a href="http://vip.wordpress.com/" rel="generator">WordPress.com VIP</a>			</div>
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+
+<script type="text/javascript">
+var _qevents = _qevents || [], wpcomQuantcastData = {"qacct":"p-18-mFEk4J448M","labels":",language.en,type.wpcom,posttag.frontend,posttag.javascript,posttag.optimization,posttag.yui,vip.flickrcode"};
+function wpcomQuantcastPixel( labels, options ) {
+	var i, defaults = wpcomQuantcastData, data = { event: 'ajax' };
+
+	labels  = labels  || '';
+	options = options || {};
+
+	if ( typeof labels != 'string' )
+		options = labels;
+
+	for ( i in defaults ) {
+		data[i] = defaults[i];
+	}
+
+	for ( i in options ) {
+		data[i] = options[i];
+	}
+
+	if ( data.labels ) {
+		data.labels += ',' + labels;
+	} else {
+		data.labels = labels;
+	}
+
+	_qevents.push( data );
+};
+(function() {var elem = document.createElement('script');elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";elem.async = true;elem.type = "text/javascript";var scpt = document.getElementsByTagName('script')[0];scpt.parentNode.insertBefore(elem, scpt);  })();
+_qevents.push( wpcomQuantcastData );
+</script>
+<noscript><div style="display: none;"><img src="//pixel.quantserve.com/pixel/p-18-mFEk4J448M.gif?labels=%2Clanguage.en%2Ctype.wpcom%2Cposttag.frontend%2Cposttag.javascript%2Cposttag.optimization%2Cposttag.yui%2Cvip.flickrcode" height="1" width="1" alt="" /></div></noscript>
+
+
+	<script type="text/javascript">
+	/* <![CDATA[ */
+	(function($){
+		$(document).on( 'ready post-load', function() {
+
+			// Remove the login box when clicking the page
+			$( document ).mousedown( function( e ) {
+				if ( null == $( e.target ).closest( '#wpl-mustlogin' ).get( 0 ) ) {
+					$( '#wpl-mustlogin' ).remove();
+				}
+			});
+
+			// Handle clicking the like button itself
+			$('.wpl-button > a.like').click( function(e) {
+				e.preventDefault();
+
+				var postid = $(this).parent().attr('id').split('like-')[1];
+				$.post( 'http://code.flickr.com/wp-admin/admin-ajax.php', {
+					'action': 'wpl_record_stat',
+					'stat_name': 'loggedout_like_click'
+				} );
+
+				var tenMins = new Date();
+				tenMins.setTime( tenMins.getTime() + 600000 );
+				document.cookie = 'wpl_rand=afccb97ad7; expires=' + tenMins.toGMTString() + '; domain=wordpress.com; path=/;';
+
+				$(this).parent().siblings('.wpl-count').after( '\
+					<div id="wpl-mustlogin"> \
+						<form action="https://flickrcode.wordpress.com/wp-login.php" method="post"> \
+							<p>Just one more step to like this:</p> \
+							<label><span>Username</span> <input type="text" name="log" id="user_login" class="input" value="" size="20" tabindex="80" /></label> \
+							<label><span>Password</span> <input type="password" name="pwd" id="user_pass" class="input" value="" size="20" tabindex="81" /></label> \
+							<input type="submit" name="wp-submit" id="wp-submit" class="button-primary" value="Log In" tabindex="82" /> \
+							<input type="hidden" name="postid" value="' + postid + '" /> \
+							<input type="hidden" name="redirect_to" value="http://code.flickr.com/2009/03/18/building-fast-client-side-searches?year=2009&#038;monthnum=03&#038;day=18&#038;name=building-fast-client-side-searches&#038;like=1" /> \
+							<input type="hidden" name="wpl_rand" value="afccb97ad7" /> \
+							<p>Not a member yet? <a href="http://wordpress.com/signup/?ref=likebox&user=1" id="wpl-signup-link">Sign up with WordPress.com for free</a></p> \
+						</form> \
+					</div> \
+				');
+
+				$('#wpl-mustlogin').hide().slideDown('fast');
+			} );
+
+			$('#wpl-mustlogin input.input').live( 'focus', function() {
+				$(this).prev().hide();
+			}).live( 'blur', function() {
+				if ( $(this).val() == '' ) {
+					$(this).prev().show();
+				}
+			});
+
+			$('#wpl-mustlogin input#wp-submit').live( 'click', function(e) {
+				e.preventDefault();
+
+				$.post( 'http://code.flickr.com/wp-admin/admin-ajax.php', {
+					'action': 'wpl_record_stat',
+					'stat_name': 'loggedout_login_submit'
+				}, function() {
+					$('#wpl-mustlogin form').submit();
+				} );
+			});
+
+			$('#wpl-mustlogin a#wpl-signup-link').live( 'click', function(e) {
+				e.preventDefault();
+
+				var link = $(this).attr('href');
+
+				$.post( 'http://code.flickr.com/wp-admin/admin-ajax.php', {
+					'action': 'wpl_record_stat',
+					'stat_name': 'loggedout_signup_click'
+				}, function() {
+					location.href = link;
+				} );
+			});
+		})
+	})(jQuery);
+	/* ]]> */
+	</script>
+<script type="text/javascript" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/gprofiles.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/wpgroho.js"></script>
+<script>jQuery(document).ready(function($){ Gravatar.profile_cb = function( h, d ) { WPGroHo.syncProfileData( h, d );	}; Gravatar.my_hash = WPGroHo.my_hash; Gravatar.init( 'body', '#wp-admin-bar-my-account' ); });</script>	<div style="display:none">
+	<div class="grofile-hash-map-e6bd0ddcceb9201ec0aa0d21db9080c9">
+	</div>
+	</div>
+
+	<script type="text/javascript">
+		WPCOM_sharing_counts = {"http:\/\/code.flickr.com\/2009\/03\/18\/building-fast-client-side-searches\/":703}	</script>
+<script type="text/javascript" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/sharing.js"></script>
+	<div id="sharing_email" style="display: none;">
+		<form action="" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input name="target_email" id="target_email" type="text">
+			
+			
+				<label for="source_name">Your Name</label>
+				<input name="source_name" id="source_name" type="text">
+				
+				<label for="source_email">Your Email Address</label>
+				<input name="source_email" id="source_email" type="text">
+
+						
+			<div class="recaptcha" id="sharing_recaptcha"></div><input name="recaptcha_public_key" id="recaptcha_public_key" value="6LcYW8MSAAAAADBAuEH9yaPcF7lWh11Iq62ZKtoo" type="hidden">
+			<img style="float: right; display: none;" class="loading" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/loading.gif" alt="loading" height="16" width="16">
+			<input value="Send Email" class="sharing_send" type="submit">
+			<a href="#cancel" class="sharing_cancel">Cancel</a>
+			
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+			
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div>
+		<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( 'a.share-twitter' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( 'a.share-facebook' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( 'a.share-tumblr' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomtumblr', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( 'a.share-google-plus-1' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomgoogle-plus-1', 'menubar=1,resizable=1,width=600,height=600' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( 'a.share-linkedin' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomlinkedin', 'menubar=1,resizable=1,width=580,height=450' );
+				return false;
+			});
+		});
+		</script>
+		<script type="text/javascript">
+/* <![CDATA[ */
+var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/flickrcode.wordpress.com\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/flickrcode.wordpress.com\/wp-includes\/js\/thickbox\/tb-close.png"};
+var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/flickrcode.wordpress.com\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/flickrcode.wordpress.com\/wp-includes\/js\/thickbox\/tb-close.png"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/a_002.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+(function() {
+try{
+  if ( window.external &&'msIsSiteMode' in window.external) {
+    if (window.external.msIsSiteMode()) {
+      var jl = document.createElement('script');
+      jl.type='text/javascript';
+      jl.async=true;
+      jl.src='/wp-content/plugins/ie-sitemode/custom-jumplist.php';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jl, s);
+    }
+  }
+}catch(e){}
+})();
+// ]]>
+</script><script src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/w.js" type="text/javascript"></script>
+<script type="text/javascript">
+st_go({'blog':'39034126','v':'wpcom','user_id':'0','post':'703','subd':'flickrcode'});
+function st_vt() {var x=document.createElement("img");x.src="http://stats.wordpress.com/g.gif?blog=39034126&v=wpcomvt&user_id=0&post=703&subd=flickrcode&rand="+Math.random();}
+ex_go({'crypt':'UE40eW5QN0p8M2Y/RE1BNmNJfGhxNCVxUDExYmtib2E/SzdEJm0lUEtbdFU0fFk4cHZvcUFrZT90Tn4yQm1+R3NyNTd1LERUSXUlJUR4VXctdEJxVkl1M2x0YkMlZVY/NzRIZVAyUlVIan5rZnZkenNoNTlbTi1zUSY4JXdHPzNDJjBOUk1COGFoYyxjcmcxa2ZTb0g9flU/bG12T0tpX1lVbGRKR2N1UjYsSTd0JkpmV05ZT3xEYXFTV0tNR3BfUWt1aCUmMDIsfDhtcUVbQVhqdFh8cGJNbkd0fmN4dWtqY1BqXVdwcE4lSXp5RXd8cGo='});
+addLoadEvent(function(){linktracker_init('39034126',703);});
+	</script><img id="wpstats" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/g_002.gif" alt=""><img id="wpstats2" src="Building%20Fast%20Client-side%20Searches%20%7C%20code.flickr.com_files/g.gif" alt="" style="display: none;">
+<noscript><img src="http://stats.wordpress.com/b.gif?v=noscript" style="height:0px;width:0px;overflow:hidden" alt="" /></noscript>
+
+
+</body></html>
