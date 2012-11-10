@@ -13,6 +13,7 @@ fairly solid stuff:
   to the browser.  The user's results can be tailored to suit them: that is,
   if we know the users home address, or where the request is being made from,
   the resulting list of restaurants can be tailored to that.
+* I will have to come up with a data format for this.
 * Optimize the 'first-page-upload' case - you only have to wait for the
   timestamp of the upload .. you can shift everything down & derive nextpage
   from the picture that was shifted off.
