@@ -26,6 +26,19 @@ TODO:
     <script src="/jquery.js"></script>
     <script type="text/javascript">
 
+        /*
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Send an ajax request to server maybe
+                    // alert('lat: ' + position.coords.latitude + ' long: ' + position.coords.longitude);
+                },
+                function(error) {
+                }, { enableHighAccuracy: true }
+                );
+        }
+        */
+
         function global_editmeals(username, showPicsPerPage, nextPage, prevPage) {
             this.username = username;
             this.showPicsPerPage = showPicsPerPage;

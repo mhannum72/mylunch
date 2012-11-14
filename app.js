@@ -22,6 +22,8 @@ var debug = 1;
 var express = require('express');
 var fs = require('fs');
 var util = require('util');
+var geoip = require('geoip');
+var city = new geoip.City('/tmp/GeoLiteCity.dat');
 
 // I'm going to compress all photos and keep the most recently used cached.
 var zlib = require('zlib');
@@ -86,6 +88,21 @@ db.open(function(error, client){
         collection.ensureIndex({restaurantId:1}, {unique:true});
     });
 });
+
+
+// Retrieve client IP
+function getClientIp(req) {
+    var ipAddress;
+    var forwardedIpsStr = req.header('x-forwarded-for');
+    if(forwardedIpsStr){
+        var forwardedIps = forwardedIpsStr.split(',');
+        ipAddress = forwardedIps[0];
+    }
+    if(!ipAddress){
+        ipAddress = req.connection.remoteAddress;
+    }
+    return ipAddress;
+};
 
 // Generic function to get a collection
 getCollection = function(coll, callback) {
@@ -631,6 +648,41 @@ var app = module.exports = express.createServer();
 var msPerSecond = 1000;
 var maxCookieAge = 30 * 24 * 60 * 60 * msPerSecond;
 
+// Rate limit a bit
+var geoMaxCheckInterval = 5 * msPerSecond;
+
+function getGeoIp(req, res, next) {
+
+    // Short circuit if we don't have a session yet
+    if(req.session == undefined || req.session.user == undefined) {
+        next();
+        return;
+    }
+
+    // Don't query the database too often
+    if(req.session.user.lastGeo != undefined && req.session.user.lastGeo + geoMaxCheckInterval > Date.now()){
+        next();
+        return;
+    }
+
+    // Retrieve my ip
+    var ipAddr = getClientIp(req);
+
+    // Update only if the client's ip address has changed
+    if(undefined != ipAddr && ipAddr != req.session.user.lastIp) {
+
+        req.session.user.lastGeo = Date.now();
+        req.session.user.lastIp = ipAddr;
+        city.lookup(ipAddr, function(err, data){
+            if(data) {
+                req.session.user.geoip = data;
+            }
+        });
+    }
+    next();
+    return;
+}
+
 // Configuration
 app.configure(function(){
     app.set('views', __dirname + '/views');
@@ -646,6 +698,7 @@ app.configure(function(){
     }));
     app.use(express.methodOverride());
     app.use(express.static(__dirname + '/public'));
+    app.use(getGeoIp);
     app.use(app.router);
 });
 
@@ -1259,6 +1312,10 @@ function User(username, password) {
     this.showPicsPerPage = 9;
     this.defaultWorldViewable = false;
     this.isAdmin = false;
+    this.lastIp = "";
+    this.lastGeo = 0;
+    this.lastLatitude = 0;
+    this.lastLongitude = 0;
 }
 
 // What defines a restaurant
