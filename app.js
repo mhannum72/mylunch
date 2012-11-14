@@ -18,6 +18,9 @@
 // Enable debugging
 var debug = 1;
 
+// Constant
+var msPerSecond = 1000;
+
 // Boilerplate modules
 var express = require('express');
 var fs = require('fs');
@@ -38,13 +41,16 @@ var maxThumbWidth = 300;
 var maxThumbHeight = 300;
 
 // Maximum poll time waiting for deletes
-var maxDeletePollTime = 1000;
+var maxDeletePollTime = 1 * msPerSecond;
 
 // Throttle updates to tmpReviews
-var tmpReviewUpdateMs = 10000;
+var tmpReviewUpdateMs = 10 * msPerSecond;
 
 // info can only be updated once every second
-var infoUpdateMs = 1000;
+var infoUpdateMs = 1 * msPerSecond;
+
+// position can only be updated once every 10 seconds
+var posUpdateMs = 5 * msPerSecond;
 
 var webPort = 3000;
 var webBase = 'localhost:' + webPort;
@@ -645,11 +651,10 @@ var rotating_images;
 // Create a server
 var app = module.exports = express.createServer();
 
-var msPerSecond = 1000;
 var maxCookieAge = 30 * 24 * 60 * 60 * msPerSecond;
 
 // Rate limit a bit
-var geoMaxCheckInterval = 5 * msPerSecond;
+var geoMaxCheckInterval = 10 * msPerSecond;
 
 function getGeoIp(req, res, next) {
 
@@ -1798,6 +1803,53 @@ function checkChangePasswordUser(req, res, next, user) {
         res.end();
         return;
     });
+}
+
+app.post('/updateposition', function(req, res, next) {
+
+    // Boilerplate user checking
+    if(req.session.user == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "baduser"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.username == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.username != req.session.user.username) {
+        console.log('mismatched usernames in savereview request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "baduser"}));
+        res.end();
+        return;
+    }
+
+    // Ratelimit position updates
+    if(req.session.last_updatepos != undefined &&
+            (Date.now() - req.session.last_updatepos) < posUpdateMs) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "toosoon"}));
+        res.end();
+        return;
+    }
+
+    req.session.last_updatepos = Date.now();
+
+    // Save: autocomplete will prefer this to geoip information
+    req.session.user.position = req.body.position;
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write(JSON.stringify({message: "success"}));
+    res.end();
+    return;
 }
 
 app.post('/savereview', function(req, res, next) {
