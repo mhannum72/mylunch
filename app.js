@@ -642,6 +642,10 @@ var mailer = require('nodemailer').createTransport("SMTP", {
         service: org,
     });
 
+// Factual 
+var Factual = require('factual-api');
+var factual = new Factual('LzksHLqX8K3gj0bYYA9l6JKORk54vonNU0KgtxqW', '8d9wsuBG88LQicb0mtrsiqXOVrEJTGYPaLW3wItg');
+
 // Choose images (temporary)
 //var first = 1;
 var lastimage = 0;
@@ -1850,7 +1854,7 @@ app.post('/updateposition', function(req, res, next) {
     res.write(JSON.stringify({message: "success"}));
     res.end();
     return;
-}
+});
 
 app.post('/savereview', function(req, res, next) {
 
@@ -4169,6 +4173,15 @@ app.get('/mylunches/:folder', function(req, res, next) {
 // Allow user to undelete recent deletes
 app.get('/trashbin', function(req, res, next) {
 });
+
+app.get('/places', function(req, res, next) {
+    res.render('places.ejs');
+});
+
+app.get('/placesautocomplete', function(req, res, next) {
+    res.render('placesautocomplete.ejs');
+});
+
 
 
 

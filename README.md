@@ -5,14 +5,33 @@ mylunch
 todo
 ====
 
-fairly solid stuff:
-* Maybe make the restaurant fill-in as simple as possible to use.  Auto-
-  complete the field as they are typing.
+* The winner is: google places api!  Their autocomplete engine is fantastic.
+  I'll have to think about capturing the search results and maintaining a
+  separate entry in my own database to provide a 'restaurant page'.  At first
+  I was thinking that this should be restricted to what's on a list or in a 
+  database, but now I think it should be completely open: if a user references
+  a restaurant which doesn't exist, the website should automatically create a 
+  new restaurant page for it.
 * YES!  this is it.  see references/building fast client side searches.
   every keystroke can result in a new selection being sent from the server
   to the browser.  The user's results can be tailored to suit them: that is,
   if we know the users home address, or where the request is being made from,
   the resulting list of restaurants can be tailored to that.
+* Issue: the output of the google search results might change but luckily each
+  has a unique identifier included with that?  I understand that I'm going to be
+  married to Google, but I'm okay with that: their policies are exactly right
+  for me (very permissive until I get 100,000 hits a day- I'll be very happy
+  when that day comes..)
+* Maybe peridically we could the user if a non-google restaurant page is 'one 
+  of the following' google-id webpages - make sure to do this only once per
+  new restaurant (or not at all because its annoying).
+* The advantage of choosing one of the pop-down menu options might be that the
+  location will automatically show on a map on the editmeals popup.  I'll have
+  to think about this.
+fairly solid stuff:
+* The signup page should request more of the user's information- like maybe
+  their address, phone number, etc - this is crucial for selecting 
+  autocomplete results.
 * I will have to come up with a data format for this.
 * Optimize the 'first-page-upload' case - you only have to wait for the
   timestamp of the upload .. you can shift everything down & derive nextpage

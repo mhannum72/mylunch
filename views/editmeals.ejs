@@ -29,6 +29,7 @@ TODO:
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
+                    console.log('updating position');
                     $.ajax({
                         url: '/updateposition',
                         type: 'POST',
