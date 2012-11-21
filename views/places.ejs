@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Edit Meals</title>
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/960.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <link rel="stylesheet" href="/css/mealdisp.css" />
+    </head>
+
+    <body>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
+    <script type="text/javascript">
+
+        var latitude = 0;
+        var longitude = 0;
+
+        var input=document.getElementById('searchTextField');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    latitude = position.coords.latitude;
+                    longitude = position.coords.longitude;
+                }, 
+                function(error) {}, 
+                { enableHighAccuracy: true }
+            );
+        }
+    </script>
+
+    <input id="searchTextField" type="text" size="50" />
+
+
+    </body>
+</html>
