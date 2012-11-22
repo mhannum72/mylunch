@@ -18,10 +18,6 @@
     <script type="text/javascript">
 
         var map;
-        var service;
-        var infowindow;
-        var latitude;
-        var longitude;
 
         function initialize() {
             var enorth = new google.maps.LatLng(40.876449, -73.325071);
@@ -32,14 +28,24 @@
                 zoom: 13
             });
 
+            var bounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(40.89, -73.30),
+                    new google.maps.LatLng(40.85, -73.34));
+
             //var bounds = map.getBounds();
             var input = document.getElementById('searchTextField');
             var options = {
-                bounds: map.getBounds(),
-                types: ['food']
+                bounds: bounds,
+                types: ['establishment']
             };
 
             var autocomplete = new google.maps.places.Autocomplete(input, options);
+            google.maps.event.addListener(autocomplete, 'place_changed', function() {
+                var place = autocomplete.getPlace();
+                var text = place.name + '<br>' + place.formatted_address + '<br>' + place.formatted_phone_number + '<br>';
+                document.getElementById('selection').innerHTML = text;
+
+            });
 
             var request = {
                 location: enorth,
@@ -47,8 +53,37 @@
                 types: ['food']
             };
 
-            service = new google.maps.places.PlacesService(map);
+            var service = new google.maps.places.PlacesService(map);
             service.nearbySearch(request, callback);
+
+            var autoserv = new google.maps.places.AutocompleteService();
+
+            var search2 = document.getElementById('searchText2');
+
+            search2.onkeydown = function() {
+
+            }
+
+            var arequest = {
+                input: search2.value,
+                location: enorth,
+                radius: 3000,
+                types: ['establishment']
+            };
+
+            autoserv.getPlacePredictions(arequest, function(predictions, status) {
+                if(status != google.maps.places.PlacesServiceStatus.OK) {
+                    console.log('got weird status from getPlacePredictions: ' + status);
+                    return;
+                }
+
+                var text = '';
+                for(var i = 0, prediction; prediction=predictions[i]; i++) {
+                    text += '<li>' + prediction.description + '</li>';
+                }
+                document.getElementById('placepredictions').innerHTML = text;
+            });
+
         }
 
         function detailsreq(reference) {
@@ -78,7 +113,6 @@
 
         function callback(results, status) {
 
-            //var list = document.getElementById('list');
             var places = '<ol>';
 
             if(status == google.maps.places.PlacesServiceStatus.OK) {
@@ -97,6 +131,7 @@
 
         google.maps.event.addDomListener(window, 'load', initialize);
 
+        /*
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
@@ -107,12 +142,19 @@
                 { enableHighAccuracy: true }
             );
         }
+        */
 
     </script>
 
     <div id='map'></div>
+    <div id='selection'></div>
+    <div id='placepredictions'></div>
     <div id='search'>
-        <input type="text" name="searchTextField">
+        <input type="text" name="searchTextField" id="searchTextField" style="width:600px">
+    </div>
+    <div id='search2'>
+        <input type="text" name="searchText2" id="searchText2" autocomplete="off" size="80">
+        <div class="suggestions" id="search2div">
     </div>
     <div id='details'></div>
     ------

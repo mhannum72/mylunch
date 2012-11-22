@@ -26,7 +26,7 @@ var express = require('express');
 var fs = require('fs');
 var util = require('util');
 var geoip = require('geoip');
-var city = new geoip.City('/tmp/GeoLiteCity.dat');
+var city = new geoip.City('geolitecity/GeoLiteCity.dat');
 
 // I'm going to compress all photos and keep the most recently used cached.
 var zlib = require('zlib');
