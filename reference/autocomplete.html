@@ -1,0 +1,1657 @@
+<html><head><link media="all" href="autocomplete_files/widget097.css" type="text/css" rel="stylesheet"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Creating an Autosuggest Text Box</title>
+<link rel="STYLESHEET" type="text/css" href="autocomplete_files/zapplication.css">
+<link rel="STYLESHEET" type="text/css" href="autocomplete_files/ie.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head><body>
+<br><br><a href="http://www.yaldex.com/Free_JavaScript_Editor.htm" title="Free JavaScript Editor"><img src="autocomplete_files/CoolJavaScriptEditor.gif" alt="JavaScript Editor" align="absmiddle" border="0" height="100" vspace="0" width="130">Freeware JavaScript Editor</a>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.yaldex.com/" title="Ajax Tutorial">Ajax Tutorials</a>
+﻿<br>
+ ↑       
+<br>    
+
+
+<script type="text/javascript" src="autocomplete_files/Newgoogle.js"></script><div align="right"><form method="get" action="http://www.google.com/custom" target="google_window"><table bgcolor="#ffffff" border="0"><tbody><tr><td align="left" height="32" nowrap="nowrap" valign="top"></td><td nowrap="nowrap"><input name="domains" value="www.yaldex.com" type="hidden"><label for="sbi" style="display: none">Enter your search terms</label><input name="q" size="20" maxlength="255" id="sbi" type="text"><label for="sbb" style="display: none">Submit search form</label><input name="sa" value="Search" id="sbb" type="submit"></td></tr><tr><td>&nbsp;</td><td nowrap="nowrap"><table><tbody><tr><td><input name="sitesearch" value="" id="ss0" type="radio"><label for="ss0" title="Search the Web"><font size="-1" color="#000000">web</font></label></td><td><input name="sitesearch" value="www.yaldex.com" checked="checked" id="ss1" type="radio"><label for="ss1" title="Search www.yaldex.com"><font size="-1" color="#000000">www.yaldex.com</font></label></td></tr></tbody></table><input name="client" value="pub-9174008455481862" type="hidden"><input name="forid" value="1" type="hidden"><input name="channel" value="9867178206" type="hidden"><input name="ie" value="ISO-8859-1" type="hidden"><input name="oe" value="ISO-8859-1" type="hidden"><input name="safe" value="active" type="hidden"><input name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:0099FF;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;FORID:1" type="hidden"><input name="hl" value="en" type="hidden"></td></tr></tbody></table></form></div>
+<script type="text/javascript" src="autocomplete_files/top_php.js"></script><div align="left"><script type="text/javascript">google_ad_client = "pub-9174008455481862";/* Top */google_ad_slot = "6078998236";google_ad_width = 728;google_ad_height = 90;</script><script type="text/javascript" src="autocomplete_files/show_ads.js"></script><ins style="display:inline-table;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><ins id="aswift_0_anchor" style="display:block;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><iframe allowtransparency="true" hspace="0" marginwidth="0" marginheight="0" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){w.location.replace(h)}}" vspace="0" id="aswift_0" name="aswift_0" style="left: 0pt; position: absolute; top: 0pt;" frameborder="0" height="90" scrolling="no" width="728"></iframe></ins></ins></div><script src="autocomplete_files/social.js" type="text/javascript"></script><br><script type="text/javascript" src="autocomplete_files/addthis.js"></script><!-- AddThis Button BEGIN --><a class="addthis_button" rel="nofollow" href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=seobuildingru"><img src="autocomplete_files/lg-share-en.gif" alt="Bookmark and Share" style="border: 0pt none;" height="16" width="125"></a><script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script><script type="text/javascript" src="autocomplete_files/addthis_widget.js"></script><div id="_atssh" style="visibility: hidden; height: 1px; width: 1px; position: absolute; z-index: 100000;"><iframe src="autocomplete_files/sh103.html" style="height: 1px; width: 1px; position: absolute; z-index: 100000; border: 0pt none; left: 0pt; top: 0pt;" title="AddThis utility frame" id="_atssh262"></iframe></div><script src="autocomplete_files/core048.js" type="text/javascript"></script><!-- AddThis Button END --><br><br><div><a href="http://www.seomastering.com/seo-forum/index.php" target="_blank" title="SEO Forum">Search Engine Optimization Forum</a><br><font color="green"><i>Bonus for all users of $5. 3-level perpetual referral system.</i></font></div><br><br><br><a href="http://www.yaldex.com/ajax-tutorial-4/toc.html">Main Page</a><br><br>
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tbody><tr><td><div style="MARGIN-LEFT: 0.15in;">
+<a href="http://www.yaldex.com/ajax-tutorial-4/BBL0049.html"><img src="autocomplete_files/prev.gif" alt="Previous Page" align="absmiddle" border="0" height="17" width="60"></a>
+</div></td><td align="right"><div style="MARGIN-LEFT: 0.15in;">
+<a href="http://www.yaldex.com/ajax-tutorial-4/BBL0051.html"><img src="autocomplete_files/next.gif" alt="Next Page" align="absmiddle" border="0" height="17" width="60"></a>
+</div></td></tr></tbody></table>
+<br>
+<div class="chapter">
+<a name="ch07"></a>
+<div class="section">
+<h2 class="first-section-title">
+<a name="430"></a><a name="ch07lev1sec5"></a>Creating an Autosuggest Text Box</h2>
+<p class="first-para">The best way to learn about any new programming concept is to put it into a practical example. Google Suggest (located at <a target="_top" class="url"><span class="fixed">www.google.com/webhp?complete=1</span></a>)
+ is a very simple Ajax application that many programmers have spent time
+ dissecting, analyzing, and re-creating. If you haven't yet taken a look
+ at the live application, please do so now; it will greatly aid in your 
+understanding of the following example.</p>
+<p class="para">Functionality such as this, suggesting to the user 
+values to type in, has been around in desktop applications for some time
+ now. Google Suggest brought the idea to the Web and generated a lot of 
+excitement while doing it. As mentioned earlier in the book, Google 
+Suggest really was one of the early Ajax applications that got 
+developers excited about the concept. It seems fitting to attempt to 
+emulate the behavior of Google Suggest to help others understand Ajax.</p>
+<p class="para">The example built in this section aids in the selection 
+of states or provinces in a personal information form. For sites that 
+deal with international customers, it is often vital to include the 
+state or province along with the country. However, it's not optimal to 
+load every state and province in the entire world into a drop-down box 
+for the user to select from. It's much easier to let the user start 
+typing, and then retrieve only those results that would make the most 
+sense. Autosuggest functionality is perfect for this use case.</p>
+<a name="431"></a><a name="IDX-200"></a>
+<div class="section">
+<h3 class="sect3-title">
+<a name="432"></a><a name="ch07lev2sec8"></a>Functionality Overview</h3>
+<p class="first-para">Before building anything, it's always helpful to 
+understand exactly what you're building. Anyone can say they are going 
+to emulate the functionality of Google Suggest, but what does that mean?
+ The example you will build in this section has the following 
+functionality:</p>
+<ul class="itemizedlist">
+<li class="first-listitem">
+<p class="para">
+<b>Typeahead:</b> As the user is typing, the rest of the text box fills 
+in with the best suggestion at the time. As the user continues to type, 
+the text box automatically adjusts its suggestion. The suggested text 
+always appears selected (highlighted). This should work no matter how 
+fast the user types.</p>
+</li>
+<li class="listitem">
+<p class="para">
+<b>Suggestions list:</b> Also as the user is typing, a drop-down list of
+ other suggestions is displayed. These suggestions are generated 
+automatically while the user types so that there is no discernible 
+delay.</p>
+</li>
+<li class="listitem">
+<p class="para">
+<b>Keyboard controls:</b> When the suggestions are displayed, the user 
+is able to scroll up and down the list by using the up and down arrows 
+on the keyboard and select a suggestion. Pressing Enter places the value
+ into the text box and hides the suggestion list. The Esc key can also 
+be used to hide the suggestions.</p>
+</li>
+<li class="listitem">
+<p class="para">
+<b>Hide suggestions:</b> The drop-down suggestion list is smart enough 
+to hide itself whenever the text box is not used or when the browser 
+window is hidden.</p>
+</li>
+</ul>
+<p class="last-para">You probably didn't realize that Google Suggest was
+ doing so much. This is the key with Ajax: you don't think about what's 
+going on because it works in an intuitive way.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="433"></a><a name="ch07lev2sec9"></a>The HTML</h3>
+<p class="first-para">The first step in any client-side component is to 
+build the HTML that will be used. For the autosuggest text box, this 
+includes the text box itself as well as the drop-down list of 
+suggestions. You're probably familiar with the HTML text box:</p>
+<div class="informalexample">
+<pre class="literallayout">&lt;input type=" text" name=" txtAutosuggest" value="" /&gt;
+</pre>
+</div>
+<p class="para">In most cases, this line would be enough to use a text 
+box. The problem is that some browsers (notably Internet Explorer on 
+Windows and Mozilla Firefox on all operating systems) provide 
+autocomplete functionality that drops down a list of suggestions based 
+on values you've entered before. Since this would compete directly with 
+the suggestions you'll be providing, this has to be turned off. To do 
+so, set the <span class="fixed">autocomplete</span> attribute to <span class="fixed">off</span>:</p>
+<div class="informalexample">
+<pre class="literallayout">&lt;input type=" text" name=" txtAutosuggest" value="" autocomplete=" off" /&gt;
+</pre>
+</div>
+<p class="para">Now you can be assured that there will be no 
+interference from the autocomplete browser behavior. The only other user
+ interface component to design is the drop-down list of suggestions.</p>
+<p class="para">The suggestion drop-down list is nothing more than an absolutely positioned <span class="fixed">&lt;div/&gt;</span> element that is positioned below the text box so as to give the illusion of being a drop-down list (see <a class="internaljump" href="#ch07fig01">Figure 7-1</a>).</p>
+<div class="figure">
+<a name="434"></a><a name="ch07fig01"></a><span class="figuremediaobject"><img alt="Image from book" src="autocomplete_files/fig225_01.jpg" title="" border="0" height="190" width="153"></span>
+<br style="line-height: 1">
+<span class="figure-title"><span class="figure-titlelabel">Figure 7-1</span></span>
+</div>
+<a name="435"></a><a name="IDX-201"></a>
+<p class="para">Inside of this <span class="fixed">&lt;div/&gt;</span> element are several other <span class="fixed">&lt;div/&gt;</span>
+ elements, one for each suggestion. By changing the style of these 
+elements, it's possible to achieve the look of highlighting a given 
+suggestion. The HTML to create the list displayed in <a class="internaljump" href="#ch07fig01">Figure 7-1</a> is as follows:</p>
+<div class="informalexample">
+<pre class="literallayout">&lt;div class=" suggestions"&gt;
+    &lt;div class=" current"&gt;Maine&lt;/div&gt;
+    &lt;div&gt;Maryland&lt;/div&gt;
+    &lt;div&gt;Massachusetts&lt;/div&gt;
+    &lt;div&gt;Michigan&lt;/div&gt;
+    &lt;div&gt;Minnesota&lt;/div&gt;
+    &lt;div&gt;Mississippi&lt;/div&gt;
+    &lt;div&gt;Missouri&lt;/div&gt;
+    &lt;div&gt;Montana&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+</div>
+<p class="para">This HTML won't be coded directly into the main HTML 
+file; instead, it will be created dynamically by JavaScript code. 
+However, you need to know the general format of the HTML in order to 
+create it appropriately.</p>
+<p class="para">Of course, some CSS is needed to make the drop-down list function properly. The outermost <span class="fixed">&lt;div/&gt;</span> has a class of suggestions, which is defined as:</p>
+<div class="informalexample">
+<pre class="literallayout">div.suggestions {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: white;
+    border: 1px solid black;
+    position: absolute;
+}
+</pre>
+</div>
+<p class="para">The first two lines of this CSS class are for browsers 
+that support two forms of box sizing: content box and border box (for 
+more information, read <a target="_top" class="url"><span class="fixed">www.quirksmode.org/css/box.html</span></a>).
+ In quirks mode, Internet Explorer defaults to border box; in standards 
+mode, Internet Explorer defaults to content box. Most other 
+DOM-compliant browsers (Mozilla, Opera, and Safari) default to content 
+box, meaning that there is a difference in how the <span class="fixed">&lt;div/&gt;</span>
+ element will be rendered among browsers. To provide for this, the first
+ two lines of the CSS class set rendering to border box. The first line,
+ <span class="fixed">-moz-box-sizing</span>, is <a name="436"></a><a name="IDX-202"></a>Mozilla-specific and used for older Mozilla browsers; the second line is for browsers that support the official CSS3 <span class="fixed">box-sizing</span>
+ property. Assuming that you use quirks mode in your page, this class 
+will work just fine. (If you use standards mode, simply remove these 
+first two lines.)</p>
+<p class="para">The remaining styles simply add a border and specify that the <span class="fixed">&lt;div/&gt;</span> element be absolutely positioned.</p>
+<p class="para">Next, a little bit of formatting is needed for the drop-down list items:</p>
+<div class="informalexample">
+<pre class="literallayout">div.suggestions div {
+    cursor: default;
+    padding: 0px 3px;
+}
+</pre>
+</div>
+<p class="para">The first line specifies the default cursor (the arrow) 
+to be displayed when the mouse is over an item in the drop-down list. 
+Without this, the cursor would display as the caret, which is the normal
+ cursor for text boxes and web pages in general. The user needs to 
+believe that the drop-down item is not a part of the regular page flow, 
+but an attachment to the text box, and changing the cursor helps. The 
+second line simply applies some padding to the item (which you can 
+modify as you wish).</p>
+<p class="para">Last, some CSS is needed to format the currently 
+selected item in the drop-down list. When an item is selected, the 
+background will be changed to blue and the text color will be changed to
+ white. This provides a basic highlight that is typically used in 
+drop-down menus:</p>
+<div class="informalexample">
+<pre class="literallayout">div.suggestions div.current {
+    background-color: #3366cc;
+    color: white;
+}
+</pre>
+</div>
+<p class="last-para">All these styles are to be contained in an external CSS file named <span class="fixed">autosuggest.css</span>.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="437"></a><a name="ch07lev2sec10"></a>The Database Table</h3>
+<p class="first-para">In order to easily query the states and provinces 
+that match a particular text snippet, it is necessary to use a database 
+table. There are a few open source database products that can be paired 
+nicely with PHP, but the most common one is MySQL (available at <a target="_top" class="url"><span class="fixed">www.mysql.org</span></a>).
+ Many web hosting companies that offer PHP hosting also offer one or 
+more MySQL databases as well, so for this example, MySQL will be the 
+database used.</p>
+<table class="note" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr>
+<td class="admon-check" valign="top"></td><td class="admon-title" valign="top" width="80">Important</td><td class="admon-body" valign="top">
+<p class="first-para">Although this example is intended to be used with 
+MySQL, it should be able to run on other databases with little or no 
+modification.</p>
+</td>
+</tr>
+</tbody></table>
+<p class="para">The database table can be very simple for this example, 
+although you may need more information to make it practical for your 
+needs. To get this to work, you really need only a single column to 
+store the state and province names. However, it's always best to define a
+ primary key, so this table will include a second column containing an 
+auto-incremented ID number for each state or province. The following SQL
+ statement creates a table named <span class="fixed">StatesAndProvinces</span> with two columns, <span class="fixed">Id</span> and <span class="fixed">Name</span>:</p>
+<a name="438"></a><a name="IDX-203"></a>
+<div class="informalexample">
+<pre class="literallayout">CREATE TABLE StatesAndProvinces (
+    Id INT NOT NULL AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (Id)
+) COMMENT = 'States and Provinces';
+</pre>
+</div>
+<p class="para">Of course, the time-consuming part is to fill in state 
+and province names from various countries around the world. The code 
+download for this example, available at <a target="_top" class="url"><span class="fixed">www.wrox.com</span></a>,
+ includes a SQL file that will populate the table with all U.S. states 
+as well as one that will insert all Canadian provinces and territories.</p>
+<p class="para">Setting up this information in a database table enables 
+you to quickly get a list of suggestions for text the user has typed in.
+ If the user has typed the letter <i class="emphasis">M</i>, for example, you can run the following query to get the first five suggestions:</p>
+<div class="informalexample">
+<pre class="literallayout">SELECT *
+FROM StatesAndProvinces
+WHERE Name LIKE 'M%'
+ORDER BY Name ASC
+LIMIT 0, 5
+</pre>
+</div>
+<p class="last-para">This statement returns a maximum of five suggestions, in alphabetical order, for all names starting with <i class="emphasis">M</i>. Later, this will be used in the PHP code that returns the suggestions.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="439"></a><a name="ch07lev2sec11"></a>The Architecture</h3>
+<p class="first-para">In <a href="http://www.yaldex.com/ajax-tutorial-4/BBL0010.html#36" target="_parent" class="chapterjump">Chapter 1</a>,
+ you saw the basic architecture of an Ajax solution involving the user 
+interface and Ajax engine on the client. The autosuggest architecture 
+follows this general format, where the user interface is the autosuggest
+ control and the Ajax engine is a suggestion provider (see <a class="internaljump" href="#ch07fig02">Figure 7-2</a>).</p>
+<div class="figure">
+<a name="440"></a><a name="ch07fig02"></a><span class="figuremediaobject"><a href="http://www.yaldex.com/ajax-tutorial-4/images/fig227%5F01%5F0%2Ejpg" name="IMG_39" target="_parent"><img alt="Image from book" src="autocomplete_files/fig227_01.jpg" title="Click To expand" border="0" height="96" width="350"></a></span>
+<br style="line-height: 1">
+<span class="figure-title"><span class="figure-titlelabel">Figure 7-2</span></span>
+</div>
+<p class="para">In this architecture, the autosuggest control has no 
+idea where the suggestions are coming from; they could be coming from 
+the client or the server. All the autosuggest control knows is how to 
+call the suggestion provider to get suggestions for the text contained 
+within the text box. The suggestion provider handles all the server 
+communication and notifies the autosuggest control when the suggestions 
+are available. To accomplish this, both the autosuggest control and the 
+suggestion provider need to implement specific interfaces so that each 
+knows what method to call on the other.</p>
+<a name="441"></a><a name="IDX-204"></a>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="442"></a><a name="ch07lev2sec12"></a>The Classes</h3>
+<p class="first-para">Two classes are necessary to represent the two client-side components of the autosuggest functionality, appropriately called <span class="fixed">AutoSuggestControl</span> and <span class="fixed">SuggestionProvider</span>. The <span class="fixed">AutoSuggestControl</span> is assigned a <span class="fixed">SuggestionProvider</span> when it is created so that all requests go through it. The <span class="fixed">SuggestionProvider</span> has only one method, <span class="fixed">requestSuggestions()</span>, which is called by the <span class="fixed">AutoSuggestControl</span> whenever suggestions are needed. This method takes two arguments: the <span class="fixed">AutoSuggestControl</span> itself and a Boolean value indicating whether the control should type ahead when the suggestions are returned.</p>
+<p class="para">When the suggestions have been retrieved, the <span class="fixed">SuggestionProvider</span> calls the <span class="fixed">autosuggest()</span> method of the <span class="fixed">AutoSuggestControl</span>,
+ passing in the array of suggestions as well as the typeahead flag that 
+was passed into it. This allows for a delay between the request for 
+suggestions and the response, making it possible to use asynchronous 
+requests. This approach sounds more complicated than it is; <a class="internaljump" href="#ch07fig03">Figure 7-3</a> represents the interaction between these two objects in a clearer manner.</p>
+<div class="figure">
+<a name="443"></a><a name="ch07fig03"></a><span class="figuremediaobject"><a href="http://www.yaldex.com/ajax-tutorial-4/images/fig228%5F01%5F0%2Ejpg" name="IMG_40" target="_parent"><img alt="Image from book" src="autocomplete_files/fig228_01.jpg" title="Click To expand" border="0" height="92" width="350"></a></span>
+<br style="line-height: 1">
+<span class="figure-title"><span class="figure-titlelabel">Figure 7-3</span></span>
+</div>
+<p class="last-para">With the architecture designed, it's time to start coding.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="444"></a><a name="ch07lev2sec13"></a>The AutoSuggest Control</h3>
+<p class="first-para">The <span class="fixed">AutoSuggestControl</span> 
+class is the wrapper for all autosuggest functionality. To work 
+properly, the control needs to know which text box to work on and the 
+suggestion provider to use. This makes for a relatively simple 
+constructor:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">function AutoSuggestControl(oTextbox, oProvider) {</span>
+<span style="background-color:d9d9d9">    this.provider = oProvider;</span>
+<span style="background-color:d9d9d9">    this.textbox = oTextbox;</span>
+<span style="background-color:d9d9d9">}</span>
+</pre>
+</div>
+<p class="para">It's upon this simple base that the complex functionality of an autosuggest text box will be built.</p>
+<p class="para">Since the <span class="fixed">AutoSuggestControl</span> 
+class is quite complicated, it's much simpler to break up its 
+explanation into specific types of functionality. The following sections
+ build on each other, and the complete code can be downloaded from <a target="_top" class="url"><span class="fixed">www.wrox.com</span></a>.</p>
+<div class="section">
+<h4 class="sect4-title">
+<a name="445"></a><a name="ch07lev3sec1"></a>Implementing Typeahead</h4>
+<p class="first-para">To implement the first feature, typeahead, it's 
+helpful to understand exactly how it works. Typeahead text boxes look at
+ what the user has typed and then makes a suggestion, highlighting only 
+the part that <a name="446"></a><a name="IDX-205"></a>was added automatically. For example, if you were to type <i class="emphasis">Ma</i> into a text box, the suggestion may be <i class="emphasis">Maine</i>, but only <i class="emphasis">ine</i>
+ would be highlighted. Doing this allows the user to continue typing 
+without interruption because any new characters simply replace the 
+highlighted section.</p>
+<p class="para">Originally, the only type of highlighting possible using JavaScript was to highlight all the text in the text box using the <span class="fixed">select()</span> method, as follows:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">var oTextbox = document.getElementById("txtState");</span>
+<span style="background-color:d9d9d9">oTextbox.select();</span>
+</pre>
+</div>
+<p class="para">This code gets a reference to a text box with the ID of <span class="fixed">txtState</span>
+ and then selects all the text contained within it. Although this 
+functionality is fine for many everyday uses, it's not very helpful for 
+implementing typeahead. Thankfully, both Internet Explorer and Firefox 
+have ways of selecting parts of the text instead of the entire item (for
+ other browsers, this feature is not available). But as usual, the two 
+biggest combatants in the browser world do things in two completely 
+different ways.</p>
+<p class="para">The Internet Explorer solution is to use a text range. 
+Not to be confused with DOM ranges, an Internet Explorer text range is 
+an invisible selection of text on the page, beginning on a single 
+character and ending on a single character. When a text range is filled 
+out, you can highlight just the text contained within it, which is 
+perfect for typeahead. To create a text range for a specific text box, 
+you use the <span class="fixed">createTextRange()</span> method that Internet Explorer provides on every text box.</p>
+<p class="para">Once you have a text range, its methods enable you to 
+select certain parts of the text. Although there are many text range 
+methods, the only ones of interest for this example are <span class="fixed">moveStart()</span> and <span class="fixed">moveEnd()</span>, both of which accept two arguments: a unit and a number. The unit can be <span class="fixed">character, word, sentence</span>, or <span class="fixed">textedit</span>,
+ whereas the number indicates the number of units to move from the start
+ or end of the text (this should be a positive number for <span class="fixed">moveStart()</span> and a negative for <span class="fixed">moveEnd()</span>). When the endpoints of the text range are set, you can call its <span class="fixed">select()</span>
+ method to highlight just those characters. For example, to select just 
+the first three characters in a text box, you could do this:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">var oRange = oTextbox.createTextRange();</span>
+<span style="background-color:d9d9d9">oRange.moveStart("character", 0);</span>
+<span style="background-color:d9d9d9">oRange.moveEnd("character", 3 - oTextbox.value.length);</span>
+<span style="background-color:d9d9d9">oRange.select();</span>
+<span style="background-color:d9d9d9">oTextbox.focus();</span>
+</pre>
+</div>
+<p class="para">Note that to get the appropriate value for <span class="fixed">moveEnd()</span>,
+ it's necessary to subtract the length of the text in the text box from 
+the number of characters to select (3). The last step is to set the 
+focus to the text box so that the selection is visible. (Text can be 
+selected only when the text box has focus.) The process is a bit 
+involved in Internet Explorer, but pretty easy to script. Firefox, on 
+the other hand, is very straightforward.</p>
+<p class="para">Text boxes in Firefox have a non-standard method called <span class="fixed">setSelectionRange()</span>,
+ which accepts two arguments: the index of the character to start with 
+and the index of character after the last character to select. So, to 
+select the first three characters in a text box using Mozilla, you need 
+only two lines of code:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">oTextbox.setSelectionRange(0,3);</span>
+<span style="background-color:d9d9d9">oTextbox.focus();</span>
+<a name="447"></a><a name="IDX-206"></a>
+</pre>
+</div>
+<p class="para">The first method you'll need in the <span class="fixed">AutoSuggestControl</span> class is a method to select a range of characters in a browser-specific way. This method, called <span class="fixed">selectRange()</span>, handles all the dirty work for you:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.selectRange = function (iStart, iEnd) {</span>
+<span style="background-color:d9d9d9">    if (this.textbox.createTextRange) {</span>
+<span style="background-color:d9d9d9">        var oRange = this.textbox.createTextRange();</span>
+<span style="background-color:d9d9d9">        oRange.moveStart("character", iStart);</span>
+<span style="background-color:d9d9d9">        oRange.moveEnd("character", iEnd- this.textbox.value.length);</span>
+<span style="background-color:d9d9d9">        oRange.select();</span>
+<span style="background-color:d9d9d9">    } else if (this.textbox.setSelectionRange) {</span>
+<span style="background-color:d9d9d9">        this.textbox.setSelectionRange(iStart, iEnd);</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    this.textbox.focus();</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">This method uses feature detection, the process of 
+detecting certain browser features, to determine how to select the 
+characters. It tests for the existence of the <span class="fixed">createTextRange()</span> method to determine whether the Internet Explorer text ranges should be used, and tests for the <span class="fixed">setSelectionRange()</span>
+ method to determine whether the Firefox method should be used. The 
+arguments are the first character to select and the number of characters
+ to select. These values are then passed to the browser-specific methods
+ of text selection.</p>
+<div class="section">
+<h5 class="sect5-title">
+<a name="448"></a><a name="ch07lev4sec1"></a>The typeAhead() Method</h5>
+<p class="first-para">Now that you can select specific parts of the text box, it's time to implement the typeahead functionality. To do this, a <span class="fixed">typeAhead()</span>
+ method is defined that accepts a single argument: the suggestion to 
+display in the textbox. The suggestion being passed in is assumed to be 
+appropriate (and assumed to have at least one character). This method 
+then does three things:</p>
+<ol class="orderedlist">
+<li class="first-listitem">
+<p class="first-para">It gets the length of the text already in the text box.</p>
+</li>
+<li class="listitem">
+<p class="first-para">It places the suggestion into the text box.</p>
+</li>
+<li class="listitem">
+<p class="first-para">It selects only the portion of the text that the user didn't type using the information from step 1.</p>
+</li>
+</ol>
+<p class="para">Additionally, since typeahead can be supported only in 
+Internet Explorer and Firefox, you should check to make sure one of 
+those browsers is being used. If the browser doesn't support text 
+selection, then none of the steps should be executed so as not to 
+interrupt the user's typing. Once again, testing for the <span class="fixed">createTextRange()</span> and <span class="fixed">setSelectionRange()</span> methods of the text box is the way to go:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.typeAhead = function (sSuggestion) {</span>
+<span style="background-color:d9d9d9">    if (this.textbox.createTextRange || this.textbox.setSelectionRange) {</span>
+<span style="background-color:d9d9d9">        var iLen = this.textbox.value.length;</span>
+<span style="background-color:d9d9d9">        this.textbox.value = sSuggestion;</span>
+<span style="background-color:d9d9d9">        this.selectRange(iLen, sSuggestion.length);</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">With this method complete, you now need another method to call it and pass in the suggestion. This is where the <span class="fixed">autosuggest()</span> method comes in.</p>
+<a name="449"></a><a name="IDX-207"></a>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="450"></a><a name="ch07lev4sec2"></a>The autosuggest() Method</h5>
+<p class="first-para">Perhaps the most important method in the control is <span class="fixed">autosuggest()</span>.
+ This single method is responsible for receiving an array of suggestions
+ for the text box and then deciding what to do with them. Eventually, 
+this method will be used to implement the full autosuggest functionality
+ (including drop-down suggestions), but for now, it's used to implement 
+typeahead only.</p>
+<p class="para">Because <span class="fixed">autosuggest()</span> will be
+ passed an array of suggestions, you have your pick as to which one to 
+use for the typeahead value. It's recommended to always use the first 
+value in the array to keep it simple. The problem is that there may not 
+always be suggestions for a value, in which case an empty array will be 
+passed. You shouldn't call <span class="fixed">typeAhead()</span> if there are no suggestions, so it's important to check the length of the array first:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.autosuggest = function (aSuggestions) {</span>
+<span style="background-color:d9d9d9">    if (aSuggestions.length &gt; 0) {</span>
+<span style="background-color:d9d9d9">        this.typeAhead(aSuggestions[0]);</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="last-para">But where do the suggestions come from? It's 
+actually the job of the suggestion provider to call this method and pass
+ in the suggestions. Implementation of this feature is discussed later 
+in the chapter.</p>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="451"></a><a name="ch07lev4sec3"></a>Handling Key Events</h5>
+<p class="first-para">Of course the autosuggest functionality has to be 
+tied into the text box using events. There are three events that deal 
+with keys: <span class="fixed">keydown, keypress</span>, and <span class="fixed">keyup</span>. The <span class="fixed">keydown</span>
+ event fires whenever the user presses a key on the keyboard but before 
+any changes occur to the text box. This obviously won't help with 
+autosuggest because you need to know the full text of the text box; 
+using this event would mean being one keystroke behind. For the same 
+reason, the <span class="fixed">keypress</span> event can't be used. It is similar to <span class="fixed">key-down</span>, but fires only when a character key is pressed. The <span class="fixed">keyup</span> event, however, fires after changes have been made to the text box, which is exactly when autosuggest should begin working.</p>
+<p class="para">Setting up an event handler for the text box involves 
+two steps: defining a function and assigning it as an event handler. The
+ function is actually a method of the autosuggest control, called <span class="fixed">handleKeyUp()</span>. This method expects the <span class="fixed">event</span>
+ object to be passed in as an argument (how to accomplish this is 
+discussed later) so that it can tell whether the key being pressed 
+should enact the autosuggest functionality. Since <span class="fixed">keyup</span>
+ fires for all keys, not just character keys, you'll receive events when
+ someone uses a cursor key, the Tab key, and any other key on the 
+keyboard. To avoid interfering with how a text box works, suggestions 
+should be made only when a character key is pressed. This is where the 
+event object's <span class="fixed">keyCode</span> property enters the picture.</p>
+<p class="para">The <span class="fixed">keyCode</span> property is 
+supported by most modern browsers (including Internet Explorer on 
+Windows and Macintosh, Firefox, Opera, and Safari) and returns a numeric
+ code representing the key that was pressed. Using this property, it's 
+possible to set up behaviors for specific keys. Since the autosuggest 
+functionality should happen only when character keys are pressed, you 
+need to check this property for an appropriate value before proceeding. 
+Believe it or not, the easiest way to do this is actually to detect the 
+keys that you want to ignore. This approach is more efficient because 
+there are more character keys than non-character keys. The following 
+table displays the key codes for all keys that should be ignored:</p>
+<a name="452"></a><a name="IDX-208"></a>
+<div class="informaltable">
+<table linktabletoexcel="yes" id="nr-N837" border="1">
+<thead>
+<tr valign="top">
+<th class="th" scope="col" align="left">
+<p class="table-para">
+<b class="bold">Key</b>
+</p>
+</th><th class="th" scope="col" align="left">
+<p class="table-para">
+<b class="bold">Code</b>
+</p>
+</th><th class="th" scope="col" align="left">
+<p class="table-para">
+<b class="bold">Key</b>
+</p>
+</th><th class="th" scope="col" align="left">
+<p class="table-para">
+<b class="bold">Code</b>
+</p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Backspace</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">8</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">Print Screen</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">44</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Tab</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">9</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">Delete</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">46</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Enter</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">13</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F1</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">112</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Shift</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">16</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F2</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">113</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Ctrl</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">17</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F3</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">114</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Alt</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">18</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F4</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">115</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Pause/Break</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">19</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F5</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">116</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Caps Lock</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">20</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F6</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">117</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Esc</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">27</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F7</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">118</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Page Up</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">33</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F8</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">119</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Page Down</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">34</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F9</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">120</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">End</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">35</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F10</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">121</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Home</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">36</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F11</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">122</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Left Arrow</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">37</p>
+</td><td class="td" align="left">
+<p class="table-para">
+<span class="serif">F12</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">123</p>
+</td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Up Arrow</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">38</p>
+</td><td class="td" align="left"></td><td class="td" align="left"></td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Right Arrow</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">39</p>
+</td><td class="td" align="left"></td><td class="td" align="left"></td>
+</tr>
+<tr valign="top">
+<td class="td" align="left">
+<p class="table-para">
+<span class="serif">Down Arrow</span>
+</p>
+</td><td class="td" align="left">
+<p class="table-para">40</p>
+</td><td class="td" align="left"></td><td class="td" align="left"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="para">You may notice a pattern among the key codes. It looks 
+like all keys with a code less than or equal to 46 should be ignored and
+ all keys with codes between 112 and 123 should be ignored. This is 
+generally true, but there is an exception. The space bar has a key code 
+of 32, so you actually need to check to see if the code is less than 32,
+ between 33 and 46, or between 112 and 123. If it's not in any one of 
+these groups, then you know it's a character key.</p>
+<p class="para">Here's what the <span class="fixed">handleKeyUp()</span> method looks like:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.handleKeyUp = function (oEvent) {</span>
+<span style="background-color:d9d9d9">    var iKeyCode = oEvent.keyCode;</span>
+
+<span style="background-color:d9d9d9">     if (iKeyCode &lt; 32 || (iKeyCode &gt;= 33 &amp;&amp; iKeyCode &lt;= 46)</span>
+<span style="background-color:d9d9d9">         || (iKeyCode &gt;= 112 &amp;&amp; iKeyCode &lt;= 123)) {</span>
+
+<span style="background-color:d9d9d9">        //ignore</span>
+<span style="background-color:d9d9d9">    } else {</span>
+<span style="background-color:d9d9d9">        this.provider.requestSuggestions(this);</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+<a name="453"></a><a name="IDX-209"></a>
+</pre>
+</div>
+<p class="para">When a user presses a character key, the autosuggest functionality begins by calling the suggestion provider's <span class="fixed">requestSuggestions()</span>
+ method and passing a pointer to the autosuggest control as an argument.
+ Remember, it's the suggestion provider that will call the <span class="fixed">autosuggest()</span> method defined earlier. The <span class="fixed">requestSuggestions()</span> method begins the process of retrieving suggestions for usage.</p>
+<p class="para">With this method defined, it must be assigned as the 
+event handler for the text box. It's best to create a separate method to
+ handle initializations for the control such as this (there will be more
+ in the future). The <span class="fixed">init()</span> method serves this purpose:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.init = function () {</span>
+<span style="background-color:d9d9d9">    var oThis = this;</span>
+<span style="background-color:d9d9d9">    this.textbox.onkeyup = function (oEvent) {</span>
+<span style="background-color:d9d9d9">        if (!oEvent) {</span>
+<span style="background-color:d9d9d9">            oEvent = window.event;</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">        oThis.handleKeyUp(oEvent);</span>
+<span style="background-color:d9d9d9">    };</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">The <span class="fixed">init()</span> method starts by creating a pointer to the <span class="fixed">this</span> object so that it may be used later. An anonymous function is defined for the text box's <span class="fixed">onkeyup</span> event handler. Inside of this function, the <span class="fixed">handleKeyUp()</span> method is called using the <span class="fixed">oThis</span> pointer. (Using <span class="fixed">this</span> here would refer to the text box instead of the autosuggest control.)</p>
+<p class="para">Since this method requires the <span class="fixed">event</span> object to be passed in, it's necessary to check for both DOM and Internet Explorer <span class="fixed">event</span> objects. The DOM <span class="fixed">event</span> object is passed in as an argument to the event handler, whereas the Internet Explorer <span class="fixed">event</span> object is a property of <span class="fixed">window</span>. Instead of doing a browser detect, you can check to see if the <span class="fixed">oEvent</span> object is passed into the event handler. If not, then assign <span class="fixed">window.event</span> into the <span class="fixed">oEvent</span> variable. The <span class="fixed">oEvent</span> variable can then be passed directly into the <span class="fixed">handleKeyUp()</span> event handler.</p>
+<p class="para">The <span class="fixed">init()</span> method should be called from within the <span class="fixed">AutoSuggestControl</span> constructor:</p>
+<div class="informalexample">
+<pre class="literallayout">function AutoSuggestControl(oTextbox, oProvider) {
+    this.provider = oProvider;
+    this.textbox = oTextbox;
+<span style="background-color:d9d9d9">    this.init();</span>
+}
+</pre>
+</div>
+<p class="last-para">That's all it takes to implement the typeahead 
+functionality of the autosuggest control. At this point, you are 
+displaying a single suggestion to the user as they type. The goal is, of
+ course, to provide multiple suggestions using a drop-down list.</p>
+</div>
+</div>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="454"></a><a name="ch07lev2sec14"></a>Showing Multiple Suggestions</h3>
+<p class="first-para">Earlier in the chapter you took a look at the HTML
+ and CSS used for the drop-down list of suggestions. Now the task is to 
+create the HTML programmatically and apply the CSS to create the actual 
+functionality; this is a multistep process. First, a property is needed 
+to store the <span class="fixed">&lt;div/&gt;</span> element because various methods of the <span class="fixed">AutoSuggestControl</span> need access to it. This property is called <span class="fixed">layer</span> and is initially set to <span class="fixed">null</span>:</p>
+<a name="455"></a><a name="IDX-210"></a>
+<div class="informalexample">
+<pre class="literallayout">function AutoSuggestControl(oTextbox, oProvider) {
+<span style="background-color:d9d9d9">    this.layer = null;</span>
+    this.provider = oProvider;
+    this.textbox = oTextbox;
+    this.init();
+}
+</pre>
+</div>
+<p class="para">The drop-down list will be created after you define a few simple methods to help control its behavior. The simplest method is <span class="fixed">hideSuggestions()</span>, which hides the drop-down list after it has been shown:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.hideSuggestions = function () {</span>
+<span style="background-color:d9d9d9">    this.layer.style.visibility = "hidden";</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">Next, a method is needed for highlighting the current suggestion in the drop-down list. The <span class="fixed">highlightSuggestion()</span> method accepts a single argument, which is the <span class="fixed">&lt;div/&gt;</span> element containing the current suggestion. The purpose of this method is to set the <span class="fixed">&lt;div/&gt;</span> element's <span class="fixed">class</span> attribute to <span class="fixed">current</span> on the current suggestion and clear the <span class="fixed">class</span>
+ attribute on all others in the list. Doing so provides a highlighting 
+effect on the drop-down list similar to the regular form controls. The 
+algorithm is quite simple: iterate through the child nodes of the layer.
+ If the child node is equal to the node that was passed in, set the <span class="fixed">class</span> to <span class="fixed">current</span>; otherwise, clear the <span class="fixed">class</span> attribute by setting it to an empty string:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {</span>
+
+<span style="background-color:d9d9d9">    for (var i=0; i &lt; this.layer.childNodes.length; i++) {</span>
+<span style="background-color:d9d9d9">        var oNode = this.layer.childNodes[i];</span>
+<span style="background-color:d9d9d9">        if (oNode == oSuggestionNode) {</span>
+<span style="background-color:d9d9d9">            oNode.className = "current"</span>
+<span style="background-color:d9d9d9">        } else if (oNode.className == "current") {</span>
+<span style="background-color:d9d9d9">            oNode.className = "";</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">With these two methods defined, it's time to create the drop-down list <span class="fixed">&lt;div/&gt;</span>. The <span class="fixed">createDropDown()</span> method creates the outermost <span class="fixed">&lt;div/&gt;</span> element and defines the event handlers for the drop-down list. To create the <span class="fixed">&lt;div/&gt; element</span>, use the <span class="fixed">createElement()</span> method and then assign the various styling properties:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.createDropDown = function () {</span>
+
+<span style="background-color:d9d9d9">    this.layer = document.createElement("div");</span>
+<span style="background-color:d9d9d9">    this.layer.className = "suggestions";</span>
+<span style="background-color:d9d9d9">    this.layer.style.visibility = "hidden";</span>
+<span style="background-color:d9d9d9">    this.layer.style.width = this.textbox.offsetWidth;</span>
+<span style="background-color:d9d9d9">    document.body.appendChild(this.layer);</span>
+
+<span style="background-color:d9d9d9">    //more code to come</span>
+<span style="background-color:d9d9d9">};</span>
+<a name="456"></a><a name="IDX-211"></a>
+</pre>
+</div>
+<p class="para">This code first creates the <span class="fixed">&lt;div/&gt;</span> element and assigns it to the <span class="fixed">layer</span> property. From there, the <span class="fixed">className</span> (equivalent to the <span class="fixed">class</span> attribute) is set to <span class="fixed">suggestions</span>,
+ as is needed for the CSS to work properly. The next line hides the 
+layer, since it should be invisible initially. Then, the width of the 
+layer is set equal to the width of the text box by using the text box's <span class="fixed">offsetWidth</span>
+ property (this is optional depending on your individual needs). The 
+very last line adds the layer to the document. With the layer created, 
+it's time to assign the event handlers to control it.</p>
+<p class="para">At this point, the only concern is making sure that the 
+drop-down list is functional if the user uses the mouse. That is, when 
+the drop-down list is visible, moving the mouse over a suggestion should
+ highlight it. Likewise, when a suggestion is clicked on, it should be 
+placed in the text box and the drop-down list should be hidden. To make 
+this happen, you need to assign three event handlers: <span class="fixed">onmouseover, onmousedown</span>, and <span class="fixed">onmouseup</span>.</p>
+<p class="para">The <span class="fixed">onmouseover</span> event handler is used simply to highlight the current suggestion; <span class="fixed">onmousedown</span> is used to select the given suggestion (place the suggestion in the text box and hide the drop-down list); and <span class="fixed">onmouseup</span>
+ is used to set the focus back to the text box after a selection has 
+been made. Because all these events are fired by the drop-down list 
+itself, it's best just to use a single function for all of them, as 
+follows:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.createDropDown = function () {
+
+    this.layer = document.createElement("div");
+    this.layer.className = "suggestions";
+    this.layer.style.visibility = "hidden";
+    this.layer.style.width = this.textbox.offsetWidth;
+    document.body.appendChild(this.layer);
+
+<span style="background-color:d9d9d9">    var oThis = this;</span>
+
+<span style="background-color:d9d9d9">    this.layer.onmousedown = this.layer.onmouseup =</span>
+<span style="background-color:d9d9d9">    this.layer.onmouseover = function (oEvent) {</span>
+<span style="background-color:d9d9d9">        oEvent = oEvent || window.event;</span>
+<span style="background-color:d9d9d9">        oTarget = oEvent.target || oEvent.srcElement;</span>
+
+<span style="background-color:d9d9d9">        if (oEvent.type == "mousedown") {</span>
+<span style="background-color:d9d9d9">            oThis.textbox.value = oTarget.firstChild.nodeValue;</span>
+<span style="background-color:d9d9d9">            oThis.hideSuggestions();</span>
+<span style="background-color:d9d9d9">        } else if (oEvent.type == "mouseover") {</span>
+<span style="background-color:d9d9d9">            oThis.highlightSuggestion(oTarget);</span>
+<span style="background-color:d9d9d9">        } else {</span>
+<span style="background-color:d9d9d9">            oThis.textbox.focus();</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">    };</span>
+
+};
+</pre>
+</div>
+<p class="para">The first part of this section is the assignment of <span class="fixed">oThis</span> equal to the <span class="fixed">this</span> object. This is necessary so that a reference to the <span class="fixed">AutoSuggestControl</span>
+ object is accessible from within the event handler. Next, a compound 
+assignment occurs, assigning the same function as an event handler for <span class="fixed">onmousedown, onmouseup</span>, and <span class="fixed">onmouseover</span>.
+ Inside of the function, the first two lines are used to account for the
+ different event models (DOM and IE), using a logical OR (<span class="fixed">||</span>) to assign the values for <span class="fixed">oEvent</span> and <span class="fixed">oTarget</span>. (The target will always be a <span class="fixed">&lt;div/&gt;</span> element containing a suggestion.)</p>
+<a name="457"></a><a name="IDX-212"></a>
+<p class="para">If the event being handled is <span class="fixed">mousedown</span>, then set the value of the text box equal to the text inside of the event target. The text inside of the <span class="fixed">&lt;div/&gt;</span> element is contained in a text node, which is the first child node. The actual text string is contained in the text node's <span class="fixed">nodeValue</span> property. After the suggestion is placed into the text box, the drop-down list is hidden.</p>
+<p class="para">When the event being handled is <span class="fixed">mouseover</span>, the event target is passed into the <span class="fixed">highlightSuggestion()</span> method to provide the hover effect; when the event is <span class="fixed">mouseup</span>, the focus is set back to the text box (this fires immediately after <span class="fixed">mousedown</span>).</p>
+<div class="section">
+<h5 class="sect5-title">
+<a name="458"></a><a name="ch07lev4sec4"></a>Positioning the Drop-Down List</h5>
+<p class="first-para">To get the full effect of the drop-down list, it's
+ imperative that it appears directly below the text box. If the text box
+ were absolutely positioned, this wouldn't be much of an issue. In 
+actual practice, text boxes are rarely absolutely positioned and more 
+often are placed inline, which presents a problem in aligning the 
+drop-down list. To calculate the position where the drop-down list 
+should appear, you can use the text box's <span class="fixed">offsetLeft, offsetTop</span>, and <span class="fixed">offsetParent</span> properties.</p>
+<p class="para">The <span class="fixed">offsetLeft</span> and <span class="fixed">offsetTop</span> properties tell you how many pixels away from the left and top of the <span class="fixed">offsetParent</span> an element is placed. The <span class="fixed">offsetParent</span>
+ is usually, but not always, the parent node of the element, so to get 
+the left position of the text box, you need to add up the <span class="fixed">offsetLeft</span> properties of the text box and all of its ancestor elements (stopping at <span class="fixed">&lt;body/&gt;</span>), as seen below:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.getLeft = function () {</span>
+
+<span style="background-color:d9d9d9">    var oNode = this.textbox;</span>
+<span style="background-color:d9d9d9">    var iLeft = 0;</span>
+
+<span style="background-color:d9d9d9">    while(oNode.tagName != "BODY") {</span>
+<span style="background-color:d9d9d9">        iLeft += oNode.offsetLeft;</span>
+<span style="background-color:d9d9d9">        oNode = oNode.offsetParent;</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    return iLeft;</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">The <span class="fixed">getLeft()</span> method begins by pointing <span class="fixed">oNode</span> at the text box and defining <span class="fixed">iLeft</span> with an initial value of <span class="fixed">0</span>. The <span class="fixed">while</span> loop will continue to add <span class="fixed">oNode.offsetLeft</span> to <span class="fixed">iLeft</span> as it traverses up the DOM structure to the <span class="fixed">&lt;body/&gt;</span> element.</p>
+<p class="para">The same algorithm can be used to get the top of the text box:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.getTop = function () {</span>
+
+<span style="background-color:d9d9d9">    var oNode = this.textbox;</span>
+<span style="background-color:d9d9d9">    var iTop = 0;</span>
+
+<span style="background-color:d9d9d9">    while(oNode.tagName != "BODY") {</span>
+<span style="background-color:d9d9d9">        iTop += oNode.offsetTop;</span>
+<span style="background-color:d9d9d9">        oNode = oNode.offsetParent;</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    return iTop;</span>
+<span style="background-color:d9d9d9">};</span>
+<a name="459"></a><a name="IDX-213"></a>
+</pre>
+</div>
+<p class="last-para">These two methods will be used to place the drop-down list in the correct location.</p>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="460"></a><a name="ch07lev4sec5"></a>Adding and Displaying Suggestions</h5>
+<p class="first-para">The next step in the process is to create a method that adds the suggestions into the drop-down list and then displays it. The <span class="fixed">showSuggestions()</span>
+ method accepts an array of suggestions as an argument and then builds 
+up the necessary DOM elements to display them. From there, the method 
+positions the drop-down list underneath the text box and displays it to 
+the user:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.showSuggestions = function (aSuggestions) {</span>
+
+<span style="background-color:d9d9d9">    var oDiv = null;</span>
+<span style="background-color:d9d9d9">    this.layer.innerHTML = "";</span>
+
+<span style="background-color:d9d9d9">    for (var i=0; i &lt; aSuggestions.length; i++) {</span>
+<span style="background-color:d9d9d9">        oDiv = document.createElement("div");</span>
+<span style="background-color:d9d9d9">        oDiv.appendChild(document.createTextNode(aSuggestions[i]));</span>
+<span style="background-color:d9d9d9">        this.layer.appendChild(oDiv);</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    this.layer.style.left = this.getLeft() + "px";</span>
+<span style="background-color:d9d9d9">    this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";</span>
+<span style="background-color:d9d9d9">    this.layer.style.visibility = "visible";</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">The first line simply defines the variable <span class="fixed">oDiv</span> for later use. The second line clears the contents of the drop-down list by setting the <span class="fixed">innerHTML</span> property to an empty string. Then, the <span class="fixed">for</span> loop creates a <span class="fixed">&lt;div/&gt;</span> element and a text node for each suggestion before adding it to the drop-down list layer.</p>
+<p class="last-para">The <a class="internaljump" href="#ch07lev4sec6">next section</a> of code starts by setting the left position of the layer using the <span class="fixed">getLeft()</span> method. To set the top position, you need to add the value from <span class="fixed">getTop()</span> to the height of the text box (retrieved by using the <span class="fixed">offsetHeight</span> property). Without doing this, the drop-down list would appear directly over the text box. (Remember, <span class="fixed">getTop()</span> retrieves the top of the text box, not the top of the drop-down list layer.) Last, the layer's <span class="fixed">visibility</span> property is set to <span class="fixed">visible</span> to show it.</p>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="461"></a><a name="ch07lev4sec6"></a>Updating the Functionality</h5>
+<p class="first-para">In order to show the drop-down list of suggestions, you'll need to make several changes to the functionality defined previously.</p>
+<p class="para">The first update is the addition of a second argument to the <span class="fixed">autosuggest()</span>
+ method, which indicates whether the typeahead functionality should be 
+used (the reason why will be explained shortly). Naturally, the <span class="fixed">typeAhead()</span> method should be called only if this argument is <span class="fixed">true</span>.
+ If there's at least one suggestion, typeahead should be used and the 
+drop-down list of suggestions should be displayed by calling <span class="fixed">showSuggestions()</span>; if there's no suggestions, the drop-down list should be hidden by calling <span class="fixed">hideSuggestions()</span>:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.autosuggest = function (aSuggestions, bTypeAhead) {</span>
+    if (aSuggestions.length &gt; 0) {
+<span style="background-color:d9d9d9">        if (bTypeAhead) {</span>
+            this.typeAhead(aSuggestions[0]);
+<a name="462"></a><a name="IDX-214"></a>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">        this.showSuggestions(aSuggestions);</span>
+<span style="background-color:d9d9d9">    } else {</span>
+<span style="background-color:d9d9d9">        this.hideSuggestions();</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">It's also necessary to update the <span class="fixed">handleKeyUp()</span> method for a couple of different reasons. The first reason is to add the <span class="fixed">bTypeAhead</span> argument to the <span class="fixed">requestSuggestions()</span> call. When called from here, this argument will always be <span class="fixed">true</span>:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.handleKeyUp = function (oEvent) {
+
+    var iKeyCode = oEvent.keyCode;
+
+    if (iKeyCode &lt; 32 || (iKeyCode &gt;= 33 &amp;&amp; iKeyCode &lt;= 46)
+        || (iKeyCode &gt;= 112 &amp;&amp; iKeyCode &lt;= 123)) {
+        //ignore
+    } else {
+<span style="background-color:d9d9d9">        this.provider.requestSuggestions(this, true);</span>
+    }
+};
+</pre>
+</div>
+<p class="para">Remember, the <span class="fixed">requestSuggestions()</span> method is defined on the suggestion provider, which is described later in this chapter.</p>
+<p class="para">This functionality now works exactly as it did 
+previously, but there are a couple of other keys that require special 
+attention: Backspace and Delete. When either of these keys is pressed, 
+you don't want to activate the typeahead functionality because it will 
+disrupt the process of removing characters from the text box. However, 
+there's no reason not to show the drop-down list of suggestions. For the
+ Backspace (key code of 8) and Delete (key code of 46) keys, you can 
+call <span class="fixed">requestSuggestions()</span>, but this time, pass in <span class="fixed">false</span> to indicate that typeahead should not occur:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.handleKeyUp = function (oEvent) {
+
+    var iKeyCode = oEvent.keyCode;
+
+<span style="background-color:d9d9d9">    if (iKeyCode == 8 || iKeyCode == 46) {</span>
+<span style="background-color:d9d9d9">        this.provider.requestSuggestions(this, false);</span>
+
+    } else if (iKeyCode &lt; 32 || (iKeyCode &gt;= 33 &amp;&amp; iKeyCode &lt;= 46)
+               || (iKeyCode &gt;= 112 &amp;&amp; iKeyCode &lt;= 123)) {
+        //ignore
+    } else {
+        this.provider.requestSuggestions(this, true);
+    }
+};
+</pre>
+</div>
+<p class="para">Now when the user is removing characters, suggestions 
+will still be displayed and the user can click one of them to select the
+ value for the text box. This is acceptable, but to really be usable the
+ autosuggest control needs to respond to keyboard controls.</p>
+<a name="463"></a><a name="IDX-215"></a>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="464"></a><a name="ch07lev4sec7"></a>Adding Keyboard Support</h5>
+<p class="first-para">The desired keyboard functionality revolves around
+ four keys: the up arrow, the down arrow, Esc, and Enter (or Return). 
+When the drop-down suggestion list is displayed, the user should be able
+ to press the down arrow to highlight the first suggestion, then press 
+it again to move to the second, and so on. The up arrow should then be 
+used to move back up the list of suggestions. As each suggestion is 
+highlighted, the value must be placed in the text box. If the user 
+presses Esc, the suggestions should be hidden and the suggestion should 
+be removed from the text box. When the Enter key is pressed, the 
+suggestions should also be hidden, but the last suggestion should remain
+ highlighted in the text box.</p>
+<p class="para">In order for the user to use the up and down arrow keys,
+ you'll need to keep track of the currently selected item in the 
+suggestions list. To do this, you must add two properties to the <span class="fixed">AutoSuggestControl</span> definition, as follows:</p>
+<div class="informalexample">
+<pre class="literallayout">function AutoSuggestControl(oTextbox, oProvider) {
+<span style="background-color:d9d9d9">    this.cur = -1;</span>
+    this.layer = null;
+    this.provider = oProvider;
+    this.textbox = oTextbox;
+<span style="background-color:d9d9d9">    this.userText = oTextbox.value;</span>
+    this.init();
+}
+</pre>
+</div>
+<p class="para">The <span class="fixed">cur</span> property stores the index of the current suggestion in the suggestions array. By default, this value is set to <span class="fixed">-1</span> because there are no suggestions initially. When the arrow keys are pressed, <span class="fixed">cur</span> will change to point to the current suggestion. The second added property, <span class="fixed">userText</span>, holds the current value of the text box and changes to reflect what the user actually typed.</p>
+<p class="para">As <span class="fixed">cur</span> changes, the highlighted suggestion changes as well. To encapsulate this functionality, a method called <span class="fixed">goToSuggestion()</span>
+ is used. This method accepts only one argument, a number whose sign 
+indicates which direction to move in. For instance, any number greater 
+than 0 moves the selection to the next suggestion; any number less than 
+or equal to 0 moves the selection to the previous suggestion. Here's the
+ code:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.goToSuggestion = function (iDiff) {</span>
+<span style="background-color:d9d9d9">    var cSuggestionNodes = this.layer.childNodes;</span>
+
+<span style="background-color:d9d9d9">    if (cSuggestionNodes.length &gt; 0) {</span>
+<span style="background-color:d9d9d9">        var oNode = null;</span>
+
+<span style="background-color:d9d9d9">        if (iDiff &gt; 0) {</span>
+<span style="background-color:d9d9d9">            if (this.cur &lt; cSuggestionNodes.length-1) {</span>
+<span style="background-color:d9d9d9">                oNode = cSuggestionNodes[++this.cur];</span>
+<span style="background-color:d9d9d9">            }</span>
+<span style="background-color:d9d9d9">        } else {</span>
+<span style="background-color:d9d9d9">            if (this.cur &gt; 0) {</span>
+<span style="background-color:d9d9d9">                oNode = cSuggestionNodes[--this.cur];</span>
+<span style="background-color:d9d9d9">            }</span>
+<span style="background-color:d9d9d9">        }</span>
+
+<span style="background-color:d9d9d9">        if (oNode) {</span>
+<span style="background-color:d9d9d9">            this.highlightSuggestion(oNode);</span>
+<span style="background-color:d9d9d9">            this.textbox.value = oNode.firstChild.nodeValue;</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+<a name="465"></a><a name="IDX-216"></a>
+</pre>
+</div>
+<p class="para">This method begins by obtaining the collection of child nodes in the drop-down layer. Since only <span class="fixed">&lt;div/&gt;</span>
+ elements containing suggestions are child nodes of the layer, the 
+number of child nodes accurately matches the number of suggestions. This
+ number can be used to determine if there are any suggestions (in which 
+case it will be greater than zero). If there are no suggestions, the 
+method need not do anything.</p>
+<p class="para">When there are suggestions, a variable named <span class="fixed">oNode</span> is created to store a reference to the suggestion node to highlight, and the method checks to see which direction to go in. If <span class="fixed">iDiff</span> is greater than <span class="fixed">0</span>, it tries to go to the next suggestion. In doing so, the method first checks to ensure that <span class="fixed">cur</span> isn't greater than the number of suggestions minus 1 (because the index of the last element in a collection with <i class="emphasis">n</i> elements is <i class="emphasis">n</i>-1). Assuming there is a next suggestion, <span class="fixed">cur</span>
+ is prefix incremented (meaning it assumes its new value before the line
+ it's on executes) to retrieve the node for the next suggestion.</p>
+<p class="para">If <span class="fixed">iDiff</span> is less than or 
+equal to zero, then that means the previous suggestion needs to be 
+highlighted. In that case, you must first check to ensure <span class="fixed">cur</span> is greater than 0 (if <span class="fixed">cur</span> isn't at least 1, then there isn't a previous suggestion to go to). Passing that test, <span class="fixed">cur</span> is then prefix decremented to get a reference to the correct suggestion node.</p>
+<p class="para">The last step in the method is to ensure that <span class="fixed">oNode</span> isn't <span class="fixed">null</span>. If it's not, then the node is passed to <span class="fixed">highlightSuggestion()</span> and the suggestion text is placed into the text box; if it is <span class="fixed">null</span>, then no action is taken.</p>
+<p class="para">Another part of keeping track of the selected suggestion is to be sure <span class="fixed">cur</span> is reset at the correct point; otherwise, you can get some very odd behavior. The correct place to reset <span class="fixed">cur</span> to <span class="fixed">–1</span> is in the <span class="fixed">autosuggest()</span> method, just before the drop-down list is displayed:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.autosuggest = function (aSuggestions, bTypeAhead){
+
+<span style="background-color:d9d9d9">    this.cur = -1;</span>
+
+    if (aSuggestions.length &gt; 0) {
+        if (bTypeAhead) {
+           this.typeAhead(aSuggestions[0]);
+        }
+
+        this.showSuggestions(aSuggestions);
+    } else {
+        this.hideSuggestions();
+    }
+};
+</pre>
+</div>
+<p class="para">Along the same lines, it's important to set <span class="fixed">userText</span> to the correct value. This should be done in the <span class="fixed">handleKeyUp()</span> method:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.handleKeyUp = function (oEvent) {
+
+    var iKeyCode = oEvent.keyCode;
+<span style="background-color:d9d9d9">    this.userText = this.textbox.value;</span>
+
+    if (iKeyCode == 8 || iKeyCode == 46) {
+        this.provider.requestSuggestions(this, false);
+
+    } else if (iKeyCode &lt; 32 || (iKeyCode &gt;= 33 &amp;&amp; iKeyCode &lt;= 46)
+<a name="466"></a><a name="IDX-217"></a>
+               || (iKeyCode &gt;= 112 &amp;&amp; iKeyCode &lt;= 123)) {
+        //ignore
+    } else {
+        this.provider.requestSuggestions(this, true);
+    }
+};
+</pre>
+</div>
+<p class="para">This small addition saves what the user typed before 
+asking for suggestions. This will be very useful when dealing with the 
+Esc key. With these two methods updates, all that's left is to make sure
+ that <span class="fixed">goToSuggestion()</span> gets called at the right time.</p>
+<p class="para">To handle the up arrow, down arrow, Esc, and Enter keys, a <span class="fixed">handleKeyDown()</span> method is necessary. Similar to <span class="fixed">handleKeyUp()</span>, this method also requires the <span class="fixed">event</span>
+ object to be passed in. And once again, you'll need to rely on the key 
+code to tell which key was pressed. The key codes for the up arrow, down
+ arrow, Esc, and Enter keys are 38, 40, 27, and 13, respectively. The <span class="fixed">handleKeyDown()</span> method is defined as follows:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.handleKeyDown = function (oEvent) {</span>
+<span style="background-color:d9d9d9">    switch(oEvent.keyCode) {</span>
+<span style="background-color:d9d9d9">        case 38: //up arrow</span>
+<span style="background-color:d9d9d9">            this.goToSuggestion(-1);</span>
+<span style="background-color:d9d9d9">            break;</span>
+<span style="background-color:d9d9d9">        case 40: //down arrow</span>
+<span style="background-color:d9d9d9">            this.goToSuggestion(1);</span>
+<span style="background-color:d9d9d9">            break;</span>
+<span style="background-color:d9d9d9">        case 27: //esc</span>
+<span style="background-color:d9d9d9">            this.textbox.value = this.userText;</span>
+<span style="background-color:d9d9d9">            this.selectRange(this.userText.length, 0);</span>
+<span style="background-color:d9d9d9">            /* falls through */</span>
+<span style="background-color:d9d9d9">        case 13: //enter</span>
+<span style="background-color:d9d9d9">            this.hideSuggestions();</span>
+<span style="background-color:d9d9d9">            oEvent.returnValue = false;</span>
+<span style="background-color:d9d9d9">            if (oEvent.preventDefault) {</span>
+<span style="background-color:d9d9d9">                oEvent.preventDefault();</span>
+<span style="background-color:d9d9d9">            }</span>
+<span style="background-color:d9d9d9">            break;</span>
+<span style="background-color:d9d9d9">    }</span>
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">When the up arrow is pressed (key code 38), the <span class="fixed">goToSuggestion()</span> method is called with an argument of <span class="fixed">–1</span>, indicating that the previous selection should be selected. Likewise, when the down arrow is pressed (key code 40), <span class="fixed">goToSuggestion()</span> is called with <span class="fixed">1</span> as an argument to highlight the next suggestion. If Esc is pressed (key code 27), there are a couple of things to do.</p>
+<p class="para">First, you need to set the text box value back to the 
+original text that the user typed. Second, you need to set the selection
+ of the text box to be after what the user typed so that he or she can 
+continue typing. This is done by setting the selection range to the 
+length of the text with a selection length of zero. Then, this case 
+falls through to the Enter key's case (key code 13), which hides the 
+suggestions list. This way, the code contains only one call to <span class="fixed">hideSuggestions()</span>
+ instead of two. Remember, when the user presses the up or down arrows, 
+the suggestion is automatically placed into the text box. This means 
+that when the Enter key is pressed, you need only hide the drop-down 
+list of suggestions.</p>
+<a name="467"></a><a name="IDX-218"></a>
+<p class="last-para">For both Esc and Enter, you also must block the 
+default behavior for the key press. This is important to prevent 
+unintended behavior, such as the Enter key submitting the form when the 
+user really just wanted to select the current suggestion. The default 
+behavior is blocked first by setting <span class="fixed">event.returnValue</span> equal to <span class="fixed">false</span> (for IE) and then calling <span class="fixed">preventDefault()</span> (if it's available, for Firefox).</p>
+</div>
+<div class="section">
+<h5 class="sect5-title">
+<a name="468"></a><a name="ch07lev4sec8"></a>Updating init()</h5>
+<p class="first-para">Now that all this new functionality has been added, it must be initialized. Previously, the <span class="fixed">init()</span> method was used to set up the <span class="fixed">onkeyup</span> event handler; now it must be extended to also set up the <span class="fixed">onkeydown</span> and <span class="fixed">onblur</span> event handlers, as well as to create the drop-down suggestion list. The <span class="fixed">onkeydown</span> event handler is set up in a similar manner as <span class="fixed">onkeyup</span>:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.init = function () {
+
+     var oThis = this;
+
+    this.textbox.onkeyup = function (oEvent) {
+        if (!oEvent) {
+            oEvent = window.event;
+        }
+
+        oThis.handleKeyUp(oEvent);
+    };
+
+<span style="background-color:d9d9d9">    this.textbox.onkeydown = function (oEvent) {</span>
+
+<span style="background-color:d9d9d9">        if (!oEvent) {</span>
+<span style="background-color:d9d9d9">            oEvent = window.event;</span>
+<span style="background-color:d9d9d9">        }</span>
+
+<span style="background-color:d9d9d9">        oThis.handleKeyDown(oEvent);</span>
+<span style="background-color:d9d9d9">    };</span>
+
+<span style="background-color:d9d9d9">    //more code to come</span>
+};
+</pre>
+</div>
+<p class="para">As you can see, the same algorithm is used with the <span class="fixed">onkeydown</span> event handler: first, determine the location of the event object, and then pass it into the <span class="fixed">handleKeyDown()</span> method.</p>
+<p class="para">Up to this point, the only way the drop-down list is 
+hidden is when the user presses the Enter key. But what if the user 
+clicks elsewhere on the screen or uses the Tab key to switch to a new 
+form field? To prepare for this event, you must set up an <span class="fixed">onblur</span> event handler, which hides the suggestions whenever the text box loses focus:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.init = function () {
+
+    var oThis = this;
+
+    this.textbox.onkeyup = function (oEvent) {
+        if (!oEvent) {
+            oEvent = window.event;
+<a name="469"></a><a name="IDX-219"></a>
+        }
+
+        oThis.handleKeyUp(oEvent);
+    };
+
+    this.textbox.onkeydown = function (oEvent) {
+
+        if (!oEvent) {
+            oEvent = window.event;
+        }
+
+        oThis.handleKeyDown(oEvent);
+    };
+
+<span style="background-color:d9d9d9">    this.textbox.onblur = function () {</span>
+<span style="background-color:d9d9d9">        oThis.hideSuggestions();</span>
+<span style="background-color:d9d9d9">    };</span>
+
+<span style="background-color:d9d9d9">    this.createDropDown();</span>
+};
+</pre>
+</div>
+<p class="last-para">You'll also notice that the <span class="fixed">createDropDown()</span>
+ method is called to create the initial drop-down list structure. This 
+completes the keyboard support for the autosuggest control, but there is
+ one more thing to take into account.</p>
+</div>
+<div class="section">
+<h4 class="sect4-title">
+<a name="470"></a><a name="ch07lev3sec2"></a>Fast-Type Support</h4>
+<p class="first-para">Because the <span class="fixed">handleKeyUp()</span>
+ method requests suggestions whenever a key is pressed, you may be 
+wondering if it can keep up when someone is typing quickly. The answer 
+is no. You may be surprised to know that it is possible to type too fast
+ for the event handling to keep up. In this case, you get suggestions 
+that are too late (including letters you never typed) and a very choppy 
+user experience (with long pauses as you type). So, how can you make 
+sure that fast typists aren't left out of this functionality?</p>
+<p class="para">Quite simply, you should wait a short amount of time before requesting suggestions from the server. This can be done using the <span class="fixed">setTimeout()</span>
+ method, which delays the calling of a function for a set time interval.
+ The new functionality works like this: a timeout ID is saved in the <span class="fixed">AutoSuggestControl</span>
+ object. If another key is pressed before the timeout has been 
+activated, the existing timeout is cleared and a new one is put in its 
+place. So basically, when a user presses a key, the control waits a 
+certain amount of time before requesting suggestions. If another key is 
+pressed before the request is made, the control cancels the original 
+request (by clearing the timeout) and asks for a new request to be made 
+after the same amount of time. In this way, you can be sure that the 
+request for suggestions goes out only while the user has paused typing.</p>
+<p class="para">To implement this functionality, the first thing you need is a property to hold the timeout ID. You can add the <span class="fixed">timeoutId</span> property directly to the <span class="fixed">AutoSuggestControl</span> class, as follows:</p>
+<div class="informalexample">
+<pre class="literallayout">function AutoSuggestControl(oTextbox, oProvider) {
+    this.cur = -1;
+    this.layer = null;
+    this.provider = oProvider;
+    this.textbox = oTextbox;
+<span style="background-color:d9d9d9">    this.timeoutId = null;</span>
+    this.userText = oTextbox.value;
+    this.init();
+}
+<a name="471"></a><a name="IDX-220"></a>
+</pre>
+</div>
+<p class="para">Next, update the <span class="fixed">handleKeyUp()</span> method to make use of this new property:</p>
+<div class="informalexample">
+<pre class="literallayout">AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
+
+    var iKeyCode = oEvent.keyCode;
+<span style="background-color:d9d9d9">    var oThis = this;</span>
+
+    this.userText = this.textbox.value;
+
+<span style="background-color:d9d9d9">    clearTimeout(this.timeoutId);</span>
+
+    if (iKeyCode == 8 || iKeyCode == 46) {
+
+<span style="background-color:d9d9d9">        this.timeoutId = setTimeout(function () {</span>
+<span style="background-color:d9d9d9">            oThis.provider.requestSuggestions(oThis, false);</span>
+<span style="background-color:d9d9d9">        }, 250);</span>
+
+    } else if (iKeyCode &lt; 32 || (iKeyCode &gt;= 33 &amp;&amp; iKeyCode &lt; 46)
+               || (iKeyCode &gt;= 112 &amp;&amp; iKeyCode &lt;= 123)) {
+        //ignore
+    } else {
+<span style="background-color:d9d9d9">        this.timeoutId = setTimeout(function () {</span>
+<span style="background-color:d9d9d9">            oThis.provider.requestSuggestions(oThis, true);</span>
+<span style="background-color:d9d9d9">        }, 250);</span>
+    }
+};
+</pre>
+</div>
+<p class="para">The first new line in this method stores a reference to the <span class="fixed">this</span> object, which is important when using the <span class="fixed">setTimeout()</span>
+ method. The second new line of code clears any timeout that may have 
+already been started; this cancels and suggestion request that may have 
+been initiated. The other two sections of new code change the call to 
+the <span class="fixed">requestSuggestions()</span> to occur after 250 
+milliseconds (which is plenty of time for this purpose). Each call is 
+wrapped in an anonymous function that is passed into <span class="fixed">setTimeout()</span>. The result of <span class="fixed">setTimeout()</span>,
+ the timeout ID is stored in the new property for later usage. All in 
+all, this ensures that no requests will be made unless the user has 
+stopped typing for at least 250 milliseconds.</p>
+<p class="last-para">This completes the code for the <span class="fixed">AutoSuggestControl</span> class. All of the functionality has been implemented, and all that's left is to create a suggestion provider to call.</p>
+</div>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="472"></a><a name="ch07lev2sec15"></a>The Suggestion Provider</h3>
+<p class="first-para">The <span class="fixed">SuggestionProvider</span> class is relatively simple compared to the <span class="fixed">AutoSuggestControl</span> since it has only one purpose: to request suggestions from the server and forward them to the control. To do so, <span class="fixed">SuggestionProvider</span> needs an instance of <span class="fixed">XmlHttp</span>.
+ Instead of using a new object for each request, the same object will be
+ used over and over, to avoid the overhead of creating and destroying 
+objects in rapid succession. This single instance is created using the 
+zXML library's <span class="fixed">zXmlHttp</span> factory and stored in a property called <span class="fixed">http</span>:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">function SuggestionProvider() {</span>
+<span style="background-color:d9d9d9">    this.http = zXmlHttp.createRequest();</span>
+<span style="background-color:d9d9d9">}</span>
+<a name="473"></a><a name="IDX-221"></a>
+</pre>
+</div>
+<p class="para">The lone method of the suggestion provider is <span class="fixed">requestSuggestions()</span>, which you may remember from the architecture discussion. This method accepts two arguments: the <span class="fixed">AutoSuggestControl</span> to work on and a flag indicating whether typeahead should be used. The complete code is as follows:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">SuggestionProvider.prototype.requestSuggestions = function (oAutoSuggestControl,</span>
+<span style="background-color:d9d9d9">                                                            bTypeAhead) {</span>
+
+<span style="background-color:d9d9d9">    var oHttp = this.http;</span>
+
+<span style="background-color:d9d9d9">    //cancel any active requests</span>
+<span style="background-color:d9d9d9">    if (oHttp.readyState != 0) {</span>
+<span style="background-color:d9d9d9">        oHttp.abort();</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    //define the data</span>
+<span style="background-color:d9d9d9">    var oData = {</span>
+<span style="background-color:d9d9d9">        requesting: "StatesAndProvinces",</span>
+<span style="background-color:d9d9d9">        text: oAutoSuggestControl.userText,</span>
+<span style="background-color:d9d9d9">        limit: 5</span>
+<span style="background-color:d9d9d9">    };</span>
+
+<span style="background-color:d9d9d9">    //open connection to server</span>
+<span style="background-color:d9d9d9">    oHttp.open("post", "suggestions.php", true);</span>
+<span style="background-color:d9d9d9">    oHttp.onreadystatechange = function () {</span>
+<span style="background-color:d9d9d9">        if (oHttp.readyState == 4) {</span>
+<span style="background-color:d9d9d9">            //evaluate the returned text JavaScript (an array)</span>
+<span style="background-color:d9d9d9">            var aSuggestions = JSON.parse(oHttp.responseText);</span>
+
+<span style="background-color:d9d9d9">            //provide suggestions to the control</span>
+<span style="background-color:d9d9d9">            oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">    };</span>
+
+<span style="background-color:d9d9d9">    //send the request</span>
+<span style="background-color:d9d9d9">    oHttp.send(JSON.stringify(oData));</span>
+
+<span style="background-color:d9d9d9">};</span>
+</pre>
+</div>
+<p class="para">The first line inside the method sets <span class="fixed">oHttp</span> equal to the stored <span class="fixed">XmlHttp</span>
+ object. This is done simply for convenience and keeping the code clean.
+ Next, you check to make sure that there isn't already a request waiting
+ for a response. If the <span class="fixed">XmlHttp</span> object is ready to be used cleanly, its <span class="fixed">readyState</span> will be 0; otherwise, you must cancel the existing request (by calling <span class="fixed">abort()</span>) before making another request.</p>
+<p class="para">Because the data being sent to the server is to be JSON-encoded, you first need to create an object (<span class="fixed">oData</span>)
+ to hold the information. There are three pieces of information being 
+sent: the table to get the data out of, the current value in the text 
+box, and the maximum number of suggestions to retrieve (<span class="fixed">5</span>). The maximum number of suggestions is important because it prevents long database queries from being executed repeatedly.</p>
+<p class="para">Next, a request is opened to <span class="fixed">suggestions.php</span>, the server-side component of the control. This request is asynchronous (last argument of <span class="fixed">open()</span> is set to <span class="fixed">true</span>), so it's necessary to provide an <span class="fixed">onreadystate-change</span> event handler. The event handler first checks to ensure that the <span class="fixed">readyState</span> is <span class="fixed">4</span>,
+ and then parses the returned text as a JSON array of values. This 
+array, along with the original typeahead flag, is then passed back to 
+the <span class="fixed">AutoSuggestControl</span> via the <span class="fixed">autosuggest()</span> method.</p>
+<a name="474"></a><a name="IDX-222"></a>
+<p class="para">The last step in this method is, of course, to send the 
+request. Note that since the request is doing a POST, the data has to be
+ passed into the <span class="fixed">send()</span> method. The <span class="fixed">oData</span> object is first encoded into JSON before being sent.</p>
+<p class="last-para">With that, the <span class="fixed">SuggestionProvider</span> class is complete. The only thing left to do is to write the <span class="fixed">suggestions.php</span> file that uses the data that is sent.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="475"></a><a name="ch07lev2sec16"></a>The Server-Side Component</h3>
+<p class="first-para">In many ways, the server-side component for the 
+autosuggest control is the most straightforward: it's just a single 
+thread being executed from top to bottom, with no functions or methods 
+to be concerned about. Note that because this is a PHP page, all the 
+code discussed in this section must be contained within a PHP code block
+ (<span class="fixed">&lt;?php . . . ?&gt;</span>).</p>
+<p class="para">The first part of the page is to set the content type to <span class="fixed">text/plain</span>,
+ indicating that this is a plain text file and shouldn't be handled as 
+anything else. You can optionally specify a character set, but make sure
+ that it is Unicode-compatible, such as UTF-8, since all Unicode 
+characters are valid in JavaScript. Here's the line that accomplishes 
+assigning the content type:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">header("Content-Type: text/plain; charset=utf-8");</span>
+</pre>
+</div>
+<p class="para">Next, include the JSON-PHP library and create a new instance of the <span class="fixed">JSON</span> object:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">require_once("JSON.php");</span>
+<span style="background-color:d9d9d9">$oJSON = new JSON();</span>
+</pre>
+</div>
+<p class="para">Normally when data is sent to a PHP page, you can use <span class="fixed">$_GET, $_POST</span>, or <span class="fixed">$_REQUEST</span>
+ to retrieve it. In this case, however, the data isn't being sent in 
+traditional name/value pairs; instead, it's being sent as a JSON string,
+ and there is no built-in support for this specific type of data. 
+Instead, you need to get the body of the request and decode it manually.
+ The body of any request is available in PHP through <span class="fixed">$HTTP_RAW_POST_DATA</span>,
+ which contains the original, encoded content that was sent. Because the
+ JSON string wasn't URL encoded, however, you can just pass this 
+directly into the <span class="fixed">decode()</span> method to reconstitute the <span class="fixed">oData</span> object:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">$oData = $oJSON-&gt;decode($HTTP_RAW_POST_DATA);</span>
+</pre>
+</div>
+<p class="para">You'll also need an array to store the suggestions in:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">$aSuggestions = array();</span>
+</pre>
+</div>
+<p class="para">If there are no suggestions, no values will be added to the array and an empty array (<span class="fixed">[]</span>) will be returned to the client.</p>
+<p class="para">Before tapping the database for suggestions, make sure 
+that there is actually text in the text box. Suggestions are requested 
+when the user hits Delete or Backspace, so there's a possibility that 
+the text box could be empty. You should check for this first by seeing 
+if the length of the text is greater than <span class="fixed">0</span>; if so, you can continue on to query the database.</p>
+<a name="476"></a><a name="IDX-223"></a>
+<p class="para">The query string itself is built up from the data submitting from the client. The name of the table, the <span class="fixed">LIKE</span>
+ statement, and the number of results to return are all incorporated 
+into the SQL query. The following code creates a connection to the 
+database, executes the query, and then adds the results of the query to 
+the <span class="fixed">$aSuggestions</span> array:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">if (strlen($oData-&gt;text) &gt; 0) {</span>
+
+<span style="background-color:d9d9d9">    //create the SQL query string</span>
+<span style="background-color:d9d9d9">    $sQuery = "Select Name from ".$oData-&gt;requesting." where Name like '".</span>
+<span style="background-color:d9d9d9">              $oData-&gt;text."%' order by Name ASC limit 0,".$oData-&gt;limit;</span>
+
+<span style="background-color:d9d9d9">    //make the database connection</span>
+<span style="background-color:d9d9d9">    $oLink = mysql_connect($sDBServer,$sDBUsername,$sDBPassword);</span>
+<span style="background-color:d9d9d9">    @mysql_select_db($sDBName) or die("Unable to open database");</span>
+
+<span style="background-color:d9d9d9">    if($oResult = mysql_query($sQuery)) {</span>
+<span style="background-color:d9d9d9">        while ($aValues = mysql_fetch_array($oResult,MYSQL_ASSOC)) {</span>
+<span style="background-color:d9d9d9">            array_push($aSuggestions, $aValues['Name']);</span>
+<span style="background-color:d9d9d9">        }</span>
+<span style="background-color:d9d9d9">    }</span>
+
+<span style="background-color:d9d9d9">    mysql_free_result($oResult);</span>
+<span style="background-color:d9d9d9">    mysql_close($oLink);</span>
+<span style="background-color:d9d9d9">}</span>
+</pre>
+</div>
+<p class="para">This code should be fairly familiar to you as it is the 
+same basic algorithm used throughout the book to access a MySQL database
+ using PHP. (You must fill in the appropriate values for $sDBServer, 
+$sDBUsername, and $sDBPassword to reflect your database settings.) The 
+only unique part is that the results are being stored in an array, which
+ facilitates the conversion into a JSON string to be sent back to the 
+client.</p>
+<p class="para">The actual encoding is the very last step of the page. In one step, you can encode the array and output it to the page:</p>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">echo($oJSON-&gt;encode($aSuggestions));</span>
+</pre>
+</div>
+<p class="last-para">Now it's up to the client to parse the JSON code correctly.</p>
+</div>
+<div class="section">
+<h3 class="sect3-title">
+<a name="477"></a><a name="ch07lev2sec17"></a>The Client-Side Component</h3>
+<p class="first-para">So far, you've built the HTML, CSS, JavaScript, 
+and PHP to be used by the autosuggest control. The only thing left to do
+ is to assemble it all into a page that you can use. The most important 
+thing to remember is the inclusion of all necessary JavaScript files. In
+ this case, you need to include <span class="fixed">json.js, zxml.js</span>, and <span class="fixed">autosuggest.js</span>. Also important is the inclusion of the style sheet file, <span class="fixed">autosuggest.css</span>.</p>
+<p class="para">It's also necessary to instantiate the <span class="fixed">AutoSuggestControl</span> after the page has completely loaded, using the <span class="fixed">onload</span> event handler. The complete code for the example page is:</p>
+<a name="478"></a><a name="IDX-224"></a>
+<div class="informalexample">
+<pre class="literallayout"><span style="background-color:d9d9d9">&lt;html&gt;</span>
+<span style="background-color:d9d9d9">    &lt;head&gt;</span>
+<span style="background-color:d9d9d9">        &lt;title&gt;Autosuggest Example&lt;/title&gt;</span>
+<span style="background-color:d9d9d9">        &lt;script type=" text/javascript" src=" json.js"&gt;&lt;/script&gt;</span>
+<span style="background-color:d9d9d9">        &lt;script type=" text/javascript" src=" zxml.js"&gt;&lt;/script&gt;</span>
+<span style="background-color:d9d9d9">        &lt;script type=" text/javascript" src=" autosuggest.js"&gt;&lt;/script&gt;</span>
+<span style="background-color:d9d9d9">        &lt;link rel=" stylesheet" type=" text/css" href=" autosuggest.css" /&gt;</span>
+<span style="background-color:d9d9d9">        &lt;script type=" text/javascript"&gt;</span>
+<span style="background-color:d9d9d9">            window.onload = function () {</span>
+<span style="background-color:d9d9d9">                var oTextbox = new</span>
+<span style="background-color:d9d9d9">AutoSuggestControl(document.getElementById("txtState"), new SuggestionProvider());</span>
+<span style="background-color:d9d9d9">            }</span>
+<span style="background-color:d9d9d9">        &lt;/script&gt;</span>
+<span style="background-color:d9d9d9">    &lt;/head&gt;</span>
+<span style="background-color:d9d9d9">    &lt;body&gt;</span>
+<span style="background-color:d9d9d9">        &lt;form method=" post" action=" your_action.php"&gt;</span>
+<span style="background-color:d9d9d9">            &lt;table border="0"&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;Name:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;&lt;input type=" text" name=" txtName" id=" txtName" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;Address 1:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;&lt;input type=" text" name=" txtAddress1"</span>
+<span style="background-color:d9d9d9">                              id=" txtAddress1" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;Address 2:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;&lt;input type=" text" name=" txtAddress2"</span>
+<span style="background-color:d9d9d9">                              id=" txtAddress2" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;City:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;&lt;input type=" text" name=" txtCity" id=" txtCity" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;State/Province:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                   &lt;td&gt;&lt;input type=" text" name=" txtState" id=" txtState"</span>
+<span style="background-color:d9d9d9">                              autocomplete=" off" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;Zip Code:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;&lt;input type=" text" name=" txtZip" id=" txtZip" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">                &lt;tr&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;Country:&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                    &lt;td&gt;&lt;input type=" text" name=" txtCountry"</span>
+<span style="background-color:d9d9d9">                               id=" txtCountry" /&gt;&lt;/td&gt;</span>
+<span style="background-color:d9d9d9">                &lt;/tr&gt;</span>
+<span style="background-color:d9d9d9">            &lt;/table&gt;</span>
+<span style="background-color:d9d9d9">            &lt;input type=" submit" value=" Save Information" /&gt;</span>
+<span style="background-color:d9d9d9">        &lt;/form&gt;</span>
+<span style="background-color:d9d9d9">    &lt;/body&gt;</span>
+<span style="background-color:d9d9d9">&lt;/html&gt;</span>
+<a name="479"></a><a name="IDX-225"></a>
+</pre>
+</div>
+<p class="para">Note that once the necessary files are included, you need to place only one line of JavaScript in the <span class="fixed">window.onload</span> event handler to set up the functionality:</p>
+<div class="informalexample">
+<pre class="literallayout">var oTextbox = new AutoSuggestControl(document.getElementById("txtState"),
+                                      new SuggestionProvider());
+</pre>
+</div>
+<p class="para">This line creates a new <span class="fixed">AutoSuggestControl</span> object, passing a reference to the text box with the id of <span class="fixed">txtState</span> and a new <span class="fixed">SuggestionProvider()</span> class. It's important that this line be executed in the <span class="fixed">onload</span> event handler because <span class="fixed">document.getElementById()</span> isn't 100 percent accurate until the entire page has been loaded.</p>
+<p class="last-para">The example itself is done in a way in which this 
+control may be used: filling in personal information. This could be a 
+page where customers can update their information or it could be a 
+shipping form. Whichever way you choose to use this functionality, it is
+ sure to improve the usability of your form. An autosuggest control, 
+although not as flashy as some Ajax solutions, really is a good example 
+of how Ajax can be used in a non-interfering way.</p>
+</div>
+</div>
+
+<br>
+<table border="0" width="100%" cellpadding="0" cellspacing="0">
+<tbody><tr><td><div style="MARGIN-LEFT: 0.15in;">
+<a href="http://www.yaldex.com/ajax-tutorial-4/BBL0049.html"><img src="autocomplete_files/prev.gif" alt="Previous Page" align="absmiddle" border="0" height="17" width="60"></a>
+</div></td><td align="right"><div style="MARGIN-LEFT: 0.15in;">
+<a href="http://www.yaldex.com/ajax-tutorial-4/BBL0051.html"><img src="autocomplete_files/next.gif" alt="Next Page" align="absmiddle" border="0" height="17" width="60"></a>
+</div></td></tr></tbody></table>
+﻿<br>
+↓       
+<br>    
+
+
+<br><br><a href="http://www.yaldex.com/JSFactory_Pro.htm" title="JavaScript Editor"><img src="autocomplete_files/CoolJavaScriptEditor.gif" alt="JavaScript Editor" align="absmiddle" border="0" height="100" vspace="0" width="130">Ajax Editor</a>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.yaldex.com/" title="web editor">Ajax Validator</a>
+<script type="text/javascript" src="autocomplete_files/bottom_php.js"></script><div align="left"><script type="text/javascript">google_ad_client = "pub-9174008455481862";/* Bottom */google_ad_slot = "6126782106";google_ad_width = 728;google_ad_height = 90;</script><script type="text/javascript" src="autocomplete_files/show_ads.js"></script><ins style="display:inline-table;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><ins id="aswift_1_anchor" style="display:block;border:none;height:90px;margin:0;padding:0;position:relative;visibility:visible;width:728px"><iframe allowtransparency="true" hspace="0" marginwidth="0" marginheight="0" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){w.location.replace(h)}}" vspace="0" id="aswift_1" name="aswift_1" style="left: 0pt; position: absolute; top: 0pt;" frameborder="0" height="90" scrolling="no" width="728"></iframe></ins></ins></div><br><br><script src="autocomplete_files/social.js" type="text/javascript"></script><br><script type="text/javascript" src="autocomplete_files/addthis.js"></script><!-- AddThis Button BEGIN --><a class="addthis_button" rel="nofollow" href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=seobuildingru"><img src="autocomplete_files/lg-share-en.gif" alt="Bookmark and Share" style="border: 0pt none;" height="16" width="125"></a><script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script><script type="text/javascript" src="autocomplete_files/addthis_widget.js"></script><!-- AddThis Button END --><br><br><br><br><br><br>©<br></div></body></html>
