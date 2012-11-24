@@ -8,163 +8,57 @@
         <link rel="stylesheet" href="/css/960.css" />
         <link rel="stylesheet" href="/css/text.css" />
         <link rel="stylesheet" href="/css/mealdisp.css" />
-        <link rel="stylesheet" href="/css/jquery.autocomplete.css" />
+        <link rel="stylesheet" href="/css/autosuggest.css" />
     </head>
 
     <body>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true"></script>
-    <script src="/jquery.js"></script>
-    <script src="/jquery.autocomplete.js"></script>
+    <script type="text/javascript" src="autosuggest.js"></script>
     <style>
     </style>
 
     <script type="text/javascript">
 
-        var map;
+        function AutoProvider() {
+            this.autoserv = new google.maps.places.AutocompleteService();
+        }
 
-        function initialize() {
-            var enorth = new google.maps.LatLng(40.876449, -73.325071);
-
-            map = new google.maps.Map(document.getElementById('map'), {
-                mapTypeId: google.maps.MapTypeId.ROADMAP,
-                center: enorth,
-                zoom: 13
-            });
-
-            var bounds = new google.maps.LatLngBounds(
-                    new google.maps.LatLng(40.89, -73.30),
-                    new google.maps.LatLng(40.85, -73.34));
-
-            //var bounds = map.getBounds();
-            var input = document.getElementById('searchTextField');
-            var options = {
-                bounds: bounds,
-                types: ['establishment']
-            };
-
-            var autocomplete = new google.maps.places.Autocomplete(input, options);
-            google.maps.event.addListener(autocomplete, 'place_changed', function() {
-                var place = autocomplete.getPlace();
-                var text = place.name + '<br>' + place.formatted_address + '<br>' + place.formatted_phone_number + '<br>';
-                document.getElementById('selection').innerHTML = text;
-
-            });
-
-            var request = {
-                location: enorth,
-                radius: '5000',
-                types: ['food']
-            };
-
-            var service = new google.maps.places.PlacesService(map);
-            service.nearbySearch(request, callback);
-
-            var autoserv = new google.maps.places.AutocompleteService();
-
-            var search2 = document.getElementById('searchText2');
-
-            search2.onkeydown = function() {
-
-            }
+        AutoProvider.prototype.requestSuggestions = function (oAutoSuggestControl) {
+            var enorth = new google.maps.LatLng(40.876449, -73.325071);            
 
             var arequest = {
-                input: search2.value,
+                input: oAutoSuggestControl.userText,
                 location: enorth,
                 radius: 3000,
                 types: ['establishment']
             };
 
-            autoserv.getPlacePredictions(arequest, function(predictions, status) {
+            this.autoserv.getPlacePredictions(arequest, function(predictions, status) {
                 if(status != google.maps.places.PlacesServiceStatus.OK) {
                     console.log('got weird status from getPlacePredictions: ' + status);
                     return;
                 }
 
-                var text = '';
-                for(var i = 0, prediction; prediction=predictions[i]; i++) {
-                    text += '<li>' + prediction.description + '</li>';
-                }
-                document.getElementById('placepredictions').innerHTML = text;
-            });
+                oAutoSuggestControl.autosuggest(predictions);
 
-        }
-
-        function detailsreq(reference) {
-            var service = new google.maps.places.PlacesService(map);
-            var request = {
-                reference: reference
-            };
-            service.getDetails(request, function(place, status) {
-                if(status == google.maps.places.PlacesServiceStatus.OK) {
-                    var details = "";
-                    var name = place.name;
-                    var address = place.formatted_address;
-                    var phone = place.formatted_phone_number;
-                    var website = place.website;
-                    if(website != undefined) {
-                        details = '<a href="' + website + '">' + name + '</a><br>';
-                    }
-                    else {
-                        details = name + '<br>';
-                    }
-                    details = details + address + '<br>';
-                    details = details + phone + '<br>';
-                    document.getElementById('details').innerHTML = details;
-                }
             });
         }
 
-        function callback(results, status) {
+        function initialize() {
 
-            var places = '<ol>';
+            var textbox = document.getElementById('autotest');
+            var autoProv = new AutoProvider();
+            var autoControl = new AutoSuggestControl(textbox, autoProv);
 
-            if(status == google.maps.places.PlacesServiceStatus.OK) {
-                for(var i = 0 ; i < results.length; i++) {
-                    var place = results[i];
-                    var reference = place.reference;
-                    var refstr = '"javascript:detailsreq(\''+reference+'\')"';
-                    var string = '<li><a href="#" onclick='+refstr+'>'+place.name+"</a></li>";
-                    places = places + string;
-                }
-            }
-
-            console.log(places);
-            document.getElementById('list').innerHTML = places;
         }
 
         google.maps.event.addDomListener(window, 'load', initialize);
 
-        /*
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    latitude = position.coords.latitude;
-                    longitude = position.coords.longitude;
-                }, 
-                function(error) {}, 
-                { enableHighAccuracy: true }
-            );
-        }
-        */
-
     </script>
 
-    <div id='map'></div>
-    <div id='selection'></div>
-    <div id='placepredictions'></div>
-    <div id='search'>
-        <input type="text" name="searchTextField" id="searchTextField" style="width:600px">
+    <div id='autodiv'>
+        <input type="text" name="autotest" id="autotest" autocomplete="off" size="80">
     </div>
-    <div id='search2'>
-        <input type="text" name="searchText2" id="searchText2" autocomplete="off" size="80">
-        <div class="suggestions" id="search2div">
-    </div>
-    <div id='autocomptest'>
-        <input type="text" name="autocomp" id="autocomp" autocomplete="off" size="80">
-    </div>
-    <div id='details'></div>
-    ------
-    <div id='list'></div>
 
     </body>
 </html>

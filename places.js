@@ -41,6 +41,10 @@ app.get('/simple', function(req, res, next) {
     res.render('simple.ejs');
 });
 
+app.get('/autotest', function(req, res, next) {
+    res.render('autotest.ejs');
+});
+
 
 app.get('/placesautocomplete', function(req, res, next) {
     res.render('placesautocomplete.ejs');
