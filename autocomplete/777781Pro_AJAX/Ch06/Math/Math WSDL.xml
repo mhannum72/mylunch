@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:s="http://www.w3.org/2001/XMLSchema"
+                  xmlns:tns="http://www.wrox.com/services/math"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  targetNamespace="http://www.wrox.com/services/math">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.wrox.com/services/math">
+      <s:element name="add">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="op1" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="op2" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="addResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="addResult" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="subtract">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="op1" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="op2" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="subtractResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="subtractResult" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="multiply">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="op1" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="op2" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="multiplyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="multiplyResult" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="divide">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="op1" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="op2" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="divideResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="divideResult" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="addSoapIn">
+    <wsdl:part name="parameters" element="tns:add" />
+  </wsdl:message>
+  <wsdl:message name="addSoapOut">
+    <wsdl:part name="parameters" element="tns:addResponse" />
+  </wsdl:message>
+  <wsdl:message name="subtractSoapIn">
+    <wsdl:part name="parameters" element="tns:subtract" />
+  </wsdl:message>
+  <wsdl:message name="subtractSoapOut">
+    <wsdl:part name="parameters" element="tns:subtractResponse" />
+  </wsdl:message>
+  <wsdl:message name="multiplySoapIn">
+    <wsdl:part name="parameters" element="tns:multiply" />
+  </wsdl:message>
+  <wsdl:message name="multiplySoapOut">
+    <wsdl:part name="parameters" element="tns:multiplyResponse" />
+  </wsdl:message>
+  <wsdl:message name="divideSoapIn">
+    <wsdl:part name="parameters" element="tns:divide" />
+  </wsdl:message>
+  <wsdl:message name="divideSoapOut">
+    <wsdl:part name="parameters" element="tns:divideResponse" />
+  </wsdl:message>
+  <wsdl:portType name="MathSoap">
+    <wsdl:operation name="add">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Returns the sum of two floats as a float</documentation>
+      <wsdl:input message="tns:addSoapIn" />
+      <wsdl:output message="tns:addSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="subtract">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Returns the difference of two floats as a float</documentation>
+      <wsdl:input message="tns:subtractSoapIn" />
+      <wsdl:output message="tns:subtractSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="multiply">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Returns the product of two floats as a float</documentation>
+      <wsdl:input message="tns:multiplySoapIn" />
+      <wsdl:output message="tns:multiplySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="divide">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Returns the quotient of two floats as a float</documentation>
+      <wsdl:input message="tns:divideSoapIn" />
+      <wsdl:output message="tns:divideSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MathSoap" type="tns:MathSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+    <wsdl:operation name="add">
+      <soap:operation soapAction="http://www.wrox.com/services/math/add" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="subtract">
+      <soap:operation soapAction="http://www.wrox.com/services/math/subtract" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="multiply">
+      <soap:operation soapAction="http://www.wrox.com/services/math/multiply" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="divide">
+      <soap:operation soapAction="http://www.wrox.com/services/math/divide" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Math">
+    <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Contains a number of simple arithmetical functions</documentation>
+    <wsdl:port name="MathSoap" binding="tns:MathSoap">
+      <soap:address location="http://localhost/Math/Math.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <link rel="stylesheet" type="text/css" href="books.css" />
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+        function init(sFilename) {
+            var oReq = zXmlHttp.createRequest();
+		    oReq.onreadystatechange = function () {
+			    if (oReq.readyState == 4) {
+    	            // only if "OK"
+				    if (oReq.status == 200) {
+    	                transformXml(oReq.responseText);
+				    }
+			    }
+		    };
+		    oReq.open("GET", sFilename, true);
+		    oReq.send();
+        }
+        
+        function transformXml(sResponseText) {
+            var oXmlDom = zXmlDom.createDocument();
+	        oXmlDom.async = false;
+	        oXmlDom.loadXML(sResponseText);
+		
+
+        	var oXslDom = zXmlDom.createDocument();
+	        oXslDom.async = false;
+	        oXslDom.load("books.xsl");
+
+	        var str = zXslt.transformToText(oXmlDom,oXslDom);
+	        document.getElementById("divBookList").innerHTML = str;
+        }
+        
+        var bIsThisWeek = true;
+        
+        function changeList() {
+            var aChanger = document.getElementById("aChanger");
+            
+            if (bIsThisWeek) {
+                aChanger.innerHTML = "This Week's Picks";
+                init("lastweekbooks.xml");
+                bIsThisWeek = false;
+            } else {
+                aChanger.innerHTML = "Last Week's Picks";
+                init("thisweekbooks.xml");
+                bIsThisWeek = true;                
+            }
+            return false;
+        }
+    </script>
+</head>
+<body onload="init('thisweekbooks.xml')">
+    <a id="aChanger" href="#" onclick="changeList();">Last Week's Picks</a>
+    <div id="divBookList"></div>
+</body>
+</html>

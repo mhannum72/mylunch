@@ -852,6 +852,9 @@ to store the <span class="fixed">&lt;div/&gt;</span> element because various met
 effect on the drop-down list similar to the regular form controls. The 
 algorithm is quite simple: iterate through the child nodes of the layer.
  If the child node is equal to the node that was passed in, set the <span class="fixed">class</span> to <span class="fixed">current</span>; otherwise, clear the <span class="fixed">class</span> attribute by setting it to an empty string:</p>
+<br><br>
+XXX Note for my implementation: I think I can improve on this a bit by storing away the last node which was highlighted- at the very least I can avoid a scan.  Even better - have the highlightsuggestion routine take two arguments: the first has the prev current, the second has the new current - so that this just removed highlightsuggestion from the prev and adds it to the new.  EVEN BETTER, you can avoid the overhead of a function call (not sure how bad this is in javascript, but let's be honest: it's not free), and just do this code in-line .. think about this.  jquery autocomplete plugins are slow and sucky.  you don't want this autocomplete to suck.
+<br><br>
 <div class="informalexample">
 <pre class="literallayout"><span style="background-color:d9d9d9">AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {</span>
 
@@ -899,6 +902,11 @@ this happen, you need to assign three event handlers: <span class="fixed">onmous
 been made. Because all these events are fired by the drop-down list 
 itself, it's best just to use a single function for all of them, as 
 follows:</p>
+<br><br>
+XXX Why is this better?  Aren't you adding the overhead of an extra 'if' statement for oEvent.type?  ALSO, if you know
+ahead of time whether a browser passes in oEvents, or uses window.event, wouldn't it be better to have a different
+function for these to avoid the overhead of the or and variable assignment?
+<br><br>
 <div class="informalexample">
 <pre class="literallayout">AutoSuggestControl.prototype.createDropDown = function () {
 

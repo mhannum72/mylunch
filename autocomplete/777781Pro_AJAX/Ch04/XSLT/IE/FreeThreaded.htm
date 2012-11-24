@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <link rel="stylesheet" type="text/css" href="books.css" />
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+        function init() {
+            var oXmlDom = zXmlDom.createDocument();
+	        oXmlDom.async = false;
+	        oXmlDom.load("books.xml");
+		
+    	    var oXslDom = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.3.0");
+    	    oXslDom.async = false;
+    	    oXslDom.load("books.xsl");
+    
+	        var oXslTemplate = new ActiveXObject("Msxml2.XSLTemplate.3.0");
+	        oXslTemplate.stylesheet = oXslDom;
+    
+	        var oXslProcessor = oXslTemplate.createProcessor();
+	        oXslProcessor.input = oXmlDom;
+    	  
+	        oXslProcessor.transform();
+    	    document.body.innerHTML = oXslProcessor.output;
+        }
+    
+    </script>
+</head>
+<body onload="init()">
+
+</body>
+</html>

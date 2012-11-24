@@ -33,6 +33,10 @@ app.get('/placestest', function(req, res, next) {
     res.render('placestest.ejs');
 });
 
+app.get('/autotest', function(req, res, next) {
+    res.render('autotest.ejs');
+});
+
 app.get('/simple', function(req, res, next) {
     res.render('simple.ejs');
 });

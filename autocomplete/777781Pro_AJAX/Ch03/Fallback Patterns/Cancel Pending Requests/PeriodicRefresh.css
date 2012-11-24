@@ -1,0 +1,9 @@
+div.notification {
+    border: 1px solid red;
+    padding: 10px;
+    background-color: white;
+    position: absolute;
+    display: none;
+    top: 0px;
+    left: 0px;
+}

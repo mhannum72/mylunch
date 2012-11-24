@@ -1,0 +1,24 @@
+﻿<?xml  version="1.0"?> 
+<rss version="2.0"> 
+
+<channel> 
+
+<title>Error:  Cannot Find Specified Feed</title> 
+<description>Some information about the RSS FooReader - a DHTML page that reads or parses RSS files and dynamically displays them...</description> 
+<link>http://www.forgetfoo.com/</link>
+
+<item> 
+<title>Uh Oh...</title> 
+<description>
+	<![CDATA[ 
+		
+		<p>An error occurred when trying to retrieve the feed you wanted to display.  The feed most likely does 
+		not exist.  This may be remedied by either refreshing the page or clicking the Refresh Feeds link.</p>
+								
+	]]>
+</description> 
+<link>javascript:void(0)</link> 
+</item>
+
+</channel> 
+</rss> 

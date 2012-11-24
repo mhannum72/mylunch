@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en"  xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>FooReader.NET (Version 1.5)</title>
+	<link rel="stylesheet" type="text/css" href="css/fooreader.css" />
+	<!--[if gte IE 5]>
+		<style type="text/css">
+		#messageBody {
+			width: expression(document.documentElement.clientWidth - 429);
+		}
+		</style>
+	<![endif]-->
+	<script type="text/javascript" src="js/ui.js"></script>
+	<script type="text/javascript" src="js/zxml.js"></script>
+	<script type="text/javascript" src="js/fooreader.js"></script>
+	<script type="text/javascript" src="js/feedsfileparser.js"></script>
+	<script type="text/javascript" src="js/xparser.js"></script>
+</head>
+<body>
+<div id="divLoading">
+	<img src="img/progress.gif" border="0" alt="Loading" />
+</div>
+<div id="divTopBar">
+	<img src="img/top_logo.gif" alt="FooReader.NET" />
+	<div id="divLicense">
+		<a href="http://creativecommons.org/licenses/by-nc-sa/2.5/" title="Some Rights Reserved" target="_blank">License</a>
+		<!--<a href="#">About</a>-->
+	</div>
+</div>
+<div id="divPage">
+	<div id="divPaneContainer">
+		<div id="divItemsPane">
+			<div class="paneheader">Feeds</div>
+			<div id="divFeedList"></div>
+		</div>
+		<div id="divItemPane">
+			<div class="paneheader">Items</div>
+			<div id="divViewingItem"></div>
+			<div id="divItemList"></div>
+		</div>
+		<div id="divReadingPane">
+			<div class="contentcontainer">
+				<div class="messageheader">
+					<div id="divMessageTitle"></div>
+					<a href="" id="aMessageLink" title="Click to goto posting." target="_new">Travel to Post</a>
+				</div>
+				<div id="divMessageBody"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

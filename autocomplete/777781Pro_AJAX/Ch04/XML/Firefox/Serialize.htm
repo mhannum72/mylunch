@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript">
+        var oXmlDom = document.implementation.createDocument("", "", null);
+              
+        oXmlDom.load("books.xml");
+        oXmlDom.onload = function () {
+            
+            alert(serializeXml(oXmlDom));
+        };
+        
+        function serializeXml(oNode) {
+            var oSerializer = new XMLSerializer();
+            return oSerializer.serializeToString(oNode);
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

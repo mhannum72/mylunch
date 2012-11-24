@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feeds>
+  <section name="News">
+    <link name="Yahoo! Top Stories" filename="yahoo_topstories" href="http://rss.news.yahoo.com/rss/topstories" />
+  </section>
+</feeds>

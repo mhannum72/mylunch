@@ -1,0 +1,1 @@
+WSDL /namespace:GoogleService /out:GoogleSearchService.cs GoogleSearch.wsdl

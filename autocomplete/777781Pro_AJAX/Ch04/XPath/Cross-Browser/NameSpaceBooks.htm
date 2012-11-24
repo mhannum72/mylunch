@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+        function init() {
+            var oXmlDom = zXmlDom.createDocument();
+            oXmlDom.onreadystatechange = function () {
+                if (oXmlDom.readyState == 4) {
+                    if (oXmlDom.parseError.errorCode == 0) {
+                        //Set namespaces
+                        var sNameSpace = "xmlns:na='http://site1.com' xmlns:pub='http://site2.com'";
+                        
+                        //Select the nodes
+                        var oRoot = oXmlDom.documentElement;
+                        var sXPath = "na:book/pub:name";
+                        var oNodes = zXPath.selectNodes(oRoot, sXPath, sNameSpace);
+
+                        if (oNodes.length > 0) {
+                            alert(oNodes.length + " nodes selected with '" + sXPath + "'");
+                        }
+                    } else {
+                        //Error! Gather the information an alert it to the user.
+                        var str = "An error occurred!!\n" +
+                            "Description: " + oXmlDom.parseError.reason + "\n" +
+                            "File: " + oXmlDom.parseError.url + "\n" +
+                            "Line: " + oXmlDom.parseError.line + "\n" +
+                            "Line Position: " + oXmlDom.parseError.linepos + "\n" +
+                            "Source Code: " + oXmlDom.parseError.srcText;
+        
+                        alert(str);
+                    }
+                }
+            };
+            oXmlDom.load("NameSpaceBooks.xml");
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>JSON Encoding Example</title>
+        <script type="text/javascript" src="json.js"></script>
+
+    </head>
+    <body>
+        <script type="text/javascript">
+            var oCar = new Object();
+            oCar.doors = 4;
+            oCar.color = "blue";
+            oCar.year = 1995;
+            oCar.drivers = new Array("Penny", "Dan", "Kris");
+            
+            document.write(JSON.stringify(oCar));
+        
+        </script>    
+    </body>
+</html>

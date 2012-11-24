@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript">
+        var sXml = "<root><person><name>Jeremy McPeak</name></root>";
+        var oParser = new DOMParser();
+        var oXmlDom = oParser.parseFromString(sXml, "text/xml");
+        
+        if (oXmlDom.firstChild.tagName != "parsererror") {
+            //No error occurred. Do something here.
+        } else {
+            var oXmlSerializer = new XMLSerializer();
+            var sXmlError = oXmlSerializer.serializeToString(oXmlDom);
+            var reError = />([\s\S]*?)Location:([\s\S]*?)Line Number (\d+), Column (\d+):<sourcetext>([\s\S]*?)(?:\-*\^)/;
+
+            reError.test(sXmlError);
+            
+            var str = "An error occurred!!\n" +
+                "Description: " + RegExp.$1 + "\n" +
+                "File: " + RegExp.$2 + "\n" +
+                "Line: " + RegExp.$3 + "\n" +
+                "Line Position: " + RegExp.$4 + "\n" +
+                "Source Code: " + RegExp.$5;
+
+            alert(str);
+        }
+
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>

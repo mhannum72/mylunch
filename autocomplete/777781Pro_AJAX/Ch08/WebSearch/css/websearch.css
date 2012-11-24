@@ -1,0 +1,63 @@
+.ajaxWebSearchBox
+{
+	position: absolute;
+	background-color: #0d1e4a;
+	width: 500px;
+	padding: 1px;
+}
+
+.ajaxWebSearchHeading
+{
+	background-color: #1162cc;
+	font: bold 14px tahoma;
+	height: 21px;
+	color: white;
+	padding: 3px 0px 0px 2px;
+	position: relative;
+}
+
+a.ajaxWebSearchCloseLink
+{
+	position: absolute;
+	right: 5px;
+	top: 3px;
+	text-decoration: none;
+	color: white;
+}
+
+a:hover.ajaxWebSearchCloseLink
+{
+	color: red;
+}
+
+.ajaxWebSearchResults
+{
+	background-color: #d3e5fa;
+	padding: 5px;
+}
+
+.ajaxWebSearchResults div
+{
+	text-align: center;
+	font: bold 14px tahoma;
+	color: #0a246a;
+}
+
+a.ajaxWebSearchLink
+{
+	font: 12px tahoma;
+	padding: 2px;
+	display: block;
+	color: #0a246a;
+}
+
+a:hover.ajaxWebSearchLink
+{
+	color: white;
+	background-color: #316ac5;
+}
+
+a:visited.ajaxWebSearchLink 
+{
+	color: purple;
+}

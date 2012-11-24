@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript">
+        var oXmlDom = document.implementation.createDocument("", "", null);
+              
+        oXmlDom.load("books.xml");
+        oXmlDom.onload = function () {
+            
+            alert(getText(oXmlDom));
+        };
+        
+        function getText(oNode) {
+            var sText = "";
+            for (var i = 0; i < oNode.childNodes.length; i++) {
+                if (oNode.childNodes[i].hasChildNodes()) {
+                    sText += getText(oNode.childNodes[i]);
+                } else {
+                    sText += oNode.childNodes[i].nodeValue;
+                }
+            }
+            return sText;
+        }
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>

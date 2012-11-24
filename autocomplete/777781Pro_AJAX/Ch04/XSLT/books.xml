@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="books.xsl"?>
+
+<bookList>
+  <book isbn="0471777781">
+    <title>Professional Ajax</title>
+    <author>Nicholas C. Zakas, Jeremy McPeak, Joe Fawcett</author>
+    <publisher>Wrox</publisher>
+    <description></description>
+  </book>
+  <book isbn="0764579088">
+    <title>Professional JavaScript for Web Developers</title>
+    <author>Nicholas C. Zakas</author>
+    <publisher>Wrox</publisher>
+    <description></description>
+  </book>
+  <book isbn="0764557599">
+    <title>Professional C#</title>
+    <author>Simon Robinson, et al</author>
+    <publisher>Wrox</publisher>
+    <description></description>
+  </book>
+  <book isbn="1861006314">
+    <title>GDI+ Programming: Creating Custom Controls Using C#</title>
+    <author>Eric White</author>
+    <publisher>Wrox</publisher>
+    <description></description>
+  </book>
+  <book isbn="1861002025">
+    <title>Professional Visual Basic 6 Databases</title>
+    <author>Charles Williams</author>
+    <publisher>Wrox</publisher>
+    <description></description>
+  </book>
+</bookList>

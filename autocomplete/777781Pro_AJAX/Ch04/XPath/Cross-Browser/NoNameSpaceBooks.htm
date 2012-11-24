@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+        function init() {
+            var oXmlDom = zXmlDom.createDocument();
+            oXmlDom.onreadystatechange = function () {
+                if (oXmlDom.readyState == 4) {
+                    if (oXmlDom.parseError.errorCode == 0) {
+                        var oRoot = oXmlDom.documentElement;
+                        
+                        var oNode = zXPath.selectSingleNode(oRoot, "book/author", null);
+
+                        if (oNode) {
+                            alert(oNode.xml);
+                        }
+                                            
+                    } else {
+                        //Error! Gather the information an alert it to the user.
+                        var str = "An error occurred!!\n" +
+                            "Description: " + oXmlDom.parseError.reason + "\n" +
+                            "File: " + oXmlDom.parseError.url + "\n" +
+                            "Line: " + oXmlDom.parseError.line + "\n" +
+                            "Line Position: " + oXmlDom.parseError.linepos + "\n" +
+                            "Source Code: " + oXmlDom.parseError.srcText;
+        
+                        alert(str);
+                    }
+                }
+            };
+            oXmlDom.load("NoNameSpaceBooks.xml");
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,64 @@
+body 
+{
+	background-color: white;
+	font-family: Trebuchet MS, Tahoma, Verdana, Arial;
+}
+
+h3 
+{
+	margin: 0px;
+}
+
+a 
+{
+	background-color: white;
+	text-decoration: none;
+	color: #3b619c;
+}
+
+a:hover 
+{
+	background-color: #fefed9;
+	text-decoration: underline;
+}
+
+a:active, a:visited {}
+
+/* IDs */
+#aChanger 
+{
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	z-index: 2;
+}
+
+/* Classes */
+.bookContainer
+{
+	position: relative;
+	background-color: White;
+	clear: both;
+	padding: 10px;
+	height: 240px;
+}
+
+.bookCover 
+{
+	float: left;
+}
+
+.bookContent 
+{
+	position: relative;
+	padding: 10px;
+	float: left;
+	height: 220px;
+}
+
+.bookPublisher 
+{
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+}

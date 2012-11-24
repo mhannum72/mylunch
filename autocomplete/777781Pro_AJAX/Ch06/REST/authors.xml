@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<authors xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns="http://www.wrox.com/services/authors-books"
+         xlink:href="http://www.wrox.com/services/authors/">
+  <author forenames="Michael" surname="Kay"
+    xlink:href="http://www.wrox.com/services/authors/kaym"
+    id="kaym"/>
+  <author forenames="Joe" surname="Fawcett"
+    xlink:href="http://www.wrox.com/services/authors/fawcettj"
+    id="fawcettj"/>
+  <author forenames="Jeremy" surname="McPeak"
+    xlink:href="http://www.wrox.com/services/authors/mcpeakj"
+    id="mcpeakj"/>
+  <author forenames="Nicholas" surname="Zakas"
+    xlink:href="http://www.wrox.com/services/authors/zakasn"
+    id="zakasn"/>
+  <!--
+    More authors
+  -->
+</authors>

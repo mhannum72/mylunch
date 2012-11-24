@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript">
+    function init() {
+        var oXmlDom = createDocument();
+        oXmlDom.onreadystatechange = function () {
+            if (oXmlDom.readyState == 4) {
+                if (oXmlDom.parseError.errorCode == 0) {
+                    var oRoot = oXmlDom.documentElement;
+                    var oFirstChild = oRoot.firstChild
+                    alert(oFirstChild.text);
+                    
+                } else {
+                    alert("An Error Occurred: " + oXmlDom.parseError.reason);
+                }
+            }
+        };
+        oXmlDom.load("figure1.xml");
+    }
+
+    function createDocument() {
+        var aVersions = [ "MSXML2.DOMDocument.5.0",
+            "MSXML2.DOMDocument.4.0","MSXML2.DOMDocument.3.0",
+            "MSXML2.DOMDocument","Microsoft.XmlDom"
+        ];
+    	
+        for (var i = 0; i < aVersions.length; i++) {
+            try {
+                var oXmlDom = new ActiveXObject(aVersions[i]);
+                return oXmlDom;
+            } catch (oError) {
+                //Do nothing
+            }	
+        }
+        throw new Error("MSXML is not installed.");
+    }
+    
+    </script>
+</head>
+<body onload="init()">
+
+</body>
+</html>

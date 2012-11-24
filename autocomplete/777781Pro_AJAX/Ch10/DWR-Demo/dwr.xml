@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<dwr>
+  <allow>
+    <create creator="new" javascript="JDate">
+      <param name="class" value="java.util.Date" />
+    </create>
+    <create creator="new" javascript="TestClass">
+      <param name="class" value="wrox.TestClass1" />
+    </create>
+    <create creator="new" javascript="Customer">
+      <param name="class" value="wrox.Customer" />
+    </create>
+  </allow>
+</dwr>

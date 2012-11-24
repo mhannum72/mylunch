@@ -1,0 +1,72 @@
+body 
+{
+	background-color: white
+}
+
+#weatherContainer
+{
+	position: relative;
+	background: url( '../img/background.gif' );
+	width: 220px;
+	height: 149px;
+}
+
+#weatherIcon
+{
+	position: absolute;
+	top: -25px;
+	left: -25px;
+}
+
+#weatherIcon img
+{
+	width: 128px;
+	height: 128px;
+	behavior: url( "css/pngbehavior.htc" );
+}
+
+#weatherTemp
+{
+	position: absolute;
+	color: white;
+	font: bold 48px Tahoma;
+	right: 12px;
+	top: 5px;
+}
+
+#weatherLocation
+{
+	font: 12px Tahoma;
+	color: white;
+	position: absolute;
+	right: 12px;
+	top: 60px;
+}
+
+#weatherWind
+{
+	position: absolute;
+	font: bold 12px Tahoma;
+	color: white;
+	left: 85px;
+	top: 85px;
+}
+
+#weatherWind div
+{
+	font-weight: normal;
+}
+
+#weatherTime
+{
+	position: absolute;
+	font: bold 12px Tahoma;
+	color: white;
+	left: 85px;
+	bottom: 5px;
+}
+
+#weatherTime span
+{
+	font-weight: normal;
+}

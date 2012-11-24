@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<bookList>
+  <book isbn="1861005059">
+    <title>Professional XML</title>
+    <author>Nikola Ozu, et al</author>
+    <publisher>Wrox</publisher>
+  </book>
+  <book isbn="0764588338">
+    <title>Professional CSS: Cascading Style Sheets for Web Design</title>
+    <author>Christopher Schmitt, et al</author>
+    <publisher>Wrox</publisher>
+  </book>
+  <book isbn="0764572822">
+    <title>Professional PHP5</title>
+    <author>Edward Lecky-Thompson, et al</author>
+    <publisher>Wrox</publisher>
+  </book>
+  <book isbn="0764569090">
+    <title>XSLT 2.0 Programmer's Reference</title>
+    <author>Michael Kay</author>
+    <publisher>Wrox</publisher>
+  </book>
+  <book isbn="0764569104">
+    <title>XPath 2.0 Programmer's Reference</title>
+    <author>Michael Kay</author>
+    <publisher>Wrox</publisher>
+  </book>
+</bookList>

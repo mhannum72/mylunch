@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>JSON Example</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+        
+            var sJSON = "{\"availableColors\" : [ \"red\", \"white\", \"blue\" ],\"availableDoors\" : [ 2, 4 ]}"
+
+            var oCarInfo = eval("(" + sJSON + ")");
+            alert(oCarInfo.availableColors[0]);   //outputs "red"
+            alert(oCarInfo.availableDoors[1]);    //ouputs "4"
+        
+        </script>    
+    </body>
+</html>

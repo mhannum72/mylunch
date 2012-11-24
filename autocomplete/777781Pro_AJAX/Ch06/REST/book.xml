@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<book xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns="http://www.wrox.com/services/authors-books"
+      xlink:href="http://www.wrox.com/services/books/0471777781"
+      isbn="0471777781">
+  <genre>Web Programming</genre>
+  <title>Professional AJAX</title>
+  <description>How to take advantage of asynchronous JavaScript
+   and XML to give your web pages a rich UI.</description>
+  <authors>
+    <author forenames="Nicholas" surname="Zakas"
+      xlink:href="http://www.wrox.com/services/authors/zakasn"
+      id="zakasn" />
+    <author forenames="Jeremy" surname="McPeak"
+      xlink:href="http://www.wrox.com/services/authors/mcpeakj"
+      id="mcpeakj" />
+    <author forenames="Joe" surname="Fawcett" 
+      xlink:href="http://www.wrox.com/services/authors/fawcettj"
+      id="fawcettj" />
+  </authors>
+</book>

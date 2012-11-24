@@ -1,0 +1,48 @@
+div.ajaxSiteSearchContainer 
+{
+	font: 12px arial;
+	border: 1px solid #7F9DB9;
+	padding: 5px;
+	width: 225px;
+	background-color: #fdfed4;
+}
+
+form.ajaxSiteSearchForm
+{
+
+}
+
+input.ajaxSiteSearchTextBox
+{
+	border: 1px solid #7F9DB9;
+	padding: 2px;
+}
+
+input.ajaxSiteSearchButton
+{
+	padding: 1px;
+	border: 0px;
+	margin-left: 3px;
+	background-color: #7F9DB9;
+	color: white;
+	font-weight: bold;
+}
+
+div.ajaxSiteSearchResultPane
+{
+	
+}
+
+a.ajaxSiteSearchLink 
+{
+	display: block;
+	padding: 2px;
+	color: #316ac5;
+}
+
+a:hover.ajaxSiteSearchLink 
+{
+	color: #9b1a1a;	
+}
+
+a:active.ajaxSiteSearchLink, a:visited.ajaxSiteSearchLink  {}

@@ -1,0 +1,44 @@
+body 
+{
+	font-family: Trebuchet MS, Tahoma, Verdana, Arial;
+}
+
+.bookContainer, .bookContainer-odd
+{
+	position: relative;
+	background-color: White;
+	clear: both;
+	padding: 10px;
+	height: 240px;
+}
+
+.bookContainer-odd 
+{
+	background-color: #EBEBEB;
+}
+
+.bookCover 
+{
+	float: left;
+}
+
+.bookContent 
+{
+	position: relative;
+	padding: 10px;
+	float: left;
+	height: 220px;
+}
+
+.bookPublisher 
+{
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+}
+
+h3 
+{
+	margin: 0px;
+	
+}

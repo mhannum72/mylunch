@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Autosuggest Example</title>
+        <script type="text/javascript" src="json.js"></script>
+        <script type="text/javascript" src="zxml.js"></script>
+        <script type="text/javascript" src="autosuggest.js"></script>
+        <link rel="stylesheet" type="text/css" href="autosuggest.css" />        
+        <script type="text/javascript">
+            window.onload = function () {
+                var oTextbox = new AutoSuggestControl(document.getElementById("txtState"), new SuggestionProvider());        
+            }
+        </script>
+    </head>
+    <body>
+        <form method="post" onsubmit="alert('Submitted!')">
+            <table border="0">
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="txtName" id="txtName" /></td>
+                </tr>
+                <tr>
+                    <td>Address 1:</td>
+                    <td><input type="text" name="txtAddress1" id="txtAddress1" /></td>
+                </tr>
+                <tr>
+                    <td>Address 2:</td>
+                    <td><input type="text" name="txtAddress2" id="txtAddress2" /></td>
+                </tr>
+                <tr>
+                    <td>City:</td>
+                    <td><input type="text" name="txtCity" id="txtCity" /></td>
+                </tr>
+                <tr>
+                    <td>State/Province:</td>
+                    <td><input type="text" name="txtState" id="txtState" autocomplete="off" /></td>
+                </tr>
+                <tr>
+                    <td>Zip Code:</td>
+                    <td><input type="text" name="txtZip" id="txtZip" /></td>
+                </tr>
+                <tr>
+                    <td>Country:</td>
+                    <td><input type="text" name="txtCountry" id=" txtCountry" /></td>
+                </tr>                
+            </table>
+            <input type="submit" value="Save Information" />
+        </form>
+    </body>
+</html>

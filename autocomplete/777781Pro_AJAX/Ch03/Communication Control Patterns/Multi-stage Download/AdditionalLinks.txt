@@ -1,0 +1,7 @@
+<h4>Additional Information</h4>
+<ul>
+    <li><a href="http://www.wrox.com">Wrox</a></li>
+    <li><a href="http://www.nczonline.net">NCZOnline</a></li>
+    <li><a href="http://www.wdonline.com">XWeb</a></li>
+</ul>
+    

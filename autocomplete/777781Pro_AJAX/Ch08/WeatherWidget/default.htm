@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Ajax Weather</title>
+    <link rel="stylesheet" type="text/css" href="css/weatherwidget.css"/>
+    <script type="text/javascript" src="js/zxml.js"></script>
+    <script type="text/javascript" src="js/weatherwidget.js"></script>
+    <script type="text/javascript">
+    function init() {
+		var divMyWeather = document.getElementById("myWeather");
+        var oWeather = new AjaxWeatherWidget(divMyWeather);
+    }
+    
+    onload = init;   
+    </script>
+</head>
+<body>
+	<div id="myWeather"></div>
+</body>
+</html>

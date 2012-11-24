@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+    <title>Hidden IFrame Example 3</title>
+    <script type="text/javascript">
+        var oIFrame = null;
+        
+        function createIFrame() {
+            var oIFrameElement = document.createElement("iframe");
+            oIFrameElement.width=0;
+            oIFrameElement.height=0;
+            oIFrameElement.frameBorder=0;
+            oIFrameElement.name = "hiddenFrame";
+            oIFrameElement.id = "hiddenFrame";
+            document.body.appendChild(oIFrameElement);
+            
+            oIFrame = frames["hiddenFrame"];
+        }
+                   
+        function checkIFrame() {
+            if (!oIFrame) {
+                createIFrame();                
+            } 
+            setTimeout(function () {
+                oIFrame.location = "ProxyForm.htm";
+            }, 10);                              
+        }
+        
+        function formReady() {
+            var oHiddenForm = oIFrame.document.forms[0];
+            var oForm = document.forms[0];
+            
+            for (var i=0 ; i < oForm.elements.length; i++) {
+                var oHidden = oIFrame.document.createElement("input");
+                oHidden.type = "hidden";
+                oHidden.name = oForm.elements[i].name;
+                oHidden.value = oForm.elements[i].value;
+                oHiddenForm.appendChild(oHidden);
+            }
+            
+            oHiddenForm.action = oForm.action;
+            oHiddenForm.submit();
+        };
+        
+        function saveResult(sMessage) {
+            var divStatus = document.getElementById("divStatus");
+            divStatus.innerHTML = "Request completed: " + sMessage;            
+        }
+
+    </script>
+</head>
+<body>
+    <form method="post" action="SaveCustomer.php" onsubmit="checkIFrame(); return false">
+    <p>Enter customer information to be saved:</p>
+    <p>Customer Name: <input type="text" name="txtName" value="" /><br />
+    Address: <input type="text" name="txtAddress" value="" /><br />
+    City: <input type="text" name="txtCity" value="" /><br />
+    State: <input type="text" name="txtState" value="" /><br />
+    Zip Code: <input type="text" name="txtZipCode" value="" /><br />
+    Phone: <input type="text" name="txtPhone" value="" /><br />
+    E-mail: <input type="text" name="txtEmail" value="" /></p>
+    <p><input type="submit" value="Save Customer Info" /></p>
+    </form>
+    <div id="divStatus"></div>
+</body>
+</html>

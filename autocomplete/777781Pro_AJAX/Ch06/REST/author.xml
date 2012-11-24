@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<author xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.wrox.com/services/authors-books"
+        xlink:href="http://www.wrox.com/services/authors/fawcettj"
+        id="fawcettj" forenames="Joe" surname="Fawcett">
+  <books>
+    <book
+      xlink:href="http://www.wrox.com/services/books/0764570773"
+      isbn="0764570773" title="Beginning XML"/>
+    <book
+      xlink:href="http://www.wrox.com/services/books/0471777781"
+      isbn="0471777781" title="Professional Ajax"/>
+  </books>      
+</author> 

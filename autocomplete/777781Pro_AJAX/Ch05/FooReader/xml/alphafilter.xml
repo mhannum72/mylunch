@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+
+<rss version="2.0" encoding="utf-8">
+  <channel>
+    <title>AlphaFilter() - Resources for the Web Lizard</title>
+    <link>http://www.alphafilter.com/</link>
+    <description>Articles and Tutorials written by your peers, for your peers.</description>
+    <language>en-us</language>
+    <copyright>Copyright (c) 2005 AlphaFilter.com</copyright>
+    <lastBuildDate>Mon, 25 Jul 2005 14:03:41 EST</lastBuildDate>
+    <managingEditor>foo&#064;forgetfoo.com</managingEditor>
+    <webMaster>foo&#064;forgetfoo.com</webMaster>
+	<ttl>1440</ttl>
+	
+	<item>
+	  <title><![CDATA[Fun with XML and XSLT]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=142]]></link>
+	  <description>
+	    <![CDATA[
+			With Foo's request, I'm republishing my entry in Milk Basilica about a quick introduction/sample about XML and XSLT. XML with XSLT is something all web developers should come to love and understand since it is the basis of XHTML, WML, RSS, XBEL, Atom
+		]]>
+	  </description>
+	  <category><![CDATA[XML]]></category>
+	  <pubDate>2005-07-16 10:37:53.247</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Iterative Design]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=141]]></link>
+	  <description>
+	    <![CDATA[
+			When under a deadline, you can sometimes take the short path. Sadly the
+shortest path in code leads to extremely inefficient code. Take a look at an
+example of iterating over an implementation to improve speed dramatically.
+		]]>
+	  </description>
+	  <category><![CDATA[Article]]></category>
+	  <pubDate>2005-04-08 14:10:08.14</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Detect, Redirect for Mobile's]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=140]]></link>
+	  <description>
+	    <![CDATA[
+			The browser is not the only way people access your site these days, and with 
+most mobile devices and services having web access, it might be a good idea 
+to present a "Mobile" version of your content.
+		]]>
+	  </description>
+	  <category><![CDATA[ColdFusion]]></category>
+	  <pubDate>2005-04-06 12:06:28.687</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Very Simple Tentacle Tutorial]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=139]]></link>
+	  <description>
+	    <![CDATA[
+			A very simple three step photoshop tutorial that will make cool looking tentacles.
+		]]>
+	  </description>
+	  <category><![CDATA[Photoshop]]></category>
+	  <pubDate>2005-04-04 20:40:13.607</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[MS SQL Server Stored Procedures with PHP]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=138]]></link>
+	  <description>
+	    <![CDATA[
+			While working on a personal project recently, I had occasion to use MS SQL 
+Server stored procedures from PHP. The documentation on this topic was a 
+little sparse at the time, so I?ve put together this example now that I've sussed 
+it!
+		]]>
+	  </description>
+	  <category><![CDATA[SQL]]></category>
+	  <pubDate>2005-02-24 15:17:51.827</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[ADT Tree in PHP]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=137]]></link>
+	  <description>
+	    <![CDATA[
+			This Classes provides a generic Abstract Data Type Tree to general purpose
+		]]>
+	  </description>
+	  <category><![CDATA[PHP]]></category>
+	  <pubDate>2005-02-20 22:41:06.717</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Basic Log class]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=135]]></link>
+	  <description>
+	    <![CDATA[
+			Many times when you arn't able to log information to a database or have the
+need to do so, this class will allow you to save it to a flat text file.
+		]]>
+	  </description>
+	  <category><![CDATA[PHP]]></category>
+	  <pubDate>2005-01-27 17:44:26.28</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[XSLT: Transforming Your Data Part 2]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=134]]></link>
+	  <description>
+	    <![CDATA[
+			Multiple Templates, Multiple Elements, and Variables
+		]]>
+	  </description>
+	  <category><![CDATA[XSLT]]></category>
+	  <pubDate>2005-01-26 10:21:58.5</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Database Records to XML]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=133]]></link>
+	  <description>
+	    <![CDATA[
+			Writing your own custom routines to translate your database records to XML is 
+so whack, man. Whack! Thanks to this library of functions, now you won't have 
+to anymore.
+		]]>
+	  </description>
+	  <category><![CDATA[PHP]]></category>
+	  <pubDate>2005-01-20 14:52:46.36</pubDate>
+	</item>
+	
+	<item>
+	  <title><![CDATA[Cross-Browser photo fading slideshow]]></title>
+	  <link><![CDATA[http://www.alphafilter.com/?inc=article&amp;aid=131]]></link>
+	  <description>
+	    <![CDATA[
+			You've seen Clagnut's photo fader. I took his principals and extended them to 
+make a cross-browser slide show tool. Just a few lines of code.
+		]]>
+	  </description>
+	  <category><![CDATA[Javascript]]></category>
+	  <pubDate>2004-12-29 15:07:35.747</pubDate>
+	</item>
+	
+  </channel>
+</rss> 

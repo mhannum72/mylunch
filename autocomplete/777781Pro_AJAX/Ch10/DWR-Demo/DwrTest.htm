@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>DWR Test</title>
+  <script type="text/javascript" src="/DwrTest/dwr/interface/JDate.js"></script>
+  <script type="text/javascript" src="/DwrTest/dwr/engine.js"></script>
+  <script type="text/javascript" src="/DwrTest/dwr/util.js"></script>
+  <script type="text/javascript">
+
+    function showDate()
+    {
+      JDate.toGMTString(callback);
+    }
+
+    var callback = function(Data)
+                   {
+                     alert(Data);
+                   }; 
+  </script>
+</head>
+<body>
+  <input type="button" value="Show Date" onclick="showDate();">
+</body>
+</html>

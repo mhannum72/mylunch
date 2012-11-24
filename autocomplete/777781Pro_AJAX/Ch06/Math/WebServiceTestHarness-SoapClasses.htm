@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <title>Web Service Test Harness</title>
+    <script type="text/javascript" src="WebServiceExampleSoapClasses.js"></script>
+    <script type="text/javascript">
+
+      var SERVICE_URL = "http://localhost/Math/Math.asmx"; 
+      var SOAP_ACTION_BASE = "http://www.wrox.com/services/math";
+      
+      function setUIEnabled(bEnabled)
+      {
+        var oButton = document.getElementById("cmdRequest");
+        oButton.disabled = !bEnabled;
+        var oList = document.getElementById("lstMethods");
+        oList.disabled = !bEnabled
+      }
+
+      function performOperation()
+      {
+        var oList = document.getElementById("lstMethods");
+        var sMethod = oList.options[oList.selectedIndex].value;
+        var sOp1 = document.getElementById("txtOp1").value;
+        var sOp2 = document.getElementById("txtOp2").value;
+
+        //Clear the message panes
+        document.getElementById("txtRequest").value = "";
+        document.getElementById("txtResponse").value = "";
+        document.getElementById("txtResult").value = "";
+        performSpecificOperation(sMethod, sOp1, sOp2);
+      }
+    </script>
+  </head>
+  <body onload="setUIEnabled(true)">
+    Operation: <select id="lstMethods" style="width: 200px" disabled="disabled">
+      <option value="add" selected="selected">Add</option>
+      <option value="subtract">Subtract</option>
+      <option value="multiply">Multiply</option>
+      <option value="divide">Divide</option>
+    </select>
+    <br/><br/>
+    Operand 1: <input type="text" id="txtOp1" size="10"/><br/>
+    Operand 2: <input type="text" id="txtOp2" size="10"/><br/><br/>
+    <input type="button" id="cmdRequest" 
+       value="Perform Operation"
+       onclick="performOperation();" disabled="disabled"/>
+    <br/><br/>
+    Result: <input type="text" size="20" id="txtResult">
+    <br/>       
+    <textarea rows="30" cols="60" id="txtRequest"></textarea>
+    <textarea rows="30" cols="60" id="txtResponse"></textarea>
+  </body>
+</html>
+

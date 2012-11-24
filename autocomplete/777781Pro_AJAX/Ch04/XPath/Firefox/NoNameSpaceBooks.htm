@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+    var oXmlDom = zXmlDom.createDocument();
+    oXmlDom.async = false;
+    oXmlDom.load("NoNameSpaceBooks.xml");
+    
+    var oEvaluator = new XPathEvaluator();
+    var sXPath = "book/author";
+    var oResult = oEvaluator.evaluate(sXPath,oXmlDom.documentElement,null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+
+    var aNodes = new Array;
+
+    if (oResult != null) {
+        var oElement;
+        while (oElement = oResult.iterateNext()) {
+            aNodes.push(oElement);
+        }
+    }
+    
+    alert(aNodes.length + " nodes returned with the XPath expression: " + sXPath);
+    
+    </script>
+</head>
+<body>
+</body>
+</html>

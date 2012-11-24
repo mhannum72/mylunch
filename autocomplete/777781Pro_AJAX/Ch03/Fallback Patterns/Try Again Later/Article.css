@@ -1,0 +1,7 @@
+#divAdditionalLinks {
+    float: right;
+    padding: 10px;
+    border: 1px solid navy;
+    background-color: #cccccc;
+    display: none;
+}

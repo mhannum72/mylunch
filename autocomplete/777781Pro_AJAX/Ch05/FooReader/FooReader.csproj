@@ -1,0 +1,226 @@
+<VisualStudioProject>
+    <CSHARP
+        ProjectType = "Web"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
+        ProjectGuid = "{1C8A73B3-0BA1-4F9C-A666-79F2F089FEC7}"
+    >
+        <Build>
+            <Settings
+                ApplicationIcon = ""
+                AssemblyKeyContainerName = ""
+                AssemblyName = "FooReader"
+                AssemblyOriginatorKeyFile = ""
+                DefaultClientScript = "JScript"
+                DefaultHTMLPageLayout = "Grid"
+                DefaultTargetSchema = "IE50"
+                DelaySign = "false"
+                OutputType = "Library"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
+                RootNamespace = "FooReader"
+                RunPostBuildEvent = "OnBuildSuccess"
+                StartupObject = ""
+            >
+                <Config
+                    Name = "Debug"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "DEBUG;TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "true"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "false"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+                <Config
+                    Name = "Release"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "false"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "true"
+                    OutputPath = "bin\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+            </Settings>
+            <References>
+                <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                />
+                <Reference
+                    Name = "System.Drawing"
+                    AssemblyName = "System.Drawing"
+                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                />
+                <Reference
+                    Name = "System.Web"
+                    AssemblyName = "System.Web"
+                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Web.dll"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.XML"
+                    HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
+                />
+            </References>
+        </Build>
+        <Files>
+            <Include>
+                <File
+                    RelPath = "AssemblyInfo.cs"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "default.htm"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "error.xml"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "feeds.xml"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Global.asax"
+                    SubType = "Component"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "Global.asax.cs"
+                    DependentUpon = "Global.asax"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Global.asax.resx"
+                    DependentUpon = "Global.asax.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "Web.config"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "xml.aspx"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "xml.aspx.cs"
+                    DependentUpon = "xml.aspx"
+                    SubType = "ASPXCodeBehind"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "xml.aspx.resx"
+                    DependentUpon = "xml.aspx.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "Classes\FeedFile.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Classes\FeedFileLink.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "css\fooreader.css"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\bx-minus.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\bx-plus.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\category_icon.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\header_background.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\item_icon.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\loading.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\progress.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\toolbar_back.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\top_bg.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "img\top_logo.gif"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "js\FeedsFileParser.js"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "js\fooreader.js"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "js\ui.js"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "js\XParser.js"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "js\zxml.js"
+                    BuildAction = "Content"
+                />
+                <Folder RelPath = "xml\" />
+            </Include>
+        </Files>
+    </CSHARP>
+</VisualStudioProject>
+

@@ -1,0 +1,11 @@
+<div id="weatherContainer">
+  <div id="weatherLocation">Midland, TX (79707)</div>
+  <div id="weatherTime">Last Update:
+			<span>3:28 PM</span></div>
+  <div id="weatherIcon">
+    <img src="img/weather/34.png" />
+  </div>
+  <div id="weatherTemp">95</div>
+  <div id="weatherWind">Wind:
+			<div>9 MPH SSW</div></div>
+</div>

@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+    <title>XMLHttp Example 1</title>
+    <script type="text/javascript"src="zxml.js"></script>
+
+    <script type="text/javascript">
+        function requestCustomerInfo() {
+            var sId = document.getElementById("txtCustomerId").value;
+            var oXmlHttp = zXmlHttp.createRequest();
+            oXmlHttp.open("get", "GetCustomerData.php?id=" + sId, true);
+            oXmlHttp.onreadystatechange = function () {
+                if (oXmlHttp.readyState == 4) {
+                    if (oXmlHttp.status == 200) {
+                        displayCustomerInfo(oXmlHttp.responseText);
+                    } else {
+                        displayCustomerInfo("An error occurred: " + oXmlHttp.statusText); //statusText is not always accurate
+                    }
+                }            
+            };
+            oXmlHttp.send(null);
+        }
+        
+        function displayCustomerInfo(sText) {
+            var divCustomerInfo = document.getElementById("divCustomerInfo");
+            divCustomerInfo.innerHTML = sText;
+        }
+    </script>
+</head>
+<body>
+    <p>Enter customer ID number to retrieve information:</p>
+    <p>Customer ID: <input type="text" id="txtCustomerId" value="" /></p>
+    <p><input type="button" value="Get Customer Info" onclick="requestCustomerInfo()" /></p>
+    <div id="divCustomerInfo"></div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Book XML Exercise</title>
+    <link rel="stylesheet" type="text/css" href="books.css" />
+    <script type="text/javascript" src="zxml.js"></script>
+    <script type="text/javascript">
+        function init() {
+            var oXmlDom = zXmlDom.createDocument();
+            var oXslDom = zXmlDom.createDocument();
+
+            oXmlDom.async = false;
+            oXslDom.async = false;
+
+            oXmlDom.load("books.xml");
+            oXslDom.load("SetParameterBooks.xsl");
+        
+            var oXsltProcessor = new XSLTProcessor();
+            oXsltProcessor.importStylesheet(oXslDom);
+            
+            oXsltProcessor.setParameter(null, "message", "My Book List");
+            var oFragment = oXsltProcessor.transformToFragment(oXmlDom,document);
+            
+            document.body.appendChild(oFragment);
+
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

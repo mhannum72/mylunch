@@ -1,0 +1,1 @@
+<%@ Page language="c#" Codebehind="xml.aspx.cs" AutoEventWireup="false" Inherits="FooReader.xml" %>
