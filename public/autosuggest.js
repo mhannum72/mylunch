@@ -61,7 +61,7 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions) {
     this.cur = -1;
     
     //make sure there's at least one suggestion
-    if (aSuggestions.length > 0) {
+    if (aSuggestions != null && aSuggestions.length > 0) {
         this.showSuggestions(aSuggestions);
     } else {
         this.hideSuggestions();
@@ -341,6 +341,9 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
             var pre = '';
             var match = '';
             var post = '';
+            var bold;
+            var div;
+            var text;
             if(aSuggestions[i].matched_substrings[0].offset > 0) {
                 pre = descr.substring(0, aSuggestions[i].matched_substrings[0].offset);
             }
@@ -348,8 +351,14 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
                     aSuggestions[i].matched_substrings[0].offset + aSuggestions[i].matched_substrings[0].length);
             post = descr.substring(aSuggestions[i].matched_substrings[0].offset + 
                     aSuggestions[i].matched_substrings[0].length);
-            var text = pre + '<b>' + match + '</b>' + post;
-            oDiv.appendChild(document.createTextNode(text));
+            div = document.createElement('div');
+            bold = document.createElement('b');
+            bold.appendChild(document.createTextNode(match));
+            div.appendChild(document.createTextNode(pre));
+            div.appendChild(bold);
+            div.appendChild(document.createTextNode(post));
+            text = pre + '<b>' + match + '</b>' + post;
+            oDiv.appendChild(div);
         }
         else {
             oDiv.appendChild(document.createTextNode(aSuggestions[i].description));

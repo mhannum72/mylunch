@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Places Test</title>
+        <title>Autosuggest Test</title>
         <link rel="stylesheet" href="/css/reset.css" />
         <link rel="stylesheet" href="/css/960.css" />
         <link rel="stylesheet" href="/css/text.css" />
@@ -35,8 +35,9 @@
 
             this.autoserv.getPlacePredictions(arequest, function(predictions, status) {
                 if(status != google.maps.places.PlacesServiceStatus.OK) {
-                    console.log('got weird status from getPlacePredictions: ' + status);
-                    return;
+                    if( status != 'ZERO_RESULTS' ) {
+                        console.log('got weird status from getPlacePredictions: ' + status);
+                    }
                 }
 
                 oAutoSuggestControl.autosuggest(predictions);
