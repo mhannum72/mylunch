@@ -164,7 +164,7 @@ AutoSuggestControl.prototype.goToSuggestion = function (iDiff /*:int*/) {
         
         if (oNode) {
             this.highlightSuggestion(oNode);
-            this.textbox.value = oNode.firstChild.nodeValue;
+            this.textbox.value = oNode.firstChild.original;
         }
     }
 };
@@ -213,7 +213,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
     
     clearTimeout(this.timeoutId);
 
-    //for backspace (8) and delete (46), shows suggestions
+    //for backspace (8) and delete (46), hide suggestions
     if (iKeyCode == 8 || iKeyCode == 46) {
         
         this.hideSuggestions();
@@ -343,7 +343,6 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
             var post = '';
             var bold;
             var div;
-            var text;
             if(aSuggestions[i].matched_substrings[0].offset > 0) {
                 pre = descr.substring(0, aSuggestions[i].matched_substrings[0].offset);
             }
@@ -357,7 +356,7 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
             div.appendChild(document.createTextNode(pre));
             div.appendChild(bold);
             div.appendChild(document.createTextNode(post));
-            text = pre + '<b>' + match + '</b>' + post;
+            div.original = descr;
             oDiv.appendChild(div);
         }
         else {
