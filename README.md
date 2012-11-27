@@ -5,6 +5,28 @@ mylunch
 todo
 ====
 
+* I have a couple of decisions to make at this point:
+  - Will I allow users to follow other users 'twitter' style, or will i have 
+    a concept of myspace friends?  Maybe I could allow users to follow either
+    restaurants OR other users .. ?  So any picture uploaded to a restaurant
+    would be sent to the user, and any picture uploaded by a user would be 
+    sent to a user.
+  - I'm leaning towards this route- the only negative is that I'll have to
+    force people to pick usernames so that i don't accidentally disclose 
+    someone's email address.  Forcing people to pick usernames is dumb, but
+    everyone is used to it at least.
+  - This becomes better though if I allow someone to sign in with either a
+    username or a password.
+  - Another concept - any place with is not found by google automatically be-
+    comes a new and unique place which is prefaced by the creating user's 
+    username.  So 'my_kitchen@georgiagirl' would be an example.  Other users
+    could subscribe to it, np.
+  - Maybe EVERYTHING should be suffix'd by the user's name, and maybe there 
+    should be no concept of a global 'restaurant' .. this seems better and
+    safer somehow...  for one thing, i don't have to worry about restaurants 
+    suing me, and i don't have to prescreen the photos.  I'm liking this a 
+    bit more.  I could still allow people to subscribe to all of the photos
+    from a single restaurant i think.
 * The winner is: google places api!  Their autocomplete engine is fantastic.
   I'll have to think about capturing the search results and maintaining a
   separate entry in my own database to provide a 'restaurant page'.  At first
