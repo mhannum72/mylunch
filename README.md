@@ -26,7 +26,13 @@ todo
     safer somehow...  for one thing, i don't have to worry about restaurants 
     suing me, and i don't have to prescreen the photos.  I'm liking this a 
     bit more.  I could still allow people to subscribe to all of the photos
-    from a single restaurant i think.
+    from a single restaurant i think so long as they're using some kind of
+    'wildcard' notation rather than giving the restaurant a designated page.
+  - This means that I would allow people to subscribe to ALL olive garden 
+    restaurant locations rather than just one that's tied to a certain 
+    address.  So someone could subscribe to *olive_garden*, or could search
+    on all 'olive_garden' restaurants.
+  - I want this to happen - this is good.
 * The winner is: google places api!  Their autocomplete engine is fantastic.
   I'll have to think about capturing the search results and maintaining a
   separate entry in my own database to provide a 'restaurant page'.  At first
