@@ -5,7 +5,40 @@ mylunch
 todo
 ====
 
+* Some thoughts on design - this is still a brainstorm:
+  - Each user and each restaurant will have a list of followers.  There are 
+    a few types of globals:
+
+    @global_restaurant
+    username@local_or_global_restaurant
+    username
+
+    I could add both 'global_restaurant' and 'username@local' to the same
+    restaurant table.  If something isn't found in google, then it's 
+    automatically created as a 'username@local'
+
+    So 'username@global' and 'username' subscriptions could then both be hung
+    off of the user record.
+
+    Alternatively, I could make all of the 'username' and 'username@' 
+    subscriptions user attributes, and have a separate 'global_restaurant' 
+    table.
+
+    People can choose to follow any of these.  The global-restaurant
+    structure is fairly easy: I'm going to change my userid scheme to be a 
+    username (rather than an email).   
+
+    - Keep a table (list) of followers for each global restaurant.
+    - 
+
 * I have a couple of decisions to make at this point:
+  - How am I going to seamlessly interleave personal meals with meals
+    that were eaten at restaurants?  This is where things get a little hairy.
+    If you give people the ability to follow 'places' rather than other 
+    people you run the risk of offending the owners of those places.
+  - Maybe have a very strict 'do not offend' policy, and throw out people 
+    who violate this.  I could make complaining very very easy.
+  - YES - I would have to do this anyway - I do NOT want people advertising, 
   - Will I allow users to follow other users 'twitter' style, or will i have 
     a concept of myspace friends?  Maybe I could allow users to follow either
     restaurants OR other users .. ?  So any picture uploaded to a restaurant
@@ -19,7 +52,7 @@ todo
     username or a password.
   - Another concept - any place with is not found by google automatically be-
     comes a new and unique place which is prefaced by the creating user's 
-    username.  So 'my_kitchen@georgiagirl' would be an example.  Other users
+    username.  So 'mykitchen@georgiagirl' would be an example.  Other users
     could subscribe to it, np.
   - Maybe EVERYTHING should be suffix'd by the user's name, and maybe there 
     should be no concept of a global 'restaurant' .. this seems better and
@@ -29,10 +62,39 @@ todo
     from a single restaurant i think so long as they're using some kind of
     'wildcard' notation rather than giving the restaurant a designated page.
   - This means that I would allow people to subscribe to ALL olive garden 
-    restaurant locations rather than just one that's tied to a certain 
+    restaurant locations rather than just one that's tied to a certain
     address.  So someone could subscribe to *olive_garden*, or could search
     on all 'olive_garden' restaurants.
   - I want this to happen - this is good.
+  - So .. im not sure about something - should I allow a subscriber to sub-
+    scribe to all 'my_kitchens'?
+  - I think that I have to limit the number of subscriptions a user has - so
+    yes: someone can search for all 'my_kitchen' restaurants, but they'll 
+    have to add each of the subscriptions individually.
+  - The problem with wildcard subscriptions is that a person could subscribe
+    to '*', and get EVERYTHING .. I don't think this is scalable.
+  - I could limit the number of subscriptions a person has (so if they want to
+    subscribe to all 'Olive Garden' restaurants, they'll have to add each of 
+    them individually).  Or I could allow wildcards and limit the number of 
+    updates per hour.
+  - I think the answer is to force people to add things individually, and to 
+    limit the number of subscriptions to something ridiculously high: 1000.
+    Who would want to monitor more than 1000 restaurants?  Who would want to 
+    monitor more than 1000 other users?
+  - For delivery to subscribed folks I could use cell-phones or email: either
+    or both would have to have an authentication proceedure.
+  - You should be able to browse really interesting meals, and choose to 
+    follow either a user or a restaurant.
+  - The 'wildcard' subscription idea is interesting actually - it would be
+    cool if i could allow people to subscribe to 'steaks' or to 'corn', and
+    then every picture of steak or corn would be forwarded to them.
+  - Realistically, this would be too much traffic - a person would get too
+    many updates.  But I COULD allow someone to SEARCH on this .. and that
+    would actually be fantastic.  I would have to store lots of meta-info 
+    about each picture.
+  - What would be really great is if I could write a piece of software which
+    could take a picture and decode its contents .. this is a little pie-in-
+    the-sky though right now - in 30 years it might be feasible.
 * The winner is: google places api!  Their autocomplete engine is fantastic.
   I'll have to think about capturing the search results and maintaining a
   separate entry in my own database to provide a 'restaurant page'.  At first
