@@ -5,11 +5,18 @@ mylunch
 todo
 ====
 
+* Brainstorm pretty much done- here's a list of things that should happen in
+  no particular order:
+
+* I'm taking some time today to research what a 'well designed' website should
+  look like.
+
 * Some thoughts on design - this is still a brainstorm:
   - Each user and each restaurant will have a list of followers.  There are 
     a few types of globals:
 
     @global_restaurant
+
     username@local_or_global_restaurant
     username
 
@@ -28,8 +35,38 @@ todo
     structure is fairly easy: I'm going to change my userid scheme to be a 
     username (rather than an email).   
 
-    - Keep a table (list) of followers for each global restaurant.
-    - 
+    - Keep a table (list) of followers for each global restaurant hung off
+      of the global restaurant db entry.
+
+    - Keep a table of followers for each user which will filter by 
+      restaurant.  Filtering on a user is better than filtering on a rest-
+      aurant because a single user will be posting much less.
+
+    - The notification mechanism should never be done inline- I'll hand 
+      this off to a thread or to a server.  And I don't think that I'd care
+      about notifying node.js when it's finished (but could always implement
+      that anyway just in case I decide otherwise).
+
+    - Global rooms autocomplete successfully via google - anything which 
+      autocompletes creates a global-room rather than a local room.
+
+    - All of a client's local restaurants are sent to the client website to 
+      partcipate in the autocomplete there.  I will put a cap on the number of
+      local rooms that a client can have to keep this reasonable.  I think 
+      256 or 512 are pretty reasonable numbers, and these should be fairly
+      quick to load.  As for this, make sure that you review the docs you 
+      have- reread the 'building fast client-side searches' document.  The
+      trick is that you load a dynamically generated javascript file, or you
+      use the javascript 'split' command with a custom string format (which 
+      records delineated by control characters).
+
+    - Redo the signup page such that a user will have to find a unique 
+      username.  I will have a CAPTCHA test built into this from the get-
+      go.  A possibly better method is to load the form from an ajax
+      request.  I'm sure that most bots are trying to parse html, not 
+      javascript.  Include this as a honeypot: make sure that the text-box
+      in question is toggled to 'hidden=yes' somewhere deep in javascript.  I
+      should be able to avoid lots of bots this way.
 
 * I have a couple of decisions to make at this point:
   - How am I going to seamlessly interleave personal meals with meals

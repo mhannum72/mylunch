@@ -1,0 +1,60 @@
+
+@font-face {
+    font-family: 'Skolar Italic';
+    src: url('http://f.fontdeck.com/f/1/V1J5ckszTGMABpqY5NH9UowEPDBgu7V/I/cpU/oXj4lPxJrEJCUCrXX9fTUfg7//+Gy/B7ibjHb3lw.eot');
+    src: url('http://f.fontdeck.com/f/1/V1J5ckszTGMABpqY5NH9UowEPDBgu7V/I/cpU/oXj4lPxJrEJCUCrXX9fTUfg7//+Gy/B7ibjHb3lw.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/V1J5ckszTGMABpqY5NH9UowEPDBgu7V/I/cpU/oXj4lPxJrEJCUCrXX9fTUfg7//+Gy/B7ibjHb3lw.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/V1J5ckszTGMABpqY5NH9UowEPDBgu7V/I/cpU/oXj4lPxJrEJCUCrXX9fTUfg7//+Gy/B7ibjHb3lw.ttf') format('opentype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Skolar Regular';
+    src: url('http://f.fontdeck.com/f/1/SU0ybmo5WDMABo8JW/AB/uCsGz22ivu9PguDxghpmg0+6Q0yRjWlU7xkM8SoLsdmUY36XnQ9nmdC7w.eot');
+    src: url('http://f.fontdeck.com/f/1/SU0ybmo5WDMABo8JW/AB/uCsGz22ivu9PguDxghpmg0+6Q0yRjWlU7xkM8SoLsdmUY36XnQ9nmdC7w.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/SU0ybmo5WDMABo8JW/AB/uCsGz22ivu9PguDxghpmg0+6Q0yRjWlU7xkM8SoLsdmUY36XnQ9nmdC7w.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/SU0ybmo5WDMABo8JW/AB/uCsGz22ivu9PguDxghpmg0+6Q0yRjWlU7xkM8SoLsdmUY36XnQ9nmdC7w.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Skolar Bold';
+    src: url('http://f.fontdeck.com/f/1/T1Y1dkxzZ3EABr3zdbcIthEkold9tr2yWSUX814kScRPto9CnO20cres7MD0nvF/lFrRH5WKigCCgA.eot');
+    src: url('http://f.fontdeck.com/f/1/T1Y1dkxzZ3EABr3zdbcIthEkold9tr2yWSUX814kScRPto9CnO20cres7MD0nvF/lFrRH5WKigCCgA.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/T1Y1dkxzZ3EABr3zdbcIthEkold9tr2yWSUX814kScRPto9CnO20cres7MD0nvF/lFrRH5WKigCCgA.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/T1Y1dkxzZ3EABr3zdbcIthEkold9tr2yWSUX814kScRPto9CnO20cres7MD0nvF/lFrRH5WKigCCgA.ttf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Bold';
+    src: url('http://f.fontdeck.com/f/1/aDh3WkZHbzAABu0brskNauPMTAJNIvTrQ++t/LdrkLxi789o8ZBq89OTqiTeO+C5ZlEEZcMl7PQSEw.eot');
+    src: url('http://f.fontdeck.com/f/1/aDh3WkZHbzAABu0brskNauPMTAJNIvTrQ++t/LdrkLxi789o8ZBq89OTqiTeO+C5ZlEEZcMl7PQSEw.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/aDh3WkZHbzAABu0brskNauPMTAJNIvTrQ++t/LdrkLxi789o8ZBq89OTqiTeO+C5ZlEEZcMl7PQSEw.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/aDh3WkZHbzAABu0brskNauPMTAJNIvTrQ++t/LdrkLxi789o8ZBq89OTqiTeO+C5ZlEEZcMl7PQSEw.ttf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Italic';
+    src: url('http://f.fontdeck.com/f/1/Z0VDb3RHQUgABtaA4bSqJu+gMyvpssSrTbPovjO01OVEpVaEwtf/unuKUYFq36oGjVr9LPRQ2ogqoA.eot');
+    src: url('http://f.fontdeck.com/f/1/Z0VDb3RHQUgABtaA4bSqJu+gMyvpssSrTbPovjO01OVEpVaEwtf/unuKUYFq36oGjVr9LPRQ2ogqoA.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/Z0VDb3RHQUgABtaA4bSqJu+gMyvpssSrTbPovjO01OVEpVaEwtf/unuKUYFq36oGjVr9LPRQ2ogqoA.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/Z0VDb3RHQUgABtaA4bSqJu+gMyvpssSrTbPovjO01OVEpVaEwtf/unuKUYFq36oGjVr9LPRQ2ogqoA.ttf') format('opentype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Regular';
+    src: url('http://f.fontdeck.com/f/1/VTcxbmE0RjIABpuSkNhleOmJsnQ/I0Kxd5dX6l/BvOiPFyAtT34GisOgcaDBPMuZrOIWXfbMPC4Z5A.eot');
+    src: url('http://f.fontdeck.com/f/1/VTcxbmE0RjIABpuSkNhleOmJsnQ/I0Kxd5dX6l/BvOiPFyAtT34GisOgcaDBPMuZrOIWXfbMPC4Z5A.eot?') format('embedded-opentype'),
+    url('http://f.fontdeck.com/f/1/VTcxbmE0RjIABpuSkNhleOmJsnQ/I0Kxd5dX6l/BvOiPFyAtT34GisOgcaDBPMuZrOIWXfbMPC4Z5A.woff') format('woff'),
+    url('http://f.fontdeck.com/f/1/VTcxbmE0RjIABpuSkNhleOmJsnQ/I0Kxd5dX6l/BvOiPFyAtT34GisOgcaDBPMuZrOIWXfbMPC4Z5A.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
