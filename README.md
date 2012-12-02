@@ -5,6 +5,42 @@ mylunch
 todo
 ====
 
+* Next step (tomorrow morning) - go server side and create the mongo routines 
+  for creating, and finding restaurants.
+
+* Come up with the data format for my local-restaurants.  I want to relate it
+  to the user somehow.
+  The SIMPLEST programatically is to make it a first-class entity in the 
+  restaurants table.  I'm just going to do that..
+
+* Google & local suggestions should be two asynchronous calls the last one 
+  finished should call autosuggest with 'predictions'.  Each predictions 
+  element should have a 'description' and 
+ 
+    matched_substrings[0].offset 
+    matched_substrings[0].length
+ 
+    matched_substrings is an array, but I only care about the 0'th element.
+ 
+  Both the google-request and the local matching code should run 
+  asynchronously (and both with timeouts somehow!!).  The last finished (or 
+  the last timed out) should call the 'autosuggest' routine.
+ 
+  After the box is filled, all of the processing will be done via an ajax 
+  request on the backend.  The only difference between a google-suggestion and 
+  a local-suggestion is that the local-suggestion will have the restaurantid 
+  directly, whereas the google-suggestion will have to hash into it.
+
+  My autosuggestions: I could go one of two ways: Simple: these could only 
+  contain 'local' restaurants.  Difficult: these could ALSO contain the last 
+  100 'global' restaurants that the user has visited.  If it does, then
+  I'll have to search for dups in the google-list and splice them out.
+
+  Day 1: go with the simple.
+
+  Also, the code which accepts uploads should SEND BACK the pictures GPS 
+  coordinates somehow to see google's autocomplete.
+
 * Ok - all of my global restaurants will have a google-id.  This could be an 
   index.  Here's my problem:
 
