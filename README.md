@@ -5,11 +5,32 @@ mylunch
 todo
 ====
 
+* Ok - all of my global restaurants will have a google-id.  This could be an 
+  index.  Here's my problem:
+
+  - Making the entire name a key is not efficient!
+  - So I HASH it to come up with a non-unique key, although I'd expect 
+    collisions to be rare.
+  - Yes .. this is it
+
 * Brainstorm pretty much done- here's a list of things that should happen in
   no particular order:
 
 * I'm taking some time today to research what a 'well designed' website should
-  look like.
+  look like.  I'm seeing that alot of designers use 'wordpress' - this is an 
+  apache / php solution.  There are ways to run php in node.js, but they're 
+  not very good.  Node.js seems incredibly secure when compared to a 'search-
+  directory-for-html' files solution.  There's prolly a way to white-list
+  apache.
+
+* Ok- some thoughts about the look and feel (design) of this - since I'm doing 
+  ALL of it, I have to wear a lot of different hats.
+
+  - Go through lots of pictures that I have of food, and select one.  This could
+    be a close-up - crop off the sides, so that it's an extreme closeup (you'll
+    have to think a bit before you realize that it's a sandwich, or whatever).
+    This is the background .. 
+
 
 * Some thoughts on design - this is still a brainstorm:
   - Each user and each restaurant will have a list of followers.  There are 

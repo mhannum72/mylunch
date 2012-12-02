@@ -178,9 +178,11 @@ AutoSuggestControl.prototype.handleKeyDown = function (oEvent /*:Event*/) {
 
     switch(oEvent.keyCode) {
         case 38: //up arrow
+            this.layer.style.visibility = "visible";
             this.goToSuggestion(-1);
             break;
         case 40: //down arrow 
+            this.layer.style.visibility = "visible";
             this.goToSuggestion(1);
             break;
         case 27: //esc
@@ -225,7 +227,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
         //request suggestions from the suggestion provider 
         this.timeoutId = setTimeout( function () {
             oThis.provider.requestSuggestions(oThis);
-        }, 175);
+        }, 25);
     }
 };
 
@@ -336,8 +338,8 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
         oDiv = document.createElement("div");
 
         // bold the matching part
-        var descr = aSuggestions[i].description;
         if(aSuggestions[i].matched_substrings.length >= 1) {
+            var descr = aSuggestions[i].description;
             var pre = '';
             var match = '';
             var post = '';
