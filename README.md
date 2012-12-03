@@ -22,6 +22,8 @@ todo
     * 'mealinfo' is going to have to change - the 'mealinfo' can now have 
     multiple photos.  Maybe create a 'photo-info' table, and take the photo-
     specific stuff out of mealinfo.
+    * Each 'mealinfo' is tagged with a unique id (creation time).  Each photo
+    is tagged with its own time, and a reference to the mealinfo.
 
 * Come up with the data format for my local-restaurants.  I want to relate it
   to the user somehow.
