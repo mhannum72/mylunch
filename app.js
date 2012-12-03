@@ -1,5 +1,4 @@
 /* TODO 
- * 
  * Modularize this stuff
  * Edit userinfo page
  * Finish Admin pages
@@ -55,6 +54,13 @@ var posUpdateMs = 5 * msPerSecond;
 var webPort = 3000;
 var webBase = 'localhost:' + webPort;
 
+// I have to enum my meals so that they sort correctly in the database
+var BREAKFAST = 1;
+var LUNCH = 2;
+var DINNER = 3;
+var SNACK = 4;
+var OTHER = 5;
+
 // Tried async thumbs: it's more efficient to go inline.  
 // TODO: Find or write a faster image-resizer.
 var org = 'mylunch.org';
@@ -77,6 +83,13 @@ db.open(function(error, client){
         collection.ensureIndex({username:1, timestamp:1},{unique:true});
         collection.ensureIndex({timestamp:1, worldViewable: 1, verifiedByAdmin:1, adminAllow:1});
         collection.ensureIndex({restaurantId: 1});
+        collection.ensureIndex({username: 1, mealDate:1, mealConst:1, timestamp:1},{unique:true});
+    });
+
+    // Create indexes for picInfo 
+    db.collection('picInfo', function(error, collection) {
+        collection.ensureIndex({username:1, timestamp:1}, {unique:true});
+        collection.ensureIndex({username:1, mitimestamp:1});
     });
 
     // Create indexes for mealPics
@@ -180,6 +193,16 @@ updateShowPicsPerPageInMongo = function(username, showPicsPerPage, callback) {
     });
 }
 
+updatePicTitleInMongo = function(username, timestamp, title, callback) {
+    getCollection('picInfo', function(error, picinfo) {
+        if(error) throw(error);
+        picinfo.update({username: username, timestamp:timestamp}, {$set: {picTitle: title}}, {safe:true}, function(err) {
+            if(err) throw(err);
+            callback(err);
+        });
+    });
+}
+
 updateTitleInMongo = function(username, timestamp, title, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
@@ -201,11 +224,26 @@ updateRatingInMongo = function(username, timestamp, rating, callback) {
 }
 
 
-
 updateMealInMongo = function(username, timestamp, meal, callback) {
+    var mealConst = -1;
+
+    if(meal == "breakfast") {
+        mealConst = BREAKFAST;
+    } else if(meal == "lunch") {
+        mealConst = LUNCH;
+    } else if(meal == "dinner") {
+        mealConst = DINNER;
+    } else if(meal == "snack") {
+        mealConst = SNACK;
+    } else if(meal == "other") {
+        mealConst = OTHER;
+    } else {
+        throw new Error('Invalid meal: ' + meal + ' for username ' + username + ' timestamp ' + timestamp);
+    }
+
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {meal: meal}}, {safe: true}, function(err) {
+        mealinfo.update({username: username, timestamp: timestamp}, {$set: {meal: meal, mealConst:mealConst}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -231,7 +269,6 @@ updateTmpReviewInMongo = function(username, timestamp, tmpreview, callback) {
         });
     });
 }
-
 
 // Update the user's mealinfo information
 updateCompleteMealInfoInMongo = function(mealinfo, callback) {
@@ -337,6 +374,8 @@ purgeMealFromMongo = function(username, timestamp, callback) {
 // I will have to consider this more..
 //
 // I'm not sure if I will have the 'under-review' part .. I can allow it,
+//
+// XXX prolly dead code
 
 updateVerifyMealInfoInMongo = function(mealinfo, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
@@ -349,7 +388,7 @@ updateVerifyMealInfoInMongo = function(mealinfo, callback) {
     });
 }
 
-// Get a list of picture information.  Call this the first time with afterTs set
+// Get mealinfo information.  Call this the first time with afterTs set
 // to 0, and always pass in the timestamp of the last record.
 getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
@@ -358,7 +397,7 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
         var projection = {};
         if(!wholerec) {
             //projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1, 'thumbWidth' : 1, 'thumbHeight' : 1 };
-            projection = { 'username' : 1, 'timestamp' : 1, 'picTitle' : 1, 'meal' : 1 };
+            projection = { 'username' : 1, 'timestamp' : 1, 'meal' : 1 };
         }
 
         // It turns out that you should be sorting in the direction of your search to get 
@@ -1376,32 +1415,62 @@ function restaurantInfo(name, username) {
     this.dateClosed = -1;
 }
 
-// Create an empty mealinfo object with default attributes.
-function mealInfo(user, name, title, size, width, height, depth, type, features) {
+function picInfo(mealInfo, name, title, size, width, height, thumbwidth, thumbheight, depth, type, features) {
 
-    // Username of uploader
+    this.username = mealInfo.username;
+
+    this.timestamp = Date.now();
+
+    this.picName = name;
+
+    this.picTitle = title;
+
+    // Mealinfo timestamp - points to a mealinfo table entry
+    this.mitimestamp = mealinfo.timestamp;
+
+    this.type = type;
+
+    this.width = width;
+
+    this.height = height;
+
+    this.thumbwidth = thumbwidth;
+
+    this.thumbheight = thumbheight;
+
+    this.depth = depth;
+
+    this.features = features;
+
+    this.order = -1;
+}
+
+// Create an empty mealinfo object with default attributes.
+function mealInfo(user) {
+
+    // Username of creator
     this.username = user.username;
 
-    // Time when uploaded 
+    // Time when created 
     this.timestamp = Date.now();
+
+    // Time when eaten in 'YYYYMMDDmm' syntax, where the final 'mm' is a two-digit 
+    // code which represents when the meal was consumed (see the 'enums' above).
+    // I'm doing it this way so that I can still use basically the same paging-
+    // code in mongo db (so I can search for something >= YYYYMMDDmm or something 
+    // <= YYYYMMDDmm.  I'll have to make sure to include the timestamp in this
+    // search as well (some power-users could have multiple breakfasts, lunches, 
+    // and suppers on the same day). 
+    //
+    // The BAD thing about this code is that I'll end up making two database hits 
+    // instead of one.  One possibly solution is to keep a simple number-array of
+    // the pictures in mealinfo.  My fear is that this will get out of sync:
+    // mongodb doesn't allow transactions across tables.  But probably this would
+    // not happen.
+    this.mealDate = -1;
 
     // Whether this is world viewable
     this.worldViewable = user.defaultWorldViewable;
-
-    // Type of picture (like a jpeg, etc).
-    this.type = type;
-
-    // Size
-    this.size = size;
-
-    // Width
-    this.width = width;
-
-    // Height
-    this.height = height;
-
-    // Color depth
-    this.depth = depth;
 
     // Whether this has been verified for public consumption
     this.verifiedByAdmin = false;
@@ -1409,32 +1478,15 @@ function mealInfo(user, name, title, size, width, height, depth, type, features)
     // Admins ruling
     this.adminAllow = false;
 
-    // Name of this picture on user's filesystem
-    this.picName = name; 
-
-    // Title of this picture
-    if (title != undefined) {
-        this.picTitle = title; 
-    }
-    else {
-        this.picTitle = ""; 
-    }
-
-    // The price the user paid
-    this.price = 0;
-
     // What meal was this (breakfast, lunch, dinner, other)
     this.meal = "lunch"; 
+    this.mealconst = LUNCH;
 
     // Maybe I'll have some sort of global ranking .. will think about this
     this.ranking = 0;
     this.rating = -1;
     this.whenDeleted = 0;
     this.deleted = false;
-
-    // Thumbwidth & thumbheight placeholders
-    this.thumbWidth = -1;
-    this.thumbHeight = -1;
 
     // Restaurant: reference to the restaurants table
     this.restaurantId = -1;
@@ -1444,31 +1496,22 @@ function mealInfo(user, name, title, size, width, height, depth, type, features)
 
     // The user hasn't submitted anything yet
     this.tmpReview = "";
-
-    // Features includes longitude, latitude, direction, createtime, etc.
-    this.features = features;
 }
 
 // Create a thumbnail object for mongo.
-function mealThumb(mealinfo, image, imageType) {
-    this.username = mealinfo.username;
-    this.timestamp = mealinfo.timestamp;
-    this.worldViewable = mealinfo.worldViewable;
+function mealThumb(picInfo, image, imageType) {
+    this.username = picInfo.username;
+    this.timestamp = picInfo.timestamp;
     this.imageType = imageType;
     this.image = image;
 }
 
 // Create a pic object for mongo
-function mealPic(mealinfo, image, imageType) {
-    this.username = mealinfo.username;
-    this.timestamp = mealinfo.timestamp;
-    this.worldViewable = mealinfo.worldViewable;
+function mealPic(picInfo, image, imageType) {
+    this.username = picInfo.username;
+    this.timestamp = picInfo.timestamp;
     this.imageType = imageType;
     this.image = image;
-}
-
-// Create a compressed object for mongo
-function mealPicCompressed(mealinfo, image, imageType) {
 }
 
 // Common function to deal with authenticate resignin posts
