@@ -8,6 +8,21 @@ todo
 * Next step (tomorrow morning) - go server side and create the mongo routines 
   for creating, and finding restaurants.
 
+* Revise the way that meals are added:
+    * Right now there's a one-to-one relationship between a photo and a review.
+    * Users might want to have a review of a meal without a photo, or multiple
+    photos in a single review.
+    * So 'add-meal' on the edit meals page should pop-up immediately - on the
+    modality that pops up, there should be a calendar widget, and 'add photo'
+    button (that you can press multiple times to upload).  Also, each photo 
+    will have a 'delete-photo' beneath it.
+    * The order of the photos on the editmeals page is now different- and if
+    there are multiple photos for a single meal, I'm going to stack the
+    thumbs.
+    * 'mealinfo' is going to have to change - the 'mealinfo' can now have 
+    multiple photos.  Maybe create a 'photo-info' table, and take the photo-
+    specific stuff out of mealinfo.
+
 * Come up with the data format for my local-restaurants.  I want to relate it
   to the user somehow.
   The SIMPLEST programatically is to make it a first-class entity in the 
