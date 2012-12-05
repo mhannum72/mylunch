@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>DatePicker Test</title>
+        <link rel="stylesheet" href="/css/datePicker.css" media="screen" type="text/css" />
+
+    </head>
+
+    <body>
+
+        <script src="/jquery.js"></script>
+        <script src="/date.js" type="text/javascript"></script>
+        <script src="/jquery.datePicker.js" type="text/javascript"></script>
+        <script type="text/javascript">
+
+            $(function() 
+            {
+                var today = new Date();
+                var start = new Date(today.getFullYear() - 1, today.getMonth(), today.getDay());
+                $('.date-picker').datePicker({startDate:start, endDate:today});
+            })
+
+        </script>
+
+        <h1>Datepicker Test</h1>
+        <form id="chooseDate" action="#" name="chooseDate">
+            <input type="hidden" class="date-picker" id="date1" name="date1">
+            <a class="dp-choose-date" title="Choose date" href="#"></a>
+            </input>
+        </form>
+
+    </body>
+</html>

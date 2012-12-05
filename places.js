@@ -45,6 +45,9 @@ app.get('/autotest', function(req, res, next) {
     res.render('autotest.ejs');
 });
 
+app.get('/datetest', function(req, res, next) {
+    res.render('datetest.ejs');
+});
 
 app.get('/placesautocomplete', function(req, res, next) {
     res.render('placesautocomplete.ejs');
