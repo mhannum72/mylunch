@@ -508,7 +508,7 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
         //    .sort( mealDate : -1, timestamp: -1 );
 
         mealInfo.find( {username: username, mealDate: { $lte: md }, deleted: viewDeleted }, projection )
-            .sort( mealDate : -1, timestamp: -1) .toArray( function( err, results) {
+            .sort( { mealDate : -1, timestamp: -1 }) .toArray( function( err, results) {
 
             if(err) throw(err);
             var nexttimestamp=0;
@@ -4012,7 +4012,7 @@ app.post('/createmeal', function(req, res, next) {
     }
 
     var mealinfo = new mealInfo(req.session.user);
-}
+});
 
 function editMealsDeleteMeal(req, res, next) {
 }

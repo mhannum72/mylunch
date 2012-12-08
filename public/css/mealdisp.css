@@ -79,6 +79,10 @@ textarea {
     min-height: 320px;
 }
 
+.editgrid {
+    rotation: 10deg;
+}
+
 .mealAttributesPopup {
     width:440px;
     z-index:9999;
