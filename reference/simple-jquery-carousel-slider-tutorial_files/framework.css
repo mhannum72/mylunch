@@ -1,0 +1,104 @@
+.tpl-container {
+  width: 960px;
+  margin: 0 auto;
+}
+
+.mod {
+  padding: 10px;
+  float: left;
+}
+
+.tpl-cols-2 .mod { width: 460px; }
+.tpl-cols-3 .mod { width: 300px; }
+.tpl-cols-4 .mod { width: 220px; }
+.tpl-cols-5 .mod { width: 172px; }
+
+.mod-pad_none .mod {
+  padding: 0;
+}
+
+.tpl-cols-2.mod-pad_none .mod { width: 480px; }
+.tpl-cols-3.mod-pad_none .mod { width: 320px; }
+.tpl-cols-4.mod-pad_none .mod { width: 240px; }
+.tpl-cols-5.mod-pad_none .mod { width: 192px; }
+
+#tpl-main #tpl-left, 
+#tpl-main #tpl-article,
+#tpl-main #tpl-right
+{ float: left; }
+
+#tpl-main #tpl-article { padding: 10px; }
+
+#tpl-main.left-middle-right #tpl-left { width: 200px; }
+#tpl-main.left-middle-right #tpl-article { width: 540px; }
+#tpl-main.left-middle-right #tpl-right { width: 200px; }
+
+#tpl-main.left-middle #tpl-left { width: 230px; }
+#tpl-main.left-middle #tpl-article { width: 630px; }
+
+#tpl-main.middle-right #tpl-article { width: 580px; padding-right: 40px; }
+#tpl-main.middle-right #tpl-right { width: 320px; }
+
+#tpl-main.middle #tpl-article { width: 940px; }
+
+/* Box Shadow */
+a.shadow {
+  display: block;
+}
+ 
+.shadow {
+  width:200px;
+  position:relative;
+  padding:5px; 
+  margin:20px 10px; 
+  background:#fff;
+  -webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 0, 0, 0.1) inset;
+  -moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 0, 0, 0.1) inset;
+  box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 0, 0, 0.1) inset;
+}
+ 
+.shadow:before,
+.shadow:after {
+    content:"";
+    position:absolute; 
+    z-index:-2;
+    bottom:15px;
+    left:10px;
+    width:50%;
+    height:20%;
+    max-width:300px;
+    -webkit-box-shadow:0 15px 10px rgba(0, 0, 0, 0.7);   
+    -moz-box-shadow:0 15px 10px rgba(0, 0, 0, 0.7);
+    box-shadow:0 15px 10px rgba(0, 0, 0, 0.7);
+    -webkit-transform:rotate(-3deg);    
+    -moz-transform:rotate(-3deg);   
+    -ms-transform:rotate(-3deg);   
+    -o-transform:rotate(-3deg);
+    transform:rotate(-3deg);
+}
+ 
+.shadow p {
+    font-size:16px;
+    font-weight:bold;
+}
+ 
+ 
+.shadow {
+    -moz-border-radius:4px; 
+    border-radius:4px;
+}
+ 
+.lifted:before,
+.lifted:after { 
+    
+}
+ 
+.shadow:after {
+    right:10px; 
+    left:auto;
+    -webkit-transform:rotate(3deg);   
+    -moz-transform:rotate(3deg);  
+    -ms-transform:rotate(3deg);  
+    -o-transform:rotate(3deg);
+    transform:rotate(3deg);
+}
