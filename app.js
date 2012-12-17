@@ -33,8 +33,8 @@ var city = new geoip.City('geolitecity/GeoLiteCity.dat');
 // Image manipulation 
 var im = require('imagemagick');
 
-// Maximum pictures per meal
-var defaultMaxPicsPerMeal = 5;
+// Maximum pictures per meal (alot for a single meal).
+var defaultMaxPicsPerMeal = 64;
 
 // Scale variables
 var maxMealWidth = 780;
@@ -65,6 +65,10 @@ var DINNER = 3;
 var SNACK = 4;
 var OTHER = 5;
 var MAXMEAL = 99;
+
+var nomealpic = null;
+var notfoundpic = null;
+var notfoundthumb = null;
 
 // Tried async thumbs: it's more efficient to go inline.  
 // TODO: Find or write a faster image-resizer.
@@ -489,7 +493,7 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
         var projection = {};
         var cnt = 0;
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' };
+            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1 };
         }
         
         /*
@@ -598,13 +602,13 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
 
         // Some sanity checks
         if(mymealinfo.username == undefined) {
-            throw new Error('setMealInfoInMongo called with undefined username');
+            throw new Error('updateMealInfoPicInfoInMongo called with undefined username');
         }
         if(mymealinfo.timestamp == undefined) {
-            throw new Error('setMealInfoInMongo called with undefined timestamp');
+            throw new Error('updateMealInfoPicInfoInMongo called with undefined timestamp');
         }
         if(mymealinfo.timestamp <= 0) {
-            throw new Error('setMealInfoInMongo called with invalid timestamp');
+            throw new Error('updateMealInfoPicInfoInMongo called with invalid timestamp');
         }
 
         mealInfo.update({username: mymealinfo.username, timestamp:mymealinfo.timestamp}, 
@@ -613,6 +617,7 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
                 callback(err);
             });
 
+    });
 }
 
 setMealInfoInMongo = function(mymealinfo, callback) {
@@ -868,7 +873,7 @@ app.configure('production', function(){
 
 function show(req, res, err, img)
 {
-    res.writeHead(200, {'Content-Type': 'image/jpg' });
+    res.writeHead(200, {'Content-type': 'image/jpg' });
     res.end(img, 'binary');
 }
 
@@ -898,12 +903,11 @@ function showMealPicture( req, res ) {
     // Retrieve the meal thumbnail
     getMealPicFromMongo(req.params.username, parseInt(req.params.timestamp, 10), function(err, mealpic) {
 
-        if(err) throw (err);
-        // Show an error image, or something
-        if(mealpic == undefined) {
+        if(err || mealpic == undefined) {
             // TODO - create a default 'not-found' picture. 
             // res.writeHead(200, {'Content-Type': 'image/jpeg' });
             // res.end( notfound.pic, 'binary');
+            showNotFoundPicture(req, res);
             return;
         }
         // Display the image if we got it
@@ -915,46 +919,83 @@ function showMealPicture( req, res ) {
               // TODO - create a default 'no permission' picture. 
               // res.writeHead(200, {'Content-Type': 'image/jpeg' });
               // res.end( nopermission.pic, 'binary');
+            showNotFoundPicture(req, res);
             return;
         }
     });
 }
 
-// This will get a new name in a new database when it's publically viewable
-/*
-app.get('/displaymeal/:username/:timestamp', function(req, res) {
-
-    if( (req.session.user == undefined) || 
-        (req.session.user.username != req.params.username) ) {
-        req.session.nextpage = '/displaymeal/' + req.params.username + '/' + req.params.timestamp;
-        res.redirect('/signin');
-        return;
-    }
-    // Get the meal info record
-    getOneMealInfoFromMongo(req.params.username, parseInt(req.params.timestamp, 10), function(err, mealInfo) {
-        if(err) {
-            throw (err); 
-        }
-        // This meal apparently doesn't exist
-        if(undefined == mealInfo) {
-            console.log('request for non-existant meal for ' + req.params.username + '/' + req.params.timestamp);
-            // TODO - send an email to the administrator & ask them to verify the integrity of mealInfo
-            res.redirect('/upload');
-            return;
-        }
-        // Found it.  Render the page.
-        res.render('displaymeal.ejs', {
-            meal: mealInfo,
-            user: req.session.user
-        });
-        return;
-    });
-});
-*/
-
 // Retrieve a pictures
 app.get('/pics/:username/:timestamp', function(req, res) {
     showMealPicture(req, res);
+});
+
+var showNoMealPicture = function(req, res) {
+
+    // Read it from disk the first time.
+    if(nomealpic == null) {
+        fs.readFile('protected/nomeal.png', function(err, img) {
+            if(err) throw(err);
+            nomealpic = img;
+            res.writeHead(200, {'Content-type': 'image/png'});
+            res.end(nomealpic, 'binary');
+        });
+        return;
+    }
+
+    res.writeHead(200, {'Content-type': 'image/png'});
+    res.end(nomealpic, 'binary');
+}
+
+var showNotFoundPicture = function(req, res) {
+
+    // Read it from disk the first time.
+    if(notfoundpic == null) {
+        fs.readFile('protected/notfound.png', function(err, img) {
+            if(err) throw(err);
+            notfoundpic = img;
+            res.writeHead(200, {'Content-type': 'image/png'});
+            res.end(notfoundpic, 'binary');
+        });
+        return;
+    }
+
+    res.writeHead(200, {'Content-type': 'image/png'});
+    res.end(notfoundpic, 'binary');
+}
+
+var showNotFoundThumb = function(req, res) {
+
+    // Read it from disk the first time.
+    if(notfoundthumb == null) {
+        fs.readFile('protected/notfoundthumb.png', function(err, img) {
+            if(err) throw(err);
+            notfoundthumb = img;
+            res.writeHead(200, {'Content-type': 'image/png'});
+            res.end(notfoundthumb, 'binary');
+        });
+        return;
+    }
+
+    res.writeHead(200, {'Content-type': 'image/png'});
+    res.end(notfoundthumb, 'binary');
+}
+
+app.get('/images/notfound.png', function(req, res) {
+    showNotFoundPicture(req, res);
+});
+
+var nomealcount = 0;
+
+// Call the nomeal picture handler
+app.get('/images/nomeal.png', function(req, res) {
+    console.log("got nomeal request " + nomealcount++);
+    showNoMealPicture(req, res);
+
+});
+
+app.get('/images/notfoundthumb.png', function(req, res) {
+    showNotFoundThumb(req, res);
 });
 
 // Retrieve a thumbnail
@@ -1376,9 +1417,7 @@ function restaurantInfo(name, username) {
 
 /* Maybe this table shouldn't exist at all .. there could just be an array of 
  * picinfo objects hanging off of the mealInfo. */
-function picInfo(username, mitimestamp, name, size, width, height, type, features) {
-
-    this.username = username;
+function picInfo(mitimestamp, name, size, width, height, type, features) {
 
     this.timestamp = Date.now();
 
@@ -1431,7 +1470,7 @@ function mealDateToDate(mealdate)
 }
 
 // Create an empty mealinfo object with default attributes.
-function mealInfo(user, title) {
+function mealInfo(user) {
 
     // Username of creator
     this.username = user.username;
@@ -1488,7 +1527,10 @@ function mealInfo(user, title) {
     // YYYYMMDDmm (where 'mm' is the const for 'lunch')
     this.mealDate = dateToMealDate(new Date(), LUNCH);
 
-    this.title = title;
+    // Initialize picInfo to an empty array.
+    this.picInfo = [];
+
+    this.title = "";
 
     // Whether this is world viewable
     this.worldViewable = user.defaultWorldViewable;
@@ -1520,16 +1562,16 @@ function mealInfo(user, title) {
 }
 
 // Create a thumbnail object for mongo.
-function mealThumb(picInfo, image, imageType) {
-    this.username = picInfo.username;
+function mealThumb(username, picInfo, image, imageType) {
+    this.username = username;
     this.timestamp = picInfo.timestamp;
     this.imageType = imageType;
     this.image = image;
 }
 
 // Create a pic object for mongo
-function mealPic(picInfo, image, imageType) {
-    this.username = picInfo.username;
+function mealPic(username, picInfo, image, imageType) {
+    this.username = username;
     this.timestamp = picInfo.timestamp;
     this.imageType = imageType;
     this.image = image;
@@ -2294,27 +2336,20 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
     });
 });
 
-function editpagenextprev(req, res, next, mealDate, ts, isprev) {
+function editpagenextprev(req, res, next, mealDate, timestamp, isprev) {
     // No real need to pass this back and forth...
     var count = parseInt(req.query.count, 10);
     var md;
 
     // Should be an initial query.
-    if( mealDate == -1) {
+    if(mealDate == -1) {
         md = dateToMealDate(new Date(), MAXMEAL);
-    }
-    else {
-        md = mealDate;
-    }
-
-    /*
-    if( timestamp == -1) {
         ts = Date.now();
     }
     else {
+        md = mealDate;
         ts = timestamp;
     }
-    */
 
     if(isprev == false) {
 
@@ -2325,7 +2360,7 @@ function editpagenextprev(req, res, next, mealDate, ts, isprev) {
             if(mealinfo.length == 0 && mealDate != -1) {
 
                 // Huh?  We shouldn't really get here
-                console.log('illogical state in editpagenextprev: next record not found?');
+                console.log('Illogical state in editpagenextprev: next record not found?');
                 md = dateToMealDate(new Date(), MAXMEAL);
 
                 getMealInfoFromMongoRevMenu(req.session.user.username, md, ts, count, false, 
@@ -3188,7 +3223,7 @@ app.get('/signout', function(req, res, next) {
 // * If there is an additional record, what is your nextpage.
 //
 
-var editMealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDeleted) {
+var editmealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDeleted) {
     var ts;
     var md;
     var prevpage = 0;
@@ -3216,7 +3251,6 @@ var editMealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
 
                 getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
                     res.render('editmeals.ejs', {
-                        picsperpage: req.session.user.showMealsPerPage,
                         user: req.session.user,
                         mealinfo: mealinfo,
                         nextmd: nextmd,
@@ -3228,7 +3262,6 @@ var editMealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
             }
             else {
                 res.render('editmeals.ejs', {
-                    picsperpage: req.session.user.showMealsPerPage,
                     user: req.session.user,
                     mealinfo: mealinfo,
                     nextmd: nextmd,
@@ -3242,7 +3275,6 @@ var editMealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
     else { // prevpage is true
         getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
             res.render('editmeals.ejs', {
-                picsperpage: req.session.user.showMealsPerPage,
                 user: req.session.user,
                 mealinfo: mealinfo,
                 nextmd: nextmd,
@@ -3330,15 +3362,6 @@ app.post('/editmealsuploadfail', function(req, res, next) {
     res.write('Failure');
     res.end();
 });
-
-/*
-app.post('/editmealsupload', function(req, res, next) {
-
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write('Success');
-    res.end();
-});
-*/
 
 function editmealsPost(req, res, next, isprev) {
 
@@ -3441,26 +3464,9 @@ app.get('/editmeals_change_pics/:newpics', function(req, res, next) {
 // To implement a 'folder', you just need a username + folder + 
 // sequence + time-uploaded.  Right now I'm thinking that it makes sense 
 // to differentiate the global-folder from the others.
-
-function upload_internal_2(req, res, next, mealinfo, image, thumbwidth, thumbheight) {
-
-    var mealthumb = new mealThumb(mealinfo, image, req.files.upload.type);
-    setMealThumbInMongo(mealthumb, function(mterr, object) {
-
-        if(mterr) throw (mterr);
-
-        // Send back to the upload page
-        // res.redirect('/upload');
-        // Send to the display page
-//        res.redirect('/attributes/' + mealinfo.username + '/' + mealinfo.timestamp);
-        res.redirect('/editmeals');
-    });
-}
-
-
 function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thumbheight) {
 
-    var mealthumb = new mealThumb(picinfo, image, req.files.inputUpload.type);
+    var mealthumb = new mealThumb(req.session.user.username, picinfo, image, req.files.inputUpload.type);
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
@@ -3521,6 +3527,7 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
         if(err) throw(err);
     });
 
+    var mealpic = new mealPic(req.session.user.username, picInfo, image, req.files.inputUpload.type);
     setMealPicInMongo(mealpic, function(err, object) {
 
         if(err) throw(err);
@@ -3675,7 +3682,6 @@ function editMealsUploadPost(req, res, mealinfo, next) {
         if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
             fs.readFile(req.files.inputUpload.path, "binary", function(error, image) {
                 var picinfo = new picInfo(
-                    req.session.user.username,
                     mealinfo.timestamp,
                     req.files.inputUpload.name, 
                     req.files.inputUpload.size, 
@@ -3730,13 +3736,12 @@ function editMealsUploadPost(req, res, mealinfo, next) {
             // There will be a new size here ..
             // XXX picinfo not mealinfo
                 var picinfo = new picInfo(
-                    req.session.user.username,
                     mealinfo.timestamp,
                     req.files.inputUpload.name, 
                     stdout.length,
                     scaleWidth,
                     scaleHeight,
-                    req.files.inputUpload.type
+                    req.files.inputUpload.type,
                     features);
 
                 edit_upload_internal_1(req, res, next, stdout, mealinfo, picinfo);
@@ -3744,130 +3749,8 @@ function editMealsUploadPost(req, res, mealinfo, next) {
 
         return;
     });
-
-
 }
 
-function uploadPost(req, res, next) {
-
-    // Read the file from disk - TODO find a way to keep this in memory.
-    // Actually, I could read the file first, and then pass it as an arg
-    // into features
-    // fs.readFile(req.files.upload.path, "binary", function(error, image) {
-    // im.identify(req.files.upload.path, function(error, features) {
-    // im.identify(['-verbose', req.files.upload.path, function(error, out) {
-
-    imageFeatures(req.files.upload.path, function(err, features) {
-
-        if(err) {
-            console.log("Error identifying uploaded file: " + req.files.upload.path);
-            req.session.uploadmsg = "Error uploading your file!";
-
-            if(req.params.timestamp == undefined) {
-                res.redirect('/upload');
-            }
-            else {
-                // I just deleted stuff .. this might be an empty page .. take care of this 
-                res.redirect('/upload/' + req.params.timestamp);
-            }
-            return;
-        }
-
-        if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
-            fs.readFile(req.files.upload.path, "binary", function(error, image) {
-                var picInfo = new picInfo(
-                        req.session.user.username,
-                        parseInt(req.body.mitimestamp, 10),
-                        req.files.upload.name, 
-                        req.files.upload.size, 
-                        features.width,
-                        features.height,
-                        req.files.upload.type,
-                        features
-                    );
-                upload_internal_1(req, res, next, image, picInfo);
-            });
-            return;
-        }
-
-        var scaleWidth;
-        var scaleHeight;
-
-        // For this case, scale to whichever is the furthest out of whack.
-        if(features.width > maxMealWidth && features.height > maxMealHeight) {
-            // Scaled difference
-            var testwidth = features.width / maxMealWidth;
-            var testheight = features.height / maxMealHeight;
-
-            // Width is further out of whack, so scale to width
-            if (testwidth > testheight) {
-                scaleWidth = maxMealWidth;
-                scaleHeight = (maxMealWidth / features.width) * features.height;
-            }
-            // Height is further out of whack, so scale to width
-            else {
-                scaleHeight = maxMealHeight;
-                scaleWidth = (maxMealHeight / features.height) * features.width;
-            }
-        }
-        // Only the width is out of bounds
-        else if(features.width > maxMealWidth) {
-            scaleWidth = maxMealWidth;
-            scaleHeight = (maxMealWidth / features.width) * features.height;
-        }
-        // Only the height is out of bounds
-        else {
-            scaleHeight = maxMealHeight;
-            scaleWidth = (maxMealHeight / features.height) * features.width;
-        }
-
-        // Okay - resize this and then upload
-        im.resize( { 
-            srcPath: req.files.upload.path,
-            width: scaleWidth, 
-            height: scaleHeight
-        }, // The resized image is stdout.
-        function(err, stdout, stderr) {
-            // There will be a new size here ..
-                var picInfo = new picInfo(
-                        req.session.user.username,
-                        parseInt(req.body.mitimestamp, 10),
-                        req.files.upload.name, 
-                        stdout.length,
-                        scaleWidth,
-                        scaleHeight,
-                        req.files.upload.type,
-                        features
-                    );
-
-                upload_internal_1(req, res, next, stdout, picInfo);
-        });
-
-        return;
-    });
-}
-
-app.get('/upload', function(req, res, next) {
-    var msg = "";
-    if (req.session.user == undefined) {
-        req.session.nextpage = '/upload';
-        res.redirect('/signin');
-        return;
-    }
-
-    if(undefined != req.session.uploadmsg) {
-        msg = req.session.uploadmsg;
-        delete req.session.uploadmsg;
-    }
-
-    res.render('upload.ejs', {   
-        user:req.session.user,
-        restaurantId:-1,
-        message: msg,
-        uploadflag:true,
-        meal: new mealInfo(req.session.user)
-    });
-});
 
 app.post('/editmealsupload', function(req, res, next) {
 
@@ -3919,29 +3802,23 @@ app.post('/editmealsupload', function(req, res, next) {
 
         editMealsUploadPost(req, res, mealInfo, next);
     });
-
 });
 
-/*
-function editMealsCreateMeal(req, res, next) {
-}
-*/
-
-app.post('/createmeal', function(req, res, next) {
+app.get('/newmeal', function(req, res, next) {
 
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.write(JSON.stringify({errStr: "baduser"}));
+        res.write(JSON.stringify({message: "baduser"}));
         res.end();
         return;
     }
-    if(req.body.username == undefined) {
+    if(req.query.username == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "badrequest"}));
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+    if(req.query.username != req.session.user.username) {
         console.log('mismatched usernames in savemeal request:');
         console.log('session user is ' + req.session.user.username);
         console.log('request user is ' + req.body.username);
@@ -3952,14 +3829,21 @@ app.post('/createmeal', function(req, res, next) {
     }
 
     var mealinfo = new mealInfo(req.session.user);
-});
 
-function editMealsDeleteMeal(req, res, next) {
-}
+    setMealInfoInMongo(mealinfo, function(err, object) {
+        if(err) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.write(JSON.stringify({message: "internal-error"}));
+            res.end();
+            return;
+        }
 
-
-app.post('/upload', function(req, res, next) {
-    uploadPost(req, res, next);
+        // Write this mealinfo to mongo.
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify( { message: "success", timestamp: mealinfo.timestamp }));
+        res.end();
+        return;
+    });
 });
 
 function accountEditGetUser(req, res, next, targetUser) {
@@ -4144,7 +4028,6 @@ app.get('/admin_set_rotating', function(req, res, next) {
     }
 });
 
-
 // Display the verify meals page
 function verifyMeals(req, res, next, timestamp) {
     if(!verifyAdmin(req,res,next)) {
@@ -4266,9 +4149,6 @@ app.get('/yesreallyanadmin', function(req, res, next) {
 // NO - this is important - this project will be defined as much by 
 // the dumb things which don't get in as by the interesting things 
 // which do get in.
-app.get('/mylunches/:folder', function(req, res, next) {
-});
-
 
 // Open everything that we need to open
 app.listen(webPort, function(){

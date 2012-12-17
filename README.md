@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* I'm on the rotate pictures function.  Maybe it would be better to show a 
+  stack of meal photos & only rotate when the user clicks?  I'll have to 
+  think about this.
 * Next step (tomorrow morning) - go server side and create the mongo routines 
   for creating, and finding restaurants.
 

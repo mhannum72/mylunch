@@ -51,9 +51,10 @@ TODO:
             );
         }
 
-        function global_editmeals(username, showPicsPerPage, nextmd, nextts, prevmd, prevts) {
+        function global_editmeals(username, showMealsPerPage, maxPicsPerMeal, nextmd, nextts, prevmd, prevts) {
             this.username = username;
-            this.showPicsPerPage = showPicsPerPage;
+            this.showMealsPerPage = showMealsPerPage;
+            this.maxPicsPerMeal = maxPicsPerMeal;
             this.nextmd = nextmd;
             this.nextts = nextts;
             this.prevmd = prevmd;
@@ -63,7 +64,7 @@ TODO:
 
         var page_globals = global_editmeals(
                 "<%= user.username %>", 
-                <%= user.showPicsPerPage %>,
+                <%= user.showMealsPerPage %>,
                 <%= nextmd != undefined ? nextmd:0 %>,
                 <%= nextts != undefined ? nextts:0 %>,
                 <%= prevmd != undefined ? prevmd:0 %>,
@@ -143,21 +144,20 @@ TODO:
                     username: page_globals.username
                 },
                 function(response) {
-                    if(response.errStr != undefined && responst.errStr.length > 0) {
-                        if(response.errStr == "signin") {
+                    if(response.message == undefined || response.message != "success") {
+                        if("baduser" == response.message) {
                             window.location.replace("/signin");
                         }
                         else {
-                            console.log("getJSON response error is ", response.errStr);
+                            console.log("Response error is ", response.message);
                             window.location.replace("/");
                         }
                         return;
                     }
 
                     $('#pictureGridDiv').html('');
-                    drawNextMeals(timestamp);
-                    showAttributes(page_globals.username, responsetimestamp, 0);
-
+                    drawNextMeals(response.timestamp);
+                    showAttributes(page_globals.username, response.timestamp, 0);
                 });
         }
 
@@ -217,8 +217,6 @@ TODO:
                 // tag that says 'edit the first picture if it's greater than the 
                 // first picture I've ever seen (pass that in the request).  Otherwise, 
                 // print an error message.
-                //
-                // TODO: what's the bottleneck here?
                 if(null == bodyText || bodyText == "") {
                     console.log('checkUploaded bodyText is null - resetting timeout');
                     setTimeout(checkUploaded, 1000);
@@ -229,12 +227,9 @@ TODO:
                 if(regex.test(bodyText)) {
                     var tstring = bodyText.split(" ").pop();
                     var picts = parseInt(tstring, 10);
+
                     console.log('checkUploaded timestamp is ' + timestamp);
-                    /*
-                    $('#pictureGridDiv').html('');
-                    drawNextMeals(timestamp);
-                    showAttributes(page_globals.username, timestamp, 0);
-                    */
+
                     // Add to the picture-mobile
                     callback(null, picts);
                     return;
@@ -259,6 +254,115 @@ TODO:
 
         } /* uploadMealPopup */
 
+
+        function pictureli(elm, idx, timestamp) {
+
+            var li_name = 'carousel_li_' + ii;
+            var an_name = 'canousel_an_' + ii;
+
+            var li = $(document.createElement('li'))
+                .attr('id', li_name);
+
+            var anchor = $(document.createElement('a'))
+                .attr('class', carouselpicanchor)
+                .attr('id', an_name);
+
+            var img_name = 'carousel_img_' + ii;
+
+            var img_source = '/pics/' + page_globals.username + '/' + elm.picinfo[ii].timestamp;
+
+            var img = $(document.createElement('img'))
+                .attr('id', img_name)
+                .attr('src', img_source);
+
+            // TODO - there should be a PAUSE icon that pops up when the
+            // cursor hovers over it. 
+            //
+            // TODO - put a 'delete this picture' anchor on each of the meal 
+            // photos.  When the user clicks on it the picture gets deleted.
+            // TODO - left and right arrows on the side of the photos to
+            // skip forwards and backwards.
+
+            anchor.click(function(){
+
+                if(elm.stopped == false) {
+
+                    clearTimeout(elm.pictimeout);
+                    elm.stopped = true;
+
+                }
+                else{
+
+                    elm.stopped = false;
+                    rotatepictures();
+
+                }
+            });
+
+            // Append these 
+            img.appendTo(anchor);
+            anchor.appendTo(li);
+
+            return li;
+        }
+
+        // Create a picture Carousel in this div using picinfo
+        function createPictureCarousel(elm) {
+
+            // Create a ul
+            var ul = $(document.createElement('ul'))
+                    .attr('id', 'carouselul')
+                    .attr('class', 'slider');
+
+            // Attach all my pictures to the carousel
+            for(var ii = 0 ; ii < elm.picinfo.length ; ii++) {
+
+                var li = pictureli(elm, ii, elm.picinfo[ii].timestamp);
+                li.appendTo(ul);
+
+            }
+
+            // The carousel is not stopped
+            elm.stopped = false;
+
+            // First picture is the active picture
+            elm.activeix = 0;
+
+            // Fade in
+            $('.slider').find('li').eq(elm.activeix).fadeIn(1000);
+
+            // Rotate pictures
+            function rotatepictures() {
+
+                // Stop the carousel
+                if(elm.stopped) {
+                    console.log("debug trace: stopping timer.");
+                    return;
+                }
+
+                // Find the li elements
+                var slides = $('.slider').find('li');
+
+                // Fade out the one which is currently displayed
+                slides.eq(elm.activeix).fadeOut(1000);
+
+                // Point to the next picture
+                elm.activeix = (elm.activeix + 1) % slides.length;
+
+                // Fade in    
+                slides.eq(elm.activeix).fadeIn(1000);
+
+                // Call myself in 5 seconds
+                elm.pictimeout = setTimeout(rotatepictures, 5000);
+            }
+
+            // Show pictures on a timeout
+            elm.pictimeout = setTimeout(rotatepicture, 5000);
+
+            // Attach ul to the argument elm
+            ul.appendTo(elm);
+        }
+
         // Meal attributes / edit modal
         function showAttributesMealInfo(meal, restaurant, restaurantId) {
 
@@ -269,16 +373,93 @@ TODO:
                 .attr('id', 'mealAttributes')
                 .attr('class', 'mealAttributesPopup');
 
-
-            // TODO: this should be a jquery picture-carousel 
-            var url = "/pics/" + username + "/" + timestamp;
-
-            var img = $(document.createElement('img'))
-                .attr('src', url);
-
+            // Center things on this popup.  
+            // The center-tag is a little old-school these days.
             var centr = $(document.createElement('center'));
+            var carouselDiv = $(document.createElement('div'))
+                .attr('id', 'mealCarousel')
+                .attr('class', 'mealCarousel');
 
-            img.appendTo(centr);
+            // Store my picInfo array inside of my carousel-div
+            carouselDiv.picinfo = meal.picInfo;
+
+            // Create a picture carousel
+            if(carouselDiv.picinfo == undefined || carouselDiv.picinfo.length <= 0) {
+                var url = "/images/nomeal.png";
+                var img = $(document.createElement('img'))
+                    .attr('src', url);
+                var carouselAnchor = $(document.createElement('a'))
+                    .attr('id', 'carouselanchor')
+                    .attr('class', 'carouselanchor');
+
+                img.appendTo(carouselAnchor);
+                carouselAnchor.appendTo(carouselDiv);
+            }
+            else {
+                createPictureCarousel(carouselDiv);
+            }
+
+            carouselDiv.appendTo(centr);
+
+            // Create an 'upload new picture' icon
+            var uploadAnchor = $(document.createElement('a'))
+                .attr('id', 'uploadPictureAnchor')
+                .attr('class', 'uploadPictureAnchor')
+                .html('Upload New Picture');
+
+            // Click function for the upload anchor
+            uploadAnchor.click(function() {
+
+                uploadMealPopup(meal.timestamp, function(err, picts) {
+
+                    if(err) throw(err);
+                    var minfo = { 'timestamp' : picts };
+
+                    // I've uploaded an image.  Add it to the carousel.
+                    if(carouselDiv.picinfo == undefined || carouselDiv.picinfo.length <= 0) {
+
+                        // Empty carousel
+                        carouselDiv.empty();
+
+                        // Make sure this is an array
+                        carouselDiv.picinfo = [];
+
+                        // Push the new picture onto the array
+                        carouselDiv.picinfo.push(minfo);
+
+                        // Create a carousel
+                        createPictureCarousel(carouselDiv);
+                    }
+                    else {
+                        // Get the number of pictures
+                        var idx = carouselDiv.picinfo.length;
+
+                        // Push the new picture
+                        carouselDiv.picinfo.push(minfo);
+
+                        // Create a new li
+                        var li = pictureli(carouselDiv, idx, minfo.timestamp);
+
+                        // Find the ul
+                        var ul = $('#carouselul');
+
+                        // Append
+                        li.appendTo(ul);
+
+                        // Find the slides
+                        var slides = $('.slider').find('li');
+
+                        // Fade out current picture
+                        slides.eq(carouselDiv.activeix).fadeOut(1000);
+
+                        // Make this upload current
+                        carouselDiv.activeix = idx;
+
+                        // Fade in new picture
+                        slides.eq(carouselDiv.activeix).fadeIn(1000);
+                    }
+                });
+            });
 
             var closexContainer = $(document.createElement('div'))
                 .attr('id', 'mealAttributesCloseContainer')
@@ -406,6 +587,8 @@ TODO:
             // When uploaded.  Maybe this belongs somewhere else?  maybe there should be 
             // an inputable calendar (i think theres a jquery plugin for that)?  
             // will think about it.
+            //
+            // yes - got it
             //
             /*
             var grid_uploaded_pre = $(document.createElement('div'))
@@ -1075,7 +1258,7 @@ TODO:
                 if(firstGrid.attr('id') == lastGrid.attr('id')) {
                     lastPic = true;
                     if(page_globals.prevPage > 0) {
-                        count = page_globals.showPicsPerPage;
+                        count = page_globals.showMealsPerPage;
                         prevPage = page_globals.prevPage;
                     }
                     if(page_globals.nextmd > 0) {
@@ -1225,7 +1408,15 @@ TODO:
                     });
         }
 
-        function pictureDivInternal(meal, callback, lastpic) {
+		function mealDateToDate(mealdate)
+		{
+		    var year = mealdate / 1000000; mealdate %= 1000000;
+		    var month = mealdate /  10000; mealdate %=   10000;
+		    var day  = mealdate /     100;
+		    return new Date( year, month-1, day);
+		}
+
+        function pictureDivInternal(meal, callback, picturegrid, lastpic) {
 
             // I can manipulate this directly in the delete code.
             var editInternal = $(document.createElement('div'))
@@ -1235,8 +1426,8 @@ TODO:
             center.appendTo(editInternal);
 
             var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            var hoverDate = new Date(picInfo.timestamp).toLocaleDateString();
-            var hoverTxt = mealtxt + " uploaded " + hoverDate;
+            var hoverDate = (mealDateToDate(meal.mealDate)).toLocaleDateString();
+            var hoverTxt = mealtxt + " on " + hoverDate;
 
             var editImageDiv = $(document.createElement('div'))
                 .attr('class', 'editImage');
@@ -1249,16 +1440,18 @@ TODO:
                 .attr('href', 'javascript:void(0)')
                 .attr('onclick', onClickStr)
                 .attr('title', hoverTxt);
-                
-            /*
-            anchor.click(function() {
-                showAttributes(meal.username, meal.timestamp);
-            });
-            */
 
             anchor.appendTo(editImageDiv);
 
-            var imgSource = '/thumbs/' + meal.username + '/' + meal.timestamp;
+            var imgSource;
+
+            if(!meal.picInfo || meal.picInfo.length <= 0) {
+                imgSource = '/images/nomeal.png';
+            }
+            else {
+                // Cut 1: use the top picture
+                imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
+            }
 
             var image = $(document.createElement('img'))
                 .attr('class', 'editImage')
@@ -1266,7 +1459,7 @@ TODO:
 
             if(callback) {
                 image.load(function() {
-                    callback(lastpic);
+                    callback(picturegrid, lastpic);
                 });
             }
 
@@ -1287,8 +1480,7 @@ TODO:
             return editInternal;
         }
 
-
-        function pictureDiv(meal, callback, lastpic) {
+        function pictureDiv(meal, callback, pictureGrid, lastpic) {
 
             var tsId = 'gridTimestamp' + meal.timestamp;
 
@@ -1298,11 +1490,11 @@ TODO:
                 .attr('class', 'grid_4 editheight editgrid');
 
             // Create an internal pictureDiv that I can switchout in the delete code
-            var editInternal = pictureDivInternal(meal, callback, lastpic);
+            var editInternal = pictureDivInternal(meal, callback, pictureGrid, lastpic);
 
             editInternal.appendTo(editgrid);
 
-            // Return the top-level thing
+            // Return the top-level object
             return editgrid;
         }
 
@@ -1394,22 +1586,16 @@ TODO:
             page_globals.prevPage = prevpage;
         }
 
-        function pictureGridInner(mealinfo, showPicsPerPage, callback)
+        function pictureGridInner(mealinfo, showmeals, callback)
         {
             var pictureGrid = $(document.createElement('div'))
                 .attr('class', 'pictureGrid');
 
-            if(mealinfo && mealinfo.length < showPicsPerPage) {
-                endpic = mealinfo.length;
-            }
-            else {
-                endpic = showPicsPerPage;
-            }
 
-            for(cnt = 0 ; cnt < showPicsPerPage ; cnt++) {
-                if(cnt < endpic) {
+            for(cnt = 0 ; cnt < showmeals; cnt++) {
+                if(cnt < showmeals) {
                     var meal = mealinfo[cnt];
-                    var gridpic = pictureDiv(meal, callback, endpic);
+                    var gridpic = pictureDiv(meal, callback, pictureGrid, showmeals);
 
                     gridpic.appendTo(pictureGrid);
 
@@ -1426,15 +1612,20 @@ TODO:
 
         function displayPictureGrid(mealinfo, nextpage, prevpage) {
 
-            var showPicsPerPage = page_globals.showPicsPerPage;
             var pictureGridContainer = $('#pictureGridContainer');
-
+            var loaded = 0;
+            
             if(mealinfo != undefined && mealinfo.length > 0) {
-                var loaded = 0;
-                var pictureGridNew = pictureGridInner(mealinfo, showPicsPerPage, function (showImages) {
+
+                // Determine last picture
+                var endpic = (mealinfo.length < page_globals.showMealsPerPage) ? 
+                    mealinfo.length : page_globals.showMealsPerPage;
+
+                // Create the grid
+                var pictureGridNew = pictureGridInner(mealinfo, endpic, function (showImages) {
                     loaded++;
 
-                    if(loaded == showImages) {
+                    if(loaded == endpic) {
 
                         $('#pictureGrid').remove();
                         pictureGridNew.css({'display': 'none'});
@@ -1463,7 +1654,7 @@ TODO:
                     {
                         username: page_globals.username,
                         nextpage: nextpage,
-                        count: page_globals.showPicsPerPage
+                        count: page_globals.showMealsPerPage
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1482,7 +1673,7 @@ TODO:
                     {
                         username: page_globals.username,
                         prevpage: prevpage,
-                        count: page_globals.showPicsPerPage
+                        count: page_globals.showMealsPerPage
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1501,13 +1692,12 @@ TODO:
 
             var minfo = new Array();
 
-            function truncMeal(username, timestamp, picTitle, meal, thumbWidth, thumbHeight) {
+            function truncMeal(username, timestamp, meal, mealDate, picInfo) {
                 this.username = username;
                 this.timestamp = timestamp;
-                this.picTitle = picTitle;
                 this.meal = meal;
-                this.thumbWidth = thumbWidth;
-                this.thumbHeight = thumbHeight;
+                this.mealDate = mealDate;
+                this.picInfo = JSON.parse(picInfo);
                 return this;
             }
             
@@ -1521,10 +1711,9 @@ TODO:
             minfo[<%= i %>] = new truncMeal(
                     "<%= meal.username %>",
                     <%= meal.timestamp %>,
-                    "<%= meal.picTitle %>",
                     "<%= meal.meal %>",
-                    <%= meal.thumbWidth %>,
-                    <%= meal.thumbHeight %>);
+                    <%= meal.mealDate %>,
+                    "<%= JSON.stringify(meal.picInfo) %>");
             <%
                 }  
             } 
@@ -1563,7 +1752,6 @@ TODO:
                 <div pictureGrid class='pictureGrid' id='pictureGrid' name='pictureGrid'>
                 </div>
             </div>
-
 
             <div nextPrev class='nextprev' id='nextprev' name='nextprev'>
             </div>
