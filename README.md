@@ -5,6 +5,17 @@ mylunch
 todo
 ====
 
+* Bug: prevmd / prevts not part of page\_globals in editmeals?
+
+* I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
+  and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 
+  efficient.  The problem is that I cannot use 'limit', so the database could
+  end up doing a substantial amount of extra work.  I think I can do 
+  something like this:
+
+      ( mealDate == X && timestamp >= Y ) || ( mealDate > X )
+      ( mealDate == X && timestamp <= Y ) || ( mealDate < Y )
+
 * I'm on the rotate pictures function.  Maybe it would be better to show a 
   stack of meal photos & only rotate when the user clicks?  I'll have to 
   think about this.

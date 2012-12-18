@@ -257,19 +257,19 @@ TODO:
 
         function pictureli(elm, idx, timestamp) {
 
-            var li_name = 'carousel_li_' + ii;
-            var an_name = 'canousel_an_' + ii;
+            var li_name = 'carousel_li_' + idx;
+            var an_name = 'canousel_an_' + idx;
 
             var li = $(document.createElement('li'))
                 .attr('id', li_name);
 
             var anchor = $(document.createElement('a'))
-                .attr('class', carouselpicanchor)
+                .attr('class', 'carouselpicanchor')
                 .attr('id', an_name);
 
-            var img_name = 'carousel_img_' + ii;
+            var img_name = 'carousel_img_' + idx;
 
-            var img_source = '/pics/' + page_globals.username + '/' + elm.picinfo[ii].timestamp;
+            var img_source = '/pics/' + page_globals.username + '/' + elm.picinfo[idx].timestamp;
 
             var img = $(document.createElement('img'))
                 .attr('id', img_name)
@@ -357,7 +357,7 @@ TODO:
             }
 
             // Show pictures on a timeout
-            elm.pictimeout = setTimeout(rotatepicture, 5000);
+            elm.pictimeout = setTimeout(rotatepictures, 5000);
 
             // Attach ul to the argument elm
             ul.appendTo(elm);
@@ -406,6 +406,10 @@ TODO:
                 .attr('id', 'uploadPictureAnchor')
                 .attr('class', 'uploadPictureAnchor')
                 .html('Upload New Picture');
+
+
+            // Append upload picture anchor
+            uploadAnchor.appendTo(centr);
 
             // Click function for the upload anchor
             uploadAnchor.click(function() {
@@ -460,6 +464,8 @@ TODO:
                     }
                 });
             });
+
+
 
             var closexContainer = $(document.createElement('div'))
                 .attr('id', 'mealAttributesCloseContainer')
@@ -542,7 +548,7 @@ TODO:
                             data: JSON.stringify(
                                 {
                                     username: meal.username,
-                                    timestamp: picInfo.timestamp,
+                                    timestamp: meal.timestamp,
                                     title: titleEditInput.val()
                                 }),
                             dataType: 'json',
@@ -1246,7 +1252,7 @@ TODO:
 
             deleteAnchor.click(function() {
 
-                var editGrid = $('#gridTimestamp' + picInfo.timestamp);
+                var editGrid = $('#gridTimestamp' + meal.timestamp);
                 var nextGrid = editGrid.next('.editgrid');
                 var firstGrid = $('.editgrid').first();
                 var lastGrid = $('.editgrid').last();
@@ -1269,7 +1275,7 @@ TODO:
                 $.getJSON('/deletemeal',
                     {
                         username: meal.username,
-                        timestamp: picInfo.timestamp,
+                        timestamp: meal.timestamp,
                         nextmd: page_globals.nextmd,
                         nextts: page_globals.nextts,
                         prevmd: page_globals.prevmd,
@@ -1368,7 +1374,7 @@ TODO:
             });
 
             // Wait for the image to load
-            img.load(function() {
+            //img.load(function() {
                 var lft = 800 / 2;
                 var winw = $(window).width()/2;
                 var popleft = winw - lft;
@@ -1376,7 +1382,7 @@ TODO:
                 popup.css('left', popleft);
                 popup.appendTo('#boxes');
                 popup.fadeIn(500);
-            });
+            //});
 
         }
 
@@ -1690,14 +1696,26 @@ TODO:
         $(document).ready(function() {
             $.ajaxSetup ({ cache: false });
 
-            var minfo = new Array();
+            var minfo = [];
 
             function truncMeal(username, timestamp, meal, mealDate, picInfo) {
                 this.username = username;
                 this.timestamp = timestamp;
                 this.meal = meal;
                 this.mealDate = mealDate;
-                this.picInfo = JSON.parse(picInfo);
+                if(!picInfo) {
+                    console.log('picinfo is null??');
+                }
+                this.picInfo = picInfo;
+                return this;
+            }
+
+            function truncPicInfo(timestamp, mitimestamp, thumbwidth, thumbheight)
+            {
+                this.timestamp = timestamp;
+                this.mitimestamp = mitimestamp;
+                this.thumbwidth = thumbwidth;
+                this.thumbheight = thumbheight;
                 return this;
             }
             
@@ -1705,6 +1723,25 @@ TODO:
             if( mealinfo && mealinfo.length > 0 ) { 
                 for(var i = 0 ; i < mealinfo.length ; i++) {
                     var meal = mealinfo[i];
+
+            %>
+                var pinfo<%= i %> = [];
+            <%
+
+                if(meal.picInfo && meal.picInfo.length > 0) {
+                    for(var j = 0 ; j < meal.picInfo.length ; j++) {
+                        var pic = meal.picInfo[j];
+            %>
+
+                pinfo<%= i %> [ <%= j %> ] = new truncPicInfo(
+                        <%= pic.timestamp %>,
+                        <%= pic.mitimestamp %>,
+                        <%= pic.width %>,
+                        <%= pic.height %>
+                    );
+            <%
+                    }
+                }
             %>
 
             // Start meals
@@ -1713,10 +1750,10 @@ TODO:
                     <%= meal.timestamp %>,
                     "<%= meal.meal %>",
                     <%= meal.mealDate %>,
-                    "<%= JSON.stringify(meal.picInfo) %>");
+                    pinfo<%= i %>);
             <%
-                }  
-            } 
+                }
+            }
             %>
 
             displayPictureGrid(minfo, page_globals.nextPage, page_globals.prevPage);
