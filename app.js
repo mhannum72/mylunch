@@ -96,11 +96,13 @@ db.open(function(error, client){
         collection.ensureIndex({username: 1, mealDate:1, timestamp:1},{unique:true});
     });
 
-    // Create indexes for picInfo 
+    // Create indexes for picInfo - dead code i think
+    /*
     db.collection('picInfo', function(error, collection) {
         collection.ensureIndex({username:1, timestamp:1}, {unique:true});
         collection.ensureIndex({username:1, mitimestamp:1});
     });
+    */
 
     // Create indexes for mealPics
     db.collection('mealPics', function(error, collection) {

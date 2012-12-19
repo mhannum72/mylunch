@@ -262,6 +262,8 @@ TODO:
             var li = $(document.createElement('li'))
                 .attr('id', li_name);
 
+            // var center = $(document.createElement('center'));
+
             var anchor = $(document.createElement('a'))
                 .attr('class', 'carouselpicanchor')
                 .attr('id', an_name);
@@ -293,7 +295,7 @@ TODO:
                 else{
 
                     elm.stopped = false;
-                    rotatepictures();
+                    rotatepictures(elm);
 
                 }
             });
@@ -305,10 +307,46 @@ TODO:
             return li;
         }
 
+        // Rotate pictures
+        function rotatepictures(elm) {
+
+            // Stop the carousel
+            if(elm.stopped) {
+                console.log("debug trace: stopping timer.");
+                return;
+            }
+
+            // Find the li elements
+            var slides = $('.slider').find('li');
+
+            // Are there only 0 or 1 pictures?
+            if(slides.length <= 1) {
+
+                // Call myself in 5 seconds
+                elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
+
+                // Return
+                return;
+            }
+
+            // Fade out the one which is currently displayed
+            slides.eq(elm.activeix).fadeOut(1000);
+
+            // Point to the next picture
+            elm.activeix = (elm.activeix + 1) % slides.length;
+
+            // Fade in    
+            slides.eq(elm.activeix).fadeIn(1000);
+
+            // Call myself in 5 seconds
+            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
+        }
+
         // Create a picture Carousel in this div using picinfo
         function createPictureCarousel(elm) {
 
             var firstli;
+            var height = 0;
 
             // Create a ul
             var ul = $(document.createElement('ul'))
@@ -324,12 +362,27 @@ TODO:
                 if(0 == ii) {
                     firstli = li;
                 }
+
+                if(elm.picinfo[ii].height > height) {
+                    height = elm.picinfo[ii].height;
+                }
             }
 
             // The carousel is not stopped
             elm.stopped = false;
 
-            // Attach ul to the argument elm
+            // The maximum height in this carousel
+            elm.maxheight = height;
+
+            // Height string
+            var hstr = height + 'px';
+
+            // Change .slider to be this height
+            //var sdr = $('.slider');
+            //sdr.css('height', hstr);
+            ul.css('height', hstr);
+
+            // Attach ul to argument elm
             ul.appendTo(elm);
 
             // Fade in the first picture
@@ -337,50 +390,15 @@ TODO:
 
                 elm.activeix = 0;
                 firstli.fadeIn(1000);
-                //$('.slider').find('li').eq(elm.activeix).fadeIn(1000);
             }
+            // No pictures
             else
             {
                 elm.activeix = -1;
             }
 
-            // Rotate pictures
-            function rotatepictures() {
-
-                // Stop the carousel
-                if(elm.stopped) {
-                    console.log("debug trace: stopping timer.");
-                    return;
-                }
-
-                // Find the li elements
-                var slides = $('.slider').find('li');
-
-                // Are there only 0 or 1 pictures?
-                if(slides.length <= 1) {
-
-                    // Call myself in 5 seconds
-                    elm.pictimeout = setTimeout(rotatepictures, 5000);
-
-                    // Return
-                    return;
-                }
-
-                // Fade out the one which is currently displayed
-                slides.eq(elm.activeix).fadeOut(1000);
-
-                // Point to the next picture
-                elm.activeix = (elm.activeix + 1) % slides.length;
-
-                // Fade in    
-                slides.eq(elm.activeix).fadeIn(1000);
-
-                // Call myself in 5 seconds
-                elm.pictimeout = setTimeout(rotatepictures, 5000);
-            }
-
             // Show pictures on a timeout
-            elm.pictimeout = setTimeout(rotatepictures, 5000);
+            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
         }
 
         // Meal attributes / edit modal
@@ -469,6 +487,11 @@ TODO:
 
                         // Append
                         li.appendTo(ul);
+
+                        // If this is larger set maxheight
+                        if(minfo.height > carouselDiv.maxheight) {
+                            carouselDiv.maxheight = minfo.height;
+                        }
 
                         // Find the slides
                         var slides = $('.slider').find('li');
@@ -1387,7 +1410,7 @@ TODO:
 
             var maskWidth = $(window).width();
 //            var maskHeight = $(document).height();
-            var maskHeight = '1200px';
+            var maskHeight = '2000px';
 
             $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
 

@@ -311,17 +311,18 @@ textarea {
 
 .slider {
   margin: 10px 0;
-  width: 580px; /* Update to your slider width */
-  height: 250px; /* Update to your slider height */
+  width: 780px; /* Update to your slider width */
+  height: 100px;
+/*  height: auto; */
   position: relative;
   overflow: hidden;
 }
 
 .slider li {
   display: none;
+  list-style-type: none;
   position: absolute; 
-  top: 0; 
-  left: 0; 
+  margin-left: auto;
+  margin-right: auto;
 }
-
 
