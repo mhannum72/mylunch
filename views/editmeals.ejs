@@ -227,7 +227,7 @@ TODO:
                     var tstring = bodyText.split(" ").pop();
                     var picts = parseInt(tstring, 10);
 
-                    console.log('checkUploaded timestamp is ' + timestamp);
+                    console.log('checkUploaded timestamp is ' + picts);
 
                     // Add to the picture-mobile
                     callback(null, picts);
@@ -308,6 +308,8 @@ TODO:
         // Create a picture Carousel in this div using picinfo
         function createPictureCarousel(elm) {
 
+            var firstli;
+
             // Create a ul
             var ul = $(document.createElement('ul'))
                     .attr('id', 'carouselul')
@@ -319,16 +321,28 @@ TODO:
                 var li = pictureli(elm, ii, elm.picinfo[ii].timestamp);
                 li.appendTo(ul);
 
+                if(0 == ii) {
+                    firstli = li;
+                }
             }
 
             // The carousel is not stopped
             elm.stopped = false;
 
-            // First picture is the active picture
-            elm.activeix = 0;
+            // Attach ul to the argument elm
+            ul.appendTo(elm);
 
-            // Fade in
-            $('.slider').find('li').eq(elm.activeix).fadeIn(1000);
+            // Fade in the first picture
+            if(elm.picinfo.length > 0) {
+
+                elm.activeix = 0;
+                firstli.fadeIn(1000);
+                //$('.slider').find('li').eq(elm.activeix).fadeIn(1000);
+            }
+            else
+            {
+                elm.activeix = -1;
+            }
 
             // Rotate pictures
             function rotatepictures() {
@@ -341,6 +355,16 @@ TODO:
 
                 // Find the li elements
                 var slides = $('.slider').find('li');
+
+                // Are there only 0 or 1 pictures?
+                if(slides.length <= 1) {
+
+                    // Call myself in 5 seconds
+                    elm.pictimeout = setTimeout(rotatepictures, 5000);
+
+                    // Return
+                    return;
+                }
 
                 // Fade out the one which is currently displayed
                 slides.eq(elm.activeix).fadeOut(1000);
@@ -357,9 +381,6 @@ TODO:
 
             // Show pictures on a timeout
             elm.pictimeout = setTimeout(rotatepictures, 5000);
-
-            // Attach ul to the argument elm
-            ul.appendTo(elm);
         }
 
         // Meal attributes / edit modal
@@ -476,6 +497,10 @@ TODO:
                 .html('x');
 
             closex.click(function(){
+                // Find the carousel & cancel it
+                var carouselDiv = $('#mealCarousel');
+                if(carouselDiv) 
+                    clearTimeout(carouselDiv.pictimeout);
                 popup.fadeOut(0);
                 $('#maskFade').css({'display':'none'});
                 popup.remove();
@@ -1434,8 +1459,7 @@ TODO:
             var hoverDate = (mealDateToDate(meal.mealDate)).toLocaleDateString();
             var hoverTxt = mealtxt + " on " + hoverDate;
 
-            var editImageDiv = $(document.createElement('div'))
-                .attr('class', 'editImage');
+            var editImageDiv = $(document.createElement('div'));
 
             editImageDiv.appendTo(center);
 
@@ -1697,9 +1721,10 @@ TODO:
 
             var minfo = [];
 
-            function truncMeal(username, timestamp, meal, mealDate, picInfo) {
+            function truncMeal(username, timestamp, title, meal, mealDate, picInfo) {
                 this.username = username;
                 this.timestamp = timestamp;
+                this.title = title;
                 this.meal = meal;
                 this.mealDate = mealDate;
                 if(!picInfo) {
@@ -1747,6 +1772,7 @@ TODO:
             minfo[<%= i %>] = new truncMeal(
                     "<%= meal.username %>",
                     <%= meal.timestamp %>,
+                    "<%= meal.title %>",
                     "<%= meal.meal %>",
                     <%= meal.mealDate %>,
                     pinfo<%= i %>);
@@ -1784,12 +1810,12 @@ TODO:
             <div class="clear"></div>
             <br><br>
 
-            <div pictureGridDiv class='pictureGridDiv' id='pictureGridDiv' name='pictureGridDiv'>
-                <div pictureGrid class='pictureGrid' id='pictureGrid' name='pictureGrid'>
+            <div class='pictureGridDiv' id='pictureGridDiv' name='pictureGridDiv'>
+                <div class='pictureGrid' id='pictureGrid' name='pictureGrid'>
                 </div>
             </div>
 
-            <div nextPrev class='nextprev' id='nextprev' name='nextprev'>
+            <div class='nextprev' id='nextprev' name='nextprev'>
             </div>
 
         </div> <!-- container_12 -->

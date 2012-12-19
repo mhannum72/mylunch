@@ -66,6 +66,7 @@ var OTHER = 5;
 var MAXMEAL = 99;
 
 var nomealpic = null;
+var favicon = null;
 var notfoundpic = null;
 var notfoundthumb = null;
 
@@ -1019,6 +1020,23 @@ app.get('/pics/:username/:timestamp', function(req, res) {
     showMealPicture(req, res);
 });
 
+var showFavicon = function(req, res) {
+    // Read it from disk the first time.
+    console.log('got favicon request.');
+    if(favicon == null) {
+        fs.readFile('protected/mealfavicon.ico', function(err, img) {
+            if(err) throw(err);
+            favicon = img;
+            res.writeHead(200, {'Content-type': 'image/x-icon'});
+            res.end(favicon, 'binary');
+        });
+        return;
+    }
+
+    res.writeHead(200, {'Content-type': 'image/png'});
+    res.end(favicon, 'binary');
+}
+
 var showNoMealPicture = function(req, res) {
 
     // Read it from disk the first time.
@@ -1079,7 +1097,14 @@ var nomealcount = 0;
 // Call the nomeal picture handler
 app.get('/images/nomeal.png', function(req, res) {
     showNoMealPicture(req, res);
+});
 
+app.get('/favicon.ico', function(req, res) {
+    showFavicon(req, res);
+});
+
+app.get('/favicon', function(req, res) {
+    showFavicon(req, res);
 });
 
 app.get('/images/notfoundthumb.png', function(req, res) {

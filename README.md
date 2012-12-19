@@ -5,7 +5,10 @@ mylunch
 todo
 ====
 
-* Bug: if you change the title, it should change the grid-title.  Fix this.
+* The carousel is a good start, but I think I want it to be completely user
+  driven: the user can click a 'next' or a 'prev' arrow to show the next or 
+  prev pics.  Also, there can be a 'delete' button to allow a user to delete
+  a picture.
 
 * I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
   and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 
