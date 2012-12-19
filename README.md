@@ -5,7 +5,7 @@ mylunch
 todo
 ====
 
-* Bug: prevmd / prevts not part of page\_globals in editmeals?
+* Bug: if you change the title, it should change the grid-title.
 
 * I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
   and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 

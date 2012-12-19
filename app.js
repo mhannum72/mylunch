@@ -205,7 +205,7 @@ updateShowPicsPerPageInMongo = function(username, showMealsPerPage, callback) {
 updateTitleInMongo = function(username, timestamp, title, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {picTitle: title}}, {safe: true}, function(err) {
+        mealinfo.update({username: username, timestamp: timestamp}, {$set: {title: title}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -2602,7 +2602,7 @@ app.get('/deletemeal', function(req, res, next) {
             // gain a little performance- the risk is that the user will 
             // page around a bit, and see the deleted record. 
 
-            if(prevPage > 0) {
+            if(prevmd > 0) {
                 getMealInfoFromMongoFwdMenu(
                     req.session.user.username, 
                     prevmd,

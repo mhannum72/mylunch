@@ -51,10 +51,9 @@ TODO:
             );
         }
 
-        function global_editmeals(username, showMealsPerPage, maxPicsPerMeal, nextmd, nextts, prevmd, prevts) {
+        function global_editmeals(username, showMealsPerPage, nextmd, nextts, prevmd, prevts) {
             this.username = username;
             this.showMealsPerPage = showMealsPerPage;
-            this.maxPicsPerMeal = maxPicsPerMeal;
             this.nextmd = nextmd;
             this.nextts = nextts;
             this.prevmd = prevmd;
@@ -499,8 +498,8 @@ TODO:
 
             var title = "untitled";
 
-            if(undefined != meal.picTitle && meal.picTitle.length > 0) {
-                title = meal.picTitle;
+            if(undefined != meal.title && meal.title.length > 0) {
+                title = meal.title;
             }
 
             var hovertitle = $(document.createElement('a'))
@@ -524,7 +523,7 @@ TODO:
                     .attr('name', 'titleEditInput')
                     .attr('maxlength', '29')
                     .attr('size', '29')
-                    .val(meal.picTitle);
+                    .val(meal.title);
 
                 titleEditInput.appendTo(grid_title);
                 $('#titleEdit').css({'display':'none'});
@@ -533,13 +532,13 @@ TODO:
 
                 function blurTitleInput(meal, titleEditInput, keepcurrent) {
 
-                    if(titleEditInput.val() != meal.picTitle && keepcurrent == 0) {
+                    if(titleEditInput.val() != meal.title && keepcurrent == 0) {
 
-                        var titleEdit = '#gridTimestamp' + mealinfo.timestamp + ' > div > center > .titleText';
+                        var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
 
-                        meal.picTitle = titleEditInput.val();
-                        $('#titleEdit').html(meal.picTitle);
-                        $(titleEdit).html(meal.picTitle);
+                        meal.title = titleEditInput.val();
+                        $('#titleEdit').html(meal.title);
+                        $(titleEdit).html(meal.title);
 
                         $.ajax({
                             url: '/savetitle',
@@ -1474,8 +1473,8 @@ TODO:
             var titletext = $(document.createElement('div'))
                 .attr('class', 'titleText');
 
-            if(meal.picTitle != undefined && meal.picTitle.length > 0) {
-                titletext.html(meal.picTitle);
+            if(meal.title != undefined && meal.title.length > 0) {
+                titletext.html(meal.title);
             }
             else {
                 titletext.html('untitled');
