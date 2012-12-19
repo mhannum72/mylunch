@@ -5,7 +5,7 @@ mylunch
 todo
 ====
 
-* Bug: if you change the title, it should change the grid-title.
+* Bug: if you change the title, it should change the grid-title.  Fix this.
 
 * I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
   and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 
