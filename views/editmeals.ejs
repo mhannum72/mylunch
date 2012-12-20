@@ -58,6 +58,8 @@ TODO:
             this.nextts = nextts;
             this.prevmd = prevmd;
             this.prevts = prevts;
+            this.carousel_interval = 5000;
+            this.carousel_fadetime = 0;
             return this;
         }
 
@@ -209,7 +211,7 @@ TODO:
 
                 var hiddenIFrame = $('#hiddenIFrame');
                 var bodyText = hiddenIFrame.contents().find('body').html();
-                var regex = /^SUCCESS [0-9]+$/;
+                var regex = /^SUCCESS [0-9]+ [0-9]+$/;
 
                 // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
                 // if the timeout expires, reload the 'main' page with a special
@@ -224,13 +226,25 @@ TODO:
 
                 // Success case 
                 if(regex.test(bodyText)) {
-                    var tstring = bodyText.split(" ").pop();
-                    var picts = parseInt(tstring, 10);
 
+                    // Split on the spaces
+                    var ar = bodyText.split(" ");
+
+                    // Retrieve picture timestamp
+                    var picts = parseInt(ar[1], 10);
+
+                    // Retrieve picture height
+                    var height = parseInt(ar[2], 10);
+
+                    // Create minimal picinfo
+                    var pinfo = { 'timestamp' : picts, 'height': height };
+
+                    // Debug message
                     console.log('checkUploaded timestamp is ' + picts);
+                    console.log('checkUploaded height is ' + height);
 
                     // Add to the picture-mobile
-                    callback(null, picts);
+                    callback(null, pinfo);
                     return;
                 }
                 else {
@@ -256,22 +270,11 @@ TODO:
 
         function pictureli(elm, idx, timestamp) {
 
-            var li_name = 'carousel_li_' + idx;
-            var an_name = 'canousel_an_' + idx;
-
-            var li = $(document.createElement('li'))
-                .attr('id', li_name);
-
-            // var center = $(document.createElement('center'));
-
+            var li = $(document.createElement('li'));
             var anchor = $(document.createElement('a'))
-                .attr('class', 'carouselpicanchor')
-                .attr('id', an_name);
-
+                .attr('class', 'carouselpicanchor');
             var img_name = 'carousel_img_' + idx;
-
             var img_source = '/pics/' + page_globals.username + '/' + elm.picinfo[idx].timestamp;
-
             var img = $(document.createElement('img'))
                 .attr('id', img_name)
                 .attr('src', img_source);
@@ -322,24 +325,28 @@ TODO:
             // Are there only 0 or 1 pictures?
             if(slides.length <= 1) {
 
-                // Call myself in 5 seconds
-                elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
+                // Call myself in a bit
+                elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 
+                        page_globals.carousel_interval);
 
                 // Return
                 return;
             }
 
             // Fade out the one which is currently displayed
-            slides.eq(elm.activeix).fadeOut(1000);
+            slides.eq(elm.activeix).fadeOut(page_globals.carousel_fadetime);
+            //slides.eq(elm.activeix).fadeOut(0);
 
             // Point to the next picture
             elm.activeix = (elm.activeix + 1) % slides.length;
 
             // Fade in    
-            slides.eq(elm.activeix).fadeIn(1000);
+            slides.eq(elm.activeix).fadeIn(page_globals.carousel_fadetime);
+            //slides.eq(elm.activeix).fadeIn(0);
 
-            // Call myself in 5 seconds
-            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
+            // Call myself in a bit
+            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 
+                    page_globals.carousel_interval);
         }
 
         // Create a picture Carousel in this div using picinfo
@@ -378,8 +385,6 @@ TODO:
             var hstr = height + 'px';
 
             // Change .slider to be this height
-            //var sdr = $('.slider');
-            //sdr.css('height', hstr);
             ul.css('height', hstr);
 
             // Attach ul to argument elm
@@ -389,7 +394,8 @@ TODO:
             if(elm.picinfo.length > 0) {
 
                 elm.activeix = 0;
-                firstli.fadeIn(1000);
+                firstli.fadeIn(page_globals.carousel_fadetime);
+                //firstli.fadeIn(1000);
             }
             // No pictures
             else
@@ -398,7 +404,8 @@ TODO:
             }
 
             // Show pictures on a timeout
-            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 5000);
+            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 
+                    page_globals.carousel_interval);
         }
 
         // Meal attributes / edit modal
@@ -452,10 +459,9 @@ TODO:
             // Click function for the upload anchor
             uploadAnchor.click(function() {
 
-                uploadMealPopup(meal.timestamp, function(err, picts) {
+                uploadMealPopup(meal.timestamp, function(err, pinfo) {
 
                     if(err) throw(err);
-                    var minfo = { 'timestamp' : picts };
 
                     // I've uploaded an image.  Add it to the carousel.
                     if(carouselDiv.picinfo == undefined || carouselDiv.picinfo.length <= 0) {
@@ -467,7 +473,7 @@ TODO:
                         carouselDiv.picinfo = [];
 
                         // Push the new picture onto the array
-                        carouselDiv.picinfo.push(minfo);
+                        carouselDiv.picinfo.push(pinfo);
 
                         // Create a carousel
                         createPictureCarousel(carouselDiv);
@@ -477,10 +483,10 @@ TODO:
                         var idx = carouselDiv.picinfo.length;
 
                         // Push the new picture
-                        carouselDiv.picinfo.push(minfo);
+                        carouselDiv.picinfo.push(pinfo);
 
                         // Create a new li
-                        var li = pictureli(carouselDiv, idx, minfo.timestamp);
+                        var li = pictureli(carouselDiv, idx, pinfo.timestamp);
 
                         // Find the ul
                         var ul = $('#carouselul');
@@ -489,21 +495,35 @@ TODO:
                         li.appendTo(ul);
 
                         // If this is larger set maxheight
-                        if(minfo.height > carouselDiv.maxheight) {
-                            carouselDiv.maxheight = minfo.height;
+                        if(pinfo.height > carouselDiv.maxheight) {
+
+                            carouselDiv.maxheight = pinfo.height;
+
+                            // Height string
+                            var hstr = pinfo.height + 'px';
+
+                            // Change .slider to be this height
+                            ul.css('height', hstr);
                         }
 
-                        // Find the slides
+                        // Clear the current timeout
+                        clearTimeout(carouselDiv.pictimeout);
+
+                        // Find slides
                         var slides = $('.slider').find('li');
 
-                        // Fade out current picture
-                        slides.eq(carouselDiv.activeix).fadeOut(1000);
+                        // Clear the current picture
+                        slides.eq(carouselDiv.activeix).fadeOut(page_globals.carousel_fadetime);
 
-                        // Make this upload current
+                        // Reset to the new index
                         carouselDiv.activeix = idx;
 
-                        // Fade in new picture
-                        slides.eq(carouselDiv.activeix).fadeIn(1000);
+                        // Show this upload
+                        slides.eq(carouselDiv.activeix).fadeIn(page_globals.carousel_fadetime);
+
+                        // Restart carousel
+                        carouselDiv.pictimeout = setTimeout(function() { rotatepictures(carouselDiv); },
+                                page_globals.carousel_interval);
                     }
                 });
             });
@@ -603,7 +623,7 @@ TODO:
                             }
                         });
                     }
-                    $('#titleEdit').css({'display':'block'});
+                    $('#titleEdit').css({'display':'inline-block'});
                     titleEditInput.remove();
                 }
 

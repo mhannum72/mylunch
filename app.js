@@ -1023,8 +1023,8 @@ app.get('/pics/:username/:timestamp', function(req, res) {
 });
 
 var showFavicon = function(req, res) {
+
     // Read it from disk the first time.
-    console.log('got favicon request.');
     if(favicon == null) {
         fs.readFile('protected/mealfavicon.ico', function(err, img) {
             if(err) throw(err);
@@ -3609,7 +3609,7 @@ function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thum
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
-        var successResp = "SUCCESS " + picinfo.timestamp;
+        var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height;
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.write(successResp);
         res.end();
@@ -3932,7 +3932,8 @@ app.post('/editmealsupload', function(req, res, next) {
         }
 
         // Verify that we're allowed to upload another picture
-        if(mealInfo.picInfo.length >= mealInfo.maxPicsPerMeal) {
+        if(mealInfo.maxPicsPerMeal > 0 && 
+            mealInfo.picInfo.length >= mealInfo.maxPicsPerMeal) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.write("HAVE MAXIMUM PICS FOR THIS MEAL");
             res.end();

@@ -310,10 +310,8 @@ textarea {
 }
 
 .slider {
-  margin: 10px 0;
-  width: 780px; /* Update to your slider width */
-  height: 100px;
-/*  height: auto; */
+  margin: 0 auto;
+  width: 780px;
   position: relative;
   overflow: hidden;
 }
@@ -321,7 +319,6 @@ textarea {
 .slider li {
   display: none;
   list-style-type: none;
-  position: absolute; 
   margin-left: auto;
   margin-right: auto;
 }
