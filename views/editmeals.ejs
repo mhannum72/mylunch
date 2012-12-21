@@ -268,15 +268,21 @@ TODO:
         } /* uploadMealPopup */
 
 
-        function pictureli(elm, idx, timestamp) {
+        // Create an li which will contain a carousel picture
+        function pictureli(elm, pinfo) {
 
+            // Create li to contain this picture
             var li = $(document.createElement('li'));
+
+            // Click-anchor 
             var anchor = $(document.createElement('a'))
                 .attr('class', 'carouselpicanchor');
-            var img_name = 'carousel_img_' + idx;
-            var img_source = '/pics/' + page_globals.username + '/' + elm.picinfo[idx].timestamp;
+
+            // Source string
+            var img_source = '/pics/' + page_globals.username + '/' + pinfo.timestamp;
+
+            // Image tag
             var img = $(document.createElement('img'))
-                .attr('id', img_name)
                 .attr('src', img_source);
 
             // TODO - there should be a PAUSE icon that pops up when the
@@ -310,7 +316,7 @@ TODO:
             return li;
         }
 
-        // Rotate pictures
+        // New rotate: keep the first element visible & shift the rest
         function rotatepictures(elm) {
 
             // Stop the carousel
@@ -350,42 +356,130 @@ TODO:
         }
 
         // Create a picture Carousel in this div using picinfo
-        function createPictureCarousel(elm) {
+        function createPictureCarousel(picinfo) {
 
-            var firstli;
+            // Local variables
             var height = 0;
+            var width = 0;
+
+            // Create the carousel div
+            var elm = $(document.createElement('div'))
+                .attr('id', 'mealCarousel')
+                .attr('class', 'mealCarousel');
 
             // Create a ul
             var ul = $(document.createElement('ul'))
                     .attr('id', 'carouselul')
                     .attr('class', 'slider');
 
-            // Attach all my pictures to the carousel
-            for(var ii = 0 ; ii < elm.picinfo.length ; ii++) {
+            // Create a local picinfo
+            elm.picinfo = [];
 
-                var li = pictureli(elm, ii, elm.picinfo[ii].timestamp);
-                li.appendTo(ul);
+            // No meal
+            elm.nomeal = function() {
 
-                if(0 == ii) {
-                    firstli = li;
+                // No meal url
+                var url = "/images/nomeal.png";
+
+                // Create an image tag
+                var img = $(document.createElement('img'))
+                    .attr('src', url);
+
+                // Make sure we're empty
+                elm.empty();
+
+                // nomeal.png is 256x256
+                elm.maxheight = 256;
+
+                // Width
+                elm.maxwidth = 256;
+
+                // Append to carousel
+                img.appendTo(elm);
+            
+            }
+
+            // Add a picture
+            elm.addpicture = function(pinfo) {
+
+                // Create the list element
+                var li = pictureli(elm, pinfo);
+
+                // Create a ul for first picture
+                if(elm.picinfo.length <= 0) {
+
+                    // Clear 'nomeal' picture
+                    elm.empty();
+
+                    // Reset maxwidth
+                    elm.maxwidth = 0;
+
+                    // Reset maxheight
+                    elm.maxheight = 0;
+
+                    // Create the carousel ul
+                    elm.ul = $(document.createElement('ul'))
+                        .attr('id', 'carouselul')
+                        .attr('class', 'slider');
+
+                    // Append it to the carousel
+                    elm.ul.appendTo(elm);
                 }
 
-                if(elm.picinfo[ii].height > height) {
-                    height = elm.picinfo[ii].height;
+                // Update maxheight
+                if(pinfo.height > elm.maxheight) {
+                    elm.maxheight = pinfo.height;
+                }
+
+                // Update maxwidth
+                if(pinfo.width > elm.maxwidth) {
+                    elm.maxwidth = pinfo.width;
+                }
+
+                // Push onto local pinfo array
+                elm.picinfo.push(pinfo);
+
+                // Append to ul
+                li.appendTo(elm.ul);
+
+            }
+
+            // Prepare for viewing
+            elm.prepare = function() {
+
+                // Nothing to do if there are no pictures
+                if(!elm.picinfo || elm.picinfo.length <= 0) {
+
+                    // XXX do i need something else here?
+                    return;
                 }
             }
 
-            // The carousel is not stopped
-            elm.stopped = false;
 
-            // The maximum height in this carousel
-            elm.maxheight = height;
+            // Display nomeal picture if picinfo is empty
+            if(!picinfo || picinfo.length <= 0) {
+
+                elm.nomeal();
+
+            }
+            // Populate carousel
+            else {
+
+                picinfo.forEach(function(pinfo) { elm.addpicture(pinfo); });
+
+            }
 
             // Height string
             var hstr = height + 'px';
 
             // Change .slider to be this height
             ul.css('height', hstr);
+
+            // Width string
+            var wstr = width + 'px';
+
+            // Change container width
+            elm.css('width', wstr);
 
             // Attach ul to argument elm
             ul.appendTo(elm);
@@ -421,6 +515,10 @@ TODO:
             // Center things on this popup.  
             // The center-tag is a little old-school these days.
             var centr = $(document.createElement('center'));
+
+
+            // Maybe the 'createPictureCarousel' should return the 
+            // carouselDiv... yes!  createPicture
             var carouselDiv = $(document.createElement('div'))
                 .attr('id', 'mealCarousel')
                 .attr('class', 'mealCarousel');
@@ -504,6 +602,18 @@ TODO:
 
                             // Change .slider to be this height
                             ul.css('height', hstr);
+                        }
+
+                        // See if I need to change the width
+                        if(pinfo.width > carouselDiv.maxwidth) {
+
+                            carouselDiv.maxwidth = pinfo.width;
+
+                            // Width string
+                            var wstr = pinfo.width + 'px';
+
+                            // Change the carousel div width
+                            carouselDiv.css('width', wstr);
                         }
 
                         // Clear the current timeout
