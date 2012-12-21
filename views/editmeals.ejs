@@ -272,11 +272,12 @@ TODO:
         function pictureli(elm, pinfo) {
 
             // Create li to contain this picture
-            var li = $(document.createElement('li'));
+            var li = $(document.createElement('li')).
+                .attr('class', 'pic-li');
 
             // Click-anchor 
             var anchor = $(document.createElement('a'))
-                .attr('class', 'carouselpicanchor');
+                .attr('class', 'pic-li-anchor');
 
             // Source string
             var img_source = '/pics/' + page_globals.username + '/' + pinfo.timestamp;
@@ -375,6 +376,9 @@ TODO:
             // Create a local picinfo
             elm.picinfo = [];
 
+            // Cache a jquery handle
+            elm.$elm = $(elm);
+
             // No meal
             elm.nomeal = function() {
 
@@ -424,6 +428,13 @@ TODO:
 
                     // Append it to the carousel
                     elm.ul.appendTo(elm);
+
+                    // Viewable
+                    $(li).css('left', '0px');
+                }
+                else {
+                    // Not viewable
+                    $(li).css('left', '-10000px');
                 }
 
                 // Update maxheight
@@ -444,15 +455,27 @@ TODO:
 
             }
 
-            // Prepare for viewing
-            elm.prepare = function() {
+            // Move left
+            elm.moveforward = function() {
 
-                // Nothing to do if there are no pictures
-                if(!elm.picinfo || elm.picinfo.length <= 0) {
+                // Get a list of the $li elements
+                var $li = elm.$elm.find('li.pic-li');
 
-                    // XXX do i need something else here?
-                    return;
-                }
+                // Get the current display element
+                var $cur = $li.first();
+
+                // Get the next display element
+                var $next = $li.get(1);
+
+                // Set the left attribute of element [1]
+                $next.css('left', elm.maxwidth + 'px');
+
+                // Animate current
+                // XXX TODO FUN STUFF
+                $cur.stop().animate({
+                });
+                
+
             }
 
 
