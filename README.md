@@ -7,6 +7,8 @@ todo
 
 * Try adding 'float: center' to the css.
 
+* Maybe the carousel can be a combination of user driven and auto driven.
+
 * The carousel is a good start, but I think I want it to be completely user
   driven: the user can click a 'next' or a 'prev' arrow to show the next or 
   prev pics.  Also, there can be a 'delete' button to allow a user to delete
