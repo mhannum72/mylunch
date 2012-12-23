@@ -376,8 +376,17 @@ TODO:
             // Create a local picinfo
             elm.picinfo = [];
 
+            // Set animating flag to false
+            elm.animating = false;
+
             // Cache a jquery handle
             elm.$elm = $(elm);
+
+            // Slider speed
+            elm.sliderspeed = 500;
+
+            // Easing 
+            elm.easing = 'easeOutExpo';
 
             // No meal
             elm.nomeal = function() {
@@ -458,6 +467,14 @@ TODO:
             // Move left
             elm.moveforward = function() {
 
+                // Return immediately if already animating
+                if(elm.animating) {
+                    return false;
+                }
+
+                // Counter to set the animating flag
+                var count = 0;
+
                 // Get a list of the $li elements
                 var $li = elm.$elm.find('li.pic-li');
 
@@ -467,14 +484,98 @@ TODO:
                 // Get the next display element
                 var $next = $li.get(1);
 
+                // Set the animating flag
+                elm.animating = true;
+
                 // Set the left attribute of element [1]
                 $next.css('left', elm.maxwidth + 'px');
 
+                // Clone the current to the end of the list
+                $cur.clone(true).css('left','-10000px').appendTo(elm.ul);
+
                 // Animate current
-                // XXX TODO FUN STUFF
-                $cur.stop().animate({
-                });
-                
+                $cur.stop().animate( 
+                        { left : '-=' + elm.maxwidth + 'px' }, 
+                        elm.sliderspeed, 
+                        elm.easing, 
+                        function() { 
+                            $cur.remove(); 
+                            if(++count == 2) { 
+                                elm.animating = false; 
+                            } 
+                        } 
+                );
+
+                // Animate next
+                $next.stop().animate(
+                        { left : '-=' + elm.maxwidth + 'px' },
+                        elm.sliderspeed, 
+                        elm.easing,
+                        function() { 
+                            if(++count == 2) { 
+                                elm.animating = false; 
+                            } 
+                        }
+                );
+            }
+
+            // Move right
+            elm.movebackward = function() {
+
+                // Return immediately if already animating
+                if(elm.animating) {
+                    return false;
+                }
+
+                // Counter to set the animating flag
+                var count = 0;
+
+                // Set the animating flag
+                elm.animating = true;
+
+                // Get a list of the $li elements
+                var $li = elm.$elm.find('li.pic-li');
+
+                // Get the current display element
+                var $cur = $li.first();
+
+                // Clone the last item
+                var $next = $li.last().clone(true);
+
+                // Set its width
+                $next.css('left', '-' + elm.maxwidth + 'px');
+
+                // Insert it before the first item
+                $next.insertBefore($cur);
+
+                // Animate current
+                $cur.stop().animate(
+
+                        { left : '+=' + elm.maxwidth + 'px' },
+                        elm.sliderspeed,
+                        elm.easing,
+                        function() { 
+                            $cur.css('left', '-10000px'); 
+                            if(++count == 2) { 
+                                elm.animating = false;
+                                $li.last().remove();
+                            }
+                        }
+                );
+
+                // Animate next
+                $next.stop().animate(
+
+                        { left : '+=' + elm.maxwidth + 'px' },
+                        elm.sliderspeed,
+                        elm.easing,
+                        function() { 
+                            if(++count == 2) { 
+                                elm.animating = false; 
+                                $li.last().remove();
+                            } 
+                        }
+                );
 
             }
 
