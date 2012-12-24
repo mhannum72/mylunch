@@ -268,16 +268,20 @@ TODO:
         } /* uploadMealPopup */
 
 
-        // Create an li which will contain a carousel picture
-        function pictureli(elm, pinfo) {
+        // Create an div which will contain a carousel picture
+        function picturediv(elm, pinfo) {
 
-            // Create li to contain this picture
-            var li = $(document.createElement('li')).
-                .attr('class', 'pic-li');
+            // Create div to contain this picture
+            var $dv = $(document.createElement('div'))
+                .attr('id', 'pic-div-' + pinfo.timestamp)
+                .attr('class', 'pic-div');
+
+            // Pointer back to pinfo
+            $dv.pinfo = pinfo;
 
             // Click-anchor 
             var anchor = $(document.createElement('a'))
-                .attr('class', 'pic-li-anchor');
+                .attr('class', 'pic-div-anchor');
 
             // Source string
             var img_source = '/pics/' + page_globals.username + '/' + pinfo.timestamp;
@@ -294,6 +298,9 @@ TODO:
             // TODO - left and right arrows on the side of the photos to
             // skip forwards and backwards.
 
+            // Anchor doesn't do anything yet ..
+
+            /* 
             anchor.click(function(){
 
                 if(elm.stopped == false) {
@@ -309,12 +316,13 @@ TODO:
 
                 }
             });
+            */
 
             // Append these 
             img.appendTo(anchor);
-            anchor.appendTo(li);
+            anchor.appendTo($dv);
 
-            return li;
+            return $dv;
         }
 
         // New rotate: keep the first element visible & shift the rest
@@ -368,25 +376,30 @@ TODO:
                 .attr('id', 'mealCarousel')
                 .attr('class', 'mealCarousel');
 
-            // Create a ul
-            var ul = $(document.createElement('ul'))
-                    .attr('id', 'carouselul')
-                    .attr('class', 'slider');
-
             // Create a local picinfo
-            elm.picinfo = [];
+            // elm.picinfo = [];
+            elm.numpics = 0;
 
             // Set animating flag to false
             elm.animating = false;
-
-            // Cache a jquery handle
-            elm.$elm = $(elm);
 
             // Slider speed
             elm.sliderspeed = 500;
 
             // Easing 
             elm.easing = 'easeOutExpo';
+
+            // Maxwidth
+            elm.maxwidth = 0;
+
+            // Maxwidth count
+            elm.maxwidthcnt = 0;
+
+            // Maxheight
+            elm.maxheight = 0;
+
+            // Maxheight count
+            elm.maxheightcnt = 0;
 
             // No meal
             elm.nomeal = function() {
@@ -412,14 +425,146 @@ TODO:
             
             }
 
+            // Reset elms max width and height info.
+            // This scans so up the suckage level one notch.
+            function findmaxes()
+            {
+                // Sanity counter
+                var counter = 0;
+
+                // Get a list of the $li elements
+                var $li = elm.find('.pic-div');
+
+                // Reset max height and width
+                elm.maxheight = elm.maxwidth = 0; 
+
+                // Reset counts
+                elm.maxheightcnt = elm.maxwidthcnt = 0;
+
+                // Iterate to find maxes
+                $li.each(function(i) {
+
+                    // Width
+                    if(this.pinfo.width > elm.maxwidth) { 
+                        elm.maxwidth = this.pinfo.width; 
+                        elm.maxwidthcnt = 1; 
+                    }
+                    else if(this.pinfo.width == elm.maxwidth) {
+                        elm.maxwidthcnt++;
+                    }
+
+                    // Height
+                    if(this.pinfo.height > elm.maxheight) { 
+                        elm.maxheight = this.pinfo.height; 
+                        elm.maxheightcnt = 1; 
+                    }
+                    else if(this.pinfo.height == elm.maxheight) { 
+                        elm.maxheightcnt++;
+                    }
+
+                    // Increment counter
+                    counter++;
+                });
+
+                // 'Assert'
+                if(counter != elm.numpics) {
+                    console.log('Error: numpics mismatch!');
+                }
+            }
+
+            // Internal function for removing a picture
+            function removeinternal(elm, $dv)
+            {
+                var reset = 0;
+
+                // Reset width if this was the maxwidth or maxheight
+                if($dv.pinfo.width == elm.maxwidth && --elm.maxwidthcnt <= 0) {
+                    reset = 1;
+                }
+                // Check height if width did not trigger
+                else if($dv.pinfo.heigth == elm.maxheight && --elm.maxheightcnt <= 0) {
+                    reset = 1;
+                }
+
+                // Remove it
+                $dv.remove();
+
+                // Decrement counter
+                elm.numpics--;
+
+                // Reset maxwidth and height 
+                if(reset) {
+
+                    // Cache old width
+                    var wd = elm.maxwidth;
+
+                    // Cache old height
+                    var ht = elm.maxheight;
+
+                    // Find new values
+                    findmaxes();
+
+                    // Set width if it changed
+                    if(elm.maxwidth != wd)
+                        elm.css('width', elm.maxwidth);
+
+                    // Set height if it changed
+                    if(elm.maxheigth != ht)
+                        elm.css('height', elm.maxheight);
+                }
+
+                // Unset addremove flag
+                elm.addremove = false;
+            }
+
+            // Remove a picture
+            elm.removepicture = function(timestamp) {
+
+                // Check addremove flag
+                if(elm.addremove) {
+
+                    console.log('Removepicture returning because we are add removing.');
+                    return;
+
+                }
+
+                // Set addremove flag
+                elm.addremove = true;
+
+                // Find the div
+                var $target = elm.find('#pic-div-' + timestamp);
+
+                // Get a list of the $li elements
+                var $dv = elm.find('.pic-div');
+
+                // First element
+                if($target === $dv) {
+                    elm.moveforward(function() { removeinternal(elm, $target); });
+                }
+                else {
+                    removeinternal(elm, $target);
+                }
+            }
+
             // Add a picture
             elm.addpicture = function(pinfo) {
 
+                // Check addremove flag
+                if(elm.addremove) {
+
+                    console.log('Removepicture returning because we are add removing.');
+                    return;
+
+                }
+
+                // Set addremove flag
+                elm.addremove = true;
+
                 // Create the list element
-                var li = pictureli(elm, pinfo);
+                var $dv = picturediv(elm, pinfo);
 
                 // Create a ul for first picture
-                if(elm.picinfo.length <= 0) {
+                if(elm.numpics == 0) {
 
                     // Clear 'nomeal' picture
                     elm.empty();
@@ -427,45 +572,71 @@ TODO:
                     // Reset maxwidth
                     elm.maxwidth = 0;
 
+                    // Reset maxwidthcnt
+                    elm.maxwidthcnt = 0;
+
                     // Reset maxheight
                     elm.maxheight = 0;
 
-                    // Create the carousel ul
-                    elm.ul = $(document.createElement('ul'))
-                        .attr('id', 'carouselul')
-                        .attr('class', 'slider');
-
-                    // Append it to the carousel
-                    elm.ul.appendTo(elm);
+                    // REset maxheightcnt
+                    elm.maxheightcnt = 0;
 
                     // Viewable
-                    $(li).css('left', '0px');
+                    $dv.css('left', '0px');
                 }
                 else {
                     // Not viewable
-                    $(li).css('left', '-10000px');
+                    $dv.css('left', '-10000px');
                 }
+
+                // Increment picture count
+                elm.numpics++;
 
                 // Update maxheight
                 if(pinfo.height > elm.maxheight) {
+
+                    // Set my maxheight
                     elm.maxheight = pinfo.height;
+
+                    // Set maxheightcnt
+                    elm.maxheightcnt = 1;
+
+                    // Update containers maxheight
+                    elm.css('height', elm.maxheight);
+                }
+                else if(pinfo.height == elm.maxheight) {
+
+                    // Increment maxheightcnt
+                    elm.maxheightcnt++;
                 }
 
                 // Update maxwidth
                 if(pinfo.width > elm.maxwidth) {
+
+                    // Set my maxwidth
                     elm.maxwidth = pinfo.width;
+
+                    // Set maxwidthcnt
+                    elm.maxwidthcnt = 1;
+
+                    // Set container maxwidth
+                    elm.css('width', elm.maxwidth);
+                }
+                else if(pinfo.width == elm.maxwidth) {
+
+                    // Increment maxwidthcnt
+                    elm.maxwidthcnt++;
                 }
 
-                // Push onto local pinfo array
-                elm.picinfo.push(pinfo);
-
                 // Append to ul
-                li.appendTo(elm.ul);
+                $dv.appendTo(elm);
 
+                // Unset addremove
+                elm.addremove = false;
             }
 
             // Move left
-            elm.moveforward = function() {
+            elm.moveforward = function(callback) {
 
                 // Return immediately if already animating
                 if(elm.animating) {
@@ -475,14 +646,14 @@ TODO:
                 // Counter to set the animating flag
                 var count = 0;
 
-                // Get a list of the $li elements
-                var $li = elm.$elm.find('li.pic-li');
+                // Get a list of the $div elements
+                var $dv = elm.find('.pic-div');
 
                 // Get the current display element
-                var $cur = $li.first();
+                var $cur = $dv.first();
 
                 // Get the next display element
-                var $next = $li.get(1);
+                var $next = $dv.get(1);
 
                 // Set the animating flag
                 elm.animating = true;
@@ -499,9 +670,10 @@ TODO:
                         elm.sliderspeed, 
                         elm.easing, 
                         function() { 
-                            $cur.remove(); 
                             if(++count == 2) { 
+                                $cur.remove(); 
                                 elm.animating = false; 
+                                if(callback) callback();
                             } 
                         } 
                 );
@@ -513,14 +685,16 @@ TODO:
                         elm.easing,
                         function() { 
                             if(++count == 2) { 
+                                $cur.remove(); 
                                 elm.animating = false; 
+                                if(callback) callback();
                             } 
                         }
                 );
             }
 
             // Move right
-            elm.movebackward = function() {
+            elm.movebackward = function(callback) {
 
                 // Return immediately if already animating
                 if(elm.animating) {
@@ -534,13 +708,13 @@ TODO:
                 elm.animating = true;
 
                 // Get a list of the $li elements
-                var $li = elm.$elm.find('li.pic-li');
+                var $dv = elm.find('.pic-div');
 
                 // Get the current display element
-                var $cur = $li.first();
+                var $cur = $dv.first();
 
                 // Clone the last item
-                var $next = $li.last().clone(true);
+                var $next = $dv.last().clone(true);
 
                 // Set its width
                 $next.css('left', '-' + elm.maxwidth + 'px');
@@ -557,8 +731,9 @@ TODO:
                         function() { 
                             $cur.css('left', '-10000px'); 
                             if(++count == 2) { 
+                                $dv.last().remove();
                                 elm.animating = false;
-                                $li.last().remove();
+                                if(callback) callback();
                             }
                         }
                 );
@@ -566,64 +741,31 @@ TODO:
                 // Animate next
                 $next.stop().animate(
 
-                        { left : '+=' + elm.maxwidth + 'px' },
-                        elm.sliderspeed,
-                        elm.easing,
-                        function() { 
-                            if(++count == 2) { 
-                                elm.animating = false; 
-                                $li.last().remove();
-                            } 
-                        }
+                    { left : '+=' + elm.maxwidth + 'px' },
+                    elm.sliderspeed,
+                    elm.easing,
+                    function() { 
+                        if(++count == 2) { 
+                            elm.animating = false; 
+                            $dv.last().remove();
+                            if(callback) callback();
+                        } 
+                    }
                 );
 
             }
 
-
             // Display nomeal picture if picinfo is empty
             if(!picinfo || picinfo.length <= 0) {
-
                 elm.nomeal();
-
             }
             // Populate carousel
             else {
-
                 picinfo.forEach(function(pinfo) { elm.addpicture(pinfo); });
-
             }
 
-            // Height string
-            var hstr = height + 'px';
-
-            // Change .slider to be this height
-            ul.css('height', hstr);
-
-            // Width string
-            var wstr = width + 'px';
-
-            // Change container width
-            elm.css('width', wstr);
-
-            // Attach ul to argument elm
-            ul.appendTo(elm);
-
-            // Fade in the first picture
-            if(elm.picinfo.length > 0) {
-
-                elm.activeix = 0;
-                firstli.fadeIn(page_globals.carousel_fadetime);
-                //firstli.fadeIn(1000);
-            }
-            // No pictures
-            else
-            {
-                elm.activeix = -1;
-            }
-
-            // Show pictures on a timeout
-            elm.pictimeout = setTimeout(function() { rotatepictures(elm); }, 
-                    page_globals.carousel_interval);
+            // Return the elm carousel object
+            return elm;
         }
 
         // Meal attributes / edit modal
@@ -640,33 +782,21 @@ TODO:
             // The center-tag is a little old-school these days.
             var centr = $(document.createElement('center'));
 
-
             // Maybe the 'createPictureCarousel' should return the 
             // carouselDiv... yes!  createPicture
-            var carouselDiv = $(document.createElement('div'))
-                .attr('id', 'mealCarousel')
-                .attr('class', 'mealCarousel');
+            // 
+            var carouselDivContainer = $(document.createElement('div'))
+                .attr('id', 'mealCarouselContainer')
+                .attr('class', 'mealCarouselContainer');
 
-            // Store my picInfo array inside of my carousel-div
-            carouselDiv.picinfo = meal.picInfo;
+            // Create a carousel
+            var elm = createPictureCarousel(meal.picInfo);
 
-            // Create a picture carousel
-            if(carouselDiv.picinfo == undefined || carouselDiv.picinfo.length <= 0) {
-                var url = "/images/nomeal.png";
-                var img = $(document.createElement('img'))
-                    .attr('src', url);
-                var carouselAnchor = $(document.createElement('a'))
-                    .attr('id', 'carouselanchor')
-                    .attr('class', 'carouselanchor');
+            // Append it to the div
+            elm.appendTo(carouselDivContainer);
 
-                img.appendTo(carouselAnchor);
-                carouselAnchor.appendTo(carouselDiv);
-            }
-            else {
-                createPictureCarousel(carouselDiv);
-            }
-
-            carouselDiv.appendTo(centr);
+            // Append carousel to popup
+            carouselDivContainer.appendTo(centr);
 
             // Create an 'upload new picture' icon
             var uploadAnchor = $(document.createElement('a'))
@@ -681,84 +811,14 @@ TODO:
             // Click function for the upload anchor
             uploadAnchor.click(function() {
 
+                // Popup works from a hidden frame
                 uploadMealPopup(meal.timestamp, function(err, pinfo) {
 
+                    // Throw any errors
                     if(err) throw(err);
 
-                    // I've uploaded an image.  Add it to the carousel.
-                    if(carouselDiv.picinfo == undefined || carouselDiv.picinfo.length <= 0) {
-
-                        // Empty carousel
-                        carouselDiv.empty();
-
-                        // Make sure this is an array
-                        carouselDiv.picinfo = [];
-
-                        // Push the new picture onto the array
-                        carouselDiv.picinfo.push(pinfo);
-
-                        // Create a carousel
-                        createPictureCarousel(carouselDiv);
-                    }
-                    else {
-                        // Get the number of pictures
-                        var idx = carouselDiv.picinfo.length;
-
-                        // Push the new picture
-                        carouselDiv.picinfo.push(pinfo);
-
-                        // Create a new li
-                        var li = pictureli(carouselDiv, idx, pinfo.timestamp);
-
-                        // Find the ul
-                        var ul = $('#carouselul');
-
-                        // Append
-                        li.appendTo(ul);
-
-                        // If this is larger set maxheight
-                        if(pinfo.height > carouselDiv.maxheight) {
-
-                            carouselDiv.maxheight = pinfo.height;
-
-                            // Height string
-                            var hstr = pinfo.height + 'px';
-
-                            // Change .slider to be this height
-                            ul.css('height', hstr);
-                        }
-
-                        // See if I need to change the width
-                        if(pinfo.width > carouselDiv.maxwidth) {
-
-                            carouselDiv.maxwidth = pinfo.width;
-
-                            // Width string
-                            var wstr = pinfo.width + 'px';
-
-                            // Change the carousel div width
-                            carouselDiv.css('width', wstr);
-                        }
-
-                        // Clear the current timeout
-                        clearTimeout(carouselDiv.pictimeout);
-
-                        // Find slides
-                        var slides = $('.slider').find('li');
-
-                        // Clear the current picture
-                        slides.eq(carouselDiv.activeix).fadeOut(page_globals.carousel_fadetime);
-
-                        // Reset to the new index
-                        carouselDiv.activeix = idx;
-
-                        // Show this upload
-                        slides.eq(carouselDiv.activeix).fadeIn(page_globals.carousel_fadetime);
-
-                        // Restart carousel
-                        carouselDiv.pictimeout = setTimeout(function() { rotatepictures(carouselDiv); },
-                                page_globals.carousel_interval);
-                    }
+                    // Add this to the carousel
+                    $('#mealCarousel').addpicture(pinfo);
                 });
             });
 
@@ -2059,7 +2119,7 @@ TODO:
             %>
 
             displayPictureGrid(minfo, page_globals.nextPage, page_globals.prevPage);
-        });
+    });
 
 
     </script>

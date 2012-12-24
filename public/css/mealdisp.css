@@ -323,3 +323,16 @@ textarea {
   margin-right: auto;
 }
 
+.mealcarousel {
+  height: 780px;
+  width: 780px;
+  overflow: hidden;
+}
+
+.pic-div {
+  margin: 0 auto;
+  width: 780px;
+  position: relative;
+  overflow: hidden;
+}
+
