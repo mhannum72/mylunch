@@ -5,15 +5,17 @@ mylunch
 todo
 ====
 
-* Try adding 'float: center' to the css.
+* Make the pictures on the editmeals page more even
 
-* Maybe the carousel can be a combination of user driven and auto driven.
+* XXX carousel is coming along nicely - add the navigation arrows and the
+  'delete-picture' handle.  Test test test.
 
 * The carousel is a good start, but I think I want it to be completely user
   driven: the user can click a 'next' or a 'prev' arrow to show the next or 
   prev pics.  Also, there can be a 'delete' button to allow a user to delete
   a picture.
 
+* Test this
 * I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
   and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 
   efficient.  The problem is that I cannot use 'limit', so the database could
