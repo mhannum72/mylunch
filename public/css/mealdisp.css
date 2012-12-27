@@ -327,12 +327,38 @@ textarea {
   height: 780px;
   width: 780px;
   overflow: hidden;
+  position: relative;
 }
 
 .pic-div {
   margin: 0 auto;
   width: 780px;
-  position: relative;
-  overflow: hidden;
+  top: 0px;
+  height: 100%; 
+  position: relative; 
+  float: left;
+  text-align: center;
 }
+
+.pic-div-image {
+  float: center;
+  margin: 0 auto;
+  height: 100%;
+  position: relative;
+}
+
+.pic-div-int {
+  float: center;
+  position: left;
+  height: 100%;
+}
+
+.mealviewport {
+  position: relative;
+  top: 0px;
+  height: 100%; 
+  float: left;
+}
+
+
 

@@ -274,7 +274,12 @@ TODO:
             // Create div to contain this picture
             var $dv = $(document.createElement('div'))
                 .attr('id', 'pic-div-' + pinfo.timestamp)
-                .attr('class', 'pic-div');
+                .attr('class', 'pic-div')
+                .css('width', '0px');
+
+            var $dvint = $(document.createElement('div'))
+                .attr('class', 'pic-div-int')
+                .css('width', '780px');
 
             // Pointer back to pinfo
             $dv.pinfo = pinfo;
@@ -320,7 +325,8 @@ TODO:
 
             // Append these 
             img.appendTo(anchor);
-            anchor.appendTo($dv);
+            anchor.appendTo($dvint);
+            $dvint.appendTo($dv);
 
             return $dv;
         }
@@ -373,8 +379,20 @@ TODO:
 
             // Create the carousel div
             var elm = $(document.createElement('div'))
-                .attr('id', 'mealCarousel')
-                .attr('class', 'mealCarousel');
+                .attr('id', 'mealcarousel')
+                .attr('class', 'mealcarousel')
+                .css('height', '780px')
+                .css('width', '780px');
+
+            // Create the viewport
+            elm.viewport = $(document.createElement('div'))
+                .attr('id', 'mealviewport')
+                .attr('class', 'mealviewport')
+                .css('height', '780px')
+                .css('width', '1560px');
+
+            // Append this to elm
+            elm.viewport.appendTo(elm);
 
             // Create a local picinfo
             // elm.picinfo = [];
@@ -383,8 +401,20 @@ TODO:
             // Set animating flag to false
             elm.animating = false;
 
+            // Set rotating flag to false
+            elm.rotating = false;
+
+            // Set the rotate interval
+            elm.rotateinterval = 2000;
+
+            // Set timer name
+            elm.rotatetimer = 0;
+
+            // Set addremove flag to false
+            elm.addremove = false;
+
             // Slider speed
-            elm.sliderspeed = 500;
+            elm.sliderspeed = 1000;
 
             // Easing 
             elm.easing = 'easeOutExpo';
@@ -505,12 +535,24 @@ TODO:
                     findmaxes();
 
                     // Set width if it changed
-                    if(elm.maxwidth != wd)
-                        elm.css('width', elm.maxwidth);
+                    if(elm.maxwidth != wd) {
+
+                        // Set elm maxwidth
+                        //elm.css('width', elm.maxwidth + 'px');
+
+                        // Set viewport maxwidth
+                        //elm.viewport.css('width', elm.maxwidth + 'px');
+                    }
 
                     // Set height if it changed
-                    if(elm.maxheigth != ht)
+                    if(elm.maxheigth != ht) {
+
+                        // Set elm maxheight
                         elm.css('height', elm.maxheight);
+
+                        // Set viewport maxheight
+                        elm.viewport.css('height', elm.maxheight);
+                    }
                 }
 
                 // Unset addremove flag
@@ -563,11 +605,11 @@ TODO:
                 // Create the list element
                 var $dv = picturediv(elm, pinfo);
 
-                // Create a ul for first picture
+                // Create a div for first picture
                 if(elm.numpics == 0) {
 
                     // Clear 'nomeal' picture
-                    elm.empty();
+                    elm.viewport.empty();
 
                     // Reset maxwidth
                     elm.maxwidth = 0;
@@ -601,8 +643,11 @@ TODO:
                     // Set maxheightcnt
                     elm.maxheightcnt = 1;
 
-                    // Update containers maxheight
+                    // Update elm maxheight
                     elm.css('height', elm.maxheight);
+
+                    // Update viewport maxheight
+                    elm.viewport.css('height', elm.maxheight);
                 }
                 else if(pinfo.height == elm.maxheight) {
 
@@ -619,8 +664,11 @@ TODO:
                     // Set maxwidthcnt
                     elm.maxwidthcnt = 1;
 
-                    // Set container maxwidth
-                    elm.css('width', elm.maxwidth);
+                    // Set elm maxwidth
+                    //elm.css('width', elm.maxwidth + 'px');
+
+                    // Set viewport maxwidth
+                    //elm.viewport.css('width', (elm.maxwidth * 2) + 'px');
                 }
                 else if(pinfo.width == elm.maxwidth) {
 
@@ -628,8 +676,8 @@ TODO:
                     elm.maxwidthcnt++;
                 }
 
-                // Append to ul
-                $dv.appendTo(elm);
+                // Append to viewport
+                $dv.appendTo(elm.viewport);
 
                 // Unset addremove
                 elm.addremove = false;
@@ -652,17 +700,29 @@ TODO:
                 // Get the current display element
                 var $cur = $dv.first();
 
-                // Get the next display element
-                var $next = $dv.get(1);
+                // Next element
+                var $next = $dv.next();
 
                 // Set the animating flag
                 elm.animating = true;
 
-                // Set the left attribute of element [1]
+                // what's the top attribute of each?
+                console.log('top of cur is ' + $cur.css('top'));
+                console.log('top of next is ' + $next.css('top'));
+
+                // Set the left attribute
                 $next.css('left', elm.maxwidth + 'px');
+                //$next.css('top', '0px');
+
+                // Set the top attribute
+                //console.log($next.css('top', 
 
                 // Clone the current to the end of the list
-                $cur.clone(true).css('left','-10000px').appendTo(elm.ul);
+                var $cln = $cur.clone(true).css('left', '-10000px');
+                // $cln.css('left','-10000px');
+                // $cln.css('top', '0px');
+                // Append to viewport
+                $cln.appendTo(elm.viewport);
 
                 // Animate current
                 $cur.stop().animate( 
@@ -752,7 +812,58 @@ TODO:
                         } 
                     }
                 );
+            }
 
+            // Stop rotating carousel
+            elm.stoprotate = function() {
+
+                // Clear the timer
+                clearTimeout(elm.rotatetimer);
+
+                // Set rotating boolean to false
+                elm.rotating = false;
+            }
+
+            // Internal rotate function
+            rotatefunc = function() {
+
+                // Tell the carousel to move forward
+                elm.moveforward(function() {
+
+                    // Set timeout after animation
+                    elm.rotatetimer = setTimeout(rotatefunc, 
+                        elm.rotateinterval);
+
+                });
+            }
+
+            // Start rotating carousel
+            elm.startrotate = function() {
+
+                // Return immediately if we're already rotating
+                if(elm.rotating == true) {
+                    console.log("carousel is already rotating.");
+                    return;
+                }
+
+                // We are now rotating
+                elm.rotating = true;
+
+                // Set the timer to true
+                elm.rotatetimer = setTimeout(rotatefunc, elm.rotateinterval);
+
+            }
+
+            // Stop everything
+            elm.destroy = function() {
+
+                // Stop rotating
+                if(elm.rotating) {
+
+                    // Clear this timeout
+                    clearTimeout(elm.rotatetimer);
+
+                }
             }
 
             // Display nomeal picture if picinfo is empty
@@ -761,7 +872,13 @@ TODO:
             }
             // Populate carousel
             else {
+
+                // Add all pictures to the carousel
                 picinfo.forEach(function(pinfo) { elm.addpicture(pinfo); });
+
+                // Start a rotation
+                elm.startrotate();
+
             }
 
             // Return the elm carousel object
@@ -818,7 +935,7 @@ TODO:
                     if(err) throw(err);
 
                     // Add this to the carousel
-                    $('#mealCarousel').addpicture(pinfo);
+                    $('#mealcarousel').addpicture(pinfo);
                 });
             });
 
@@ -835,9 +952,10 @@ TODO:
 
             closex.click(function(){
                 // Find the carousel & cancel it
-                var carouselDiv = $('#mealCarousel');
-                if(carouselDiv) 
-                    clearTimeout(carouselDiv.pictimeout);
+                var carouselDiv = $('#mealcarousel');
+                if(carouselDiv && carouselDiv.destroy) {
+                    carouselDiv.destroy();
+                }
                 popup.fadeOut(0);
                 $('#maskFade').css({'display':'none'});
                 popup.remove();
@@ -2055,6 +2173,14 @@ TODO:
 
         $(document).ready(function() {
             $.ajaxSetup ({ cache: false });
+
+            // Add an easing function
+            jQuery.extend( jQuery.easing,
+            {
+                easeOutExpo: function (x, t, b, c, d) {
+                    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+                }
+            });
 
             var minfo = [];
 
