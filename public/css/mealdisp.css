@@ -360,5 +360,31 @@ textarea {
   float: left;
 }
 
+.ca-nav span{
+	width:25px;
+	height:38px;
+	background: transparent url(/images/arrows.png) no-repeat top left;
+	position: absolute;
+	top:50%;
+	margin-top:-19px;
+	/* left:-40px; */
+	left:0px;
+	text-indent:-9000px;
+	opacity: 0.7;
+	cursor:pointer;
+	z-index: 10010;
+}
+
+.ca-nav span.ca-nav-next{
+	background-position:top right;
+	left:auto;
+	right:0px;
+	z-index: 10010;
+}
+
+.ca-nav span:hover{
+	opacity:1.0;
+	z-index: 10010;
+}
 
 

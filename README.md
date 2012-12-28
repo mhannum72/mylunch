@@ -7,8 +7,9 @@ todo
 
 * Make the pictures on the editmeals page more even
 
-* XXX carousel is coming along nicely - add the navigation arrows and the
-  'delete-picture' handle.  Test test test.
+* Maybe make sure the pictures are added in timestamp order?
+
+* Write the 'delete-picture' case.
 
 * The carousel is a good start, but I think I want it to be completely user
   driven: the user can click a 'next' or a 'prev' arrow to show the next or 
