@@ -96,14 +96,6 @@ db.open(function(error, client){
         collection.ensureIndex({username: 1, mealDate:1, timestamp:1},{unique:true});
     });
 
-    // Create indexes for picInfo - dead code i think
-    /*
-    db.collection('picInfo', function(error, collection) {
-        collection.ensureIndex({username:1, timestamp:1}, {unique:true});
-        collection.ensureIndex({username:1, mitimestamp:1});
-    });
-    */
-
     // Create indexes for mealPics
     db.collection('mealPics', function(error, collection) {
         collection.ensureIndex({username:1, timestamp:1},{unique:true});
@@ -253,6 +245,7 @@ function mealToConst(meal)
     }
     throw new Error("Invalid mealConst: " + meal);
 }
+
 
 updateMealInMongo = function(username, timestamp, meal, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
@@ -712,6 +705,50 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
     });
 }
 
+deletePicFromMongo = function(username, mealts, picts, callback) {
+    getCollection('mealInfo', function(error, mealinfo) {
+        if(error) throw(error);
+        mealinfo.find( { username: username, timestamp: timestamp } ).toArray( function(err, results) {
+            if(err) throw(err);
+            if(results.length > 1) {
+                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + timestamp);
+            }
+
+            var result = results[0];
+
+            // This will change to a binary search 
+            var ii;
+
+            for(ii = 0 ; ii < result.picInfo.length ; ii++) {
+                var picinfo = result.picInfo[ii];
+                if(picinfo.timestamp >= picts) {
+                    break;
+                }
+            }
+
+            if(result.picInfo[ii].timestamp != picts) {
+                console.log("Error - couldn't find picture with timestamp " + picts
+                    + " for user " + username);
+                throw new Error("Couldn't find picture");
+            }
+            else {
+
+                // Delete the picture
+                result.picInfo.splice(ii, 1);
+
+                // Start async database deletes
+                deleteMealPicInMongo(username, picts);
+                deleteMealThumbInMongo(username, picts);
+
+                // Delete 
+                updateMealInfoPicInfoInMongo(mealinfo, callback);
+            }
+        });
+    });
+}
+
+
+
 setMealInfoInMongo = function(mymealinfo, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
@@ -782,6 +819,31 @@ setMealThumbInMongo = function(mealthumb, callback) {
         mealThumbs.insert(mealthumb, {safe:true}, function(err, object) {
             if(err) throw (err);
             callback( err, object );
+        });
+    });
+}
+
+
+// Delete a meal-thumb
+deleteMealThumbInMongo = function(username, timestamp, callback) {
+    getCollection('mealThumbs', function(error, mealThumbs) {
+        if(error) throw (error);
+
+        mealThumbs.remove({ username: username, timestamp: timestamp }, function(err, object) {
+            if(err) throw (err);
+            if(callback) callback( err, object );
+        });
+    });
+}
+
+// Delete a meal picture
+deleteMealPicInMongo = function(username, timestamp, callback) {
+    getCollection('mealPics', function(error, mealPics) {
+        if(error) throw (error);
+
+        mealPics.remove({ username: username, timestamp: timestamp },  function(err, object) {
+            if(err) throw (err);
+            if(callback) callback( err, object );
         });
     });
 }
@@ -2131,6 +2193,71 @@ app.post('/savereview', function(req, res, next) {
             });
 
 
+});
+
+app.post('/deletepic', function(req, res, next) {
+
+    if(req.session.user == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "baduser"}));
+        res.end();
+        return;
+    }
+    if(req.body.username == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+    if(req.body.username != req.session.user.username) {
+        console.log('mismatched usernames in saverating request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "baduser"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.timestamp == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.mealts == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    req.session.last_saveinfo = Date.now();
+
+    deletePicFromMongo(req.body.username, parseInt(req.body.mealts, 10), parseInt(req.body.timestamp, 10), function(err) {
+        if(err) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.write(JSON.stringify({message: "dberror"}));
+            res.end();
+            return;
+        }
+        // Success!
+        else {
+
+            // Update outstanding number of pictures for this user
+            req.session.user.numPics--;
+
+            updateCurrentNumPicsInMongo(username, req.session.user.numPics, function(err) { 
+                if(err) throw(err);
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write(JSON.stringify({message: "success"}));
+                res.end();
+                return;
+            });
+        }
+    });
 });
 
 app.post('/saverating', function(req, res, next) {

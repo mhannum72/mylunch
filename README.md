@@ -5,6 +5,19 @@ mylunch
 todo
 ====
 
+* Wait until the first carousel image is loaded before displaying popup
+
+* Binary search for picinfo rather than scan
+
+* If the top picture of the carousel has been deleted, the grid page should
+  start using the next picture.  If no pictures are left, the grid page should
+  use the nomeal image.
+
+* Maybe the arrows should only appear if you hover over that side of the 
+  picture .. this shouldn't be a difficult change
+
+* Rename easing algorithm & encapsulate it within carousel
+
 * Make the pictures on the editmeals page more even
 
 * Maybe make sure the pictures are added in timestamp order?

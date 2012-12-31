@@ -97,8 +97,24 @@ TODO:
                 data: JSON.stringify(
                     {
                         username: meal.username,
-                        timestamp: picInfo.timestamp,
                         rating: rating
+                    }),
+                dataType: 'json',
+                complete: function(resp, astat) {
+                }
+            });
+        }
+
+        function deletePicAjax(meal, picInfo) {
+            $.ajax({
+                url: '/deletepic',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        username: meal.username,
+                        mealts: meal.timestamp,
+                        timestamp: picInfo.timestamp,
                     }),
                 dataType: 'json',
                 complete: function(resp, astat) {
@@ -281,8 +297,12 @@ TODO:
                 .attr('class', 'pic-div-int')
                 .css('width', '780px');
 
-            // Pointer back to pinfo
-            $dv.pinfo = pinfo;
+            // Store pinfo 
+            $dv[0].pinfo = pinfo;
+            //$dv.data('pinfo', pinfo);
+
+            //
+            //var test = $dv.data().pinfo;
 
             // Click-anchor 
             var anchor = $(document.createElement('a'))
@@ -295,16 +315,7 @@ TODO:
             var img = $(document.createElement('img'))
                 .attr('src', img_source);
 
-            // TODO - there should be a PAUSE icon that pops up when the
-            // cursor hovers over it. 
-            //
-            // TODO - put a 'delete this picture' anchor on each of the meal 
-            // photos.  When the user clicks on it the picture gets deleted.
-            // TODO - left and right arrows on the side of the photos to
-            // skip forwards and backwards.
-
-            // Anchor doesn't do anything yet ..
-
+            // TODO write picture click handler
             /* 
             anchor.click(function(){
 
@@ -367,13 +378,23 @@ TODO:
             elm.sliderspeed = 600;
 
             // Initial new pic slider speed
-            elm.newpicinitspeed = 100;
+            elm.minpicinitspeed = 100;
 
-            // Easing
-            elm.easing = 'easeOutExpo';
+            // Global easing function
+            elm.easing = 'mylunchcarousel';
+
+            // Renamed easeoutexpo function
+            if(!jQuery.easing[elm.easing]) {
+                jQuery.easing[elm.easing] = function (x, t, b, c, d) {
+                    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+                }
+            }
+
+            // Minimum maxheight
+            elm.minmaxheight = 256;
 
             // Maxheight
-            elm.maxheight = 0;
+            elm.maxheight = elm.minmaxheight;
 
             // Maxheight count
             elm.maxheightcnt = 0;
@@ -415,7 +436,7 @@ TODO:
                 var $dv = elm.find('.pic-div');
 
                 // Reset max height and width
-                elm.maxheight = 0; 
+                elm.maxheight = elm.minmaxheight; 
 
                 // Reset counts
                 elm.maxheightcnt = 0;
@@ -475,24 +496,49 @@ TODO:
             // Internal function for destroying navigation arraows
             function destroyarrows(elm)
             {
+                // Remove prev arrow
+                elm.prevarrow.remove();
+
+                // Set pointer to null
+                elm.prevarrow = null;
+
+                // Remove next arrow
+                elm.nextarrow.remove();
+
+                // Set pointer to null
+                elm.nextarrow = null;
             }
 
             // Internal function for removing a picture
-            function removeinternal(elm, $dv)
+            function removeinternal(elm, $dv, callback)
             {
                 var reset = 0;
+
+                // Retrieve pinfo for this element
+                var pinfo = $dv[0].pinfo;
 
                 // Decrement the number of pictures
                 --elm.numpics;
 
                 // Check height if width did not trigger
-                if(elm.numpics > 0 && $dv.pinfo.heigth == elm.maxheight && 
+                if(elm.numpics > 0 && pinfo.height == elm.maxheight && 
                         --elm.maxheightcnt <= 0) {
                     reset = 1;
                 }
 
-                // Remove it
-                $dv.remove();
+                // Was this the last ts?
+                if(elm.numpics && $dv.hasClass('pic-lastts')) {
+
+                    // Find the element to the left
+                    var $pv = $dv.prev();
+
+                    // Make it the new lastts
+                    $pv.addClass('pic-lastts');
+                }
+
+                // Remove it?  NO!  Its removed in move foward when we don't 
+                // clone it
+                // $dv.remove();
 
                 // Check numpics
                 if(1 == elm.numpics) {
@@ -502,6 +548,9 @@ TODO:
                 }
                 // Destroy navigation arrows
                 else if(0 == elm.numpics) {
+
+                    // Set to disabled
+                    $('.deletePictureAnchor').addClass('noclick');
 
                     // Show nomeal 
                     elm.nomeal();
@@ -516,7 +565,7 @@ TODO:
                     findmaxheight();
 
                     // Set height if it changed
-                    if(elm.maxheigth != ht) {
+                    if(elm.maxheight != ht) {
 
                         // Set elm maxheight
                         elm.css('height', elm.maxheight);
@@ -526,37 +575,42 @@ TODO:
                     }
                 }
 
+                // Callback with the pinfo for the element just removed
+                if(callback) {
+                    callback(true, pinfo);
+                }
+
                 // Unset addremove flag
                 elm.addremove = false;
             }
 
-            // Remove a picture
-            elm.removepicture = function(timestamp) {
+            // Remove current picture
+            elm.removepicture = function(callback) {
 
                 // Check addremove flag
                 if(elm.addremove) {
 
                     console.log('Removepicture returning because we are add removing.');
-                    return;
+                    if(callback) callback(false);
+                    return false;
 
                 }
 
                 // Set addremove flag
                 elm.addremove = true;
 
-                // Find the div
-                var $target = elm.find('#pic-div-' + timestamp);
-
                 // Get a list of the $dv elements
                 var $dv = elm.find('.pic-div');
 
-                // First element
-                if($target === $dv) {
-                    elm.moveforward(function(moved) { removeinternal(elm, $target); });
-                }
-                else {
-                    removeinternal(elm, $target);
-                }
+                // Find the div
+                //var $target = elm.find('#pic-div-' + timestamp);
+                var $target = $dv.eq(0);
+
+                // If this is the last picture, show the nomeal icon
+
+                // Rotate to next element
+                // TODO - a more appropriate animation here?
+                elm.moveforward(function(moved) { removeinternal(elm, $target, callback); }, true);
             }
 
             // Add a picture
@@ -571,7 +625,7 @@ TODO:
                 // Check addremove flag
                 if(elm.addremove) {
 
-                    console.log('Removepicture returning because we are add removing.');
+                    console.log('Addpicture returning because we are add removing.');
                     return;
 
                 }
@@ -599,13 +653,16 @@ TODO:
                     elm.viewport.appendTo(elm);
 
                     // Reset maxheight
-                    elm.maxheight = 0;
+                    elm.maxheight = elm.minmaxheight;
 
-                    // REset maxheightcnt
+                    // Reset maxheightcnt
                     elm.maxheightcnt = 0;
 
                     // Viewable
                     $dv.css('left', '0px');
+
+                    // Enable the delete-picture clickable
+                    $('.deletePictureAnchor').removeClass('noclick');
                 }
                 // Adding the second picture
                 else if(elm.numpics == 1) {
@@ -626,6 +683,31 @@ TODO:
                     // Rotate to new picture
                     rotate = true;
                 }
+
+                // Undefined by default
+                var lastts; 
+                
+                // Find the last-timestamp class
+                if(elm.numpics > 0) {
+
+                    // Find the last picture added
+                    lastts = elm.find('.pic-lastts');
+
+                    // Remove the lastts class
+                    lastts.removeClass('pic-lastts');
+
+                    // Insert the new picture
+                    //$dv.insertAfter('#' + lastts.attr('id'));
+                    $dv.insertAfter(lastts);
+
+                }
+                else {
+                    // Append to viewport
+                    $dv.appendTo(elm.viewport);
+                }
+
+                // This is the new last picture
+                $dv.addClass('pic-lastts');
 
                 // Increment picture count
                 elm.numpics++;
@@ -651,18 +733,26 @@ TODO:
                     elm.maxheightcnt++;
                 }
 
-                // Append to viewport
-                $dv.appendTo(elm.viewport);
-
                 // Save current slider speed
                 var cursliderspeed = elm.sliderspeed;
 
-                // Slow from one to the other
-                var degradation = (elm.sliderspeed - elm.newpicinitspeed) / 
-                    elm.numpics;
+                // How much to degrade
+                var degradation = 50;
 
-                // But keep it fast
-                degradation /= 2;
+                // Calculate new speed
+                var newspeed = cursliderspeed - (degradation * elm.numpics);
+
+                // Calculate newspeed
+                if(newspeed < elm.minpicinitspeed) {
+
+                    newspeed = elm.minpicinitspeed;
+                    degradation = (cursliderspeed  - newspeed) / elm.numpics;
+
+                }
+
+                // Slow from one to the other
+                /* var degradation = (elm.sliderspeed - elm.minpicinitspeed) / 
+                    elm.numpics; */
 
                 // Rotate to picture
                 function rotatetopicture(timestamp) {
@@ -683,21 +773,21 @@ TODO:
                         elm.sliderspeed += degradation;
 
                         // Move carousel forward
-                        //elm.moveforward(
-                        elm.movebackward(
+                        elm.moveforward(
 
-                                // Call myself again
-                                function(didr) {
+                            // Call myself again
+                            function(didr) {
 
-                                    if(!didr) { console.log('did not rotate?');}
-                                    else { rotatetopicture(timestamp); }
+                                if(!didr) { console.log('did not rotate?');}
+                                else { rotatetopicture(timestamp); }
 
-                                } 
+                            } 
                         );
 
                     }
+
+                    // Reset slider-speed to default
                     else {
-                        // Reset to previous value
                         elm.sliderspeed = cursliderspeed;
                     }
                 }
@@ -706,9 +796,12 @@ TODO:
                 if(initadd == false && rotate) {
 
                     // Torque slider speed up
-                    elm.sliderspeed = elm.newpicinitspeed;
+                    elm.sliderspeed = elm.minpicinitspeed;
 
-                    rotatetopicture(pinfo.timestamp);
+                    // Wait for image to load
+                    $dv.find('img').load(function() {
+                        rotatetopicture(pinfo.timestamp);
+                    });
                 }
 
                 // Unset addremove
@@ -716,7 +809,10 @@ TODO:
             }
 
             // Move left
-            elm.moveforward = function(callback) {
+            elm.moveforward = function(callback, fordel) {
+
+                // Don't clone if we're deleteing
+                fordel = (fordel ? fordel : false);
 
                 // Return immediately if already animating
                 if(elm.animating) {
@@ -728,8 +824,10 @@ TODO:
                 var $dv = elm.find('.pic-div');
 
                 // Return if there's less than two pictures
-                if($dv.length <= 1)
-                    return;
+                if($dv.length <= 1) {
+                    if(callback) callback(false);
+                    return false;
+                }
 
                 // Counter to set the animating flag
                 var count = 0;
@@ -746,14 +844,21 @@ TODO:
                 // Set the left attribute
                 $next.css('left', elm.maxwidth + 'px');
 
-                // Clone the current to the end of the list
-                var $cln = $cur.clone(true);
+                // Don't clone if were deleting
+                if(fordel == false) {
 
-                // Move out of sight
-                $cln.css('left', '-10000px');
+                    // Clone the current to the end of the list
+                    var $cln = $cur.clone(true);
 
-                // Append to viewport
-                $cln.appendTo(elm.viewport);
+                    // Copy pinfo
+                    $cln[0].pinfo = $cur[0].pinfo;
+
+                    // Move out of sight
+                    $cln.css('left', '-10000px');
+
+                    // Append to viewport
+                    $cln.appendTo(elm.viewport);
+                }
 
                 // Animate current
                 $cur.stop().animate( 
@@ -784,6 +889,7 @@ TODO:
                             } 
                         }
                 );
+                return true;
             }
 
             // Move right
@@ -801,7 +907,7 @@ TODO:
                 // Return if there's less than two pictures
                 if($dv.length <= 1) {
                     if(callback) callback(false);
-                    return;
+                    return false;
                 }
 
                 // Counter to set the animating flag
@@ -813,8 +919,14 @@ TODO:
                 // Get the current display element
                 var $cur = $dv.eq(0);
 
+                // Get the prev element
+                var $pv = $dv.eq(-1);
+
                 // Clone the last item
-                var $next = $dv.eq(-1).clone(true);
+                var $next = $pv.clone(true);
+
+                // Copy pinfo
+                $next[0].pinfo = $pv[0].pinfo;
 
                 // Set its width
                 $next.css('left', '-' + elm.maxwidth + 'px');
@@ -852,6 +964,8 @@ TODO:
                         } 
                     }
                 );
+
+                return true;
             }
 
             // Stop rotating carousel
@@ -911,6 +1025,8 @@ TODO:
 
             // Display nomeal picture if picinfo is empty
             if(!picinfo || picinfo.length <= 0) {
+
+                // Show the nomeal picture
                 elm.nomeal();
             }
             // Populate carousel
@@ -956,15 +1072,45 @@ TODO:
             // Append carousel to popup
             carouselDivContainer.appendTo(centr);
 
-            // Create an 'upload new picture' icon
+            var closexContainer = $(document.createElement('div'))
+                .attr('id', 'mealAttributesCloseContainer')
+                .attr('class', 'mealAttributesCloseContainer');
+
+            var closex = $(document.createElement('a'))
+                .attr('id', 'mealAttributesCloseButton')
+                .attr('class', 'mealAttributesCloseButton')
+                .html('x');
+
+            // Click handler for close button
+            closex.click(function(){
+
+                // Destroy carousel
+                elm.destroy();
+
+                // Fade out popup
+                popup.fadeOut(0);
+
+                // Remove background
+                $('#maskFade').css({'display':'none'});
+
+                // Remove popup
+                popup.remove();
+            });
+
+            closex.appendTo(closexContainer);
+            closexContainer.appendTo(popup);
+
+            centr.appendTo(popup);
+
+            // Create a class_8 container .. everything goes in here
+            var class8 = $(document.createElement('div'))
+                .attr('id', 'mealAttributesClass8')
+                .attr('class', 'container_8');
+
             var uploadAnchor = $(document.createElement('a'))
                 .attr('id', 'uploadPictureAnchor')
-                .attr('class', 'uploadPictureAnchor')
+                .attr('class', 'uploadPictureAnchor grid_6')
                 .html('Upload New Picture');
-
-
-            // Append upload picture anchor
-            uploadAnchor.appendTo(centr);
 
             // Click function for the upload anchor
             uploadAnchor.click(function() {
@@ -980,36 +1126,32 @@ TODO:
                 });
             });
 
-            var closexContainer = $(document.createElement('div'))
-                .attr('id', 'mealAttributesCloseContainer')
-                .attr('class', 'mealAttributesCloseContainer');
+            // Create delete picture anchor
+            var deleteAnchor = $(document.createElement('a'))
+                .attr('id', 'deletePictureAnchor')
+                .attr('class', 'deletePictureAnchor grid_2')
+                .html('Delete Picture');
 
-            var closex = $(document.createElement('a'))
-                .attr('id', 'mealAttributesCloseButton')
-                .attr('class', 'mealAttributesCloseButton')
-                .html('x');
 
-            closex.click(function(){
-                elm.destroy();
-                // Find the carousel & cancel it
-                //var carouselDiv = $('#mealcarousel');
-                //if(carouselDiv && carouselDiv.destroy) {
-                //    carouselDiv.destroy();
-                //}
-                popup.fadeOut(0);
-                $('#maskFade').css({'display':'none'});
-                popup.remove();
+            // Click handler
+            deleteAnchor.click(function() {
+
+                // Remove picture from carousel
+                elm.removepicture( function(removed, pinfo) {
+                    if(removed) {
+                        deletePicAjax(meal, pinfo);
+                    }
+                });
             });
 
-            closex.appendTo(closexContainer);
-            closexContainer.appendTo(popup);
+            // Clear 
+            var carouselClear = $(document.createElement('div'))
+                .attr('class', 'clear');
 
-            centr.appendTo(popup);
-
-            // Create a class_8 container .. everything goes in here
-            var class8 = $(document.createElement('div'))
-                .attr('id', 'mealAttributesClass8')
-                .attr('class', 'container_8');
+            // Attach to popup
+            uploadAnchor.appendTo(class8);
+            deleteAnchor.appendTo(class8);
+            carouselClear.appendTo(class8);
 
             // Create a grid to hold the title
             var grid_title_pre = $(document.createElement('div'))
@@ -1838,9 +1980,16 @@ TODO:
                             }
                         }
 
+                        // Destroy carousel
                         elm.destroy();
+
+                        // Fade out popup
                         popup.fadeOut(0);
+
+                        // Remove background
                         $('#maskFade').css({'display':'none'});
+
+                        // Remove popup
                         popup.remove();
 
                     });
@@ -1882,15 +2031,23 @@ TODO:
             class8.appendTo(popup);
 
             var maskWidth = $(window).width();
-//            var maskHeight = $(document).height();
             var maskHeight = '2000px';
 
             $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
 
+            // Click handler for background
             $('#maskFade').click(function() {
+
+                    // Destroy carousel
                     elm.destroy();
+
+                    // Fade out popup
                     popup.fadeOut(0);
+
+                    // Remove background
                     $('#maskFade').css({'display':'none'});
+
+                    // Remove popup
                     popup.remove();
             });
 
@@ -2217,13 +2374,6 @@ TODO:
             $.ajaxSetup ({ cache: false });
 
             // Add an easing function
-            jQuery.extend( jQuery.easing,
-            {
-                easeOutExpo: function (x, t, b, c, d) {
-                    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-                }
-            });
-
             var minfo = [];
 
             function truncMeal(username, timestamp, title, meal, mealDate, picInfo) {

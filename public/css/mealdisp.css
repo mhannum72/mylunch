@@ -387,4 +387,18 @@ textarea {
 	z-index: 10010;
 }
 
+.uploadPictureAnchor {
+    cursor:pointer;
+}
 
+.deletePictureAnchor {
+    left: 0px;
+    text-align: right;
+    cursor:pointer;
+}
+
+.deletePictureAnchor.noclick {
+    color: white;
+    text-decoration: none;
+    cursor:none;
+}
