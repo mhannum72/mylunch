@@ -416,7 +416,7 @@ getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, who
 
         var projection = {};
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1 };
+            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
 
         // Make sure to sort in the direction of your search to get sane results.
@@ -539,7 +539,7 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
         var cnt = 0;
 
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1 };
+            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
         
         // This is convoluted query finds mealinfo records before mealDate, timestamp.
@@ -696,8 +696,10 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
             throw new Error('updateMealInfoPicInfoInMongo called with invalid timestamp');
         }
 
+        var keyts = mymealinfo.keytimestamp ? mymealinfo.keytimestamp : 0;
+
         mealInfo.update({username: mymealinfo.username, timestamp:mymealinfo.timestamp}, 
-            {$set: {picInfo: mymealinfo.picInfo}}, {safe:true}, function(err) {
+            {$set: {picInfo: mymealinfo.picInfo, keytimestamp: keyts }}, {safe:true}, function(err) {
                 if(err) throw(err);
                 callback(err);
             });
@@ -705,33 +707,81 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
     });
 }
 
+findtsinpicinfo = function(ts, pinfo) {
+
+    // This will change to a binary search 
+    var ii;
+
+    for(ii = 0 ; ii < pinfo.length ; ii++) {
+        if(pinfo[ii].timestamp >= ts) {
+            break;
+        }
+    }
+
+    if(pinfo[ii].timestamp == ts) {
+        return ii;
+    }
+    return -1;
+
+}
+
+updateKeyPicInMongo = function(username, mealts, picts, callback) {
+    getCollection('mealInfo', function(error, mealinfo) {
+        if(error) throw(error);
+
+        // Find this meal
+        mealinfo.find( { username: username, timestamp: mealts } ).toArray( function(err, results) {
+            if(err) throw(err);
+            if(results.length > 1) {
+                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + mealts);
+            }
+
+            var result = results[0];
+
+            // Find key picture in picinfo
+            var ii = findtsinpicinfo(picts, result.picInfo);
+
+            if(ii < 0) {
+                console.log("Error - couldn't find picture with timestamp " + picts
+                    + " for user " + username);
+                throw new Error("Couldn't find picture");
+                return;
+            }
+
+            // Set the new keytimestamp
+            result.keytimestamp = picts;
+
+            // Update mongo
+            mealinfo.update( { username: username, timestamp: mealts }, 
+                { $set: {keytimestamp: picts} }, {safe:true}, function(err) {
+                    if(err) throw(err);
+                    callback(err);
+                }
+            );
+        });
+    });
+}
+
 deletePicFromMongo = function(username, mealts, picts, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.find( { username: username, timestamp: timestamp } ).toArray( function(err, results) {
+        mealinfo.find( { username: username, timestamp: mealts } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + timestamp);
+                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + mealts);
             }
 
             var result = results[0];
 
             // This will change to a binary search 
-            var ii;
+            var ii = findtsinpicinfo(picts, result.picInfo);
 
-            for(ii = 0 ; ii < result.picInfo.length ; ii++) {
-                var picinfo = result.picInfo[ii];
-                if(picinfo.timestamp >= picts) {
-                    break;
-                }
-            }
-
-            if(result.picInfo[ii].timestamp != picts) {
+            if(ii < 0) {
                 console.log("Error - couldn't find picture with timestamp " + picts
                     + " for user " + username);
                 throw new Error("Couldn't find picture");
+                return;
             }
-            else {
 
                 // Delete the picture
                 result.picInfo.splice(ii, 1);
@@ -740,9 +790,12 @@ deletePicFromMongo = function(username, mealts, picts, callback) {
                 deleteMealPicInMongo(username, picts);
                 deleteMealThumbInMongo(username, picts);
 
-                // Delete 
-                updateMealInfoPicInfoInMongo(mealinfo, callback);
-            }
+                if(result.keytimestamp && result.keytimestamp == picts) {
+                    result.keytimestamp = 0;
+                }
+
+                // Delete
+                updateMealInfoPicInfoInMongo(result, callback);
         });
     });
 }
@@ -1189,6 +1242,11 @@ app.get('/thumbs/:username/:timestamp', function(req, res) {
             // res.writeHead(200, {'Content-Type': 'image/jpeg' });
             // res.end( notfound.pic, 'binary');
             console.log('mealthumb is undefined for objectid ' + req.params.id);
+
+            // Send out the nomeal thumb
+            showNotFoundThumb(req, res);
+
+            return;
         }
 
         // Display the image if we got it
@@ -2195,6 +2253,73 @@ app.post('/savereview', function(req, res, next) {
 
 });
 
+// Update key picture handler
+app.post('/updatekeypic', function(req, res, next) {
+
+    if(req.session.user == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({errStr: "baduser"}));
+        res.end();
+        return;
+    }
+    if(req.body.username == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+    if(req.body.username != req.session.user.username) {
+        console.log('mismatched usernames in saverating request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "baduser"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.mealts == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    if(req.body.keyts == undefined) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "badrequest"}));
+        res.end();
+        return;
+    }
+
+    req.session.last_saveinfo = Date.now();
+
+ //   try {
+        updateKeyPicInMongo(
+                req.body.username, 
+                parseInt(req.body.mealts, 10), 
+                parseInt(req.body.keyts, 10), 
+                function(err) {
+                    // If there was an error, it would have been thrown by now
+                    if(err) throw (err);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.write(JSON.stringify({message: "badrequest"}));
+                    res.end();
+                    return;
+                }
+        );
+//    }
+        /*
+    catch(err) {
+        console.log('caught error');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(JSON.stringify({message: "dberror"}));
+        res.end();
+        return;
+    }
+    */
+});
+
 app.post('/deletepic', function(req, res, next) {
 
     if(req.session.user == undefined) {
@@ -2248,7 +2373,7 @@ app.post('/deletepic', function(req, res, next) {
             // Update outstanding number of pictures for this user
             req.session.user.numPics--;
 
-            updateCurrentNumPicsInMongo(username, req.session.user.numPics, function(err) { 
+            updateCurrentNumPicsInMongo(req.body.username, req.session.user.numPics, function(err) { 
                 if(err) throw(err);
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });

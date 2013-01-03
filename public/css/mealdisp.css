@@ -402,3 +402,11 @@ textarea {
     text-decoration: none;
     cursor:none;
 }
+
+.delete_link {
+    text-align: center;
+}
+
+.keyAnchor {
+    text-align: center;
+}

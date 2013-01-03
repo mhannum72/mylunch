@@ -79,7 +79,7 @@ TODO:
                 data: JSON.stringify(
                     {
                         username: meal.username,
-                        timestamp: picInfo.timestamp,
+                        timestamp: meal.timestamp,
                         review: review
                     }),
                 dataType: 'json',
@@ -98,6 +98,23 @@ TODO:
                     {
                         username: meal.username,
                         rating: rating
+                    }),
+                dataType: 'json',
+                complete: function(resp, astat) {
+                }
+            });
+        }
+
+        function makeKeyPicAjax(meal, picInfo) {
+            $.ajax({
+                url: '/updatekeypic',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        username: meal.username,
+                        mealts: meal.timestamp,
+                        keyts: picInfo.timestamp,
                     }),
                 dataType: 'json',
                 complete: function(resp, astat) {
@@ -130,7 +147,7 @@ TODO:
                 data: JSON.stringify(
                     {
                         username: meal.username,
-                        timestamp: picInfo.timestamp,
+                        timestamp: meal.timestamp,
                         meal: newMeal
                     }),
                 dataType: 'json',
@@ -402,6 +419,19 @@ TODO:
             // Hard code maxwidth
             elm.maxwidth = 780;
 
+            // Create hover behavior
+            elm.mouseenter(function() {
+                if(elm.nav && elm.prevarrow && elm.nextarrow) {
+                    $('#navigator').css({'opacity':1.0});
+                }
+            });
+
+            elm.mouseleave(function() {
+                if(elm.nav && elm.prevarrow && elm.nextarrow) {
+                    $('#navigator').css({'opacity':0.0});
+                }
+            });
+
             // No meal
             elm.nomeal = function() {
 
@@ -425,8 +455,7 @@ TODO:
                 img.appendTo(elm);
             }
 
-            // Reset elms max height info.  
-            // This scans so up the suckage level one notch.
+            // Reset max height.  This scans so up the suckage level one notch.
             function findmaxheight()
             {
                 // Sanity counter
@@ -507,6 +536,12 @@ TODO:
 
                 // Set pointer to null
                 elm.nextarrow = null;
+
+                // Remove nav
+                elm.nav.remove();
+
+                // Set pointer to null
+                elm.nav = null;
             }
 
             // Internal function for removing a picture
@@ -535,10 +570,6 @@ TODO:
                     // Make it the new lastts
                     $pv.addClass('pic-lastts');
                 }
-
-                // Remove it?  NO!  Its removed in move foward when we don't 
-                // clone it
-                // $dv.remove();
 
                 // Check numpics
                 if(1 == elm.numpics) {
@@ -575,13 +606,13 @@ TODO:
                     }
                 }
 
+                // Unset addremove flag
+                elm.addremove = false;
+
                 // Callback with the pinfo for the element just removed
                 if(callback) {
                     callback(true, pinfo);
                 }
-
-                // Unset addremove flag
-                elm.addremove = false;
             }
 
             // Remove current picture
@@ -606,15 +637,21 @@ TODO:
                 //var $target = elm.find('#pic-div-' + timestamp);
                 var $target = $dv.eq(0);
 
-                // If this is the last picture, show the nomeal icon
+                // If there are no pictures return
+                if($target.length <= 0) {
+                    elm.addremove = false;
+                    if(callback) callback(false);
+                    return false;
+                }
 
+                // If this is the last picture, show the nomeal icon
                 // Rotate to next element
                 // TODO - a more appropriate animation here?
                 elm.moveforward(function(moved) { removeinternal(elm, $target, callback); }, true);
             }
 
             // Add a picture
-            elm.addpicture = function(pinfo, initadd) {
+            elm.addpicture = function(pinfo, initadd, callback) {
 
                 // Default to false
                 initadd = initadd || false;
@@ -626,7 +663,8 @@ TODO:
                 if(elm.addremove) {
 
                     console.log('Addpicture returning because we are add removing.');
-                    return;
+                    if(callback) callback(false);
+                    return false;
 
                 }
 
@@ -750,10 +788,6 @@ TODO:
 
                 }
 
-                // Slow from one to the other
-                /* var degradation = (elm.sliderspeed - elm.minpicinitspeed) / 
-                    elm.numpics; */
-
                 // Rotate to picture
                 function rotatetopicture(timestamp) {
 
@@ -789,6 +823,8 @@ TODO:
                     // Reset slider-speed to default
                     else {
                         elm.sliderspeed = cursliderspeed;
+                        elm.addremove = false;
+                        if(callback) callback(false);
                     }
                 }
 
@@ -803,9 +839,46 @@ TODO:
                         rotatetopicture(pinfo.timestamp);
                     });
                 }
+                else {
 
-                // Unset addremove
-                elm.addremove = false;
+                    // Unset addremove
+                    elm.addremove = false;
+
+                    // Invoke callback with 'true' & the display timetamp
+                    if(initadd == false && callback) {
+                        callback(true, pinfo.timestamp);
+                    }
+                }
+
+            }
+
+            // Just a shell 
+            elm.makekeypicture = function(callback) {
+
+                // Return immediately if animating
+                if(elm.animating) {
+                    if(callback) callback(false);
+                    return false;
+                }
+
+                // Get a list of the $div elements
+                var $dv = elm.find('.pic-div');
+
+                // Return if the length is less than 1
+                if($dv.length < 1) {
+                    if(callback) callback(false);
+                    return false;
+                }
+
+                // Get the current display element
+                var $cur = $dv.eq(0);
+
+                // Run the callback if its there
+                if(callback) {
+                    callback(true, $cur[0].pinfo);
+                }
+
+                return true;
             }
 
             // Move left
@@ -1100,6 +1173,7 @@ TODO:
             closex.appendTo(closexContainer);
             closexContainer.appendTo(popup);
 
+            // They look best below
             centr.appendTo(popup);
 
             // Create a class_8 container .. everything goes in here
@@ -1109,8 +1183,34 @@ TODO:
 
             var uploadAnchor = $(document.createElement('a'))
                 .attr('id', 'uploadPictureAnchor')
-                .attr('class', 'uploadPictureAnchor grid_6')
+                .attr('class', 'uploadPictureAnchor grid_3')
                 .html('Upload New Picture');
+
+            // TODO - this should cleaned up!
+            function setdisplaypicture(meal, timestamp) {
+
+                // New source for key timestamp
+                var imgsrc;
+
+                // Update grid
+                var gridstr = '#gridTimestamp' + meal.timestamp + ' > div > center > div > a > img';
+
+                // Get the element
+                var gridpic = $(gridstr);
+
+                if(timestamp > 0) {
+                    imgsrc = '/thumbs/' + meal.username + '/' + timestamp;
+                }
+                else {
+                    imgsrc = '/images/nomeal.png';
+                }
+
+                // Set image source
+                gridpic.attr('src', imgsrc);
+
+                // Update keytimestamp in meal object
+                meal.keytimestamp = timestamp;
+            }
 
             // Click function for the upload anchor
             uploadAnchor.click(function() {
@@ -1122,24 +1222,105 @@ TODO:
                     if(err) throw(err);
 
                     // Add this to the carousel
-                    elm.addpicture(pinfo);
+                    elm.addpicture(pinfo, false, function(ckfirst, ts) {
+
+                        // Make key photo if this was the first
+                        if(ckfirst) {
+                            setdisplaypicture(meal, ts);
+                        }
+                    });
+                });
+            });
+
+            var makeKeyAnchor = $(document.createElement('a'))
+                .attr('id', 'keyAnchor')
+                .attr('class', 'keyAnchor grid_2')
+                .html('Make Key Photo');
+
+
+            // Make this general & use same code for delete [0] case
+            makeKeyAnchor.click(function() {
+
+                // ajax for username, mealts, and keyts
+                elm.makekeypicture(function(success, pinfo) {
+
+                    if(success) {
+
+                        // Update mongo on the server
+                        makeKeyPicAjax(meal, pinfo);
+
+                        // Set the display picture
+                        setdisplaypicture(meal, pinfo.timestamp);
+                    }
                 });
             });
 
             // Create delete picture anchor
             var deleteAnchor = $(document.createElement('a'))
                 .attr('id', 'deletePictureAnchor')
-                .attr('class', 'deletePictureAnchor grid_2')
+                .attr('class', 'deletePictureAnchor grid_3')
                 .html('Delete Picture');
 
+            function findpicidx(pinfo, timestamp) {
+                var ii;
+
+                // Remove picture from meal.picInfo
+                // TODO make this a binary search
+                for(ii = 0 ; ii < pinfo.length ; ii++) {
+                    if(pinfo[ii].timestamp == timestamp)
+                        return ii;
+                    if(pinfo[ii].timestamp > timestamp)
+                        return -1;
+                }
+                return -1;
+            }
 
             // Click handler
             deleteAnchor.click(function() {
 
                 // Remove picture from carousel
                 elm.removepicture( function(removed, pinfo) {
+
                     if(removed) {
+
+                        // Find index of removed photo
+                        var ii = findpicidx(meal.picInfo, pinfo.timestamp);
+
+                        // Remove this picture
+                        if(ii >= 0) {
+                            meal.picInfo.splice(ii, 1);
+                        }
+
+                        var changepic = false;
+
+                        // Delete from mongo
                         deletePicAjax(meal, pinfo);
+
+                        // Was this a key picture
+                        if(pinfo.timestamp == meal.keytimestamp) {
+
+                            changepic = true;
+                            meal.keytimestamp = 0;
+
+                        }
+
+                        // If this was the first picture
+                        if( !meal.keytimestamp && ii == 0) {
+                            changepic = true;
+                        }
+
+                        // Changing the displaypic
+                        if(changepic) {
+                            var newts = 0;
+
+                            // Get new key picture
+                            if(meal.picInfo.length > 0) {
+                                newts = meal.picInfo[0].timestamp;
+                            }
+
+                            // Set new display picture
+                            setdisplaypicture(meal, newts);
+                        }
                     }
                 });
             });
@@ -1150,8 +1331,32 @@ TODO:
 
             // Attach to popup
             uploadAnchor.appendTo(class8);
+            makeKeyAnchor.appendTo(class8);
             deleteAnchor.appendTo(class8);
             carouselClear.appendTo(class8);
+
+            // Lets skip a line
+            var skipLine = $(document.createElement('div'))
+                .attr('class', 'grid_8')
+                .html('.');
+            var skipClear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            skipLine.appendTo(class8);
+            skipClear.appendTo(class8);
+
+            /* 
+            // Create a div to hold my carousel
+            var carouselGrid = $(document.createElement('div'))
+                .attr('class', 'carouselgrid grid_8');
+            var carouselGridClear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+            // Append my carousel
+            centr.appendTo(carouselGrid);
+            carouselGrid.appendTo(class8);
+            carouselGridClear.appendTo(class8);
+            */
 
             // Create a grid to hold the title
             var grid_title_pre = $(document.createElement('div'))
@@ -1875,13 +2080,15 @@ TODO:
             grid_review_clear.appendTo(class8);
 
             // Delete this picture logic here. 
+            /*
             var deletePre = $(document.createElement('div'))
                 .attr('class', 'grid_3 delete_pre')
                 .attr('id', 'delete_pre')
                 .html('Delete');
+            */
 
             var deleteLink = $(document.createElement('div'))
-                .attr('class', 'grid_5 delete_link')
+                .attr('class', 'grid_8 delete_link')
                 .attr('id', 'delete_link');
 
             var deleteAnchor = $(document.createElement('a'))
@@ -2024,7 +2231,7 @@ TODO:
             deleteAnchor.appendTo(deleteLink);
 
             // Append to modal
-            deletePre.appendTo(class8);
+            // deletePre.appendTo(class8);
             deleteLink.appendTo(class8);
             deleteClear.appendTo(class8);
 
@@ -2131,8 +2338,12 @@ TODO:
             if(!meal.picInfo || meal.picInfo.length <= 0) {
                 imgSource = '/images/nomeal.png';
             }
-            else {
-                // Cut 1: use the top picture
+            // If there's a key picture, show that
+            else if (meal.keytimestamp) {
+                imgSource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
+            }
+            // Use the first picture
+            else{
                 imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
             }
 
@@ -2376,9 +2587,10 @@ TODO:
             // Add an easing function
             var minfo = [];
 
-            function truncMeal(username, timestamp, title, meal, mealDate, picInfo) {
+            function truncMeal(username, timestamp, keytimestamp, title, meal, mealDate, picInfo) {
                 this.username = username;
                 this.timestamp = timestamp;
+                this.keytimestamp = keytimestamp;
                 this.title = title;
                 this.meal = meal;
                 this.mealDate = mealDate;
@@ -2427,6 +2639,7 @@ TODO:
             minfo[<%= i %>] = new truncMeal(
                     "<%= meal.username %>",
                     <%= meal.timestamp %>,
+                    <%= meal.keytimestamp %>,
                     "<%= meal.title %>",
                     "<%= meal.meal %>",
                     <%= meal.mealDate %>,

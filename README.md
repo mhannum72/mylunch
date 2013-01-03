@@ -5,6 +5,13 @@ mylunch
 todo
 ====
 
+* Maybe make rotatetopicture a general purpose thing?  Not sure if i'll use it
+  but this is not a terrible idea.
+
+* If you hover over the carousel, make the arrows appear (I think this is easy).
+
+* Handle the grid-case where you delete the key picture
+
 * Wait until the first carousel image is loaded before displaying popup
 
 * Binary search for picinfo rather than scan
