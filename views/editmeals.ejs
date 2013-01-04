@@ -97,10 +97,12 @@ TODO:
                 data: JSON.stringify(
                     {
                         username: meal.username,
+                        timestamp: meal.timestamp,
                         rating: rating
                     }),
                 dataType: 'json',
                 complete: function(resp, astat) {
+                    console.log('put a breakpoint here');
                 }
             });
         }
@@ -359,8 +361,38 @@ TODO:
             return $dv;
         }
 
+        // Binary search for a specific timestamp
+        function findpicidx(pinfo, timestamp) {
+
+            var left = 0;
+            var right = pinfo.length;
+            var ii = Math.floor(left + ( (right - left) / 2));
+
+            // Loop
+            while(true) {
+
+                // Found index
+                if(pinfo[ii].timestamp == timestamp)
+                    return ii;
+
+                // Change left endpoint
+                if(timestamp > pinfo[ii].timestamp)
+                    left = ii + 1;
+
+                // Change right endpoint
+                else if(timestamp < pinfo[ii].timestamp)
+                    right = ii;
+
+                // Didn't find it
+                if(left >= right) return -1;
+
+                // Next element
+                ii = Math.floor(left + ( (right - left) / 2));
+            }
+        }
+
         // Picture Carousel in this div using picinfo
-        function createPictureCarousel(picinfo) {
+        function createPictureCarousel(picinfo, keytimestamp) {
 
             // Local variables
             var height = 0;
@@ -1104,10 +1136,28 @@ TODO:
             }
             // Populate carousel
             else {
+                // Add this picture
+                var ii = 0;
 
-                // Add all pictures to the carousel
-                picinfo.forEach(function(pinfo) { elm.addpicture(pinfo, true); });
+                // Count of pictures added
+                var cnt = 0;
 
+                // Find start index
+                if(keytimestamp) {
+
+                    ii = findpicidx(picinfo, keytimestamp);
+
+                    if(ii < 0) ii = 0;
+                }
+
+                // Iterate over count
+                for(cnt = 0 ; cnt < picinfo.length; cnt++) {
+
+                    elm.addpicture(picinfo[ii], true);
+
+                    // ii points to the picture I'm adding
+                    ii = (ii + 1) % picinfo.length;
+                }
             }
 
             // Start a rotation even if there are no pics
@@ -1137,7 +1187,7 @@ TODO:
                 .attr('class', 'mealCarouselContainer');
 
             // Create a carousel
-            var elm = createPictureCarousel(meal.picInfo);
+            var elm = createPictureCarousel(meal.picInfo, meal.keytimestamp);
 
             // Append it to the div
             elm.appendTo(carouselDivContainer);
@@ -1183,7 +1233,7 @@ TODO:
 
             var uploadAnchor = $(document.createElement('a'))
                 .attr('id', 'uploadPictureAnchor')
-                .attr('class', 'uploadPictureAnchor grid_3')
+                .attr('class', 'uploadPictureAnchor grid_3 carousel_caption')
                 .html('Upload New Picture');
 
             // TODO - this should cleaned up!
@@ -1234,7 +1284,7 @@ TODO:
 
             var makeKeyAnchor = $(document.createElement('a'))
                 .attr('id', 'keyAnchor')
-                .attr('class', 'keyAnchor grid_2')
+                .attr('class', 'keyAnchor grid_2 carousel_caption')
                 .html('Make Key Photo');
 
 
@@ -1258,22 +1308,8 @@ TODO:
             // Create delete picture anchor
             var deleteAnchor = $(document.createElement('a'))
                 .attr('id', 'deletePictureAnchor')
-                .attr('class', 'deletePictureAnchor grid_3')
+                .attr('class', 'deletePictureAnchor grid_3 carousel_caption')
                 .html('Delete Picture');
-
-            function findpicidx(pinfo, timestamp) {
-                var ii;
-
-                // Remove picture from meal.picInfo
-                // TODO make this a binary search
-                for(ii = 0 ; ii < pinfo.length ; ii++) {
-                    if(pinfo[ii].timestamp == timestamp)
-                        return ii;
-                    if(pinfo[ii].timestamp > timestamp)
-                        return -1;
-                }
-                return -1;
-            }
 
             // Click handler
             deleteAnchor.click(function() {
@@ -1337,26 +1373,13 @@ TODO:
 
             // Lets skip a line
             var skipLine = $(document.createElement('div'))
-                .attr('class', 'grid_8')
+                .attr('class', 'grid_8 skipline')
                 .html('.');
             var skipClear = $(document.createElement('div'))
                 .attr('class', 'clear');
 
             skipLine.appendTo(class8);
             skipClear.appendTo(class8);
-
-            /* 
-            // Create a div to hold my carousel
-            var carouselGrid = $(document.createElement('div'))
-                .attr('class', 'carouselgrid grid_8');
-            var carouselGridClear = $(document.createElement('div'))
-                .attr('class', 'clear');
-
-            // Append my carousel
-            centr.appendTo(carouselGrid);
-            carouselGrid.appendTo(class8);
-            carouselGridClear.appendTo(class8);
-            */
 
             // Create a grid to hold the title
             var grid_title_pre = $(document.createElement('div'))

@@ -710,19 +710,29 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
 findtsinpicinfo = function(ts, pinfo) {
 
     // This will change to a binary search 
-    var ii;
+    var left = 0;
+    var right = pinfo.length;
+    var ii = Math.floor(left + ( (right - left) / 2));
 
-    for(ii = 0 ; ii < pinfo.length ; ii++) {
-        if(pinfo[ii].timestamp >= ts) {
-            break;
-        }
+    while(true) {
+
+        // Return index
+        if(pinfo[ii].timestamp == ts)
+            return ii;
+
+        // Change left endpoint
+        if(ts > pinfo[ii].timestamp)
+            left = ii + 1;
+        // Change right endpoint
+        else if(ts < pinfo[ii].timestamp)
+            right = ii;
+
+        // Didn't find it
+        if(left >= right) return -1;
+
+        // Next element
+        ii = Math.floor(left + ( (right - left) / 2));
     }
-
-    if(pinfo[ii].timestamp == ts) {
-        return ii;
-    }
-    return -1;
-
 }
 
 updateKeyPicInMongo = function(username, mealts, picts, callback) {
@@ -2408,7 +2418,7 @@ app.post('/saverating', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.timestamp == undefined) {
+    if(req.body.timestamp == undefined || parseInt(req.body.timestamp) <= 0) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "badrequest"}));
         res.end();

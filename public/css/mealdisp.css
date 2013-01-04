@@ -410,3 +410,9 @@ textarea {
 .keyAnchor {
     text-align: center;
 }
+.skipline {
+    color: white;
+}
+.carousel_caption {
+    font-size: 70%;
+}
