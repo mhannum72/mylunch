@@ -6,6 +6,8 @@ body {
   padding-bottom: 20px;
 }
 
+
+
 a {
   text-decoration: none;
 }
@@ -182,6 +184,12 @@ textarea {
     cursor:pointer;
 }
 
+/*
+.titleText div:hover {
+    color: blue !important; 
+}
+*/
+
 .meal_select_menu {
 }
 
@@ -219,7 +227,7 @@ textarea {
 
 #meal_select_menu_div li a:hover {
     cursor:pointer;
-    color: #f00;
+    color: blue;
 }
 
 .meal_select_anchor {
@@ -274,7 +282,8 @@ textarea {
     left: 0;
 }
 
-.grid_review textarea{
+.grid_review textarea:hover{
+    cursor:pointer;
 }
 
 .review_text_area {
@@ -287,7 +296,7 @@ textarea {
 }
 
 .stars_selected_star_hover {
-    color: #f00 !important;
+    color: blue !important;
 }
 
 .stars_unselected_star_hover {
@@ -302,6 +311,10 @@ textarea {
 .stars_unselected_star {
     width: 42px;
     color: #BBB;
+}
+
+#pop_title a:hover {
+    color: blue !important;
 }
 
 #edit_meals_title h2 {
@@ -397,22 +410,57 @@ textarea {
     cursor:pointer;
 }
 
-.deletePictureAnchor.noclick {
+.noclick {
     color: white;
     text-decoration: none;
     cursor:none;
 }
 
+.noclick a:hover {
+    color: white;
+    text-decoration: none;
+    cursor:none;
+
+
+}
+
+/*
+.carousel_caption.noclick a:hover {
+    color: white;
+    text-decoration: none;
+    cursor:none;
+}
+*/
+
 .delete_link {
     text-align: center;
 }
 
+.delete_link a {
+    text-decoration: none;
+    color: #555;
+}
+
+.delete_link a:hover {
+    color: blue;
+}
+
 .keyAnchor {
     text-align: center;
+    cursor:pointer;
 }
 .skipline {
     color: white;
 }
+
 .carousel_caption {
-    font-size: 70%;
+    font-size: 14px;
 }
+
+.carousel_caption a{
+    text-decoration: none;
+}
+.carousel_caption a:hover{
+    color: blue;
+}
+

@@ -5,6 +5,14 @@ mylunch
 todo
 ====
 
+* For the links below the carousel: put a direct reference to the into the 
+  carousel itself .. maybe generalize it a bit.
+
+* The carousel implementation is a bit of a problem: putting all of the
+  pictures in a list means that the browser will wait for all of them to load
+  before displaying it.  New design: the original carousel will only have a 
+  single li picture, and will add the others AFTER the page loads.
+
 * Maybe make rotatetopicture a general purpose thing?  Not sure if i'll use it
   but this is not a terrible idea.
 

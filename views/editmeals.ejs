@@ -332,6 +332,7 @@ TODO:
 
             // Image tag
             var img = $(document.createElement('img'))
+                .attr('class', 'pic-div-image')
                 .attr('src', img_source);
 
             // TODO write picture click handler
@@ -367,6 +368,11 @@ TODO:
             var left = 0;
             var right = pinfo.length;
             var ii = Math.floor(left + ( (right - left) / 2));
+
+            // This shouldn't happen
+            if(!pinfo || pinfo.length <= 0) {
+                console.log('Error: findpicidx called with a null pinfo');
+            }
 
             // Loop
             while(true) {
@@ -426,11 +432,17 @@ TODO:
             // Slider speed
             elm.sliderspeed = 600;
 
+            // Delete image speed
+            elm.deletespeed = 500;
+
             // Initial new pic slider speed
             elm.minpicinitspeed = 100;
 
             // Global easing function
             elm.easing = 'mylunchcarousel';
+
+            // Picinfo to resume loading for delayed start
+            elm.startindex = -1;
 
             // Renamed easeoutexpo function
             if(!jQuery.easing[elm.easing]) {
@@ -473,6 +485,9 @@ TODO:
                 // Create an image tag
                 var img = $(document.createElement('img'))
                     .attr('src', url);
+
+                // Hide the delete key picture anchors
+                $('.carousel_caption_mod').hide();
 
                 // Make sure we're empty
                 elm.empty();
@@ -577,8 +592,7 @@ TODO:
             }
 
             // Internal function for removing a picture
-            function removeinternal(elm, $dv, callback)
-            {
+            function removeinternal(elm, $dv, callback) {
                 var reset = 0;
 
                 // Retrieve pinfo for this element
@@ -611,9 +625,6 @@ TODO:
                 }
                 // Destroy navigation arrows
                 else if(0 == elm.numpics) {
-
-                    // Set to disabled
-                    $('.deletePictureAnchor').addClass('noclick');
 
                     // Show nomeal 
                     elm.nomeal();
@@ -676,10 +687,33 @@ TODO:
                     return false;
                 }
 
+                // Get the image inside this div
+                var $img = $target.find('.pic-div-image');
+
+                // Grab pinfo for width and height
+                var pinfo = $target[0].pinfo;
+
+                // Maybe this should be concurrent with carousel move?
+                $img.stop().animate(
+                        {
+                            height: '0px',
+                            width: '0px',
+                            top: '+=' + (pinfo.height / 2) + 'px'
+                        }, 
+                        elm.deletespeed,
+                        elm.easing,
+                        function() {
+                            elm.moveforward(function(moved) { 
+                                removeinternal(elm, $target, callback); 
+                            }, 
+                            true);
+                        }
+                );
+
                 // If this is the last picture, show the nomeal icon
                 // Rotate to next element
                 // TODO - a more appropriate animation here?
-                elm.moveforward(function(moved) { removeinternal(elm, $target, callback); }, true);
+                //elm.moveforward(function(moved) { removeinternal(elm, $target, callback); }, true);
             }
 
             // Add a picture
@@ -731,8 +765,8 @@ TODO:
                     // Viewable
                     $dv.css('left', '0px');
 
-                    // Enable the delete-picture clickable
-                    $('.deletePictureAnchor').removeClass('noclick');
+                    // Enable clickable anchors
+                    $('.carousel_caption_mod').show();
                 }
                 // Adding the second picture
                 else if(elm.numpics == 1) {
@@ -881,7 +915,6 @@ TODO:
                         callback(true, pinfo.timestamp);
                     }
                 }
-
             }
 
             // Just a shell 
@@ -964,10 +997,32 @@ TODO:
                     // Append to viewport
                     $cln.appendTo(elm.viewport);
                 }
+                // Animate shrinking image- maybe make this an option
+                /*
+                else {
+
+                    // Image
+                    var $img = $cur.find('.pic-div-image');
+
+                    // Grab pinfo for width and height
+                    var middle = $cur[0].pinfo.height / 2;
+
+                    $img.stop().animate(
+                            {
+                                height: '0px',
+                                width: '0px',
+                                top: '+=' + middle + 'px'
+                            }, 
+                            elm.deletespeed,
+                            elm.easing
+                    );
+                }
+                */
+
 
                 // Animate current
                 $cur.stop().animate( 
-                        { left : '-=' + elm.maxwidth + 'px' }, 
+                        { left : '-=' + elm.maxwidth + 'px'},
                         elm.sliderspeed, 
                         elm.easing, 
                         function() { 
@@ -994,6 +1049,7 @@ TODO:
                             } 
                         }
                 );
+
                 return true;
             }
 
@@ -1100,6 +1156,51 @@ TODO:
                 });
             }
 
+            // Run a callback when the first picture is loaded
+            // XXX Maybe prevent adds until all these are loaded?
+            elm.loadcarousel = function(callback) {
+
+                // Get a list of the $dv elements
+                var $dv = elm.find('.pic-div');
+
+                // Callback immediately if there are no pictures
+                if(!$dv || $dv.length <= 0) {
+
+                    // Invoke the callback function
+                    callback(true);
+
+                    // Nothing else to do
+                    return;
+                }
+
+                // Get the current display element
+                var $cur = $dv.eq(0);
+
+                // Find the first and only picture
+                $dv.find('img').load(function() {
+
+                    // It's loaded, so callback
+                    callback(false);
+
+                });
+                    
+                // Add this picture
+                var ii = elm.startindex;
+
+                // Count of pictures added
+                var cnt = 0;
+
+                // Iterate over count
+                for(cnt = 0 ; cnt < picinfo.length - 1; cnt++) {
+
+                    // Add this picture now
+                    elm.addpicture(picinfo[ii], true);
+
+                    // Go to next picture
+                    ii = (ii + 1) % picinfo.length;
+                }
+            }
+
             // Start rotating carousel
             elm.startrotate = function() {
 
@@ -1150,14 +1251,11 @@ TODO:
                     if(ii < 0) ii = 0;
                 }
 
-                // Iterate over count
-                for(cnt = 0 ; cnt < picinfo.length; cnt++) {
+                // Add this picture now
+                elm.addpicture(picinfo[ii], true);
 
-                    elm.addpicture(picinfo[ii], true);
-
-                    // ii points to the picture I'm adding
-                    ii = (ii + 1) % picinfo.length;
-                }
+                // Set startindex to the next picture
+                elm.startindex = ii = (ii + 1) % picinfo.length;
             }
 
             // Start a rotation even if there are no pics
@@ -1231,9 +1329,13 @@ TODO:
                 .attr('id', 'mealAttributesClass8')
                 .attr('class', 'container_8');
 
+            var subcarousel = $(document.createElement('div'))
+                .attr('id', 'subcarousel')
+                .attr('class', 'carousel_caption');
+
             var uploadAnchor = $(document.createElement('a'))
                 .attr('id', 'uploadPictureAnchor')
-                .attr('class', 'uploadPictureAnchor grid_3 carousel_caption')
+                .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
                 .html('Upload New Picture');
 
             // TODO - this should cleaned up!
@@ -1278,15 +1380,17 @@ TODO:
                         if(ckfirst) {
                             setdisplaypicture(meal, ts);
                         }
+
+                        // Push this picture onto the meal.picInfo array
+                        meal.picInfo.push(pinfo);
                     });
                 });
             });
 
             var makeKeyAnchor = $(document.createElement('a'))
                 .attr('id', 'keyAnchor')
-                .attr('class', 'keyAnchor grid_2 carousel_caption')
+                .attr('class', 'carousel_caption carousel_caption_mod keyAnchor grid_2')
                 .html('Make Key Photo');
-
 
             // Make this general & use same code for delete [0] case
             makeKeyAnchor.click(function() {
@@ -1308,7 +1412,7 @@ TODO:
             // Create delete picture anchor
             var deleteAnchor = $(document.createElement('a'))
                 .attr('id', 'deletePictureAnchor')
-                .attr('class', 'deletePictureAnchor grid_3 carousel_caption')
+                .attr('class', 'carousel_caption carousel_caption_mod deletePictureAnchor grid_3')
                 .html('Delete Picture');
 
             // Click handler
@@ -1366,10 +1470,17 @@ TODO:
                 .attr('class', 'clear');
 
             // Attach to popup
+            uploadAnchor.appendTo(subcarousel);
+            makeKeyAnchor.appendTo(subcarousel);
+            deleteAnchor.appendTo(subcarousel);
+            subcarousel.appendTo(class8);
+            carouselClear.appendTo(class8);
+
+            /*
             uploadAnchor.appendTo(class8);
             makeKeyAnchor.appendTo(class8);
             deleteAnchor.appendTo(class8);
-            carouselClear.appendTo(class8);
+            */
 
             // Lets skip a line
             var skipLine = $(document.createElement('div'))
@@ -1521,7 +1632,8 @@ TODO:
             var grid_meal_select_div = $(document.createElement('div'))
                 .attr('class', 'meal_select_menu_div')
                 .attr('id', 'meal_select_menu_div')
-                .css({'display': 'none'});
+                .css({'display': 'block'});
+                //.css({'display': 'none'});
 
             var grid_meal_select = $(document.createElement('ul'))
                 .attr('class', 'meal_select_menu')
@@ -1719,6 +1831,7 @@ TODO:
             grid_meal_select.appendTo(grid_meal_select_div);
 
             // Define hover behaviors
+            /*
             grid_meal.mouseenter(
                 function(){
                     $('#meal_select_menu_div').css({ 'display': 'block' });
@@ -1730,6 +1843,7 @@ TODO:
                     $('#meal_select_menu_div').css({ 'display': 'none' });
                 }
             );
+            */
 
             var grid_meal_clear = $(document.createElement('div'))
                 .attr('class', 'clear');
@@ -2281,16 +2395,25 @@ TODO:
                     popup.remove();
             });
 
-            // Wait for the image to load
-            //img.load(function() {
+            // Wait for the first carousel image to load
+            elm.loadcarousel(function(hideanchors) {
+
+                if(hideanchors) {
+
+                    var $cm = $('.carousel_caption_mod');
+
+                    // Hide the delete picture and make key picture anchors
+                    $cm.hide();
+                }
+
                 var lft = 800 / 2;
                 var winw = $(window).width()/2;
                 var popleft = winw - lft;
                 popup.css('top', 30);
                 popup.css('left', popleft);
                 popup.appendTo('#boxes');
-                popup.fadeIn(500);
-            //});
+                popup.fadeIn({ queue: true, duration: 500 });
+            });
 
         }
 
