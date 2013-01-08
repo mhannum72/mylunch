@@ -388,6 +388,13 @@ textarea {
 	z-index: 10010;
 }
 
+.ca-nav span.ca-nav-key{
+    background-position: top middle;
+    left:auto;
+    right: auto;
+    z-index: 10010;
+}
+
 .ca-nav span.ca-nav-next{
 	background-position:top right;
 	left:auto;
@@ -464,3 +471,9 @@ textarea {
     color: blue;
 }
 
+.key-picture img {
+}
+
+.key-picture img:hover{
+    background: transparent url(/images/keyicon.png) norepeat top middle;
+}

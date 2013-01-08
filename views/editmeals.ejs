@@ -444,6 +444,9 @@ TODO:
             // Picinfo to resume loading for delayed start
             elm.startindex = -1;
 
+            // fadeout these at nomeal, fadein at first meal
+            elm.fadeobjs = [];
+
             // Renamed easeoutexpo function
             if(!jQuery.easing[elm.easing]) {
                 jQuery.easing[elm.easing] = function (x, t, b, c, d) {
@@ -462,6 +465,23 @@ TODO:
 
             // Hard code maxwidth
             elm.maxwidth = 780;
+
+            // Add a list of objects to fadein / fadeout
+            elm.addfadeobj = function(element) {
+
+                // Toggle immediately
+                if(elm.numpics == 0)
+                {
+                    $(element).hide();
+                }
+                else
+                {
+                    $(element).show();
+                }
+
+                // Push onto the fadeobjs array
+                elm.fadeobjs.push(element);
+            }
 
             // Create hover behavior
             elm.mouseenter(function() {
@@ -485,9 +505,6 @@ TODO:
                 // Create an image tag
                 var img = $(document.createElement('img'))
                     .attr('src', url);
-
-                // Hide the delete key picture anchors
-                $('.carousel_caption_mod').hide();
 
                 // Make sure we're empty
                 elm.empty();
@@ -557,6 +574,11 @@ TODO:
                     .attr('class', 'ca-nav-next')
                     .html('Next');
 
+                // Create key icon span
+                elm.keyicon = $(document.createElement('span'))
+                    .attr('class', 'ca-nav-key')
+                    .html('Key');
+
                 // Move on prev click
                 elm.prevarrow.click(function() { elm.movebackward(); } );
 
@@ -566,6 +588,7 @@ TODO:
                 // Hook up to rest
                 elm.prevarrow.appendTo(elm.nav);
                 elm.nextarrow.appendTo(elm.nav);
+                elm.keyicon.appendTo(elm.nav);
                 elm.nav.appendTo(elm);
             }
 
@@ -625,6 +648,11 @@ TODO:
                 }
                 // Destroy navigation arrows
                 else if(0 == elm.numpics) {
+
+                    // Fade out all fadeobjs
+                    elm.fadeobjs.forEach(function(obj) {
+                        $(obj).hide();
+                    });
 
                     // Show nomeal 
                     elm.nomeal();
@@ -717,7 +745,7 @@ TODO:
             }
 
             // Add a picture
-            elm.addpicture = function(pinfo, initadd, callback) {
+            elm.addpicture = function(pinfo, initadd, makekey, callback) {
 
                 // Default to false
                 initadd = initadd || false;
@@ -765,8 +793,11 @@ TODO:
                     // Viewable
                     $dv.css('left', '0px');
 
-                    // Enable clickable anchors
-                    $('.carousel_caption_mod').show();
+                    // Show the fadeobjects
+                    elm.fadeobjs.forEach(function(obj) {
+                        $(obj).show();
+                    });
+
                 }
                 // Adding the second picture
                 else if(elm.numpics == 1) {
@@ -915,9 +946,25 @@ TODO:
                         callback(true, pinfo.timestamp);
                     }
                 }
+
+                // Add the keyphoto class
+                if(makekey == true)
+                {
+                    // There shouldn't be another
+                    var lastkey = elm.find('.key-picture');
+
+                    // Print an error message
+                    if(lastkey) {
+                        console.log('Severe error: multiple key-pictures!');
+                        lastkey.removeClass('key-picture');
+                    }
+                    
+                    // Add this class
+                    $dv.addClass('key-picture');
+                }
             }
 
-            // Just a shell 
+            // Make a new key picture
             elm.makekeypicture = function(callback) {
 
                 // Return immediately if animating
@@ -935,8 +982,19 @@ TODO:
                     return false;
                 }
 
+                // Grab the last key picture
+                var lastkey = elm.find('.key-picture');
+
+                // Remove the key-picture class 
+                if(lastkey) {
+                    lastkey.removeClass('key-picture');
+                }
+
                 // Get the current display element
                 var $cur = $dv.eq(0);
+
+                // Add the key-picture class
+                $cur.addClass('key-picture');
 
                 // Run the callback if its there
                 if(callback) {
@@ -1167,7 +1225,7 @@ TODO:
                 if(!$dv || $dv.length <= 0) {
 
                     // Invoke the callback function
-                    callback(true);
+                    callback($dv.length);
 
                     // Nothing else to do
                     return;
@@ -1180,7 +1238,7 @@ TODO:
                 $dv.find('img').load(function() {
 
                     // It's loaded, so callback
-                    callback(false);
+                    callback($dv.length);
 
                 });
                     
@@ -1243,16 +1301,23 @@ TODO:
                 // Count of pictures added
                 var cnt = 0;
 
+                // The makekey photo variable
+                var makekey = false;
+
                 // Find start index
                 if(keytimestamp) {
 
                     ii = findpicidx(picinfo, keytimestamp);
 
+                    // Couldn't find key photo
                     if(ii < 0) ii = 0;
+
+                    // Make this a key photo if we found it
+                    else makekey = true;
                 }
 
                 // Add this picture now
-                elm.addpicture(picinfo[ii], true);
+                elm.addpicture(picinfo[ii], true, makekey);
 
                 // Set startindex to the next picture
                 elm.startindex = ii = (ii + 1) % picinfo.length;
@@ -1374,7 +1439,7 @@ TODO:
                     if(err) throw(err);
 
                     // Add this to the carousel
-                    elm.addpicture(pinfo, false, function(ckfirst, ts) {
+                    elm.addpicture(pinfo, false, false, function(ckfirst, ts) {
 
                         // Make key photo if this was the first
                         if(ckfirst) {
@@ -1389,7 +1454,7 @@ TODO:
 
             var makeKeyAnchor = $(document.createElement('a'))
                 .attr('id', 'keyAnchor')
-                .attr('class', 'carousel_caption carousel_caption_mod keyAnchor grid_2')
+                .attr('class', 'carousel_caption keyAnchor grid_2')
                 .html('Make Key Photo');
 
             // Make this general & use same code for delete [0] case
@@ -1412,7 +1477,7 @@ TODO:
             // Create delete picture anchor
             var deleteAnchor = $(document.createElement('a'))
                 .attr('id', 'deletePictureAnchor')
-                .attr('class', 'carousel_caption carousel_caption_mod deletePictureAnchor grid_3')
+                .attr('class', 'carousel_caption deletePictureAnchor grid_3')
                 .html('Delete Picture');
 
             // Click handler
@@ -1464,6 +1529,12 @@ TODO:
                     }
                 });
             });
+
+            // Add to the carousel fadeobjs
+            elm.addfadeobj(makeKeyAnchor.get(0));
+
+            // Add to the carousel fade objects
+            elm.addfadeobj(deleteAnchor.get(0));
 
             // Clear 
             var carouselClear = $(document.createElement('div'))
@@ -2397,14 +2468,6 @@ TODO:
 
             // Wait for the first carousel image to load
             elm.loadcarousel(function(hideanchors) {
-
-                if(hideanchors) {
-
-                    var $cm = $('.carousel_caption_mod');
-
-                    // Hide the delete picture and make key picture anchors
-                    $cm.hide();
-                }
 
                 var lft = 800 / 2;
                 var winw = $(window).width()/2;
