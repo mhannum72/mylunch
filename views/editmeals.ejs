@@ -485,15 +485,41 @@ TODO:
 
             // Create hover behavior
             elm.mouseenter(function() {
+
+                // Show arrows if they are there
                 if(elm.nav && elm.prevarrow && elm.nextarrow) {
-                    $('#navigator').css({'opacity':1.0});
+                    elm.nav.css({'opacity':1.0});
                 }
+
+                // Show key icon if this is a key photo
+                var $dv = elm.find('.pic-div').eq(0);
+
+                if($dv && $dv.hasClass('key-picture')) {
+                    elm.key.css({'opacity':1.0});
+                }
+
+
             });
 
             elm.mouseleave(function() {
+
+                // Fade arrows if they are there
                 if(elm.nav && elm.prevarrow && elm.nextarrow) {
-                    $('#navigator').css({'opacity':0.0});
+                    elm.nav.css({'opacity':0.0});
                 }
+
+                // Fade key icon if this is a key photo
+                var $dv = elm.find('.pic-div').eq(0);
+
+                /*
+                if($dv && $dv.hasClass('key-picture')) {
+                    elm.key.css({'opacity':0.0});
+                }
+                */
+
+                // This might already be opaque
+                elm.key.css({'opacity':0.0});
+
             });
 
             // No meal
@@ -556,7 +582,42 @@ TODO:
                 }
             }
 
-            // Internal function for creating navigation arraows
+            // Creates key picture icon
+            function createkey(elm)
+            {
+                // Key icon div
+                elm.key = $(document.createElement('div'))
+                    .attr('id', 'keyicon')
+                    .attr('class', 'keyicon');
+
+                // Create key icon span
+                elm.keyicon = $(document.createElement('span'))
+                    .attr('id', 'keyspan')
+                    .attr('class', 'keyspan')
+                    .html('Key');
+
+                // Attach key icon to carousel
+                elm.keyicon.appendTo(elm.key);
+                elm.key.appendTo(elm);
+            }
+
+            // Don't need this really
+            function destroykey(elm)
+            {
+                // Remove key span
+                elm.keyicon.remove();
+
+                // Set icon to null
+                elm.keyicon = null;
+
+                // Remove key
+                elm.key.remove();
+
+                // Set to null
+                elm.key = null;
+            }
+
+            // Creating navigation arraows
             function createarrows(elm)
             {
                 // Create navigator div
@@ -574,21 +635,15 @@ TODO:
                     .attr('class', 'ca-nav-next')
                     .html('Next');
 
-                // Create key icon span
-                elm.keyicon = $(document.createElement('span'))
-                    .attr('class', 'ca-nav-key')
-                    .html('Key');
-
                 // Move on prev click
                 elm.prevarrow.click(function() { elm.movebackward(); } );
 
                 // Move on next click
                 elm.nextarrow.click(function() { elm.moveforward(); } );
 
-                // Hook up to rest
+                // Attach arrows to carousel
                 elm.prevarrow.appendTo(elm.nav);
                 elm.nextarrow.appendTo(elm.nav);
-                elm.keyicon.appendTo(elm.nav);
                 elm.nav.appendTo(elm);
             }
 
@@ -954,7 +1009,7 @@ TODO:
                     var lastkey = elm.find('.key-picture');
 
                     // Print an error message
-                    if(lastkey) {
+                    if(lastkey && lastkey.length > 0) {
                         console.log('Severe error: multiple key-pictures!');
                         lastkey.removeClass('key-picture');
                     }
@@ -973,7 +1028,9 @@ TODO:
                     return false;
                 }
 
-                // Get a list of the $div elements
+                // Get a list of the $div elements.  This is slow & crappy
+                // Maybe maintain a global '.pic-div' under 'elm' to replace
+                // these calls?
                 var $dv = elm.find('.pic-div');
 
                 // Return if the length is less than 1
@@ -1285,6 +1342,9 @@ TODO:
                     // Clear this timeout
                     elm.stoprotate();
                 }
+
+                // Destroy arrows
+                // Destroy key
             }
 
             // Display nomeal picture if picinfo is empty
@@ -1322,6 +1382,9 @@ TODO:
                 // Set startindex to the next picture
                 elm.startindex = ii = (ii + 1) % picinfo.length;
             }
+
+            // Create key picture object
+            createkey(elm);
 
             // Start a rotation even if there are no pics
             // elm.startrotate();

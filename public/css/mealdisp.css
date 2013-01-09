@@ -376,8 +376,7 @@ textarea {
 .ca-nav span{
 	width:25px;
 	height:38px;
-	background: transparent url(/images/arrows.png) no-repeat top left;
-	position: absolute;
+	background: transparent url(/images/arrows.png) no-repeat top left; position: absolute;
 	top:50%;
 	margin-top:-19px;
 	/* left:-40px; */
@@ -386,13 +385,6 @@ textarea {
 	opacity: 0.7;
 	cursor:pointer;
 	z-index: 10010;
-}
-
-.ca-nav span.ca-nav-key{
-    background-position: top middle;
-    left:auto;
-    right: auto;
-    z-index: 10010;
 }
 
 .ca-nav span.ca-nav-next{
@@ -427,8 +419,6 @@ textarea {
     color: white;
     text-decoration: none;
     cursor:none;
-
-
 }
 
 /*
@@ -471,9 +461,18 @@ textarea {
     color: blue;
 }
 
-.key-picture img {
+.keyicon span{
+    width:128px;
+    height:128px;
+    background: transparent url(/images/keyicon.png) no-repeat top left; position: absolute;
+    top:10%;
+    left: 50%;
+	text-indent:-9000px;
+	opacity: 0.7;
+	z-index: 10010;
 }
 
-.key-picture img:hover{
-    background: transparent url(/images/keyicon.png) norepeat top middle;
+.keyicon span.keyspan {
+	z-index: 10010;
+
 }

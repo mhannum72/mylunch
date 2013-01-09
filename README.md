@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Instead of relying on jquery finds, keep a golden copy of a single find in
+  the elm object
+
 * For the links below the carousel: put a direct reference to the into the 
   carousel itself .. maybe generalize it a bit.
 
