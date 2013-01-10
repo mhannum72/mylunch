@@ -465,10 +465,10 @@ textarea {
     width:128px;
     height:128px;
     background: transparent url(/images/keyicon.png) no-repeat top left; position: absolute;
-    top:10%;
-    left: 50%;
+    top:0%;
+    left: 0%;
 	text-indent:-9000px;
-	opacity: 0.7;
+	opacity: 1.0;
 	z-index: 10010;
 }
 

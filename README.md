@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* Animate-in the no-meal icon.  TODO: maybe don't tweak the heights? 
+
 * Instead of relying on jquery finds, keep a golden copy of a single find in
   the elm object
 

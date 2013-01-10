@@ -302,6 +302,39 @@ TODO:
 
         } /* uploadMealPopup */
 
+        // Create a div which will display the nomeal icon in the carousel
+        function nomealdiv(elm) {
+
+            // Create div to contain this picture
+            var $dv = $(document.createElement('div'))
+                .attr('id', 'pic-div-nomeal')
+                .attr('class', 'pic-div-nomeal')
+                .css('width', '0px');
+
+            // Internal class
+            var $dvint = $(document.createElement('div'))
+                .attr('class', 'pic-div-int')
+                .css('width', '780px');
+
+            // Click-anchor 
+            var anchor = $(document.createElement('a'))
+                .attr('class', 'pic-div-anchor');
+
+            // Source string
+            var img_source = '/images/nomeal.png';
+
+            // Image tag
+            var img = $(document.createElement('img'))
+                .attr('class', 'pic-div-image')
+                .attr('src', img_source);
+
+            // Append these 
+            img.appendTo(anchor);
+            anchor.appendTo($dvint);
+            $dvint.appendTo($dv);
+
+            return $dv;
+        }
 
         // Create an div which will contain a carousel picture
         function picturediv(elm, pinfo) {
@@ -318,10 +351,6 @@ TODO:
 
             // Store pinfo 
             $dv[0].pinfo = pinfo;
-            //$dv.data('pinfo', pinfo);
-
-            //
-            //var test = $dv.data().pinfo;
 
             // Click-anchor 
             var anchor = $(document.createElement('a'))
@@ -417,6 +446,9 @@ TODO:
             // Set animating flag to false
             elm.animating = false;
 
+            // modkey protects the key images from mouseovers
+            elm.modkey = false;
+
             // Set rotating flag to false
             elm.rotating = false;
 
@@ -437,6 +469,9 @@ TODO:
 
             // Initial new pic slider speed
             elm.minpicinitspeed = 100;
+
+            // Visible picture
+            elm.$currentpic = null;
 
             // Global easing function
             elm.easing = 'mylunchcarousel';
@@ -483,42 +518,72 @@ TODO:
                 elm.fadeobjs.push(element);
             }
 
-            // Create hover behavior
-            elm.mouseenter(function() {
+            // Toggle only if I need to
+            elm.viskey = false;
 
-                // Show arrows if they are there
+            // Show the key picture icon
+            elm.showkey = function(elm) {
+
+                // Toggle if it's not showing
+                if(elm.viskey == false) {
+                    elm.key.css({'opacity':1.0});
+                    elm.viskey = true;
+                    
+                }
+            }
+
+            // Hide the key picture icon
+            elm.hidekey = function(elm) {
+
+                // Toggle if it's visible
+                if(elm.viskey == true) {
+                    elm.key.css({'opacity':0.0});
+                    elm.viskey = false;
+                }
+            }
+
+            // Show the navigation arrow
+            elm.shownav = function(elm) {
                 if(elm.nav && elm.prevarrow && elm.nextarrow) {
                     elm.nav.css({'opacity':1.0});
                 }
+            }
 
-                // Show key icon if this is a key photo
-                var $dv = elm.find('.pic-div').eq(0);
-
-                if($dv && $dv.hasClass('key-picture')) {
-                    elm.key.css({'opacity':1.0});
-                }
-
-
-            });
-
-            elm.mouseleave(function() {
-
-                // Fade arrows if they are there
+            // Hide navigation arrows
+            elm.hidenav = function(elm) {
                 if(elm.nav && elm.prevarrow && elm.nextarrow) {
                     elm.nav.css({'opacity':0.0});
                 }
+            }
 
-                // Fade key icon if this is a key photo
-                var $dv = elm.find('.pic-div').eq(0);
+            // Mouse entered the carousel
+            elm.mouseenter(function() {
 
-                /*
-                if($dv && $dv.hasClass('key-picture')) {
-                    elm.key.css({'opacity':0.0});
+                // Show arrows if they are there
+                elm.shownav(elm);
+
+                if(elm.modkey == false) {
+
+                    // Show key icon if this is a key photo
+                    var $dv = elm.$currentpic;
+
+                    if($dv && $dv.hasClass('key-picture')) {
+                        elm.showkey(elm);
+                    }
+                    else {
+                        elm.hidekey(elm);
+                    }
                 }
-                */
+            });
+
+            // Mouse leaves the carousel
+            elm.mouseleave(function() {
+
+                // Fade arrows if they are there
+                elm.hidenav(elm);
 
                 // This might already be opaque
-                elm.key.css({'opacity':0.0});
+                elm.hidekey(elm);
 
             });
 
@@ -526,14 +591,16 @@ TODO:
             elm.nomeal = function() {
 
                 // No meal url
-                var url = "/images/nomeal.png";
+                var url = '/images/nomeal.png';
 
                 // Create an image tag
                 var img = $(document.createElement('img'))
                     .attr('src', url);
 
-                // Make sure we're empty
-                elm.empty();
+                // Nomeal should be inside of viewport
+                if(elm.viewport) {
+                    elm.viewport.remove();
+                }
 
                 // nomeal.png is 256x256
                 elm.maxheight = 256;
@@ -776,7 +843,13 @@ TODO:
                 // Grab pinfo for width and height
                 var pinfo = $target[0].pinfo;
 
-                // Maybe this should be concurrent with carousel move?
+                // Disable mouseovers
+                elm.modkey = true;
+
+                // Hide the key
+                elm.hidekey(elm);
+
+                // Shrink image
                 $img.stop().animate(
                         {
                             height: '0px',
@@ -786,17 +859,14 @@ TODO:
                         elm.deletespeed,
                         elm.easing,
                         function() {
+
+                            // Move forward
                             elm.moveforward(function(moved) { 
                                 removeinternal(elm, $target, callback); 
                             }, 
                             true);
                         }
                 );
-
-                // If this is the last picture, show the nomeal icon
-                // Rotate to next element
-                // TODO - a more appropriate animation here?
-                //elm.moveforward(function(moved) { removeinternal(elm, $target, callback); }, true);
             }
 
             // Add a picture
@@ -827,7 +897,9 @@ TODO:
                 if(elm.numpics == 0) {
 
                     // Clear 'nomeal' picture
-                    elm.empty();
+                    if(elm.viewport) {
+                        elm.viewport.remove();
+                    }
 
                     // Create the viewport
                     elm.viewport = $(document.createElement('div'))
@@ -847,6 +919,9 @@ TODO:
 
                     // Viewable
                     $dv.css('left', '0px');
+
+                    // Current picture
+                    elm.$currentpic = $dv;
 
                     // Show the fadeobjects
                     elm.fadeobjs.forEach(function(obj) {
@@ -1030,7 +1105,8 @@ TODO:
 
                 // Get a list of the $div elements.  This is slow & crappy
                 // Maybe maintain a global '.pic-div' under 'elm' to replace
-                // these calls?
+                // these calls?  Or better, always keep a reference to the
+                // first element ..
                 var $dv = elm.find('.pic-div');
 
                 // Return if the length is less than 1
@@ -1052,6 +1128,8 @@ TODO:
 
                 // Add the key-picture class
                 $cur.addClass('key-picture');
+
+                elm.showkey(elm);
 
                 // Run the callback if its there
                 if(callback) {
@@ -1078,7 +1156,13 @@ TODO:
 
                 // Return if there's less than two pictures
                 if($dv.length <= 1) {
+
+                    // Add picture case
+                    elm.modkey = false;
+
+                    // Callback 
                     if(callback) callback(false);
+
                     return false;
                 }
 
@@ -1112,28 +1196,12 @@ TODO:
                     // Append to viewport
                     $cln.appendTo(elm.viewport);
                 }
-                // Animate shrinking image- maybe make this an option
-                /*
-                else {
 
-                    // Image
-                    var $img = $cur.find('.pic-div-image');
+                // Set the modkey flag
+                elm.modkey = true;
 
-                    // Grab pinfo for width and height
-                    var middle = $cur[0].pinfo.height / 2;
-
-                    $img.stop().animate(
-                            {
-                                height: '0px',
-                                width: '0px',
-                                top: '+=' + middle + 'px'
-                            }, 
-                            elm.deletespeed,
-                            elm.easing
-                    );
-                }
-                */
-
+                // Make the key invisible
+                elm.hidekey(elm);
 
                 // Animate current
                 $cur.stop().animate( 
@@ -1141,11 +1209,31 @@ TODO:
                         elm.sliderspeed, 
                         elm.easing, 
                         function() { 
+
                             if(++count == 2) { 
+
+                                // Remove dup pic
                                 $cur.remove(); 
+
+                                // Show key if it's set
+                                if($next.hasClass('key-picture')) {
+                                    elm.showkey(elm);
+                                }
+                                else {
+                                    elm.hidekey(elm);
+                                }
+
+                                // Set the visible element
+                                elm.$currentpic = $next;
+
+                                // No longer animating
                                 elm.animating = false; 
+
+                                // Don't block mouseovers
+                                elm.modkey = false;
+
+                                // Invoke callback
                                 if(callback) callback(true);
-                                return true;
                             } 
                         } 
                 );
@@ -1156,11 +1244,30 @@ TODO:
                         elm.sliderspeed, 
                         elm.easing,
                         function() { 
+
                             if(++count == 2) { 
+
                                 $cur.remove(); 
+
+                                // Show key if it's set
+                                if($next.hasClass('key-picture')) {
+                                    elm.showkey(elm);
+                                }
+                                else {
+                                    elm.hidekey(elm);
+                                }
+
+                                // Set the visible element
+                                elm.$currentpic = $next;
+
+                                // No longer animating
                                 elm.animating = false; 
+
+                                // Don't block mouseovers
+                                elm.modkey = false;
+
+                                // Invoke callback
                                 if(callback) callback(true);
-                                return true;
                             } 
                         }
                 );
@@ -1182,7 +1289,13 @@ TODO:
 
                 // Return if there's less than two pictures
                 if($dv.length <= 1) {
+
+                    // Add picture case 
+                    elm.modkey = false;
+
+                    // Invoke callback
                     if(callback) callback(false);
+
                     return false;
                 }
 
@@ -1210,20 +1323,46 @@ TODO:
                 // Insert it before the first item
                 $next.insertBefore($cur);
 
+                // Make the key invisible
+                elm.hidekey(elm);
+
                 // Animate current
                 $cur.stop().animate(
 
-                        { left : '+=' + elm.maxwidth + 'px' },
-                        elm.sliderspeed,
-                        elm.easing,
-                        function() { 
-                            $cur.css('left', '-10000px'); 
-                            if(++count == 2) { 
-                                $dv.last().remove();
-                                elm.animating = false;
-                                if(callback) callback(true);
+                    { left : '+=' + elm.maxwidth + 'px' },
+                    elm.sliderspeed,
+                    elm.easing,
+                    function() { 
+                        // Move off stage
+                        $cur.css('left', '-10000px'); 
+
+                        // We finished last
+                        if(++count == 2) { 
+
+                            // Remove dup pic
+                            $dv.last().remove();
+
+                            // Show key if its set
+                            if($next.hasClass('key-picture')) {
+                                elm.showkey(elm);
                             }
+                            else {
+                                elm.hidekey(elm);
+                            }
+
+                            // Set the visible element
+                            elm.$currentpic = $next;
+
+                            // No longer animating
+                            elm.animating = false;
+
+                            // Don't block mouseovers
+                            elm.modkey = false;
+
+                            // Callback
+                            if(callback) callback(true);
                         }
+                    }
                 );
 
                 // Animate next
@@ -1233,14 +1372,35 @@ TODO:
                     elm.sliderspeed,
                     elm.easing,
                     function() { 
+
+                        // We finished last
                         if(++count == 2) { 
+
+                            // Remove dup pic
                             $dv.last().remove();
+
+                            // Show key if its set
+                            if($next.hasClass('key-picture')) {
+                                elm.showkey(elm);
+                            }
+                            else {
+                                elm.hidekey(elm);
+                            }
+
+                            // Set the visible element
+                            elm.$currentpic = $next;
+
+                            // Don't block mouseovers
+                            elm.modkey = false;
+
+                            // No longer animating
                             elm.animating = false; 
+
+                            // Callback
                             if(callback) callback(true);
                         } 
                     }
                 );
-
                 return true;
             }
 
