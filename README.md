@@ -5,6 +5,16 @@ mylunch
 todo
 ====
 
+* There's still a lingering bug with the nomeal display picture on the grid-
+  pic page.
+
+* Fix the nomeal size
+
+* Animate the 'getting larger' part of adding a bigger picture.
+
+* Adds are weird - it looks like if it's bigger, it will stretch the current
+  picture.  This might just be a nomeal phenomenon ..
+
 * Animate-in the no-meal icon.  TODO: maybe don't tweak the heights? 
 
 * Instead of relying on jquery finds, keep a golden copy of a single find in

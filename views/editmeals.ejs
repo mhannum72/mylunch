@@ -305,10 +305,15 @@ TODO:
         // Create a div which will display the nomeal icon in the carousel
         function nomealdiv(elm) {
 
+            // If this has already been created return it
+            if(elm.$nomealdiv) {
+                return elm.$nomealdiv;
+            }
+
             // Create div to contain this picture
             var $dv = $(document.createElement('div'))
                 .attr('id', 'pic-div-nomeal')
-                .attr('class', 'pic-div-nomeal')
+                .attr('class', 'pic-div')
                 .css('width', '0px');
 
             // Internal class
@@ -332,6 +337,9 @@ TODO:
             img.appendTo(anchor);
             anchor.appendTo($dvint);
             $dvint.appendTo($dv);
+
+            // Cache 
+            elm.$nomealdiv = $dv;
 
             return $dv;
         }
@@ -489,14 +497,24 @@ TODO:
                 }
             }
 
+            // Create the viewport
+            elm.viewport = $(document.createElement('div'))
+                .attr('id', 'mealviewport')
+                .attr('class', 'mealviewport')
+                .css('height', '780px')
+                .css('width', '1560px');
+
+            // Append this to elm
+            elm.viewport.appendTo(elm);
+
+            // Reset maxheightcnt
+            elm.maxheightcnt = 0;
+
             // Minimum maxheight
             elm.minmaxheight = 256;
 
             // Maxheight
             elm.maxheight = elm.minmaxheight;
-
-            // Maxheight count
-            elm.maxheightcnt = 0;
 
             // Hard code maxwidth
             elm.maxwidth = 780;
@@ -519,7 +537,7 @@ TODO:
             }
 
             // Toggle only if I need to
-            elm.viskey = false;
+            elm.viskey = true;
 
             // Show the key picture icon
             elm.showkey = function(elm) {
@@ -588,28 +606,25 @@ TODO:
             });
 
             // No meal
-            elm.nomeal = function() {
+            elm.nomeal = function(elm) {
 
-                // No meal url
-                var url = '/images/nomeal.png';
+                // Grab the nomeal div
+                var $nomeal = nomealdiv(elm);
 
-                // Create an image tag
-                var img = $(document.createElement('img'))
-                    .attr('src', url);
-
-                // Nomeal should be inside of viewport
-                if(elm.viewport) {
-                    elm.viewport.remove();
-                }
+                // Append this to my viewport
+                $nomeal.appendTo(elm.viewport);
 
                 // nomeal.png is 256x256
-                elm.maxheight = 256;
+                // elm.maxheight = 256;
 
                 // Set my maxheight
-                elm.css('height', elm.maxheight);
+                // elm.css('height', elm.maxheight);
 
-                // Append to divint
-                img.appendTo(elm);
+                // Update viewport maxheight
+                // elm.viewport.css('height', elm.maxheight);
+
+                // Hide the key
+                // elm.hidekey(elm);
             }
 
             // Reset max height.  This scans so up the suckage level one notch.
@@ -777,7 +792,7 @@ TODO:
                     });
 
                     // Show nomeal 
-                    elm.nomeal();
+                    // elm.nomeal(elm);
                 }
                 // Reset height 
                 if(reset) {
@@ -843,6 +858,27 @@ TODO:
                 // Grab pinfo for width and height
                 var pinfo = $target[0].pinfo;
 
+                // Nomeal height
+                var height = 256;
+
+                // Pinfo height
+                if(pinfo) {
+                    height = pinfo.height;
+                }
+
+                // Add nomeal to carousel
+                if(elm.numpics == 1) {
+
+                    // Grab the nomeal div
+                    var $nomeal = nomealdiv(elm);
+
+                    // Put if off screen
+                    $nomeal.css('left', '-10000px');
+
+                    // Append this to my viewport
+                    $nomeal.appendTo(elm.viewport);
+                }
+
                 // Disable mouseovers
                 elm.modkey = true;
 
@@ -854,7 +890,7 @@ TODO:
                         {
                             height: '0px',
                             width: '0px',
-                            top: '+=' + (pinfo.height / 2) + 'px'
+                            top: '+=' + (height / 2) + 'px'
                         }, 
                         elm.deletespeed,
                         elm.easing,
@@ -864,7 +900,7 @@ TODO:
                             elm.moveforward(function(moved) { 
                                 removeinternal(elm, $target, callback); 
                             }, 
-                            true);
+                            "removepic");
                         }
                 );
             }
@@ -874,6 +910,12 @@ TODO:
 
                 // Default to false
                 initadd = initadd || false;
+
+                // True means delete the nomeal pic
+                var isdel = false;
+
+                // True if this is the first upload
+                var isfirst = false;
 
                 // Should we rotate
                 var rotate = false;
@@ -896,32 +938,33 @@ TODO:
                 // Create a div for first picture
                 if(elm.numpics == 0) {
 
+                    // Set the clear nomeal flag
+                    isdel = true;
+
+                    isfirst = true;
+
                     // Clear 'nomeal' picture
+                    /*
                     if(elm.viewport) {
                         elm.viewport.remove();
                     }
+                    */
 
-                    // Create the viewport
-                    elm.viewport = $(document.createElement('div'))
-                        .attr('id', 'mealviewport')
-                        .attr('class', 'mealviewport')
-                        .css('height', '780px')
-                        .css('width', '1560px');
-
-                    // Append this to elm
-                    elm.viewport.appendTo(elm);
-
-                    // Reset maxheight
-                    elm.maxheight = elm.minmaxheight;
-
-                    // Reset maxheightcnt
-                    elm.maxheightcnt = 0;
-
-                    // Viewable
-                    $dv.css('left', '0px');
+                    // Populating the carousel during setup: make this visible
+                    if(initadd) {
+                        $dv.css('left', '0px');
+                    }
+                    else {
+                        // Will replace the nomeal pic
+                        $dv.css('left', '-10000px');
+                    }
 
                     // Current picture
+                    /* Maybe delay this until after the rotate? */
                     elm.$currentpic = $dv;
+
+                    // This is always true now
+                    rotate = true;
 
                     // Show the fadeobjects
                     elm.fadeobjs.forEach(function(obj) {
@@ -951,9 +994,11 @@ TODO:
 
                 // Undefined by default
                 var lastts; 
-                
+
                 // Find the last-timestamp class
                 if(elm.numpics > 0) {
+
+                    // An optimization: if numpics is one, just take the first pic
 
                     // Find the last picture added
                     lastts = elm.find('.pic-lastts');
@@ -1042,7 +1087,8 @@ TODO:
                                 if(!didr) { console.log('did not rotate?');}
                                 else { rotatetopicture(timestamp); }
 
-                            } 
+                            }, 
+                            isdel
                         );
 
                     }
@@ -1051,7 +1097,7 @@ TODO:
                     else {
                         elm.sliderspeed = cursliderspeed;
                         elm.addremove = false;
-                        if(callback) callback(false);
+                        if(callback) callback(isfirst, timestamp);
                     }
                 }
 
@@ -1073,7 +1119,7 @@ TODO:
 
                     // Invoke callback with 'true' & the display timetamp
                     if(initadd == false && callback) {
-                        callback(true, pinfo.timestamp);
+                        callback(isfirst, pinfo.timestamp);
                     }
                 }
 
@@ -1140,10 +1186,10 @@ TODO:
             }
 
             // Move left
-            elm.moveforward = function(callback, fordel) {
+            elm.moveforward = function(callback, isdel) {
 
                 // Don't clone if we're deleteing
-                fordel = (fordel ? fordel : false);
+                isdel = (isdel ? isdel : false);
 
                 // Return immediately if already animating
                 if(elm.animating) {
@@ -1173,7 +1219,9 @@ TODO:
                 var $cur = $dv.eq(0);
 
                 // Next element
-                var $next = $dv.eq(1);
+                var $next;
+                
+                $next = $dv.eq(1);
 
                 // Set the animating flag
                 elm.animating = true;
@@ -1182,7 +1230,7 @@ TODO:
                 $next.css('left', elm.maxwidth + 'px');
 
                 // Don't clone if were deleting
-                if(fordel == false) {
+                if(isdel == false) {
 
                     // Clone the current to the end of the list
                     var $cln = $cur.clone(true);
@@ -1507,11 +1555,14 @@ TODO:
                 // Destroy key
             }
 
+            // Create key picture object
+            createkey(elm);
+
             // Display nomeal picture if picinfo is empty
             if(!picinfo || picinfo.length <= 0) {
 
                 // Show the nomeal picture
-                elm.nomeal();
+                elm.nomeal(elm);
             }
             // Populate carousel
             else {
@@ -1542,9 +1593,6 @@ TODO:
                 // Set startindex to the next picture
                 elm.startindex = ii = (ii + 1) % picinfo.length;
             }
-
-            // Create key picture object
-            createkey(elm);
 
             // Start a rotation even if there are no pics
             // elm.startrotate();
@@ -1707,7 +1755,7 @@ TODO:
             deleteAnchor.click(function() {
 
                 // Remove picture from carousel
-                elm.removepicture( function(removed, pinfo) {
+                elm.removepicture(function(removed, pinfo) {
 
                     if(removed) {
 
@@ -1733,7 +1781,7 @@ TODO:
                         }
 
                         // If this was the first picture
-                        if( !meal.keytimestamp && ii == 0) {
+                        if(!meal.keytimestamp && ii == 0) {
                             changepic = true;
                         }
 
