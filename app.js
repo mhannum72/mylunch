@@ -3918,8 +3918,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     }
 
     // Set thumb width and height in mealinfo
-    picinfo.thumbWidth = scaleThumbWidth;
-    picinfo.thumbHeight = scaleThumbHeight;
+    picinfo.thumbWidth = Math.floor(scaleThumbWidth);
+    picinfo.thumbHeight = Math.floor(scaleThumbHeight);
 
 
     req.session.user.numPics++;
@@ -4126,6 +4126,9 @@ function editMealsUploadPost(req, res, mealinfo, next) {
             scaleHeight = maxMealHeight;
             scaleWidth = (maxMealHeight / features.height) * features.width;
         }
+
+        scaleWidth = Math.floor(scaleWidth);
+        scaleHeight = Math.floor(scaleHeight);
 
         // Okay - resize this and then upload
         im.resize( { 

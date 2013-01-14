@@ -338,6 +338,8 @@ TODO:
             anchor.appendTo($dvint);
             $dvint.appendTo($dv);
 
+            $dv[0].pinfo = { height: 256, width: 256, timestamp: -1 };
+                
             // Cache 
             elm.$nomealdiv = $dv;
 
@@ -355,6 +357,8 @@ TODO:
 
             var $dvint = $(document.createElement('div'))
                 .attr('class', 'pic-div-int')
+                .css('position', 'absolute')
+                .css('height', pinfo.height + 'px')
                 .css('width', '780px');
 
             // Store pinfo 
@@ -391,9 +395,13 @@ TODO:
             });
             */
 
-            // Append these 
+            // Append image to anchor
             img.appendTo(anchor);
+
+            // Append anchor to internal-div
             anchor.appendTo($dvint);
+
+            // Append internal-div to div
             $dvint.appendTo($dv);
 
             return $dv;
@@ -436,10 +444,6 @@ TODO:
 
         // Picture Carousel in this div using picinfo
         function createPictureCarousel(picinfo, keytimestamp) {
-
-            // Local variables
-            var height = 0;
-            var width = 0;
 
             // Create the carousel div
             var elm = $(document.createElement('div'))
@@ -611,25 +615,27 @@ TODO:
                 // Grab the nomeal div
                 var $nomeal = nomealdiv(elm);
 
+                // Grab the nomeal info pointer
+                var pinfo = $nomeal[0].pinfo;
+
                 // Append this to my viewport
                 $nomeal.appendTo(elm.viewport);
 
-                // nomeal.png is 256x256
-                // elm.maxheight = 256;
+                // Set nomeal height
+                $nomeal.css('height', pinfo.height + 'px');
 
-                // Set my maxheight
-                // elm.css('height', elm.maxheight);
+                // Top margin is 0px
+                $nomeal.css('margin-top', '0px');
 
-                // Update viewport maxheight
-                // elm.viewport.css('height', elm.maxheight);
-
-                // Hide the key
-                // elm.hidekey(elm);
+                // Reset carousel height
+                elm.css('height', pinfo.height + 'px');
             }
 
             // Reset max height.  This scans so up the suckage level one notch.
-            function findmaxheight()
+            function findmaxheight(ignorets)
             {
+                ignorets = (ignorets ? ignorets : -1);
+
                 // Sanity counter
                 var counter = 0;
 
@@ -645,13 +651,21 @@ TODO:
                 // Iterate to find maxes
                 $dv.each(function(i) {
 
-                    // Height
-                    if(this.pinfo.height > elm.maxheight) { 
-                        elm.maxheight = this.pinfo.height; 
-                        elm.maxheightcnt = 1; 
+                    if(this.pinfo == undefined) {
+                        console.log('put a breakpoint here');
                     }
-                    else if(this.pinfo.height == elm.maxheight) { 
-                        elm.maxheightcnt++;
+
+                    // Ignore the picture that's being removed
+                    if(this.pinfo.timestamp != ignorets) {
+
+                        // Height
+                        if(this.pinfo.height > elm.maxheight) { 
+                            elm.maxheight = this.pinfo.height; 
+                            elm.maxheightcnt = 1; 
+                        }
+                        else if(this.pinfo.height == elm.maxheight) { 
+                            elm.maxheightcnt++;
+                        }
                     }
 
                     // Increment counter
@@ -659,7 +673,7 @@ TODO:
                 });
 
                 // 'Assert'
-                if(counter != elm.numpics) {
+                if(elm.numpics > 0 && counter != elm.numpics) {
                     console.log('Error: numpics mismatch!');
                 }
             }
@@ -752,26 +766,19 @@ TODO:
             }
 
             // Internal function for removing a picture
-            function removeinternal(elm, $dv, callback) {
-                var reset = 0;
+            function removeinternal(elm, $dv, $target, callback) {
 
                 // Retrieve pinfo for this element
-                var pinfo = $dv[0].pinfo;
+                var pinfo = $target[0].pinfo;
 
                 // Decrement the number of pictures
                 --elm.numpics;
 
-                // Check height if width did not trigger
-                if(elm.numpics > 0 && pinfo.height == elm.maxheight && 
-                        --elm.maxheightcnt <= 0) {
-                    reset = 1;
-                }
-
                 // Was this the last ts?
-                if(elm.numpics && $dv.hasClass('pic-lastts')) {
+                if(elm.numpics && $target.hasClass('pic-lastts')) {
 
                     // Find the element to the left
-                    var $pv = $dv.prev();
+                    var $pv = $target.prev();
 
                     // Make it the new lastts
                     $pv.addClass('pic-lastts');
@@ -794,24 +801,32 @@ TODO:
                     // Show nomeal 
                     // elm.nomeal(elm);
                 }
-                // Reset height 
-                if(reset) {
 
-                    // Cache old height
-                    var ht = elm.maxheight;
+                // Cache old height
+                var ht = elm.maxheight;
 
-                    // Find new values
-                    findmaxheight();
+                // Find new maxheight
+                findmaxheight(pinfo.timestamp);
 
-                    // Set height if it changed
-                    if(elm.maxheight != ht) {
+                // Set height if it changed
+                if(elm.maxheight != ht) {
 
-                        // Set elm maxheight
-                        elm.css('height', elm.maxheight);
+                    // Find the next element
+                    var $next = $dv.eq(1);
 
-                        // Set viewport maxheight
-                        elm.viewport.css('height', elm.maxheight);
-                    }
+                    // Set elm maxheight
+                    elm.css('height', elm.maxheight);
+
+                    // Set viewport maxheight
+                    elm.viewport.css('height', elm.maxheight);
+
+                    // The display pic has a new maxheight
+                    // TODO XXX TODO XXX
+                    var topheight = Math.floor(
+                            (elm.maxheight -  $next[0].pinfo.height) / 2);
+
+                    // Set top margin
+                    $next.css('margin-top', topheight + 'px');
                 }
 
                 // Unset addremove flag
@@ -842,7 +857,6 @@ TODO:
                 var $dv = elm.find('.pic-div');
 
                 // Find the div
-                //var $target = elm.find('#pic-div-' + timestamp);
                 var $target = $dv.eq(0);
 
                 // If there are no pictures return
@@ -872,11 +886,23 @@ TODO:
                     // Grab the nomeal div
                     var $nomeal = nomealdiv(elm);
 
+                    var height = $nomeal[0].pinfo.height;
+
                     // Put if off screen
                     $nomeal.css('left', '-10000px');
 
+                    $nomeal.css('height', height + 'px');
+                    // $nomeal.css('width', '256px');
+
+                    // Not sure if this works
+                    elm.css('height', height + 'px');
+
+                    elm.viewport.css('height', height + 'px');
+
                     // Append this to my viewport
                     $nomeal.appendTo(elm.viewport);
+
+                    console.log('check nomeal here');
                 }
 
                 // Disable mouseovers
@@ -898,7 +924,7 @@ TODO:
 
                             // Move forward
                             elm.moveforward(function(moved) { 
-                                removeinternal(elm, $target, callback); 
+                                removeinternal(elm, $dv, $target, callback); 
                             }, 
                             "removepic");
                         }
@@ -1084,8 +1110,12 @@ TODO:
                             // Call myself again
                             function(didr) {
 
-                                if(!didr) { console.log('did not rotate?');}
-                                else { rotatetopicture(timestamp); }
+                                if(!didr) { 
+                                    console.log('did not rotate?');
+                                }
+                                else { 
+                                    rotatetopicture(timestamp); 
+                                }
 
                             }, 
                             isdel
@@ -1229,6 +1259,13 @@ TODO:
                 // Set the left attribute
                 $next.css('left', elm.maxwidth + 'px');
 
+                // Place in the center
+                var topheight = Math.floor(
+                        (elm.maxheight -  $next[0].pinfo.height) / 2);
+
+                // Set top margin
+                $next.css('margin-top', topheight + 'px');
+
                 // Don't clone if were deleting
                 if(isdel == false) {
 
@@ -1368,6 +1405,13 @@ TODO:
                 // Set its width
                 $next.css('left', '-' + elm.maxwidth + 'px');
 
+                // Place in the center
+                var topheight = Math.floor(
+                        (elm.maxheight -  $next[0].pinfo.height) / 2);
+
+                // Set top margin
+                $next.css('margin-top', topheight + 'px');
+
                 // Insert it before the first item
                 $next.insertBefore($cur);
 
@@ -1480,7 +1524,6 @@ TODO:
             }
 
             // Run a callback when the first picture is loaded
-            // XXX Maybe prevent adds until all these are loaded?
             elm.loadcarousel = function(callback) {
 
                 // Get a list of the $dv elements
@@ -1522,6 +1565,13 @@ TODO:
                     // Go to next picture
                     ii = (ii + 1) % picinfo.length;
                 }
+
+                // Place in the center
+                var topheight = Math.floor(
+                        (elm.maxheight -  $dv[0].pinfo.height) / 2);
+
+                // Set top margin
+                $dv.css('margin-top', topheight + 'px');
             }
 
             // Start rotating carousel
@@ -1563,6 +1613,8 @@ TODO:
 
                 // Show the nomeal picture
                 elm.nomeal(elm);
+
+
             }
             // Populate carousel
             else {
@@ -2738,8 +2790,7 @@ TODO:
             });
 
             // Wait for the first carousel image to load
-            elm.loadcarousel(function(hideanchors) {
-
+            elm.loadcarousel(function(alen) {
                 var lft = 800 / 2;
                 var winw = $(window).width()/2;
                 var popleft = winw - lft;

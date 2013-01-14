@@ -5,6 +5,15 @@ mylunch
 todo
 ====
 
+* When the long picture is the last one, addpicture stops working (?) - it 
+  looks like the new picture isn't being added ..
+
+* Keep the height from being displayed ..
+
+* BUG: elm.maxheight is not being set correctly
+
+* Animate the resizing of the carousel
+
 * There's still a lingering bug with the nomeal display picture on the grid-
   pic page.
 
