@@ -774,15 +774,17 @@ TODO:
                 // Decrement the number of pictures
                 --elm.numpics;
 
+                /*
                 // Was this the last ts?
                 if(elm.numpics && $target.hasClass('pic-lastts')) {
 
                     // Find the element to the left
-                    var $pv = $target.prev();
+                    var $pv = $target.eq(-1);
 
                     // Make it the new lastts
                     $pv.addClass('pic-lastts');
                 }
+                */
 
                 // Check numpics
                 if(1 == elm.numpics) {
@@ -821,12 +823,22 @@ TODO:
                     elm.viewport.css('height', elm.maxheight);
 
                     // The display pic has a new maxheight
-                    // TODO XXX TODO XXX
-                    var topheight = Math.floor(
-                            (elm.maxheight -  $next[0].pinfo.height) / 2);
+                    if($next.length > 0) {
+                        var topheight = Math.floor(
+                                (elm.maxheight -  $next[0].pinfo.height) / 2);
 
-                    // Set top margin
-                    $next.css('margin-top', topheight + 'px');
+                        // Set top margin
+                        $next.css('margin-top', topheight + 'px');
+                    }
+
+                    else {
+                        var $nomeal = nomealdiv(elm);
+
+                        $nomeal.css('margin-top', '0px');
+
+                        $nomeal.css('height', $nomeal[0].pinfo.height);
+                    }
+
                 }
 
                 // Unset addremove flag
@@ -895,14 +907,22 @@ TODO:
                     // $nomeal.css('width', '256px');
 
                     // Not sure if this works
-                    elm.css('height', height + 'px');
+                    // elm.css('height', height + 'px');
 
-                    elm.viewport.css('height', height + 'px');
+                    // elm.viewport.css('height', height + 'px');
 
                     // Append this to my viewport
                     $nomeal.appendTo(elm.viewport);
 
                     console.log('check nomeal here');
+                }
+                else if($target.hasClass('pic-lastts')) {
+
+                    // Find the element to the left
+                    var $pv = $dv.eq(-1);
+
+                    // Make it the new lastts
+                    $pv.addClass('pic-lastts');
                 }
 
                 // Disable mouseovers
@@ -1591,6 +1611,30 @@ TODO:
 
             }
 
+            // Enable keydown navigate
+            elm.enablekeydown = function() {
+
+                // Event handler for keydown
+                $(document).on("keydown.carousel", function(e) {
+                    var code = (e.keyCode ? e.keyCode : e.which);
+                    switch(code) {
+                        case 39:
+                            elm.moveforward();
+                            return false;
+                            break;
+                        case 37:
+                            elm.movebackward();
+                            return false;
+                            break;
+                    }
+                });
+            }
+
+            // Disable keydown navigate
+            elm.disablekeydown = function() {
+                $(document).off("keydown.carousel");
+            }
+
             // Stop everything
             elm.destroy = function() {
 
@@ -1600,6 +1644,8 @@ TODO:
                     // Clear this timeout
                     elm.stoprotate();
                 }
+
+                elm.disablekeydown();
 
                 // Destroy arrows
                 // Destroy key
@@ -1649,6 +1695,9 @@ TODO:
             // Start a rotation even if there are no pics
             // elm.startrotate();
 
+            // Enable arrow scrolling
+            elm.enablekeydown();
+
             // Return the elm carousel object
             return elm;
         }
@@ -1674,6 +1723,23 @@ TODO:
 
             // Create a carousel
             var elm = createPictureCarousel(meal.picInfo, meal.keytimestamp);
+
+            // Maybe create keydown and keyup handlers
+            /*
+            $(document).keydown(function(e){
+                var code = (e.keyCode ? e.keyCode : e.which);
+                switch(code) {
+                    case 39:
+                        elm.moveforward();
+                        return false;
+                        break;
+                    case 37:
+                        elm.movebackward();
+                        return false;
+                        break;
+                }
+            });
+            */
 
             // Append it to the div
             elm.appendTo(carouselDivContainer);
@@ -1925,8 +1991,11 @@ TODO:
 
                 titleEditInput.focus();
 
-                function blurTitleInput(meal, titleEditInput, keepcurrent) {
+                // Disable carosel arrow behavior
+//                $(document).off("keydown.carousel");
+                elm.disablekeydown();
 
+                function blurTitleInput(meal, titleEditInput, keepcurrent) {
                     if(titleEditInput.val() != meal.title && keepcurrent == 0) {
 
                         var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
@@ -1952,6 +2021,7 @@ TODO:
                     }
                     $('#titleEdit').css({'display':'inline-block'});
                     titleEditInput.remove();
+                    elm.enablekeydown();
                 }
 
 
@@ -1959,6 +2029,11 @@ TODO:
                 titleEditInput.keydown(function(e){
                     var code = (e.keyCode ? e.keyCode : e.which);
                     switch(code) {
+                        // XXX 
+                        case 39:
+                        case 37:
+                            return true;
+                            break;
                         case 13:
                         case 9:
                             titleEditInput.blur();
@@ -2567,6 +2642,8 @@ TODO:
 
             grid_review_textarea.click(function() {
 
+                elm.disablekeydown();
+
                 $('#review_text_int').removeClass('review_noedit');
                 $('#review_text_int').addClass('review_edit');
                 $('#review_text_int').attr('readonly', false);
@@ -2581,6 +2658,7 @@ TODO:
             grid_review_textarea.keydown(function(e){
                 var code = (e.keyCode ? e.keyCode : e.which);
                 switch(code) {
+                    case 27:
                     case 9:
                         $('#review_text_int').blur();
                         return false;
@@ -2599,6 +2677,7 @@ TODO:
                 $('#review_text_int').removeClass('review_edit');
                 $('#review_text_int').attr('readonly', true);
 
+                elm.enablekeydown();
             });
             
             grid_review_textarea.appendTo(grid_review);

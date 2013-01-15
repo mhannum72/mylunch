@@ -5,14 +5,15 @@ mylunch
 todo
 ====
 
-* When the long picture is the last one, addpicture stops working (?) - it 
-  looks like the new picture isn't being added ..
+* More important: add a calendar.  Allow people to select the mealdate via 
+  the calendar.
 
-* Keep the height from being displayed ..
+* Should I animate to the new size?  I will try this ..
 
-* BUG: elm.maxheight is not being set correctly
+* Maybe add a background design to the carousel so that the large-to-small
+  picture affect will be softened ..
 
-* Animate the resizing of the carousel
+* Animate the resizing of the carousel maybe (not sure if this is a priority)
 
 * There's still a lingering bug with the nomeal display picture on the grid-
   pic page.
