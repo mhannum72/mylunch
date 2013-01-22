@@ -4155,6 +4155,33 @@ function editMealsUploadPost(req, res, mealinfo, next) {
     });
 }
 
+app.post('/savemealdate', function(req, res, next) {
+
+    if(req.session.user == undefined) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("BAD-REQUEST");
+        res.end();
+        return;
+    }
+    if(req.body.username == undefined) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("BAD-REQUEST");
+        res.end();
+        return;
+    }
+    if(req.body.username != req.session.user.username) {
+        console.log('mismatched usernames in savemeal request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("BAD-REQUEST");
+        res.end();
+        return;
+    }
+    // TODO - right here
+
+});
+
 
 app.post('/editmealsupload', function(req, res, next) {
 

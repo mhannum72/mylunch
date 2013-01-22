@@ -29,6 +29,13 @@ TODO:
     <script src="/jquery.datePicker.js"></script>
     <script type="text/javascript">
 
+        // Provide my own Date-string type
+        Date.prototype.asMyString = function() {
+            var monthNames = [ "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December" ];
+            return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+        }
+
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
@@ -122,10 +129,28 @@ TODO:
 
         function dateToMealDate(date, mealconst)
         {
-            (date.getFullYear()    * 1000000) +
-            ((date.getMonth() + 1)   * 10000) +
-            (date.getDate()            * 100) +
-            (mealconst)
+            return  (date.getFullYear()    * 1000000) +
+                    ((date.getMonth() + 1)   * 10000) +
+                    (date.getDate()            * 100) +
+                    (mealconst);
+        }
+
+        function updateMealDateAjax(meal, mealdate) {
+            $.ajax({
+                url: '/savemealdate',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        username: meal.username,
+                        timestamp: meal.timestamp,
+                        mealdate: mealdate
+                    }),
+                dataType: 'json',
+                // TODO: consolidated JSON response handling
+                complete: function(resp, astat){
+                }
+            });
         }
 
         function updateReviewAjax(meal, review) {
@@ -2201,10 +2226,16 @@ TODO:
             var mealDate = mealDateToDate(meal.mealDate);
 
             var grid_date_anchor = $(document.createElement('a'))
-                .attr('id', 'pop_date')
-                .attr('class', 'pop_date')
-                .attr('title', 'click to edit')
-                .html(new Date(mealDate).asString());
+                .attr('id', 'pop_date_anchor')
+                .attr('class', 'pop_date_anchor')
+                .attr('title', 'click to edit');
+
+            var grid_date_text = $(document.createElement('div'))
+                .attr('id', 'pop_date_text')
+                .attr('class', 'pop_date_text')
+                .html(new Date(mealDate).asMyString());
+
+            grid_date_text.appendTo(grid_date_anchor);
 
             var grid_date_input = $(document.createElement('input'))
                 .attr('type', 'text')
@@ -2231,14 +2262,15 @@ TODO:
             });
 
             grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
-                console.log('date selected sdate is ' + sdate);
-                console.log('date selected selected is ' + selected);
-                // TODO: why does this break if I set an HTML from this
-                // event handler .. 
-//                $('#pop_date');
-//                $('#pop_date').html(sdate.asString());
-                var mc = mealToConst(meal.meal);
-                var md = dateToMealDate(sdate, mc);
+                // Set the pop-up date
+                $('#pop_date_text').html(sdate.asMyString());
+
+                // Calculate the mealdate
+                var md = dateToMealDate(sdate, mealToConst(meal.meal));
+
+                // Update server side
+                updateMealDateAjax(meal, md);
+
                 return false;
             });
 
