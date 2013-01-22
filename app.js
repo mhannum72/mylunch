@@ -246,6 +246,28 @@ function mealToConst(meal)
     throw new Error("Invalid mealConst: " + meal);
 }
 
+updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
+    getCollection('mealInfo', function(error, mealinfo) {
+        if(error) throw(error);
+        mealinfo.find( { username: username, timestamp: timestamp } ).toArray( function(err, results) {
+            if(err) throw(err);
+            if(results.length > 1) {
+                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + timestamp);
+            }
+
+            var oldDate = results[0].mealDate;
+            var oldmeal = oldDate % 100;
+            var newmeal = mealdate % 100;
+            if(oldmeal != newmeal) {
+                // This should prolly turn into an update-meal-in-mongo request ..
+                console.log("updating both mealdate and meal for user " + username + " timestamp " + timestamp);
+                console.log("oldmeal is " + oldmeal + " newmeal is " + newmeal);
+            }
+            var newMealDate = (oldDate - (oldDate % 100)) + mealToConst(meal);
+        });
+
+    });
+}
 
 updateMealInMongo = function(username, timestamp, meal, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
@@ -2238,6 +2260,7 @@ app.post('/savereview', function(req, res, next) {
     }
     // not sure if this makes sense .. hopefully it will mitigate the affects of 
     // a denial of service attack.
+    /*
     if(req.session.last_saveinfo != undefined &&
             (Date.now() - req.session.last_saveinfo) < infoUpdateMs) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2245,6 +2268,7 @@ app.post('/savereview', function(req, res, next) {
         res.end();
         return;
     }
+    */
 
     req.session.last_saveinfo = Date.now();
 
@@ -2426,6 +2450,7 @@ app.post('/saverating', function(req, res, next) {
     }
     // not sure if this makes sense .. hopefully it will mitigate the affects of 
     // a denial of service attack.
+    /*
     if(req.session.last_saveinfo != undefined &&
             (Date.now() - req.session.last_saveinfo) < infoUpdateMs) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2433,6 +2458,7 @@ app.post('/saverating', function(req, res, next) {
         res.end();
         return;
     }
+    */
 
     req.session.last_saveinfo = Date.now();
 
@@ -2482,6 +2508,7 @@ app.post('/savemeal', function(req, res, next) {
     }
     // not sure if this makes sense .. hopefully it will mitigate the affects of 
     // a denial of service attack.
+    /*
     if(req.session.last_saveinfo != undefined &&
             (Date.now() - req.session.last_saveinfo) < infoUpdateMs) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2489,6 +2516,7 @@ app.post('/savemeal', function(req, res, next) {
         res.end();
         return;
     }
+    */
 
     req.session.last_saveinfo = Date.now();
 
@@ -2548,6 +2576,7 @@ app.post('/savetitle', function(req, res, next) {
     }
     // not sure if this makes sense .. hopefully it will mitigate the affects of 
     // a denial of service attack.
+    /*
     if(req.session.last_saveinfo != undefined &&
             (Date.now() - req.session.last_saveinfo) < infoUpdateMs) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2555,6 +2584,7 @@ app.post('/savetitle', function(req, res, next) {
         res.end();
         return;
     }
+    */
 
     req.session.last_saveinfo = Date.now();
 
@@ -2602,17 +2632,19 @@ app.post('/savereviewtmp', function(req, res, next) {
         res.end();
         return;
     }
+
+    // Getting rid of this logic for now- it could drop information
+/*
     if(req.session.last_savereviewtmp != undefined && 
             (Date.now() - req.session.last_savereviewtmp) < tmpReviewUpdateMs) {
-                /*
         console.log('dropping early *' + req.body.source + '* tmpreview for user ' + 
                 req.body.username + ' timestamp ' + req.body.timestamp);
-                */
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "okay"}));
         res.end();
         return;
     }
+*/
 
     req.session.last_savereviewtmp = Date.now();
 
@@ -4178,7 +4210,28 @@ app.post('/savemealdate', function(req, res, next) {
         res.end();
         return;
     }
-    // TODO - right here
+
+    if(req.body.timestamp == undefined) {
+        console.log('no timestamp in savemealdate request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("BAD-REQUEST");
+        res.end();
+        return;
+    }
+
+    if(req.body.mealdate == undefined) {
+        console.log('no mealdate in savemealdate request:');
+        console.log('session user is ' + req.session.user.username);
+        console.log('request user is ' + req.body.username);
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("BAD-REQUEST");
+        res.end();
+        return;
+    }
+
+    // Everything is scrubbed: update the mealdate in mongo
 
 });
 
