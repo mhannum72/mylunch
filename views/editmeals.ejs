@@ -18,12 +18,15 @@ TODO:
         <link rel="stylesheet" href="/css/960.css" />
         <link rel="stylesheet" href="/css/text.css" />
         <link rel="stylesheet" href="/css/mealdisp.css" />
+        <link rel="stylesheet" href="/css/datePicker.css" />
     </head>
     <body>
 
 
     <script src="/jquery.js"></script>
-    <script src="/jquery.slider.js"></script>
+    <!--    <script src="/jquery.slider.js"></script> -->
+    <script src="/date.js"></script>
+    <script src="/jquery.datePicker.js"></script>
     <script type="text/javascript">
 
         if(navigator.geolocation) {
@@ -71,6 +74,60 @@ TODO:
                 <%= prevmd != undefined ? prevmd:0 %>,
                 <%= prevts != undefined ? prevts:0 %>);
 
+        var NOMEAL = 0;
+        var BREAKFAST = 1;
+        var LUNCH = 2;
+        var DINNER = 3;
+        var SNACK = 4;
+        var OTHER = 5;
+        var MAXMEAL = 99;
+
+        function mealToConst(meal)
+        {
+            if(meal == undefined || !meal)
+            {
+                return NOMEAL;
+            }
+            if(meal == "breakfast")
+            {
+                return BREAKFAST;
+            }
+            if(meal == "lunch")
+            {
+                return LUNCH;
+            }
+            if(meal == "dinner")
+            {
+                return DINNER;
+            }
+            if(meal == "snack")
+            {
+                return SNACK;
+            }
+            if(meal == "other")
+            {
+                return OTHER;
+            }
+            throw new Error("Invalid mealConst: " + meal);
+        }
+
+        // Utility function
+		function mealDateToDate(mealdate)
+		{
+		    var year = mealdate / 1000000; mealdate %= 1000000;
+		    var month = mealdate /  10000; mealdate %=   10000;
+		    var day  = mealdate /     100;
+		    return new Date(year, month-1, day);
+		}
+
+        function dateToMealDate(date, mealconst)
+        {
+            (date.getFullYear()    * 1000000) +
+            ((date.getMonth() + 1)   * 10000) +
+            (date.getDate()            * 100) +
+            (mealconst)
+        }
+
         function updateReviewAjax(meal, review) {
             $.ajax({
                 url: '/savereview',
@@ -102,7 +159,7 @@ TODO:
                     }),
                 dataType: 'json',
                 complete: function(resp, astat) {
-                    console.log('put a breakpoint here');
+                    //console.log('put a breakpoint here');
                 }
             });
         }
@@ -241,6 +298,8 @@ TODO:
 
             hiddenIFrame.appendTo(hiddenElements);
 
+            var cnt = 0;
+
             // TODO - this could be slow.. maybe i could show a popup saying that things are uploading?
             function checkUploaded() {
 
@@ -254,7 +313,7 @@ TODO:
                 // first picture I've ever seen (pass that in the request).  Otherwise, 
                 // print an error message.
                 if(null == bodyText || bodyText == "") {
-                    console.log('checkUploaded bodyText is null - resetting timeout');
+                    console.log('checkUploaded bodyText is null - resetting timeout, cnt is ' + cnt++);
                     setTimeout(checkUploaded, 1000);
                     return;
                 }
@@ -277,6 +336,7 @@ TODO:
                     // Debug message
                     console.log('checkUploaded timestamp is ' + picts);
                     console.log('checkUploaded height is ' + height);
+                    console.log('cnt is ' + cnt++);
 
                     // Add to the picture-mobile
                     callback(null, pinfo);
@@ -652,7 +712,7 @@ TODO:
                 $dv.each(function(i) {
 
                     if(this.pinfo == undefined) {
-                        console.log('put a breakpoint here');
+                        console.log('pinfo is undefined?');
                     }
 
                     // Ignore the picture that's being removed
@@ -1147,7 +1207,9 @@ TODO:
                     else {
                         elm.sliderspeed = cursliderspeed;
                         elm.addremove = false;
-                        if(callback) callback(isfirst, timestamp);
+
+                        // Cancel load handler
+                        if(callback) callback(true, isfirst, timestamp);
                     }
                 }
 
@@ -1158,7 +1220,9 @@ TODO:
                     elm.sliderspeed = elm.minpicinitspeed;
 
                     // Wait for image to load
-                    $dv.find('img').load(function() {
+                    var $img = $dv.find('img');
+                    $img.on('load.rotate', function(e) {
+                        $img.off('load.rotate');
                         rotatetopicture(pinfo.timestamp);
                     });
                 }
@@ -1169,7 +1233,7 @@ TODO:
 
                     // Invoke callback with 'true' & the display timetamp
                     if(initadd == false && callback) {
-                        callback(isfirst, pinfo.timestamp);
+                        callback(true, isfirst, pinfo.timestamp);
                     }
                 }
 
@@ -1262,9 +1326,6 @@ TODO:
                     return false;
                 }
 
-                // Counter to set the animating flag
-                var count = 0;
-
                 // Get the current display element
                 var $cur = $dv.eq(0);
 
@@ -1307,6 +1368,9 @@ TODO:
 
                 // Make the key invisible
                 elm.hidekey(elm);
+
+                // Counter to set the animating flag
+                var count = 0;
 
                 // Animate current
                 $cur.stop().animate( 
@@ -1562,12 +1626,16 @@ TODO:
                 // Get the current display element
                 var $cur = $dv.eq(0);
 
+                var $img = $dv.find('img');
+
                 // Find the first and only picture
-                $dv.find('img').load(function() {
+                $img.on('load.first', function() {
+
+                    // Cancel event trigger
+                    $img.off('load.first');
 
                     // It's loaded, so callback
                     callback($dv.length);
-
                 });
                     
                 // Add this picture
@@ -1792,6 +1860,26 @@ TODO:
                 .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
                 .html('Upload New Picture');
 
+
+            function updatepicturecount(meal) {
+
+                // Update grid
+                var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
+
+                var div = $(divstr);
+
+                var picturecountstring;
+
+                if(meal.picInfo.length == 1) {
+                    picturecountstring = "1 picture";
+                }
+                else {
+                    picturecountstring = meal.picInfo.length + " pictures";
+                }
+
+                div.html(picturecountstring);
+            }
+
             // TODO - this should cleaned up!
             function setdisplaypicture(meal, timestamp) {
 
@@ -1828,19 +1916,29 @@ TODO:
                     if(err) throw(err);
 
                     // Add this to the carousel
-                    elm.addpicture(pinfo, false, false, function(ckfirst, ts) {
+                    elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
 
-                        // Make key photo if this was the first
-                        if(ckfirst) {
-                            setdisplaypicture(meal, ts);
+                        if(added) {
+
+                            // Make key photo if this was the first
+                            if(ckfirst) {
+                                setdisplaypicture(meal, ts);
+                            }
+
+                            console.log('pushing ' + pinfo.timestamp + ' ts is ' + ts);
+
+                            // Push this picture onto the meal.picInfo array
+                            meal.picInfo.push(pinfo);
+
+
+                            // Update picture count
+                            updatepicturecount(meal);
                         }
 
-                        // Push this picture onto the meal.picInfo array
-                        meal.picInfo.push(pinfo);
+                        // Set the focus back on the carousel
+                        elm.focus();
                     });
 
-                    // Set the focus back on the carousel
-                    elm.focus();
                 });
             });
 
@@ -1918,6 +2016,10 @@ TODO:
                             // Set new display picture
                             setdisplaypicture(meal, newts);
                         }
+
+                        // Update grid picture count
+                        updatepicturecount(meal);
+
                     }
                 });
             });
@@ -2088,6 +2190,82 @@ TODO:
             grid_uploaded_clear.appendTo(class8);
             */
 
+            var grid_date_pre = $(document.createElement('div'))
+                .attr('class', 'grid_3')
+                .html('Date');
+            
+            var grid_date = $(document.createElement('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_date');
+
+            var mealDate = mealDateToDate(meal.mealDate);
+
+            var grid_date_anchor = $(document.createElement('a'))
+                .attr('id', 'pop_date')
+                .attr('class', 'pop_date')
+                .attr('title', 'click to edit')
+                .html(new Date(mealDate).asString());
+
+            var grid_date_input = $(document.createElement('input'))
+                .attr('type', 'text')
+                .attr('class', 'pop_date_input')
+                .attr('id', 'pop_date_input')
+                .attr('name', 'pop_date_input')
+                .val(new Date(mealDate).asString());
+
+//            $('#pop_date_input').css({'display':'none'});
+
+            // This append *must* occur before the call to datePicker.
+            grid_date_input.appendTo(grid_date_anchor);
+
+            grid_date_anchor.appendTo(grid_date);
+
+            grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
+
+            grid_date_input.css({'display':'none'});
+//            grid_date.css({'display':'inline-block'});
+
+            grid_date.click(function() {
+                // grid_date_input.css({'display':'inline-block'});
+                grid_date_input.dpDisplay(grid_date);
+            });
+
+            grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
+                console.log('date selected sdate is ' + sdate);
+                console.log('date selected selected is ' + selected);
+                // TODO: why does this break if I set an HTML from this
+                // event handler .. 
+//                $('#pop_date');
+//                $('#pop_date').html(sdate.asString());
+                var mc = mealToConst(meal.meal);
+                var md = dateToMealDate(sdate, mc);
+                return false;
+            });
+
+                /*
+            grid_date.blur(function() {
+                console.log('I am blurred');
+            });
+            */
+
+            //grid_date_input.mouseleave(function() {
+                //grid_date_input.dpClose();
+            //});
+
+            var grid_date_clear = $(document.createElement('div'))
+                .attr('class', 'clear');
+
+
+            //grid_date_input.val(mealDate.asString());
+
+            // Create a calendar in this div
+            // TODO - declare an input, and make it the 'datePick' class
+
+            grid_date_pre.appendTo(class8);
+            grid_date.appendTo(class8);
+            grid_date_clear.appendTo(class8);
+
+            // 
             var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
 
             // Which meal
@@ -2097,8 +2275,8 @@ TODO:
 
             var grid_meal = $(document.createElement('div'))
                 .attr('class', 'grid_5')
-                .attr('id', 'pop_meal')
-                .html(whichmeal);
+                .attr('id', 'pop_meal');
+//                .html(whichmeal);
 
             // Create the which-meal selection menu
             var grid_meal_select_div = $(document.createElement('div'))
@@ -2912,14 +3090,6 @@ TODO:
                     });
         }
 
-		function mealDateToDate(mealdate)
-		{
-		    var year = mealdate / 1000000; mealdate %= 1000000;
-		    var month = mealdate /  10000; mealdate %=   10000;
-		    var day  = mealdate /     100;
-		    return new Date( year, month-1, day);
-		}
-
         function pictureDivInternal(meal, callback, picturegrid, lastpic) {
 
             // I can manipulate this directly in the delete code.
@@ -2965,7 +3135,8 @@ TODO:
                 .attr('src', imgSource);
 
             if(callback) {
-                image.load(function() {
+                image.on('load.picdivinternal', function() {
+                    image.off('load.picdivinternal');
                     callback(picturegrid, lastpic);
                 });
             }
@@ -2983,6 +3154,21 @@ TODO:
             }
 
             titletext.appendTo(center);
+
+            var picturecountstring;
+
+            if(meal.picInfo.length == 1) {
+                picturecountstring = "1 picture";
+            }
+            else {
+                picturecountstring = meal.picInfo.length + " pictures";
+            }
+
+            var picturecount = $(document.createElement('div'))
+                .attr('class', 'picturecount')
+                .html(picturecountstring);
+
+            picturecount.appendTo(center);
 
             return editInternal;
         }

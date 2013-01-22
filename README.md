@@ -5,27 +5,15 @@ mylunch
 todo
 ====
 
-* More important: add a calendar.  Allow people to select the mealdate via 
-  the calendar.
+* Declare an input box (possibly an invisible one ..), and make it the 
+  correct datepick class.
 
-* Should I animate to the new size?  I will try this ..
-
-* Maybe add a background design to the carousel so that the large-to-small
-  picture affect will be softened ..
+* Add a calendar to the popup to allow people to select the mealdate.
 
 * Animate the resizing of the carousel maybe (not sure if this is a priority)
 
-* There's still a lingering bug with the nomeal display picture on the grid-
-  pic page.
-
-* Fix the nomeal size
-
-* Animate the 'getting larger' part of adding a bigger picture.
-
-* Adds are weird - it looks like if it's bigger, it will stretch the current
-  picture.  This might just be a nomeal phenomenon ..
-
-* Animate-in the no-meal icon.  TODO: maybe don't tweak the heights? 
+* Maybe add a background design to the carousel so that the large-to-small
+  picture affect will be softened ..
 
 * Instead of relying on jquery finds, keep a golden copy of a single find in
   the elm object
@@ -41,29 +29,8 @@ todo
 * Maybe make rotatetopicture a general purpose thing?  Not sure if i'll use it
   but this is not a terrible idea.
 
-* Binary search for picinfo rather than scan
-
-* If the top picture of the carousel has been deleted, the grid page should
-  start using the next picture.  If no pictures are left, the grid page should
-  use the nomeal image.
-
-* Maybe the arrows should only appear if you hover over that side of the 
-  picture .. this shouldn't be a difficult change
-
-* Rename easing algorithm & encapsulate it within carousel
-
 * Make the pictures on the editmeals page more even
 
-* Maybe make sure the pictures are added in timestamp order?
-
-* Write the 'delete-picture' case.
-
-* The carousel is a good start, but I think I want it to be completely user
-  driven: the user can click a 'next' or a 'prev' arrow to show the next or 
-  prev pics.  Also, there can be a 'delete' button to allow a user to delete
-  a picture.
-
-* Test this
 * I'll need to revise the mongo access routines for 'getMealInfoFromMongoFwd'
   and 'getMealInfoFromMongoRev'.  The scheme now is not scalable, and not 
   efficient.  The problem is that I cannot use 'limit', so the database could

@@ -9,7 +9,8 @@
 ----------------------------------------------------------------------------------------------------*/
 
 body {
-  font: 30px/2.0 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+/*  font: 30px/2.0 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif; */
+  font: 30px/2.0 Arial, 'Liberation Sans', FreeSans, sans-serif; 
 }
 
 pre,

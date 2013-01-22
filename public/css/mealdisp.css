@@ -17,14 +17,14 @@ a:hover {
 }
 
 h1 {
-  font-family: Georgia, serif;
+/*  font-family: Georgia, serif; */
   font-weight: normal;
   padding-top: 20px;
   text-align: center;
 }
 
 h2 {
-  font-family: Georgia, serif;
+/*  font-family: Georgia, serif; */
   color: #ddd;
   font-weight: normal;
   padding-top: 20px;
@@ -317,8 +317,14 @@ textarea {
     color: blue !important;
 }
 
+#pop_date a:hover {
+    text-decoration: none;
+	cursor:pointer;
+    color: blue !important;
+}
+
 #edit_meals_title h2 {
-    font-family: Georgia, serif;
+/*    font-family: Georgia, serif; */
     color: #111;
 }
 
@@ -516,3 +522,32 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', end
 	z-index: 10010;
 
 }
+
+a.dp-choose-date {
+    /*
+    background: url("../images/calendar.png") no-repeat scroll 0 0 transparent;
+    */
+    display: block;
+    float: left;
+    height: 16px;
+    margin: 5px 3px 0;
+    overflow: hidden;
+    padding: 0;
+    /*
+    text-indent: -2000px;
+    */
+/*    text-indent: 50px; */
+    width: 16px;
+}
+
+#dp-popup {
+    z-index: 10050;
+}
+
+/*
+a.dp-choose-date.dp-disabled {
+    background-position: 0 -20px;
+    cursor: default;
+}
+*/
+
