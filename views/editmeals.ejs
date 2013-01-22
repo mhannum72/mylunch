@@ -29,12 +29,19 @@ TODO:
     <script src="/jquery.datePicker.js"></script>
     <script type="text/javascript">
 
-        // Provide my own Date-string type
+        // My own Date-string type
         Date.prototype.asMyString = function() {
             var monthNames = [ "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December" ];
             return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
         }
+
+
+        // Enable or disable debug trace
+        debuglog = function(text) {
+            console.log(text);
+        }
+
 
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -359,9 +366,11 @@ TODO:
                     var pinfo = { 'timestamp' : picts, 'height': height };
 
                     // Debug message
+                    /*
                     console.log('checkUploaded timestamp is ' + picts);
                     console.log('checkUploaded height is ' + height);
                     console.log('cnt is ' + cnt++);
+                    */
 
                     // Add to the picture-mobile
                     callback(null, pinfo);
@@ -2228,7 +2237,8 @@ TODO:
             var grid_date_anchor = $(document.createElement('a'))
                 .attr('id', 'pop_date_anchor')
                 .attr('class', 'pop_date_anchor')
-                .attr('title', 'click to edit');
+                .attr('title', 'click to edit')
+                .css({'display':'inline-block'});
 
             var grid_date_text = $(document.createElement('div'))
                 .attr('id', 'pop_date_text')
@@ -2247,7 +2257,8 @@ TODO:
 //            $('#pop_date_input').css({'display':'none'});
 
             // This append *must* occur before the call to datePicker.
-            grid_date_input.appendTo(grid_date_anchor);
+            //grid_date_input.appendTo(grid_date_anchor);
+            grid_date_input.appendTo(grid_date);
 
             grid_date_anchor.appendTo(grid_date);
 
@@ -2256,7 +2267,7 @@ TODO:
             grid_date_input.css({'display':'none'});
 //            grid_date.css({'display':'inline-block'});
 
-            grid_date.click(function() {
+            grid_date_text.click(function() {
                 // grid_date_input.css({'display':'inline-block'});
                 grid_date_input.dpDisplay(grid_date);
             });

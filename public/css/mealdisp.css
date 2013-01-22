@@ -317,6 +317,9 @@ textarea {
     color: blue !important;
 }
 
+#pop_date_anchor {
+}
+
 #pop_date a:hover {
     text-decoration: none;
 	cursor:pointer;

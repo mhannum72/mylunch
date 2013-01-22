@@ -217,6 +217,31 @@ updateRatingInMongo = function(username, timestamp, rating, callback) {
     });
 }
 
+function constToMeal(mc)
+{
+    if(mc == BREAKFAST)
+    {
+        return "breakfast";
+    }
+    if(mc == LUNCH)
+    {
+        return "lunch";
+    }
+    if(mc == DINNER)
+    {
+        return "dinner";
+    }
+    if(mc == SNACK)
+    {
+        return "snack";
+    }
+    if(mc == OTHER)
+    {
+        return "other";
+    }
+    return "?";
+}
+
 function mealToConst(meal)
 {
     if(meal == undefined || !meal)
@@ -243,7 +268,8 @@ function mealToConst(meal)
     {
         return OTHER;
     }
-    throw new Error("Invalid mealConst: " + meal);
+    return MAXMEAL;
+//    throw new Error("Invalid mealConst: " + meal);
 }
 
 updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
@@ -256,16 +282,31 @@ updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
             }
 
             var oldDate = results[0].mealDate;
-            var oldmeal = oldDate % 100;
-            var newmeal = mealdate % 100;
-            if(oldmeal != newmeal) {
-                // This should prolly turn into an update-meal-in-mongo request ..
-                console.log("updating both mealdate and meal for user " + username + " timestamp " + timestamp);
-                console.log("oldmeal is " + oldmeal + " newmeal is " + newmeal);
-            }
-            var newMealDate = (oldDate - (oldDate % 100)) + mealToConst(meal);
-        });
+            var oldmealconst = oldDate % 100;
+            var newmealconst = mealdate % 100;
+            var meal = constToMeal(oldmealconst);
 
+            if(oldmealconst != newmealconst) {
+                // This turns into an update mealdate and meal in mongo request
+                console.log("updating both mealdate and meal for user " + username + " timestamp " + timestamp);
+                console.log("oldmeal is " + oldmealconst + " newmeal is " + newmealconst);
+
+                var newmeal = constToMeal(newmealconst);
+                if(newmeal != "?") {
+                    meal=newmeal;
+                }
+                else {
+                    // Maintain the same const
+                    newmealconst = oldmealconst;
+                }
+            }
+            var newMealDate = (mealdate - (mealdate % 100)) + newmealconst;
+            mealinfo.update({username: username, timestamp: timestamp},
+                    {$set: {meal: meal, mealDate: newMealDate}}, {safe: true}, function(err) {
+                if(err) throw(err);
+                callback(err);
+            });
+        });
     });
 }
 
@@ -4232,6 +4273,22 @@ app.post('/savemealdate', function(req, res, next) {
     }
 
     // Everything is scrubbed: update the mealdate in mongo
+    updateMealDateInMongo(req.session.user.username, parseInt(req.body.timestamp, 10),
+            parseInt(req.body.mealdate,10), function(err) {
+                if(err) {
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    res.write("DB-ERROR");
+                    res.end();
+                    return;
+                }
+                else {
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    res.write("SUCCESS");
+                    res.end();
+                    return;
+                }
+            }
+    );
 
 });
 
