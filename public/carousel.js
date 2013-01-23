@@ -3,11 +3,8 @@
 <script src="/jquery.js"></script>
 
 
-// Picture Carousel in this div using picinfo
-// function createPictureCarousel(picinfo, findpicix, keytimestamp) {
-
-//createPictureCarousel = (function(picinfo, findpicix, keytimestamp) {
-
+// This was try1 at object-oriented-ish javascript.  It works great but I know
+// better now.
 function createPictureCarousel(picinfo, findpicix, keytimestamp) {
     // Create element wrapper
     var dc = function(a)
@@ -1247,5 +1244,4 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
 
     // Return the elm carousel object
     return elm;
-
 }

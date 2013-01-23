@@ -83,8 +83,8 @@ TODO:
             this.nextts = nextts;
             this.prevmd = prevmd;
             this.prevts = prevts;
-            this.carousel_interval = 5000;
-            this.carousel_fadetime = 0;
+            //this.carousel_interval = 5000;
+            //this.carousel_fadetime = 0;
             return this;
         }
 
@@ -96,59 +96,75 @@ TODO:
                 <%= prevmd != undefined ? prevmd:0 %>,
                 <%= prevts != undefined ? prevts:0 %>);
 
-        var NOMEAL = 0;
-        var BREAKFAST = 1;
-        var LUNCH = 2;
-        var DINNER = 3;
-        var SNACK = 4;
-        var OTHER = 5;
-        var MAXMEAL = 99;
+        // Functionize mealinfo
+        var MEALINFO = (function() {
 
-        function mealToConst(meal)
-        {
-            if(meal == undefined || !meal)
+            var NOMEAL = 0;
+            var BREAKFAST = 1;
+            var LUNCH = 2;
+            var DINNER = 3;
+            var SNACK = 4;
+            var OTHER = 5;
+            var MAXMEAL = 99;
+    
+            function mealToConst(meal)
             {
-                return NOMEAL;
+                if(meal == undefined || !meal)
+                {
+                    return NOMEAL;
+                }
+                if(meal == "breakfast")
+                {
+                    return BREAKFAST;
+                }
+                if(meal == "lunch")
+                {
+                    return LUNCH;
+                }
+                if(meal == "dinner")
+                {
+                    return DINNER;
+                }
+                if(meal == "snack")
+                {
+                    return SNACK;
+                }
+                if(meal == "other")
+                {
+                    return OTHER;
+                }
+                throw new Error("Invalid mealConst: " + meal);
             }
-            if(meal == "breakfast")
+    
+            // Utility function
+    		function mealDateToDate(mealdate)
+    		{
+    		    var year = mealdate / 1000000; mealdate %= 1000000;
+    		    var month = mealdate /  10000; mealdate %=   10000;
+    		    var day  = mealdate /     100;
+    		    return new Date(year, month-1, day);
+    		}
+    
+            function dateToMealDate(date, mealconst)
             {
-                return BREAKFAST;
+                return  (date.getFullYear()    * 1000000) +
+                        ((date.getMonth() + 1)   * 10000) +
+                        (date.getDate()            * 100) +
+                        (mealconst);
             }
-            if(meal == "lunch")
-            {
-                return LUNCH;
-            }
-            if(meal == "dinner")
-            {
-                return DINNER;
-            }
-            if(meal == "snack")
-            {
-                return SNACK;
-            }
-            if(meal == "other")
-            {
-                return OTHER;
-            }
-            throw new Error("Invalid mealConst: " + meal);
-        }
 
-        // Utility function
-		function mealDateToDate(mealdate)
-		{
-		    var year = mealdate / 1000000; mealdate %= 1000000;
-		    var month = mealdate /  10000; mealdate %=   10000;
-		    var day  = mealdate /     100;
-		    return new Date(year, month-1, day);
-		}
-
-        function dateToMealDate(date, mealconst)
-        {
-            return  (date.getFullYear()    * 1000000) +
-                    ((date.getMonth() + 1)   * 10000) +
-                    (date.getDate()            * 100) +
-                    (mealconst);
-        }
+            return {
+                dateToMealDate : dateToMealDate,
+                mealDateToDate : mealDateToDate,
+                NOMEAL : NOMEAL,
+                BREAKFAST : BREAKFAST,
+                LUNCH : LUNCH,
+                DINNER : DINNER,
+                SNACK : SNACK,
+                OTHER : OTHER,
+                MAXMEAL : MAXMEAL
+            };
+        }());
 
         function updateMealDateAjax(meal, mealdate) {
             $.ajax({
@@ -264,10 +280,6 @@ TODO:
         }
         else if($.browser.chrome) {
             textAreaWidthCols = 57;
-        }
-
-        // TODO
-        function toggleDeleteMode() {
         }
 
         // Create a new meal via an ajax request & then show it's attributes
@@ -952,7 +964,7 @@ TODO:
                 .attr('class', 'grid_5')
                 .attr('id', 'pop_date');
 
-            var mealDate = mealDateToDate(meal.mealDate);
+            var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
 
             var grid_date_anchor = $(dc('a'))
                 .attr('id', 'pop_date_anchor')
@@ -997,7 +1009,7 @@ TODO:
                 $('#pop_date_text').html(sdate.asMyString());
 
                 // Calculate the mealdate
-                var md = dateToMealDate(sdate, mealToConst(meal.meal));
+                var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
 
                 // Update server side
                 updateMealDateAjax(meal, md);
@@ -1863,7 +1875,7 @@ TODO:
             center.appendTo(editInternal);
 
             var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            var hoverDate = (mealDateToDate(meal.mealDate)).toLocaleDateString();
+            var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
             var hoverTxt = mealtxt + " on " + hoverDate;
 
             var editImageDiv = $(dc('div'));
@@ -2068,7 +2080,6 @@ TODO:
 
         function displayPictureGrid(mealinfo, nextpage, prevpage) {
 
-            var pictureGridContainer = $('#pictureGridContainer');
             var loaded = 0;
             
             if(mealinfo != undefined && mealinfo.length > 0) {
