@@ -46,7 +46,7 @@ TODO:
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    console.log('updating position');
+                    debuglog('updating position');
                     $.ajax({
                         url: '/updateposition',
                         type: 'POST',
@@ -191,7 +191,7 @@ TODO:
                     }),
                 dataType: 'json',
                 complete: function(resp, astat) {
-                    //console.log('put a breakpoint here');
+                    //debuglog('put a breakpoint here');
                 }
             });
         }
@@ -274,7 +274,7 @@ TODO:
                             window.location.replace("/signin");
                         }
                         else {
-                            console.log("Response error is ", response.message);
+                            debuglog("Response error is ", response.message);
                             window.location.replace("/");
                         }
                         return;
@@ -345,7 +345,7 @@ TODO:
                 // first picture I've ever seen (pass that in the request).  Otherwise, 
                 // print an error message.
                 if(null == bodyText || bodyText == "") {
-                    console.log('checkUploaded bodyText is null - resetting timeout, cnt is ' + cnt++);
+                    debuglog('checkUploaded bodyText is null - resetting timeout, cnt is ' + cnt++);
                     setTimeout(checkUploaded, 1000);
                     return;
                 }
@@ -366,11 +366,9 @@ TODO:
                     var pinfo = { 'timestamp' : picts, 'height': height };
 
                     // Debug message
-                    /*
-                    console.log('checkUploaded timestamp is ' + picts);
-                    console.log('checkUploaded height is ' + height);
-                    console.log('cnt is ' + cnt++);
-                    */
+                    debuglog('checkUploaded timestamp is ' + picts);
+                    debuglog('checkUploaded height is ' + height);
+                    debuglog('cnt is ' + cnt++);
 
                     // Add to the picture-mobile
                     callback(null, pinfo);
@@ -378,7 +376,7 @@ TODO:
                 }
                 else {
                     // Redirect to the homepage on error
-                    console.log('Error from server: ' + bodyText);
+                    debuglog('Error from server: ' + bodyText);
                     window.location.replace("/");
                 }
             }
@@ -510,7 +508,7 @@ TODO:
 
             // This shouldn't happen
             if(!pinfo || pinfo.length <= 0) {
-                console.log('Error: findpicidx called with a null pinfo');
+                debuglog('Error: findpicidx called with a null pinfo');
             }
 
             // Loop
@@ -746,7 +744,7 @@ TODO:
                 $dv.each(function(i) {
 
                     if(this.pinfo == undefined) {
-                        console.log('pinfo is undefined?');
+                        debuglog('pinfo is undefined?');
                     }
 
                     // Ignore the picture that's being removed
@@ -768,7 +766,7 @@ TODO:
 
                 // 'Assert'
                 if(elm.numpics > 0 && counter != elm.numpics) {
-                    console.log('Error: numpics mismatch!');
+                    debuglog('Error: numpics mismatch!');
                 }
             }
 
@@ -950,7 +948,7 @@ TODO:
                 // Check addremove flag
                 if(elm.addremove) {
 
-                    console.log('Removepicture returning because we are add removing.');
+                    debuglog('Removepicture returning because we are add removing.');
                     if(callback) callback(false);
                     return false;
 
@@ -1008,7 +1006,7 @@ TODO:
                     // Append this to my viewport
                     $nomeal.appendTo(elm.viewport);
 
-                    console.log('check nomeal here');
+                    debuglog('check nomeal here');
                 }
                 else if($target.hasClass('pic-lastts')) {
 
@@ -1063,7 +1061,7 @@ TODO:
                 // Check addremove flag
                 if(elm.addremove) {
 
-                    console.log('Addpicture returning because we are add removing.');
+                    debuglog('Addpicture returning because we are add removing.');
                     if(callback) callback(false);
                     return false;
 
@@ -1225,7 +1223,7 @@ TODO:
                             function(didr) {
 
                                 if(!didr) { 
-                                    console.log('did not rotate?');
+                                    debuglog('did not rotate?');
                                 }
                                 else { 
                                     rotatetopicture(timestamp); 
@@ -1279,7 +1277,7 @@ TODO:
 
                     // Print an error message
                     if(lastkey && lastkey.length > 0) {
-                        console.log('Severe error: multiple key-pictures!');
+                        debuglog('Severe error: multiple key-pictures!');
                         lastkey.removeClass('key-picture');
                     }
                     
@@ -1701,7 +1699,7 @@ TODO:
 
                 // Return immediately if we're already rotating
                 if(elm.rotating == true) {
-                    console.log("carousel is already rotating.");
+                    debuglog("carousel is already rotating.");
                     return;
                 }
 
@@ -1959,7 +1957,7 @@ TODO:
                                 setdisplaypicture(meal, ts);
                             }
 
-                            console.log('pushing ' + pinfo.timestamp + ' ts is ' + ts);
+                            debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
 
                             // Push this picture onto the meal.picInfo array
                             meal.picInfo.push(pinfo);
@@ -2287,7 +2285,7 @@ TODO:
 
                 /*
             grid_date.blur(function() {
-                console.log('I am blurred');
+                debuglog('I am blurred');
             });
             */
 
@@ -2970,7 +2968,7 @@ TODO:
                         prevPage = page_globals.prevPage;
                     }
                     if(page_globals.nextmd > 0) {
-                        console.log('deleteAnchor.click: page_globals nextmd is set for empty page?');
+                        debuglog('deleteAnchor.click: page_globals nextmd is set for empty page?');
                     }
                 }
 
@@ -2990,7 +2988,7 @@ TODO:
                                 window.location.replace("/signin");
                             }
                             else {
-                                console.log("getJSON response error is ", response.errStr);
+                                debuglog("getJSON response error is ", response.errStr);
                                 window.location.replace("/");
                             }
                             return;
@@ -3395,7 +3393,7 @@ TODO:
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
                             // Send this error to a space at the top..
-                            console.log('editpagenext error: ' + response.errStr);
+                            debuglog('editpagenext error: ' + response.errStr);
                         }
                         else {
                             displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
@@ -3414,7 +3412,7 @@ TODO:
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
                             // Send this error to a space at the top..
-                            console.log('editpageprev error: ' + response.errStr);
+                            debuglog('editpageprev error: ' + response.errStr);
                         }
                         else {
                             displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
@@ -3437,7 +3435,7 @@ TODO:
                 this.meal = meal;
                 this.mealDate = mealDate;
                 if(!picInfo) {
-                    console.log('picinfo is null??');
+                    debuglog('picinfo is null??');
                 }
                 this.picInfo = picInfo;
                 return this;
