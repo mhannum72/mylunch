@@ -154,15 +154,16 @@ TODO:
             }
 
             return {
-                dateToMealDate : dateToMealDate,
-                mealDateToDate : mealDateToDate,
-                NOMEAL : NOMEAL,
-                BREAKFAST : BREAKFAST,
-                LUNCH : LUNCH,
-                DINNER : DINNER,
-                SNACK : SNACK,
-                OTHER : OTHER,
-                MAXMEAL : MAXMEAL
+                dateToMealDate  : dateToMealDate,
+                mealDateToDate  : mealDateToDate,
+                mealToConst     : mealToConst,
+                NOMEAL          : NOMEAL,
+                BREAKFAST       : BREAKFAST,
+                LUNCH           : LUNCH,
+                DINNER          : DINNER,
+                SNACK           : SNACK,
+                OTHER           : OTHER,
+                MAXMEAL         : MAXMEAL
             };
         }());
 
@@ -412,111 +413,6 @@ TODO:
 
             $('#inputUpload').click();
 
-        } /* uploadMealPopup */
-
-        // Create a div which will display the nomeal icon in the carousel
-        function nomealdiv(elm) {
-
-            // If this has already been created return it
-            if(elm.$nomealdiv) {
-                return elm.$nomealdiv;
-            }
-
-            // Create div to contain this picture
-            var $dv = $(dc('div'))
-                .attr('id', 'pic-div-nomeal')
-                .attr('class', 'pic-div')
-                .css('width', '0px');
-
-            // Internal class
-            var $dvint = $(dc('div'))
-                .attr('class', 'pic-div-int')
-                .css('width', '780px');
-
-            // Click-anchor 
-            var anchor = $(dc('a'))
-                .attr('class', 'pic-div-anchor');
-
-            // Source string
-            var img_source = '/images/nomeal.png';
-
-            // Image tag
-            var img = $(dc('img'))
-                .attr('class', 'pic-div-image')
-                .attr('src', img_source);
-
-            // Append these 
-            img.appendTo(anchor);
-            anchor.appendTo($dvint);
-            $dvint.appendTo($dv);
-
-            $dv[0].pinfo = { height: 256, width: 256, timestamp: -1 };
-                
-            // Cache 
-            elm.$nomealdiv = $dv;
-
-            return $dv;
-        }
-
-        // Create an div which will contain a carousel picture
-        function picturediv(elm, pinfo) {
-
-            // Create div to contain this picture
-            var $dv = $(dc('div'))
-                .attr('id', 'pic-div-' + pinfo.timestamp)
-                .attr('class', 'pic-div')
-                .css('width', '0px');
-
-            var $dvint = $(dc('div'))
-                .attr('class', 'pic-div-int')
-                .css('position', 'absolute')
-                .css('height', pinfo.height + 'px')
-                .css('width', '780px');
-
-            // Store pinfo 
-            $dv[0].pinfo = pinfo;
-
-            // Click-anchor 
-            var anchor = $(dc('a'))
-                .attr('class', 'pic-div-anchor');
-
-            // Source string
-            var img_source = '/pics/' + page_globals.username + '/' + pinfo.timestamp;
-
-            // Image tag
-            var img = $(dc('img'))
-                .attr('class', 'pic-div-image')
-                .attr('src', img_source);
-
-            // TODO write picture click handler
-            /* 
-            anchor.click(function(){
-
-                if(elm.stopped == false) {
-
-                    clearTimeout(elm.pictimeout);
-                    elm.stopped = true;
-
-                }
-                else{
-
-                    elm.stopped = false;
-                    rotatepictures(elm);
-
-                }
-            });
-            */
-
-            // Append image to anchor
-            img.appendTo(anchor);
-
-            // Append anchor to internal-div
-            anchor.appendTo($dvint);
-
-            // Append internal-div to div
-            $dvint.appendTo($dv);
-
-            return $dv;
         }
 
         // Binary search for a specific timestamp
@@ -573,8 +469,9 @@ TODO:
                 .attr('id', 'mealCarouselContainer')
                 .attr('class', 'mealCarouselContainer');
 
-            // Create a carousel
-            var elm = createPictureCarousel(meal.picInfo, findpicidx, meal.keytimestamp);
+            // Create a carousel-  TODO: 'pics' argument from ejs ..
+            var elm = createPictureCarousel(page_globals.username, 'pics', 
+                    meal.picInfo, findpicidx, meal.keytimestamp);
 
             // Append it to the div
             elm.appendTo(carouselDivContainer);
@@ -1667,6 +1564,7 @@ TODO:
             var deleteClear = $(dc('div'))
                 .attr('class', 'clear');
 
+
             // This is a getJSON request:
             // 
             // REQUEST
@@ -1731,7 +1629,7 @@ TODO:
                         // If this was the last picture on the page & mealinfo is set, these meals belong
                         // to the previous page.  displayPictureGrid handles everything.
                         if(lastPic) {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
+                            pictureGrid.display(response.mealinfo, response.nextpage, response.prevpage);
                         }
                         else {
 
@@ -1865,107 +1763,6 @@ TODO:
                     });
         }
 
-        function pictureDivInternal(meal, callback, picturegrid, lastpic) {
-
-            // I can manipulate this directly in the delete code.
-            var editInternal = $(dc('div'))
-                .attr('class', 'editGridInternal');
-
-            var center = $(dc('center'));
-            center.appendTo(editInternal);
-
-            var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
-            var hoverTxt = mealtxt + " on " + hoverDate;
-
-            var editImageDiv = $(dc('div'));
-
-            editImageDiv.appendTo(center);
-
-            var onClickStr = 'showAttributes("' + meal.username + '",' + meal.timestamp + ');';
-
-            var anchor = $(dc('a'))
-                .attr('href', 'javascript:void(0)')
-                .attr('onclick', onClickStr)
-                .attr('title', hoverTxt);
-
-            anchor.appendTo(editImageDiv);
-
-            var imgSource;
-
-            if(!meal.picInfo || meal.picInfo.length <= 0) {
-                imgSource = '/images/nomeal.png';
-            }
-            // If there's a key picture, show that
-            else if (meal.keytimestamp) {
-                imgSource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
-            }
-            // Use the first picture
-            else{
-                imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
-            }
-
-            var image = $(dc('img'))
-                .attr('class', 'editImage')
-                .attr('src', imgSource);
-
-            if(callback) {
-                image.on('load.picdivinternal', function() {
-                    image.off('load.picdivinternal');
-                    callback(picturegrid, lastpic);
-                });
-            }
-
-            image.appendTo(anchor);
-
-            var titletext = $(dc('div'))
-                .attr('class', 'titleText');
-
-            if(meal.title != undefined && meal.title.length > 0) {
-                titletext.html(meal.title);
-            }
-            else {
-                titletext.html('untitled');
-            }
-
-            titletext.appendTo(center);
-
-            var picturecountstring;
-
-            if(meal.picInfo.length == 1) {
-                picturecountstring = "1 picture";
-            }
-            else {
-                picturecountstring = meal.picInfo.length + " pictures";
-            }
-
-            var picturecount = $(dc('div'))
-                .attr('class', 'picturecount')
-                .html(picturecountstring);
-
-            picturecount.appendTo(center);
-
-            return editInternal;
-        }
-
-        function pictureDiv(meal, callback, pictureGrid, lastpic) {
-
-            var tsId = 'gridTimestamp' + meal.timestamp;
-
-            // Id this with both an index and a timestamp
-            var editgrid = $(dc('div'))
-                .attr('id', tsId)
-                .attr('class', 'grid_4 editheight editgrid');
-
-            // Create an internal pictureDiv that I can switchout in the delete code
-            var editInternal = pictureDivInternal(meal, callback, pictureGrid, lastpic);
-
-            editInternal.appendTo(editgrid);
-
-            // Return the top-level object
-            return editgrid;
-        }
-
         function nextPrevPageLinks(nextpage, prevpage) {
             var prevGrid;
             var nextGrid;
@@ -2054,30 +1851,286 @@ TODO:
             page_globals.prevPage = prevpage;
         }
 
-        function pictureGridInner(mealinfo, showmeals, callback)
-        {
-            var pictureGrid = $(dc('div'))
-                .attr('class', 'pictureGrid');
+
+        function pictureDivInternal(meal, callback, picturegrid, lastpic) {
+
+            // I can manipulate this directly in the delete code.
+            var editInternal = $(dc('div'))
+                .attr('class', 'editGridInternal');
+
+            var center = $(dc('center'));
+            center.appendTo(editInternal);
+
+            var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+            var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
+            var hoverTxt = mealtxt + " on " + hoverDate;
+
+            var editImageDiv = $(dc('div'));
+
+            editImageDiv.appendTo(center);
+
+            var onClickStr = 'showAttributes("' + meal.username + '",' + meal.timestamp + ');';
+
+            var anchor = $(dc('a'))
+                .attr('href', 'javascript:void(0)')
+                .attr('onclick', onClickStr)
+                .attr('title', hoverTxt);
+
+            anchor.appendTo(editImageDiv);
+
+            var imgSource;
+
+            if(!meal.picInfo || meal.picInfo.length <= 0) {
+                imgSource = '/images/nomeal.png';
+            }
+            // If there's a key picture, show that
+            else if (meal.keytimestamp) {
+                imgSource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
+            }
+            // Use the first picture
+            else{
+                imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
+            }
+
+            var image = $(dc('img'))
+                .attr('class', 'editImage')
+                .attr('src', imgSource);
+
+            if(callback) {
+                image.on('load.picdivinternal', function() {
+                    image.off('load.picdivinternal');
+                    callback(picturegrid, lastpic);
+                });
+            }
+
+            image.appendTo(anchor);
+
+            var titletext = $(dc('div'))
+                .attr('class', 'titleText');
+
+            if(meal.title != undefined && meal.title.length > 0) {
+                titletext.html(meal.title);
+            }
+            else {
+                titletext.html('untitled');
+            }
+
+            titletext.appendTo(center);
+
+            var picturecountstring;
+
+            if(meal.picInfo.length == 1) {
+                picturecountstring = "1 picture";
+            }
+            else {
+                picturecountstring = meal.picInfo.length + " pictures";
+            }
+
+            var picturecount = $(dc('div'))
+                .attr('class', 'picturecount')
+                .html(picturecountstring);
+
+            picturecount.appendTo(center);
+
+            return editInternal;
+        }
 
 
-            for(cnt = 0 ; cnt < showmeals; cnt++) {
-                if(cnt < showmeals) {
-                    var meal = mealinfo[cnt];
-                    var gridpic = pictureDiv(meal, callback, pictureGrid, showmeals);
+        // Modular picture Grid
+        var pictureGrid = (function (pdiv, cfg) {
 
-                    gridpic.appendTo(pictureGrid);
+            // Where this will appear on the page
+            var parentDiv = pdiv;
 
-                    if(cnt % 3 == 2) {
-                        var divclear = $(dc('div'))
-                            .attr('class', 'clear');
-                        divclear.appendTo(pictureGrid);
+            // Number of meals we're showing per page
+            var showMealsPerPage = cfg.showMealsPerPage ? 
+                    cfg.showMealsPerPage : 9;
+
+            // Keep track of what's currently displayed
+            var currentGrid;
+
+            // Create element wrapper
+            var dc = function(a)
+            {
+                return document.createElement(a);
+            };
+
+            // Create the 'internal' grid object
+            function pdivint(meal, callback, picturegrid, lastpic) {
+    
+                // I can manipulate this directly in the delete code.
+                var editInternal = $(dc('div'))
+                    .attr('class', 'editGridInternal');
+    
+                var center = $(dc('center'));
+                center.appendTo(editInternal);
+    
+                var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
+                var hoverTxt = mealtxt + " on " + hoverDate;
+    
+                var editImageDiv = $(dc('div'));
+    
+                editImageDiv.appendTo(center);
+    
+                var onClickStr = 'showAttributes("' + meal.username + '",' + meal.timestamp + ');';
+    
+                var anchor = $(dc('a'))
+                    .attr('href', 'javascript:void(0)')
+                    .attr('onclick', onClickStr)
+                    .attr('title', hoverTxt);
+    
+                anchor.appendTo(editImageDiv);
+    
+                var imgSource;
+    
+                if(!meal.picInfo || meal.picInfo.length <= 0) {
+                    imgSource = '/images/nomeal.png';
+                }
+                // If there's a key picture, show that
+                else if (meal.keytimestamp) {
+                    imgSource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
+                }
+                // Use the first picture
+                else{
+                    imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
+                }
+    
+                var image = $(dc('img'))
+                    .attr('class', 'editImage')
+                    .attr('src', imgSource);
+    
+                if(callback) {
+                    image.on('load.picdivinternal', function() {
+                        image.off('load.picdivinternal');
+                        callback(picturegrid, lastpic);
+                    });
+                }
+    
+                image.appendTo(anchor);
+    
+                var titletext = $(dc('div'))
+                    .attr('class', 'titleText');
+    
+                if(meal.title != undefined && meal.title.length > 0) {
+                    titletext.html(meal.title);
+                }
+                else {
+                    titletext.html('untitled');
+                }
+    
+                titletext.appendTo(center);
+    
+                var picturecountstring;
+    
+                if(meal.picInfo.length == 1) {
+                    picturecountstring = "1 picture";
+                }
+                else {
+                    picturecountstring = meal.picInfo.length + " pictures";
+                }
+    
+                var picturecount = $(dc('div'))
+                    .attr('class', 'picturecount')
+                    .html(picturecountstring);
+    
+                picturecount.appendTo(center);
+    
+                return editInternal;
+            }
+
+            // Create a frame
+            function pdiv(meal, callback, pictureGrid, lastpic) {
+    
+                var tsId = 'gridTimestamp' + meal.timestamp;
+    
+                // Id this with both an index and a timestamp
+                var editgrid = $(dc('div'))
+                    .attr('id', tsId)
+                    .attr('class', 'grid_4 editheight editgrid');
+    
+                // Create an internal pictureDiv that I can switchout in the delete code
+                var editInternal = pdivint(meal, callback, pictureGrid, lastpic);
+    
+                editInternal.appendTo(editgrid);
+    
+                // Return the top-level object
+                return editgrid;
+            }
+
+            // Internal function which displays the picture grid
+            function inner(mealinfo, showmeals, callback)
+            {
+                var pictureGrid = $(dc('div'))
+                    .attr('class', 'pictureGrid');
+    
+                for(cnt = 0 ; cnt < showmeals; cnt++) {
+                    if(cnt < showmeals) {
+                        var meal = mealinfo[cnt];
+                        var gridpic = pdiv(meal, callback, pictureGrid, showmeals);
+    
+                        gridpic.appendTo(pictureGrid);
+    
+                        if(cnt % 3 == 2) {
+                            var divclear = $(dc('div'))
+                                .attr('class', 'clear');
+                            divclear.appendTo(pictureGrid);
+                        }
                     }
+                }
+    
+                return pictureGrid; 
+            }
+
+
+            // Universal display function
+            function displayGrid(mealinfo, nextpage, prevpage) {
+
+                // Keep count of pictures which have loaded
+                var loaded = 0;
+
+                // Test mealinfo for validity
+                if(mealinfo != undefined && mealinfo.length > 0) {
+
+                    // Determine last picture
+                    var endpic = (mealinfo.length < showMealsPerPage) ? 
+                        mealinfo.length : showMealsPerPage;
+
+                    var pictureGridNew = inner(mealinfo, endpic, function(showImages) {
+
+                        if(++loaded == endpic) {
+
+                            // Remove the currentGrid if its there
+                            if(currentGrid) {
+                                $(currentGrid).remove();
+                                currentGrid = null;
+                            }
+
+                            pictureGridNew.css({'display': 'none'});
+                            pictureGridNew.attr('id', 'pictureGrid');
+                            pictureGridNew.appendTo($('#pictureGridDiv'));
+                            pictureGridNew.css({'display': 'block'});
+                            nextPrevPageLinks(nextpage, prevpage);
+
+                        }
+
+                    });
+                    
                 }
             }
 
-            return pictureGrid; 
-        }
+            return {
+                displayGrid                 : displayGrid
+            };
+        }(  document.getElementById('pictureGridDiv'),
+            { showMealsPerPage    : page_globals.showMealsPerPage     }));
+                
+                
+        // pictureGrid.setShowMeals(page_globals.showMealsPerPage);
 
+        //pictureGrid.setParentDiv(document.getElementById('pictureGrid'));
+
+        // picturegrid
         function displayPictureGrid(mealinfo, nextpage, prevpage) {
 
             var loaded = 0;
@@ -2111,8 +2164,8 @@ TODO:
                 $('#pictureGrid').empty();
                 $('#pictureGridDiv').html('<center><b>No Meals to View</b><center>');
             }
-
         }
+//        }
 
         function drawNextMeals(nextpage) {
 
@@ -2129,7 +2182,7 @@ TODO:
                             debuglog('editpagenext error: ' + response.errStr);
                         }
                         else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
+                            pictureGrid.displaygrid(response.mealinfo, response.nextpage, response.prevpage);
                         }
                     });
             return 0;
@@ -2148,7 +2201,7 @@ TODO:
                             debuglog('editpageprev error: ' + response.errStr);
                         }
                         else {
-                            displayPictureGrid(response.mealinfo, response.nextpage, response.prevpage);
+                            pictureGrid.displaygrid(response.mealinfo, response.nextpage, response.prevpage);
                         }
                     });
             return 0;
@@ -2157,7 +2210,6 @@ TODO:
         $(document).ready(function() {
             $.ajaxSetup ({ cache: false });
 
-            // Add an easing function
             var minfo = [];
 
             function truncMeal(username, timestamp, keytimestamp, title, meal, mealDate, picInfo) {
@@ -2222,7 +2274,8 @@ TODO:
             }
             %>
 
-            displayPictureGrid(minfo, page_globals.nextPage, page_globals.prevPage);
+            // Display the grid
+            pictureGrid.displaygrid(minfo, page_globals.nextPage, page_globals.prevPage);
     });
 
 
@@ -2252,8 +2305,10 @@ TODO:
             <br><br>
 
             <div class='pictureGridDiv' id='pictureGridDiv' name='pictureGridDiv'>
+                <!--
                 <div class='pictureGrid' id='pictureGrid' name='pictureGrid'>
                 </div>
+                -->
             </div>
 
             <div class='nextprev' id='nextprev' name='nextprev'>

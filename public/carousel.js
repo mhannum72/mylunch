@@ -5,7 +5,7 @@
 
 // This was try1 at object-oriented-ish javascript.  It works great but I know
 // better now.
-function createPictureCarousel(picinfo, findpicix, keytimestamp) {
+function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimestamp) {
     // Create element wrapper
     var dc = function(a)
     {
@@ -21,6 +21,12 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
 
     // Store this away
     this.elm = elm;
+
+    // Store the username away
+    elm.username = username;
+
+    // Store the source dir
+    elm.sourcedir = sourcedir;
 
     // Keep track of the picture count
     elm.numpics = 0;
@@ -95,6 +101,67 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
 
     // Hard code maxwidth
     elm.maxwidth = 780;
+
+    // Create an div which will contain a carousel picture
+    elm.picturediv = function(elm, pinfo) {
+
+        // Create div to contain this picture
+        var $dv = $(dc('div'))
+            .attr('id', 'pic-div-' + pinfo.timestamp)
+            .attr('class', 'pic-div')
+            .css('width', '0px');
+
+        var $dvint = $(dc('div'))
+            .attr('class', 'pic-div-int')
+            .css('position', 'absolute')
+            .css('height', pinfo.height + 'px')
+            .css('width', '780px');
+
+        // Store pinfo 
+        $dv[0].pinfo = pinfo;
+
+        // Click-anchor 
+        var anchor = $(dc('a'))
+            .attr('class', 'pic-div-anchor');
+
+        // Source string
+        var img_source = '/' + elm.sourcedir + '/' + elm.username + '/' + pinfo.timestamp;
+
+        // Image tag
+        var img = $(dc('img'))
+            .attr('class', 'pic-div-image')
+            .attr('src', img_source);
+
+        // TODO write picture click handler
+        /* 
+        anchor.click(function(){
+
+            if(elm.stopped == false) {
+
+                clearTimeout(elm.pictimeout);
+                elm.stopped = true;
+
+            }
+            else{
+
+                elm.stopped = false;
+                rotatepictures(elm);
+
+            }
+        });
+        */
+
+        // Append image to anchor
+        img.appendTo(anchor);
+
+        // Append anchor to internal-div
+        anchor.appendTo($dvint);
+
+        // Append internal-div to div
+        $dvint.appendTo($dv);
+
+        return $dv;
+    }
 
     // Add a list of objects to fadein / fadeout
     elm.addfadeobj = function(element) {
@@ -182,11 +249,55 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
 
     });
 
+    // Create a div which will display the nomeal icon in the carousel
+    elm.nomealdiv = function(elm) {
+
+        // If this has already been created return it
+        if(elm.$nomealdiv) {
+            return elm.$nomealdiv;
+        }
+
+        // Create div to contain this picture
+        var $dv = $(dc('div'))
+            .attr('id', 'pic-div-nomeal')
+            .attr('class', 'pic-div')
+            .css('width', '0px');
+
+        // Internal class
+        var $dvint = $(dc('div'))
+            .attr('class', 'pic-div-int')
+            .css('width', '780px');
+
+        // Click-anchor 
+        var anchor = $(dc('a'))
+            .attr('class', 'pic-div-anchor');
+
+        // Source string
+        var img_source = '/images/nomeal.png';
+
+        // Image tag
+        var img = $(dc('img'))
+            .attr('class', 'pic-div-image')
+            .attr('src', img_source);
+
+        // Append these 
+        img.appendTo(anchor);
+        anchor.appendTo($dvint);
+        $dvint.appendTo($dv);
+
+        $dv[0].pinfo = { height: 256, width: 256, timestamp: -1 };
+            
+        // Cache 
+        elm.$nomealdiv = $dv;
+
+        return $dv;
+    }
+
     // No meal
     elm.nomeal = function(elm) {
 
         // Grab the nomeal div
-        var $nomeal = nomealdiv(elm);
+        var $nomeal = elm.nomealdiv(elm);
 
         // Grab the nomeal info pointer
         var pinfo = $nomeal[0].pinfo;
@@ -531,7 +642,7 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
         elm.addremove = true;
 
         // Create the list element
-        var $dv = picturediv(elm, pinfo);
+        var $dv = elm.picturediv(elm, pinfo);
 
         // Create a div for first picture
         if(elm.numpics == 0) {
@@ -1223,6 +1334,7 @@ function createPictureCarousel(picinfo, findpicix, keytimestamp) {
         // Find start index
         if(keytimestamp) {
 
+            // Use registered search function
             ii = elm.findpicix(picinfo, keytimestamp);
 
             // Couldn't find key photo
