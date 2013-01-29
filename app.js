@@ -404,7 +404,7 @@ updatePasswordInMongo = function(username, newpassword, callback) {
 // Get a single mealInfo from Mongo
 getOneMealInfoFromMongo = function(username, timestamp, callback) {
 
-    var projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+    var projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
         
@@ -484,7 +484,7 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
 
         var projection = {};
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
 
         // Make sure to sort in the direction of your search to get sane results.
@@ -594,7 +594,7 @@ getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholere
         var cnt = 0;
 
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
         
         // This is convoluted query finds mealinfo records before mealDate, timestamp.

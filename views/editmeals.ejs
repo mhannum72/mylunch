@@ -706,12 +706,6 @@ TODO:
             subcarousel.appendTo(class8);
             carouselClear.appendTo(class8);
 
-            /*
-            uploadAnchor.appendTo(class8);
-            makeKeyAnchor.appendTo(class8);
-            deleteAnchor.appendTo(class8);
-            */
-
             // Lets skip a line
             var skipLine = $(dc('div'))
                 .attr('class', 'grid_8 skipline')
@@ -1556,7 +1550,7 @@ TODO:
                 .attr('class', 'grid_8 delete_link')
                 .attr('id', 'delete_link');
 
-            var deleteAnchor = $(dc('a'))
+            var deleteMealAnchor = $(dc('a'))
                 .attr('class', 'delete_link_anchor')
                 .attr('id', 'delete_link_anchor')
                 .attr('href', 'javascript:void(0)')
@@ -1584,10 +1578,11 @@ TODO:
             // It will be up to the ajax response function to load the new 
             // mealinfo and dismiss the modal.
 
-            deleteAnchor.click(function() {
+            deleteMealAnchor.click(function() {
 
                 var editGrid = $('#gridTimestamp' + meal.timestamp);
-                var nextGrid = editGrid.next('.editgrid');
+                //var nextGrid = editGrid.next('.editgrid');
+                //var nextGrid = editGrid.next();
                 var firstGrid = $('.editgrid').first();
                 var lastGrid = $('.editgrid').last();
                 var count = 1;
@@ -1604,7 +1599,7 @@ TODO:
                     }
                     // This shouldn't happen 
                     if(page_globals.nextPage && page_globals.nextPage.timestamp > 0) {
-                        debuglog('deleteAnchor.click: page_globals nextPage.mealdate is set for empty page?');
+                        debuglog('deleteMealAnchor.click: page_globals nextPage.mealdate is set for empty page?');
                     }
 
                     // Only ask for the prev meals in this case
@@ -1660,7 +1655,7 @@ TODO:
                         );
 
                         // If this was the last picture on the page & mealinfo is set, these meals belong
-                        // to the previous page.  displayPictureGrid handles everything.
+                        // to the previous page.  Redraw it.
                         if(lastPic) {
                             pictureGrid.displaygrid(response.mealinfo, nextpage, prevpage);
                         }
@@ -1670,7 +1665,7 @@ TODO:
                             if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
 
                                 // There's only one meal here- we'll be called when that loads
-                                var newInternal = pictureGrid.picturedivinternal(response.mealinfo[0], function (showImages) {
+                                var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
                                     newInternal.appendTo(lastGrid);
                                     nextPrevPageLinks(nextpage, page_globals.prevPage);
                                 });
@@ -1725,7 +1720,7 @@ TODO:
                 }
             });
 
-            deleteAnchor.appendTo(deleteLink);
+            deleteMealAnchor.appendTo(deleteLink);
 
             // Append to modal
             // deletePre.appendTo(class8);
@@ -1894,92 +1889,6 @@ TODO:
             page_globals.prevPage = prevpage;
         }
 
-
-        function pictureDivInternal(meal, callback, picturegrid, lastpic) {
-
-            // I can manipulate this directly in the delete code.
-            var editInternal = $(dc('div'))
-                .attr('class', 'editGridInternal');
-
-            var center = $(dc('center'));
-            center.appendTo(editInternal);
-
-            var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
-            var hoverTxt = mealtxt + " on " + hoverDate;
-            var hoverTxt = mealtxt + " uploaded " + meal.timestamp;
-
-            var editImageDiv = $(dc('div'));
-
-            editImageDiv.appendTo(center);
-
-            var onClickStr = 'showAttributes("' + meal.username + '",' + parseInt(meal.timestamp,10) + ');';
-
-            var anchor = $(dc('a'))
-                .attr('href', 'javascript:void(0)')
-                .attr('onclick', onClickStr)
-                .attr('title', hoverTxt);
-
-            anchor.appendTo(editImageDiv);
-
-            var imgSource;
-
-            if(!meal.picInfo || meal.picInfo.length <= 0) {
-                imgSource = '/images/nomeal.png';
-            }
-            // If there's a key picture, show that
-            else if (meal.keytimestamp) {
-                imgSource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
-            }
-            // Use the first picture
-            else{
-                imgSource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
-            }
-
-            var image = $(dc('img'))
-                .attr('class', 'editImage')
-                .attr('src', imgSource);
-
-            if(callback) {
-                image.on('load.picdivinternal', function() {
-                    image.off('load.picdivinternal');
-                    callback(picturegrid, lastpic);
-                });
-            }
-
-            image.appendTo(anchor);
-
-            var titletext = $(dc('div'))
-                .attr('class', 'titleText');
-
-            if(meal.title != undefined && meal.title.length > 0) {
-                titletext.html(meal.title);
-            }
-            else {
-                titletext.html('untitled');
-            }
-
-            titletext.appendTo(center);
-
-            var picturecountstring;
-
-            if(meal.picInfo.length == 1) {
-                picturecountstring = "1 picture";
-            }
-            else {
-                picturecountstring = meal.picInfo.length + " pictures";
-            }
-
-            var picturecount = $(dc('div'))
-                .attr('class', 'picturecount')
-                .html(picturecountstring);
-
-            picturecount.appendTo(center);
-
-            return editInternal;
-        }
-
-
         // Modular picture Grid
         var pictureGrid = (function (pdiv, cfg) {
 
@@ -1999,7 +1908,7 @@ TODO:
                 return document.createElement(a);
             };
 
-            // Create the 'internal' grid object
+            // Create the 'internal' grid object.  Exposed (for now).
             function pdivint(meal, callback, picturegrid, lastpic) {
     
                 // I can manipulate this directly in the delete code.
@@ -2170,52 +2079,11 @@ TODO:
 
             return {
                 displaygrid                 : displaygrid,
-                picturedivinternal          : pdivint
+                pdivint                     : pdivint
             };
         }(  document.getElementById('pictureGridDiv'),
             { showMealsPerPage    : page_globals.showMealsPerPage     }));
                 
-                
-        // pictureGrid.setShowMeals(page_globals.showMealsPerPage);
-
-        //pictureGrid.setParentDiv(document.getElementById('pictureGrid'));
-
-        // picturegrid
-        function displayPictureGrid(mealinfo, nextpage, prevpage) {
-
-            var loaded = 0;
-            
-            if(mealinfo != undefined && mealinfo.length > 0) {
-
-                // Determine last picture
-                var endpic = (mealinfo.length < page_globals.showMealsPerPage) ? 
-                    mealinfo.length : page_globals.showMealsPerPage;
-
-                // Create the grid
-                var pictureGridNew = pictureGridInner(mealinfo, endpic, function (showImages) {
-                    loaded++;
-
-                    if(loaded == endpic) {
-
-                        $('#pictureGrid').remove();
-                        pictureGridNew.css({'display': 'none'});
-                        pictureGridNew.attr('id', 'pictureGrid');
-                        pictureGridNew.appendTo($('#pictureGridDiv'));
-                        pictureGridNew.css({'display': 'block'});
-                        nextPrevPageLinks(nextpage, prevpage);
-                    }
-                });
-            }
-            else {
-                // TODO - if this is the first time that a user has logged on, 
-                // maybe a friendly 'To get you started' popup .. ?
-                // Make this a pop-up - something that's informative.  It'll
-                // be something you just dismiss.
-                $('#pictureGrid').empty();
-                $('#pictureGridDiv').html('<center><b>No Meals to View</b><center>');
-            }
-        }
-//        }
 
         function drawNextMeals(nextpage) {
 

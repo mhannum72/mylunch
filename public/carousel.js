@@ -501,7 +501,7 @@ function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimes
             }
 
             else {
-                var $nomeal = nomealdiv(elm);
+                var $nomeal = elm.nomealdiv(elm);
 
                 $nomeal.css('margin-top', '0px');
 
@@ -565,7 +565,7 @@ function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimes
         if(elm.numpics == 1) {
 
             // Grab the nomeal div
-            var $nomeal = nomealdiv(elm);
+            var $nomeal = elm.nomealdiv(elm);
 
             var height = $nomeal[0].pinfo.height;
 
