@@ -5,6 +5,12 @@ mylunch
 todo
 ====
 
+* Attack of the bugs bugs bugs!!!
+
+* Fix 'deleting stuff' bug .. !
+
+* Fix paging bug..!
+
 * I will put a box with rounded corners behind the grid maybe.  The grid
   itself should be a little configureable: you pass in how many pictures
   you want displayed per row based on the size of the monitor.  So the

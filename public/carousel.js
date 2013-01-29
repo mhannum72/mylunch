@@ -1235,7 +1235,7 @@ function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimes
         var cnt = 0;
 
         // Iterate over count
-        for(cnt = 0 ; cnt < picinfo.length - 1; cnt++) {
+        for(cnt = 0 ; picinfo && cnt < picinfo.length - 1; cnt++) {
 
             // Add this picture now
             elm.addpicture(picinfo[ii], true);

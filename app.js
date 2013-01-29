@@ -272,6 +272,9 @@ function mealToConst(meal)
 //    throw new Error("Invalid mealConst: " + meal);
 }
 
+/* The 'mealdate' is formatted as YYYYMMDDmm - where the final 'mm' is the meal
+ * constant corresponding to the meal in question.  I've decided to leave it 
+ * this way because it can be described easily by an index and its sortable.  */
 updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
@@ -400,10 +403,12 @@ updatePasswordInMongo = function(username, newpassword, callback) {
 
 // Get a single mealInfo from Mongo
 getOneMealInfoFromMongo = function(username, timestamp, callback) {
+
+    var projection = { 'username' : 1, 'mealDate': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
         
-        mealInfo.find(  {username: username, timestamp: timestamp, deleted: false } )
+        mealInfo.find(  {username: username, timestamp: timestamp, deleted: false }, projection )
         .toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
@@ -473,7 +478,7 @@ updateVerifyMealInfoInMongo = function(mealinfo, callback) {
 
 // Get mealinfo information.  Call this the first time with afterTs set
 // to 0, and always pass in the timestamp of the last record.
-getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, wholerec, callback) {
+getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
@@ -484,16 +489,10 @@ getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, who
 
         // Make sure to sort in the direction of your search to get sane results.
         mealInfo.find(
-
-            // Query
-            {       $or :     [         { $and :    [   { username: username },
-                                                        { mealDate: md },
+            // Criteria
+            { $and  :                               [   { username: username },
                                                         { timestamp: { $gte: ts } },
                                                         { deleted: viewDeleted } ] },
-                                        { $and :    [   { username: username },
-                                                        { mealDate: { $gt: md } },
-                                                        { deleted: viewDeleted } ] } ] },
-
             // Index
             // { $hint : { username: 1, mealDate: 1, timestamp: 1 } },
 
@@ -501,7 +500,7 @@ getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, who
             projection )
 
             // Order
-            .sort( { mealDate : 1,  timestamp : 1 } )
+            .sort( { timestamp : 1 } )
 
             // Limit
             .limit( limit + 1 )
@@ -515,48 +514,42 @@ getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, who
                 throw(err);
             }
 
-            var prevtimestamp = 0;
-            var prevmealdate = 0;
+            var prevmealtimestamp = 0;
+            //var prevmealdate = 0;
 
-            var prevpage=0;
             var newlimit=0;
 
-            // Reverse these results
+            // sort( { 'timestamp' : -1 } ) doesn't work
             results.reverse();
-            
+
             if( results.length > limit ) {
-                prevmealdate = results[0].mealDate;
-                prevtimestamp = results[0].timestamp;
+                // Get first prevmeal timestamp
+                prevmealtimestamp = results[0].timestamp;
                 results = results.slice(1, limit + 1);
 
                 // Search only a single record in the other direction for a nextpage.
                 newlimit = 0;
             }
             else {
+                // Calculate new limit (you are on the first page, so fill it).
                 newlimit = (limit - results.length);
             }
 
-//            mealInfo.find( {username: username, timestamp: { $lt: ts }, deleted: viewDeleted } )
-//            .sort( { timestamp: -1 } ) .limit( newlimit + 1).toArray( function(err, results2) {
             mealInfo.find(
 
                 // Query
-                {   $or :       [       { $and :    [       { username: username },
-                                                            { mealDate: md },
-                                                            { timestamp: { $lt: ts } },
-                                                            { deleted: viewDeleted } ] },
-                                        { $and :    [       { username: username },
-                                                            { mealDate: { $lt: md } },
-                                                            { deleted: viewDeleted } ] } ] },
+                { $and  :                           [   { username: username },
+                                                        { timestamp: { $lt: ts } },
+                                                        { deleted: viewDeleted } ] },
+                        
 
                 // Index
                 // { $hint : { username: 1, mealDate: 1, timestamp: 1 } },
 
                 // Columns
-                projection )
-
+                projection ) 
                 // Sort
-                .sort( { mealDate : 1,  timestamp : 1 } )
+                .sort( { timestamp : -1 } )
 
                 // Limit
                 .limit( newlimit + 1 )
@@ -570,31 +563,30 @@ getMealInfoFromMongoFwd_int = function(username, md, ts, limit, viewDeleted, who
                         throw(err);
                     }
 
-                    var nextmealdate = 0;
+                    //var nextmealdate = 0;
                     var nextmealtimestamp = 0;
 
                     if( results2.length > newlimit ) {
-                        nextmealdate = results2[newlimit].mealDate;
-                        nexttimestamp = results2[newlimit].timestamp;
+                        nextmealtimestamp = results2[newlimit].timestamp;
                         results2 = results2.slice(0, newlimit);
                     }
                     callback(err, results.concat(results2), 
-                        nextmealdate, nextmealtimestamp, prevmealdate, prevmealtimestamp);
+                        nextmealtimestamp, prevmealtimestamp);
             });
         });
     });
 }
 
-getMealInfoFromMongoFwd = function(username, md, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoFwd_int(username, md, ts, limit, viewDeleted, true, callback);
+getMealInfoFromMongoFwd = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, true, callback);
 }
 
-getMealInfoFromMongoFwdMenu = function(username, md, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoFwd_int(username, md, ts, limit, viewDeleted, false, callback);
+getMealInfoFromMongoFwdMenu = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, false, callback);
 }
 
 // This is the 'next' case.
-getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, wholerec, callback) {
+getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
@@ -606,16 +598,13 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
         }
         
         // This is convoluted query finds mealinfo records before mealDate, timestamp.
-        mealInfo.find( 
+        mealInfo.find(
 
             // Query
-            {   $or :   [               { $and :    [   { username: username }, 
-                                                        { mealDate: md }, 
-                                                        { timestamp: { $lte: ts } }, 
+            { $and  :                               [   { username: username },
+                                                        { timestamp: { $lte: ts } },
                                                         { deleted: viewDeleted } ] },
-                                        { $and :    [   { username: username }, 
-                                                        { mealDate: { $lt: md } }, 
-                                                        { deleted: viewDeleted } ] } ] },
+
 
             // Index
             //{ $hint : {    username: 1, mealDate: 1, timestamp: 1 } }, 
@@ -624,7 +613,7 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
             projection )
 
             // Sort
-            .sort( { mealDate : -1, timestamp: -1})
+            .sort( {timestamp: -1})
 
             // Limit
             .limit(limit + 1)
@@ -645,7 +634,6 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
             // Fill nextmealdate and timestamp
             if( results.length > limit ) {
 
-                nextmealdate = results[limit].mealDate;
                 nexttimestamp=results[limit].timestamp;
                 results = results.slice(0, limit);
 
@@ -655,14 +643,10 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
             mealInfo.find( 
 
             // Query
-            {       $or :       [           { $and :    [   { username: username }, 
-                                                            { mealDate: md }, 
-                                                            { timestamp: { $gt: ts } }, 
-                                                            { deleted: viewDeleted } ] },
-                                            { $and :    [   { username: username }, 
-                                                            { mealDate: { $gt: md } }, 
-                                                            { deleted: viewDeleted } ] } ] }, 
-                                                        
+            { $and  :                               [   { username: username },
+                                                        { timestamp: { $gt: ts } },
+                                                        { deleted: viewDeleted } ] },
+
             // Index
             //{ $hint :   { username: 1, mealDate: 1, timestamp: 1 } },
 
@@ -670,7 +654,7 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
             projection )
 
             // Sort
-            .sort( { mealDate : 1, timestamp: 1})
+            .sort( { timestamp: 1})
 
             // Limit
             .limit(1)
@@ -679,7 +663,6 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
             .toArray(function(err, presults) {
 
                 var prevtimestamp=0;
-                var prevmealdate=0;
 
                 // Throw an error for now
                 if(err) 
@@ -691,13 +674,12 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
                 // Fill previous mealDate and timestamp variables
                 if(presults.length > 0) {
 
-                    prevmealdate=presults[0].mealDate;
                     prevtimestamp=presults[0].timestamp;
 
                 }
 
                 // Invoke callback
-                callback(err, results, nextmealdate, nexttimestamp, prevmealdate, prevtimestamp);
+                callback(err, results, nexttimestamp, prevtimestamp);
 
             }); // prevPage toArray
 
@@ -707,12 +689,12 @@ getMealInfoFromMongoRev_int = function(username, md, ts, limit, viewDeleted, who
 
 }
 
-getMealInfoFromMongoRev = function(username, md, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoRev_int(username, md, ts, limit, viewDeleted, true, callback);
+getMealInfoFromMongoRev = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, true, callback);
 }
 
-getMealInfoFromMongoRevMenu = function(username, md, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoRev_int(username, md, ts, limit, viewDeleted, false, callback);
+getMealInfoFromMongoRevMenu = function(username, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, false, callback);
 }
 
 
@@ -2786,44 +2768,45 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
     });
 });
 
-function editpagenextprev(req, res, next, mealDate, timestamp, isprev) {
+function editpagenextprev(req, res, next, timestamp, isprev) {
     // No real need to pass this back and forth...
     var count = parseInt(req.query.count, 10);
-    var md;
+    var ts;
 
     // Should be an initial query.
-    if(mealDate == -1) {
-        md = dateToMealDate(new Date(), MAXMEAL);
+    //if(mealDate == -1) {
+    if(timestamp <= 0)
         ts = Date.now();
-    }
-    else {
-        md = mealDate;
+    else
         ts = timestamp;
-    }
+    //}
+    //else {
+    //    ts = timestamp;
+    //}
 
     if(isprev == false) {
 
-        getMealInfoFromMongoRevMenu(req.session.user.username, md, ts, count, false, 
-                function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+        getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, 
+                function(err, mealinfo, nextts, prevts) {
 
             // Add a hex-id to each of my mealinfos
-            if(mealinfo.length == 0 && mealDate != -1) {
+            if(mealinfo.length == 0) {
 
                 // Huh?  We shouldn't really get here
                 console.log('Illogical state in editpagenextprev: next record not found?');
-                md = dateToMealDate(new Date(), MAXMEAL);
+                // md = dateToMealDate(new Date(), MAXMEAL);
 
-                getMealInfoFromMongoRevMenu(req.session.user.username, md, ts, count, false, 
-                    function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+                getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, 
+                    function(err, mealinfo, nextts, prevts) {
 
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.write(JSON.stringify(
                             {
                                 message: "success",
                                 mealinfo: mealinfo,
-                                nextmd: nextmd,
+                                //nextmd: nextmd,
                                 nextts: nextts,
-                                prevmd: prevmd,
+                                //prevmd: prevmd,
                                 prevts: prevts
                             }));
                     res.end();
@@ -2836,9 +2819,9 @@ function editpagenextprev(req, res, next, mealDate, timestamp, isprev) {
                             {
                                 message: "success",
                                 mealinfo: mealinfo,
-                                nextmd: nextmd,
+                                //nextmd: nextmd,
                                 nextts: nextts,
-                                prevmd: prevmd,
+                                //prevmd: prevmd,
                                 prevts: prevts
                             }));
                 res.end();
@@ -2848,17 +2831,17 @@ function editpagenextprev(req, res, next, mealDate, timestamp, isprev) {
     }
     else { // isprev == true
 
-        getMealInfoFromMongoFwdMenu(req.session.user.username, md, ts, count, false, 
-                function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+        getMealInfoFromMongoFwdMenu(req.session.user.username, ts, count, false, 
+                function(err, mealinfo, nextts, prevts) {
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.write(JSON.stringify(
                     {
                         message: "success",
                         mealinfo: mealinfo,
-                        nextmd: nextmd,
+                        //nextmd: nextmd,
                         nextts: nextts,
-                        prevmd: prevmd,
+                        //prevmd: prevmd,
                         prevts: prevts
                     }));
             res.end();
@@ -2866,7 +2849,7 @@ function editpagenextprev(req, res, next, mealDate, timestamp, isprev) {
     }
 }
 
-function editpagenextprevstart(req, res, next, mealDate, timestamp, isprev) {
+function editpagenextprevstart(req, res, next, timestamp, isprev) {
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2891,12 +2874,13 @@ function editpagenextprevstart(req, res, next, mealDate, timestamp, isprev) {
         return;
     }
 
-    editpagenextprev(req, res, next, mealDate, timestamp, isprev);
+    editpagenextprev(req, res, next, timestamp, isprev);
 }
 
 // Do the 'nextpage' & lookup picture logic first.
 app.get('/deletemeal', function(req, res, next) {
 
+    /*
     if(req.query.prevmd == undefined || req.query.prevts == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "badrequest"}));
@@ -2910,6 +2894,7 @@ app.get('/deletemeal', function(req, res, next) {
         res.end();
         return;
     }
+    */
 
     if(req.query.count == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2939,9 +2924,9 @@ app.get('/deletemeal', function(req, res, next) {
         return;
     }
 
-    var nextmd = parseInt(req.query.nextmd, 10);
+    //var nextmd = parseInt(req.query.nextmd, 10);
     var nextts = parseInt(req.query.nextts, 10);
-    var prevmd = parseInt(req.query.prevmd, 10);
+    //var prevmd = parseInt(req.query.prevmd, 10);
     var prevts = parseInt(req.query.prevts, 10);
 
     var timestamp = parseInt(req.query.timestamp, 10);
@@ -2964,23 +2949,23 @@ app.get('/deletemeal', function(req, res, next) {
             // gain a little performance- the risk is that the user will 
             // page around a bit, and see the deleted record. 
 
-            if(prevmd > 0) {
+            if(prevts > 0) {
                 getMealInfoFromMongoFwdMenu(
                     req.session.user.username, 
-                    prevmd,
+                    //prevmd,
                     prevts,
                     count, 
                     false, 
-                    function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+                    function(err, mealinfo, nextts, prevts) {
 
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.write(JSON.stringify(
                                 {
                                     message: "success",
                                     mealinfo: mealinfo,
-                                    nextmd: 0,
+                                    //nextmd: 0,
                                     nextts: 0,
-                                    prevmd: prevmd,
+                                    //prevmd: prevmd,
                                     prevts: prevts
                                 }));
                         res.end();
@@ -2991,11 +2976,11 @@ app.get('/deletemeal', function(req, res, next) {
                 // We're authenticated.. get the nextpage mealinfo.
                 getMealInfoFromMongoRevMenu(
                         req.session.user.username, 
-                        nextmd, 
+                        //nextmd, 
                         nextts,
                         count, 
                         false, 
-                        function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+                        function(err, mealinfo, nextts, prevts) {
 
                             if(err) throw(err);
                             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -3003,9 +2988,9 @@ app.get('/deletemeal', function(req, res, next) {
                                     {
                                         message: "success",
                                         mealinfo: mealinfo,
-                                        nextmd: nextmd,
+                                        //nextmd: nextmd,
                                         nextts: nextts,
-                                        prevmd: 0,
+                                        //prevmd: 0,
                                         prevts: 0
                                     }
                                     )
@@ -3020,24 +3005,24 @@ app.get('/deletemeal', function(req, res, next) {
 });
 
 app.get('/editpageprev', function(req, res, next) {
-    if(req.query.prevpage == undefined) {
+    if(req.query.prevts == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "badrequest"}));
         res.end();
         return;
     }
-    editpagenextprevstart(req, res, next, parseInt(req.query.prevmd, 10), parseInt(req.query.prevts, 10), true);
+    editpagenextprevstart(req, res, next, parseInt(req.query.prevts, 10), true);
 });
 
 // Ajax get info
 app.get('/editpagenext', function(req, res, next) {
-    if(req.query.nextpage == undefined) {
+    if(req.query.nextts == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "badrequest"}));
         res.end();
         return;
     }
-    editpagenextprevstart(req, res, next, parseInt(req.query.nextmd, 10), parseInt(req.query.nextts, 10), false);
+    editpagenextprevstart(req, res, next, parseInt(req.query.nextts, 10), false);
 });
 
 // Ajax check & change password request
@@ -3697,9 +3682,8 @@ app.get('/signout', function(req, res, next) {
 // * If there is an additional record, what is your nextpage.
 //
 
-var editmealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDeleted) {
+var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     var ts;
-    var md;
     var prevpage = 0;
 
     if (req.session.user == undefined) {
@@ -3708,6 +3692,14 @@ var editmealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
         return;
     }
 
+    if(timestamp <= 0) {
+        ts = Date.now();
+    }
+    else {
+        ts = timestamp;
+    }
+
+    /*
     if(mealDate == -1) {
         md = dateToMealDate(new Date(), MAXMEAL);
     }
@@ -3715,21 +3707,22 @@ var editmealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
     {
         md = mealDate;
     }
+    */
     
     if(isprev == false) {
-        getMealInfoFromMongoRev(req.session.user.username, md, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+        getMealInfoFromMongoRev(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             // Add a hex-id to each of my mealinfos
             if(mealinfo.length == 0 && timestamp != -1) {
 
                 ts = Date.now();
 
-                getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+                getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
                     res.render('editmeals.ejs', {
                         user: req.session.user,
                         mealinfo: mealinfo,
-                        nextmd: nextmd,
+                        //nextmd: nextmd,
                         nextts: nextts,
-                        prevmd: prevmd,
+                        //prevmd: prevmd,
                         prevts: prevts
                     });
                 });
@@ -3738,22 +3731,22 @@ var editmealsPage = function(req, res, next, mealDate, timestamp, isprev, viewDe
                 res.render('editmeals.ejs', {
                     user: req.session.user,
                     mealinfo: mealinfo,
-                    nextmd: nextmd,
+                    //nextmd: nextmd,
                     nextts: nextts,
-                    prevmd: prevmd,
+                    //prevmd: prevmd,
                     prevts: prevts
                 });
             }
         });
     }
     else { // prevpage is true
-        getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextmd, nextts, prevmd, prevts) {
+        getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             res.render('editmeals.ejs', {
                 user: req.session.user,
                 mealinfo: mealinfo,
-                nextmd: nextmd,
+                //nextmd: nextmd,
                 nextts: nextts,
-                prevmd: prevmd,
+                //prevmd: prevmd,
                 prevts: prevts
             });
         }); // getMealInfoFromMongoFwd
@@ -3875,15 +3868,15 @@ app.post('/editmeals_change_pics/:newpics', function(req, res, next) {
 });
 
 app.get('/editmealsprev/:timestamp', function(req, res, next) {
-    editmealsPage(req, res, next, parseInt(req.params.mealDate, 10), parseInt(req.params.timestamp, 10), true, false);
+    editmealsPage(req, res, next, parseInt(req.params.timestamp, 10), true, false);
 });
 
 app.get('/editmeals/:timestamp', function(req, res, next) {
-    editmealsPage(req, res, next, parseInt(req.params.mealDate, 10), parseInt(req.params.timestamp, 10), false, false);
+    editmealsPage(req, res, next, parseInt(req.params.timestamp, 10), false, false);
 });
 
 app.get('/editmeals',  function( req, res, next) {
-    editmealsPage(req, res, next, -1, -1, false, false);
+    editmealsPage(req, res, next, -1, false, false);
 });
 
 function editmealsChangePics(req, res, next, newpics, timestamp) {
