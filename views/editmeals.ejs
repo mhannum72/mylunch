@@ -81,6 +81,8 @@ TODO:
             return this;
         }
 
+        var NOMEALHEIGHT = 256;
+
         function global_editmeals(username, showMealsPerPage, nextts, prevts) {
             this.username = username;
             this.showMealsPerPage = showMealsPerPage;
@@ -337,7 +339,7 @@ TODO:
                 .attr('name', 'inputUpload')
                 .attr('id', 'inputUpload');
 
-            // pass the userid.
+            // Pass the userid.
             var userId = $(dc('input'))
                 .attr('type', 'hidden')
                 .attr('name', 'username')
@@ -360,7 +362,9 @@ TODO:
 
                 var hiddenIFrame = $('#hiddenIFrame');
                 var bodyText = hiddenIFrame.contents().find('body').html();
-                var regex = /^SUCCESS [0-9]+ [0-9]+$/;
+
+                // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight>"
+                var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+$/;
 
                 // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
                 // if the timeout expires, reload the 'main' page with a special
@@ -385,8 +389,11 @@ TODO:
                     // Retrieve picture height
                     var height = parseInt(ar[2], 10);
 
+                    // Retrieve thumbnail height
+                    var thumbheight = parseInt(ar[3], 10);
+
                     // Create minimal picinfo
-                    var pinfo = { 'timestamp' : picts, 'height': height };
+                    var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
 
                     // Debug message
                     debuglog('checkUploaded timestamp is ' + picts);
@@ -431,6 +438,10 @@ TODO:
 
             // Loop
             while(true) {
+
+                if(!pinfo[ii]) {
+                    debuglog("put a breakpoint here!");
+                }
 
                 // Found index
                 if(pinfo[ii].timestamp == timestamp)
@@ -546,32 +557,6 @@ TODO:
                 div.html(picturecountstring);
             }
 
-            // TODO - this should cleaned up!
-            function setdisplaypicture(meal, timestamp) {
-
-                // New source for key timestamp
-                var imgsrc;
-
-                // Update grid
-                var gridstr = '#gridTimestamp' + meal.timestamp + ' > div > center > div > a > img';
-
-                // Get the element
-                var gridpic = $(gridstr);
-
-                if(timestamp > 0) {
-                    imgsrc = '/thumbs/' + meal.username + '/' + timestamp;
-                }
-                else {
-                    imgsrc = '/images/nomeal.png';
-                }
-
-                // Set image source
-                gridpic.attr('src', imgsrc);
-
-                // Update keytimestamp in meal object
-                meal.keytimestamp = timestamp;
-            }
-
             // Click function for the upload anchor
             uploadAnchor.click(function() {
 
@@ -588,7 +573,7 @@ TODO:
 
                             // Make key photo if this was the first
                             if(ckfirst) {
-                                setdisplaypicture(meal, ts);
+                                pictureGrid.setdisplaypicture(meal, pinfo);
                             }
 
                             debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
@@ -625,7 +610,7 @@ TODO:
                         makeKeyPicAjax(meal, pinfo);
 
                         // Set the display picture
-                        setdisplaypicture(meal, pinfo.timestamp);
+                        pictureGrid.setdisplaypicture(meal, pinfo);
                     }
                 });
             });
@@ -672,15 +657,15 @@ TODO:
 
                         // Changing the displaypic
                         if(changepic) {
-                            var newts = 0;
+                            var pinfo0;
 
                             // Get new key picture
                             if(meal.picInfo.length > 0) {
-                                newts = meal.picInfo[0].timestamp;
+                                pinfo0 = meal.picInfo[0];
                             }
 
                             // Set new display picture
-                            setdisplaypicture(meal, newts);
+                            pictureGrid.setdisplaypicture(meal, pinfo0);
                         }
 
                         // Update grid picture count
@@ -1577,12 +1562,13 @@ TODO:
             // The getJSON request and this delete-copy run concurrently.
             // It will be up to the ajax response function to load the new 
             // mealinfo and dismiss the modal.
-
             deleteMealAnchor.click(function() {
 
                 var editGrid = $('#gridTimestamp' + meal.timestamp);
                 //var nextGrid = editGrid.next('.editgrid');
                 //var nextGrid = editGrid.next();
+                // Expose a 'count' function in the grid that returns the number of pictures
+                // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
                 var firstGrid = $('.editgrid').first();
                 var lastGrid = $('.editgrid').last();
                 var count = 1;
@@ -1604,13 +1590,11 @@ TODO:
 
                     // Only ask for the prev meals in this case
                     if(page_globals.prevPage) {
-                        //pmealdate = page_globals.prevPage.mealdate;
                         pmealtime = page_globals.prevPage.timestamp;
                     }
                 }
 
                 if(page_globals.nextPage) {
-                    //nmealdate = page_globals.nextPage.mealdate;
                     nmealtime = page_globals.nextPage.timestamp;
                 }
 
@@ -1889,18 +1873,48 @@ TODO:
             page_globals.prevPage = prevpage;
         }
 
-        // Modular picture Grid
+        // Modular picture grid
         var pictureGrid = (function (pdiv, cfg) {
 
             // Where this will appear on the page
             var parentDiv = pdiv;
 
-            // Number of meals we're showing per page
-            var showMealsPerPage = cfg.showMealsPerPage ? 
-                    cfg.showMealsPerPage : 9;
+            // What's the left margin
+            var marginleft = cfg.marginleft ? cfg.marginleft : 10;
+
+            // What's the right margin
+            var marginright = cfg.marginright ? cfg.marginright : 10;
+
+            // What's the top margin
+            var margintop = cfg.margintop ? cfg.margintop : 10;
+
+            // What's the bottom margin
+            var marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+
+            // What's the width of a picture
+            var picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
+
+            // What's the heigth of a picture
+            var pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+
+            // What's the height of a picture
+            var pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+
+            // How many pictures per row
+            var mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
+
+            // How many rows per page
+            var rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
+
+            // Derived: how many meals per grid
+            var mealspergrid = mealsperrow * rowsperpage;
+
+            // Derived: how many pixels wide?
+            var gridwidth = (picturewidth + marginleft + marginright) * 
+                mealsperrow;
 
             // Keep track of what's currently displayed
-            var currentGrid;
+            var currentgrid;
 
             // Create element wrapper
             var dc = function(a)
@@ -1908,12 +1922,64 @@ TODO:
                 return document.createElement(a);
             };
 
+            // Updates the grid display picture to this timestamp
+            function setdisplaypicture(meal, picinfo) {
+
+                // New source for key timestamp
+                var imgsrc;
+
+                // Find the container
+                var gridcon = '#gridTimestamp' + meal.timestamp;
+
+                // Hit a hash to get this div
+                var griddiv = $(gridcon);
+
+                // Get the element
+                var gridpic = griddiv.find('div > center > div > a > img');
+
+                var thumbheight = 0;
+
+                if(picinfo) {
+
+                    thumbheight = picinfo.thumbheight;
+                    imgsrc = '/thumbs/' + meal.username + '/' + picinfo.timestamp;
+
+                }
+                else {
+                    thumbheight = NOMEALHEIGHT;
+                    imgsrc = '/images/nomeal.png';
+                }
+
+                if(thumbheight <= 0) {
+                    debuglog("ERROR!  Thumbheight is an invalid value: " + 
+                            thumbheight);
+                }
+
+                // Set image source
+                gridpic.attr('src', imgsrc);
+
+                // Calculate the top margin
+                var margintoppx = ((pictureheight + margintop) - thumbheight) 
+                    + 'px';
+
+                // Set the top margin
+                griddiv.css('margin-top', margintoppx);
+
+                // Update keytimestamp in meal object
+                if(picinfo) {
+                    meal.keytimestamp = picinfo.timestamp;
+                }
+                else {
+                    meal.keytimestamp = 0;
+                }
+            }
+
             // Create the 'internal' grid object.  Exposed (for now).
-            function pdivint(meal, callback, picturegrid, lastpic) {
+            function pdivint(meal, picturegrid) {
     
                 // I can manipulate this directly in the delete code.
-                var editInternal = $(dc('div'))
-                    .attr('class', 'editGridInternal');
+                var editInternal = $(dc('div'));
+                    //.css('float', 'bottom');
     
                 var center = $(dc('center'));
                 center.appendTo(editInternal);
@@ -1954,13 +2020,6 @@ TODO:
                     .attr('class', 'editImage')
                     .attr('src', imgSource);
     
-                if(callback) {
-                    image.on('load.picdivinternal', function() {
-                        image.off('load.picdivinternal');
-                        callback(picturegrid, lastpic);
-                    });
-                }
-    
                 image.appendTo(anchor);
     
                 var titletext = $(dc('div'))
@@ -1997,17 +2056,63 @@ TODO:
             }
 
             // Create a frame
-            function pdiv(meal, callback, pictureGrid, lastpic) {
+            function pdiv(meal, griddiv) {
     
+                // Id string
                 var tsId = 'gridTimestamp' + meal.timestamp;
-    
+
+                // Left margin string
+                var marginleftpx = marginleft + 'px';
+
+                // Right margin string
+                var marginrightpx = marginright + 'px';
+
+                var thumbheight;
+
+                // If this meal has a key find the thumbheight
+                if(meal.keytimestamp) {
+
+                    var idx = findpicidx(meal.picInfo, meal.keytimestamp);
+
+                    if(idx >= 0) thumbheight = meal.picInfo[idx].thumbheight;
+                }
+                else if(meal.picInfo.length > 0) {
+
+                    thumbheight = meal.picInfo[0].thumbheight;
+                }
+                // Height of the nomeal picture
+                else {
+                    thumbheight = NOMEALHEIGHT;
+                }
+
+                // Top margin string
+                var margintoppx = (pictureheight - thumbheight + margintop)  
+                    + 'px';
+
+                // Bottom margin string
+                var marginbottompx = marginbottom + 'px';
+
+                // Minimum height is height + margins
+                var minheight = (pictureheight + margintop + marginbottom)
+                    + 'px';
+
                 // Id this with both an index and a timestamp
                 var editgrid = $(dc('div'))
                     .attr('id', tsId)
-                    .attr('class', 'grid_4 editheight editgrid');
+                    .css('display', 'inline')
+                    //.css('float', 'bottom')
+                    .css('float', 'left')
+                    .css('margin-left', marginleftpx)
+                    .css('margin-right', marginrightpx)
+                    .css('margin-top', margintoppx)
+                    .css('margin-bottom', marginbottompx)
+                    .css('height', 'auto')
+                    .css('min-height', minheight);
+                
+                    //.attr('class', 'grid_4 editheight editgrid');
     
                 // Create an internal pictureDiv that I can switchout in the delete code
-                var editInternal = pdivint(meal, callback, pictureGrid, lastpic);
+                var editInternal = pdivint(meal, griddiv);
     
                 editInternal.appendTo(editgrid);
     
@@ -2015,30 +2120,153 @@ TODO:
                 return editgrid;
             }
 
-            // Internal function which displays the picture grid
-            function inner(mealinfo, showmeals, callback)
-            {
-                var pictureGrid = $(dc('div'))
-                    .attr('class', 'pictureGrid');
-    
-                for(cnt = 0 ; cnt < showmeals; cnt++) {
-                    if(cnt < showmeals) {
-                        var meal = mealinfo[cnt];
-                        var gridpic = pdiv(meal, callback, pictureGrid, showmeals);
-    
-                        gridpic.appendTo(pictureGrid);
-    
-                        if(cnt % 3 == 2) {
-                            var divclear = $(dc('div'))
-                                .attr('class', 'clear');
-                            divclear.appendTo(pictureGrid);
-                        }
-                    }
+            // Append picture to the end of the grid
+            function addpictogrid(griddiv, gridpic, loadcb) {
+
+                var hdiv = null;
+
+                // Return false if we're filled up
+                if(griddiv.count >= mealspergrid) {
+                    return false;
                 }
-    
-                return pictureGrid; 
+
+                // Update last picture
+                if(griddiv.last) {
+
+                    // Current last's 'next' will point to this
+                    griddiv.last.next = gridpic;
+
+                    // This prev will be the current last
+                    gridpic.prev = griddiv.last;
+
+                    // Nothing after
+                    gridpic.next = null;
+
+                    // This is the new last
+                    griddiv.last = griddiv;
+                }
+
+                // It's also the first if there is none
+                if(!griddiv.first) {
+
+                    // Make this the first picture
+                    griddiv.first = gridpic;
+                }
+
+                // Create a horizontal div
+                if(griddiv.count % mealsperrow == 0) {
+
+                    // Fudge for 2 lines of text
+                    var fudge = 50;
+
+                    // Height
+                    var heightpx = (pictureheight + margintop + marginbottom + 
+                            fudge) + 'px';
+
+                    // Create a horizontal div
+                    hdiv = $(dc('div'))
+                        .css('display', 'inline')
+                        .css('float', 'left')
+                        .css('vertical-align', 'bottom')
+                        .css('height', heightpx);
+
+                    if(griddiv.laststripe) {
+
+                        // Current last's next will point to this
+                        griddiv.laststripe.next = hdiv;
+
+                        // This prev will point to current last
+                        hdiv.prev = griddiv.laststripe;
+                    }
+
+                    // This is the new last
+                    griddiv.laststripe = hdiv;
+
+                    // This might also be the first
+                    if(!griddiv.firststripe) {
+                        griddiv.firststripe = hdiv;
+                    }
+
+                    // Append to the grid
+                    hdiv.appendTo(griddiv);
+
+                }
+                // Grab the last horizontal div
+                else {
+
+                    hdiv = griddiv.laststripe;
+                }
+
+                // Append this to the grid
+                gridpic.appendTo(hdiv);
+
+                // Increment count
+                griddiv.count++;
+
+                // I don't think I need this
+                /* 
+                // If we're on a column boundry add a clear
+                if(griddiv.count % mealsperrow == 0) {
+
+                    // Append stripe
+                    hdiv.appendTo(griddiv);
+
+                    // Nil-ify
+                    hdiv = null;
+
+                }
+                */
+
+                // Invoke 'pic-is-loaded' callback
+                if(loadcb) {
+                    var image = $(gridpic).find('.editImage');
+                    image.on('load.picdivinternal', function() {
+                        image.off('load.picdivinternal');
+                        loadcb(griddiv);
+                    });
+                }
+
+                return true;
             }
 
+            // Fill a picture grid from an array
+            function fillfromarray(griddiv, mealinfo, callback) {
+
+                // For each mealinfo
+                for(cnt = 0 ; cnt < mealinfo.length ; cnt++) {
+
+                    // Create a gridpic
+                    var gridpic = pdiv(mealinfo[cnt], griddiv);
+
+                    // Add it to the grid
+                    if(!addpictogrid(griddiv, gridpic, callback))
+                        break;
+                }
+            }
+
+            // Create the picture grid
+            function makegrid() {
+
+                // Width string
+                var widthpx = gridwidth + 'px';
+
+                var griddiv = $(dc('div'))
+                    .attr('class', 'pictureGrid')
+                    .css('margin-left', 'auto')
+                    .css('margin-right', 'auto')
+                    .css('width', widthpx );
+    
+                // Set first picture to null
+                griddiv.first = null;
+
+                // Set last picture to null
+                griddiv.last = null;
+
+                // Set count to 0
+                griddiv.count = 0;
+
+                return griddiv; 
+            }
 
             // Universal display function
             function displaygrid(mealinfo, nextpage, prevpage) {
@@ -2050,39 +2278,39 @@ TODO:
                 if(mealinfo != undefined && mealinfo.length > 0) {
 
                     // Determine last picture
-                    var endpic = (mealinfo.length < showMealsPerPage) ? 
-                        mealinfo.length : showMealsPerPage;
+                    var endpic = (mealinfo.length < mealspergrid) ? 
+                        mealinfo.length : mealspergrid;
 
-                    var pictureGridNew = inner(mealinfo, endpic, function(showImages) {
+                    var newgrid = makegrid();
+
+                    // The callback is fired once per meal in the array
+                    fillfromarray(newgrid, mealinfo, function(showImages) {
 
                         if(++loaded == endpic) {
 
                             // TODO - snappy animation
-                            if(currentGrid) {
-                                $(currentGrid).remove();
-                                currentGrid = null;
+                            if(currentgrid) {
+                                $(currentgrid).remove();
+                                currentgrid = null;
                             }
 
-                            pictureGridNew.css({'display': 'none'});
-                            pictureGridNew.attr('id', 'pictureGrid');
-                            pictureGridNew.appendTo($('#pictureGridDiv'));
-                            pictureGridNew.css({'display': 'block'});
+                            newgrid.css({'display': 'none'});
+                            newgrid.attr('id', 'pictureGrid');
+                            newgrid.appendTo($('#pictureGridDiv'));
+                            newgrid.css({'display': 'block'});
                             nextPrevPageLinks(nextpage, prevpage);
-                            currentGrid = pictureGridNew;
-
+                            currentgrid = newgrid;
                         }
-
                     });
-                    
                 }
             }
 
             return {
                 displaygrid                 : displaygrid,
-                pdivint                     : pdivint
+                pdivint                     : pdivint,
+                setdisplaypicture           : setdisplaypicture
             };
-        }(  document.getElementById('pictureGridDiv'),
-            { showMealsPerPage    : page_globals.showMealsPerPage     }));
+        }(document.getElementById('pictureGridDiv'), {}));
                 
 
         function drawNextMeals(nextpage) {
@@ -2163,10 +2391,12 @@ TODO:
                 return this;
             }
 
-            function truncPicInfo(timestamp, mitimestamp, thumbwidth, thumbheight)
+            function truncPicInfo(timestamp, mitimestamp, width, height, thumbwidth, thumbheight)
             {
                 this.timestamp = timestamp;
                 this.mitimestamp = mitimestamp;
+                this.width = width;
+                this.height = height;
                 this.thumbwidth = thumbwidth;
                 this.thumbheight = thumbheight;
                 return this;
@@ -2190,7 +2420,9 @@ TODO:
                         <%= pic.timestamp %>,
                         <%= pic.mitimestamp %>,
                         <%= pic.width %>,
-                        <%= pic.height %>
+                        <%= pic.height %>,
+                        <%= pic.thumbwidth %>,
+                        <%= pic.thumbheight %>
                     );
             <%
                     }
@@ -2240,9 +2472,11 @@ TODO:
             </div>
             <div class="clear"></div>
             <br><br>
+        </div> <!-- container_12 -->
 
             <div class='pictureGridDiv' id='pictureGridDiv' name='pictureGridDiv'>
                 <!--
+                // This will have an appropriately sized 'grid' container inside .. 
                 <div class='pictureGrid' id='pictureGrid' name='pictureGrid'>
                 </div>
                 -->
@@ -2251,7 +2485,6 @@ TODO:
             <div class='nextprev' id='nextprev' name='nextprev'>
             </div>
 
-        </div> <!-- container_12 -->
         </div> <!-- boxes -->
         <div id="maskFade" class="maskClass"></div>
         <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>

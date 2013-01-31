@@ -5,6 +5,20 @@ mylunch
 todo
 ====
 
+* Fix bug in the 'setdisplaypicture' code inside the grid object (it's not 
+  actually setting anything .. i think this causes the binary search to
+  fail).
+
+* Expose a 'count' function in the grid that returns the number of pictures
+  being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
+
+* Have the picture grid maintain first and last pictures as they are being
+  added and removed.  Maybe this should be like the carousel, and maybe I 
+  should have a very formalized 'addpicture', and 'removepicture' function.
+  I could additionally create a utility function which clears everything, 
+  and rips through a mealinfo array adding all of the pictures.  Yes!  I will
+  do that..
+
 * I will put a box with rounded corners behind the grid maybe.  The grid
   itself should be a little configureable: you pass in how many pictures
   you want displayed per row based on the size of the monitor.  So the

@@ -3937,7 +3937,7 @@ function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thum
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
-        var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height;
+        var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + " " + picinfo.thumbheight;
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.write(successResp);
         res.end();
@@ -3984,8 +3984,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     }
 
     // Set thumb width and height in mealinfo
-    picinfo.thumbWidth = Math.floor(scaleThumbWidth);
-    picinfo.thumbHeight = Math.floor(scaleThumbHeight);
+    picinfo.thumbwidth = Math.floor(scaleThumbWidth);
+    picinfo.thumbheight = Math.floor(scaleThumbHeight);
 
 
     req.session.user.numPics++;
