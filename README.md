@@ -5,9 +5,12 @@ mylunch
 todo
 ====
 
-* Fix bug in the 'setdisplaypicture' code inside the grid object (it's not 
-  actually setting anything .. i think this causes the binary search to
-  fail).
+* If you've just gone into the modal to edit a meal, highlight the grid-page
+  somehow showing the meal that you just edited.
+
+* Move the nextprevpagelinks function into the grid.  Move the delete picture
+  function into the grid.  This is going to be difficult for anyone without
+  programming experience to modify, isn't it?
 
 * Expose a 'count' function in the grid that returns the number of pictures
   being displayed.  If that is 1, firstGrid.attr == lastGrid.attr

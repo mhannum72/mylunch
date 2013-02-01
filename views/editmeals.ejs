@@ -76,7 +76,6 @@ TODO:
         }
 */
         function mealPage(timestamp) {
-            //this.mealdate = mealdate;
             this.timestamp = timestamp;
             return this;
         }
@@ -88,8 +87,6 @@ TODO:
             this.showMealsPerPage = showMealsPerPage;
             this.nextPage = new mealPage(nextts);
             this.prevPage = new mealPage(prevts);
-            //this.carousel_interval = 5000;
-            //this.carousel_fadetime = 0;
             return this;
         }
 
@@ -373,7 +370,7 @@ TODO:
                 // print an error message.
                 if(null == bodyText || bodyText == "") {
                     debuglog('checkUploaded bodyText is null - resetting timeout, cnt is ' + cnt++);
-                    setTimeout(checkUploaded, 1000);
+                    setTimeout(checkUploaded, 500);
                     return;
                 }
 
@@ -395,7 +392,7 @@ TODO:
                     // Create minimal picinfo
                     var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
 
-                    // Debug message
+                    // Debug messages
                     debuglog('checkUploaded timestamp is ' + picts);
                     debuglog('checkUploaded height is ' + height);
                     debuglog('cnt is ' + cnt++);
@@ -413,7 +410,7 @@ TODO:
 
             fileUpload.change(function() {
                 uploadForm.submit();
-                setTimeout(checkUploaded, 1000);
+                setTimeout(checkUploaded, 500);
             });
 
             fileUpload.appendTo(uploadForm);
@@ -438,10 +435,6 @@ TODO:
 
             // Loop
             while(true) {
-
-                if(!pinfo[ii]) {
-                    debuglog("put a breakpoint here!");
-                }
 
                 // Found index
                 if(pinfo[ii].timestamp == timestamp)
@@ -541,9 +534,10 @@ TODO:
             function updatepicturecount(meal) {
 
                 // Update grid
-                var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
+                //var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
+                var divstr = '#gridTimestamp' + meal.timestamp; // + ' > .picturecount';
 
-                var div = $(divstr);
+                var div = $(divstr).find('.picturecount');
 
                 var picturecountstring;
 
@@ -808,32 +802,6 @@ TODO:
             grid_title.appendTo(class8);
             grid_title_clear.appendTo(class8);
 
-            // When uploaded.  Maybe this belongs somewhere else?  maybe there should be 
-            // an inputable calendar (i think theres a jquery plugin for that)?  
-            // will think about it.
-            //
-            // yes - got it
-            //
-            /*
-            var grid_uploaded_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Uploaded');
-
-            var localeDate = new Date(meal.timestamp).toLocaleDateString();
-
-            var grid_uploaded = $(dc('div'))
-            .attr('class', 'grid_5')
-                .attr('id', 'pop_date_uploaded')
-                .html(localeDate);
-
-            var grid_uploaded_clear = $(dc('div'))
-                    .attr('class', 'clear');
-
-            grid_uploaded_pre.appendTo(class8);
-            grid_uploaded.appendTo(class8);
-            grid_uploaded_clear.appendTo(class8);
-            */
-
             var grid_date_pre = $(dc('div'))
                 .attr('class', 'grid_3')
                 .html('Date');
@@ -864,10 +832,7 @@ TODO:
                 .attr('name', 'pop_date_input')
                 .val(new Date(mealDate).asString());
 
-//            $('#pop_date_input').css({'display':'none'});
-
             // This append *must* occur before the call to datePicker.
-            //grid_date_input.appendTo(grid_date_anchor);
             grid_date_input.appendTo(grid_date);
 
             grid_date_anchor.appendTo(grid_date);
@@ -875,10 +840,8 @@ TODO:
             grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
 
             grid_date_input.css({'display':'none'});
-//            grid_date.css({'display':'inline-block'});
 
             grid_date_text.click(function() {
-                // grid_date_input.css({'display':'inline-block'});
                 grid_date_input.dpDisplay(grid_date);
             });
 
@@ -895,30 +858,13 @@ TODO:
                 return false;
             });
 
-                /*
-            grid_date.blur(function() {
-                debuglog('I am blurred');
-            });
-            */
-
-            //grid_date_input.mouseleave(function() {
-                //grid_date_input.dpClose();
-            //});
-
             var grid_date_clear = $(dc('div'))
                 .attr('class', 'clear');
-
-
-            //grid_date_input.val(mealDate.asString());
-
-            // Create a calendar in this div
-            // TODO - declare an input, and make it the 'datePick' class
 
             grid_date_pre.appendTo(class8);
             grid_date.appendTo(class8);
             grid_date_clear.appendTo(class8);
 
-            // 
             var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
 
             // Which meal
@@ -929,14 +875,12 @@ TODO:
             var grid_meal = $(dc('div'))
                 .attr('class', 'grid_5')
                 .attr('id', 'pop_meal');
-//                .html(whichmeal);
 
             // Create the which-meal selection menu
             var grid_meal_select_div = $(dc('div'))
                 .attr('class', 'meal_select_menu_div')
                 .attr('id', 'meal_select_menu_div')
                 .css({'display': 'block'});
-                //.css({'display': 'none'});
 
             var grid_meal_select = $(dc('ul'))
                 .attr('class', 'meal_select_menu')
@@ -948,10 +892,12 @@ TODO:
                 .attr('class', 'meal_select_menu_selection')
                 .attr('name', 'meal_select_menu_breakfast')
                 .attr('id', 'meal_select_menu_breakfast');
+
             var grid_meal_select_meal_breakfast_anchor = $(dc('a'))
                 .attr('id', 'meal_select_breakfast_anchor')
                 .attr('class', 'meal_select_anchor')
                 .html('Breakfast');
+
             if(meal.meal == "breakfast") {
                 grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
             }
@@ -1651,14 +1597,14 @@ TODO:
                                 // There's only one meal here- we'll be called when that loads
                                 var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
                                     newInternal.appendTo(lastGrid);
-                                    nextPrevPageLinks(nextpage, page_globals.prevPage);
+                                    pictureGrid.nextprevpagelinks(nextpage, page_globals.prevPage);
                                 });
 
                             }
                             else {
 
                                 lastGrid.remove();
-                                nextPrevPageLinks(nextpage, page_globals.prevPage);
+                                pictureGrid.nextprevpagelinks(nextpage, page_globals.prevPage);
 
                             }
                         }
@@ -1775,104 +1721,6 @@ TODO:
                     });
         }
 
-        function nextPrevPageLinks(nextpage, prevpage) {
-            var prevGrid;
-            var nextGrid;
-            var createdPrev=false;
-            var createdNext=false;
-            var nextPrev;
-
-            if(undefined == nextpage || nextpage.timestamp <= 0)
-            {
-                nextpage = null;
-            }
-
-            if(undefined == prevpage || prevpage.timestamp <= 0)
-            {
-                prevpage = null;
-            }
-
-            if(!nextpage && !prevpage)
-            {
-                return;
-            }
-
-            if(prevpage) {
-                prevGrid = $(dc('div'))
-                    .attr('class', 'grid_2');
-
-                var prevCenter = $(dc('center'));
-
-                // TODO - maybe change the href to an onclick ..?
-                var prevAnchor = $(dc('a'))
-                    .attr('href', 'javascript:void(0)')
-                    .html('Previous Page');
-
-                prevAnchor.click(function() {
-                    drawPrevMeals(prevpage);
-                });
-
-                prevCenter.appendTo(prevGrid);
-                prevAnchor.appendTo(prevCenter);
-                createdPrev = true;
-
-                console.log("prev is " + prevpage.timestamp);
-            }
-
-            if(nextpage) {
-                nextGrid = $(dc('div'))
-                    .attr('class', 'grid_2');
-                
-                var nextCenter = $(dc('center'));
-
-                var nextAnchor = $(dc('a'))
-                    .attr('href', 'javascript:void(0)')
-                    .html('Next Page');
-                    
-                nextAnchor.click(function() {
-                    drawNextMeals(nextpage);
-                });
-
-                nextCenter.appendTo(nextGrid);
-                nextAnchor.appendTo(nextCenter);
-                createdNext = true;
-                console.log("next is " + nextpage.timestamp);
-            }
-
-            if(createdPrev && !createdNext) {
-                prevGrid.addClass('suffix_10');
-            }
-
-            if(!createdPrev && createdNext) {
-                nextGrid.addClass('prefix_10');
-            }
-
-            if(createdPrev && createdNext) {
-                prevGrid.addClass('suffix_4');
-                nextGrid.addClass('prefix_4');
-            }
-
-            var clearnextprev = $(dc('div'))
-                .attr('class', 'clear');
-
-            nextPrev = $('#nextprev');
-            nextPrev.empty();
-
-            if(createdPrev) {
-                prevGrid.appendTo(nextPrev);
-            }
-
-            if(createdNext) {
-                nextGrid.appendTo(nextPrev);
-            }
-
-            clearnextprev.appendTo(nextPrev);
-
-            // Update globals
-            page_globals.nextPage = nextpage;
-            page_globals.prevPage = prevpage;
-        }
-
         // Modular picture grid
         var pictureGrid = (function (pdiv, cfg) {
 
@@ -1880,10 +1728,10 @@ TODO:
             var parentDiv = pdiv;
 
             // What's the left margin
-            var marginleft = cfg.marginleft ? cfg.marginleft : 10;
+            var marginleft = cfg.marginleft ? cfg.marginleft : 25;
 
             // What's the right margin
-            var marginright = cfg.marginright ? cfg.marginright : 10;
+            var marginright = cfg.marginright ? cfg.marginright : 25;
 
             // What's the top margin
             var margintop = cfg.margintop ? cfg.margintop : 10;
@@ -1920,7 +1768,91 @@ TODO:
             var dc = function(a)
             {
                 return document.createElement(a);
-            };
+            }
+
+            function nextprevdiv(page, htxt, drawmeals) {
+
+                // Initial div
+                var div = $(dc('div'));
+
+                // Text should be centered
+                var center = $(dc('center'));
+
+                // Create click anchor
+                var anchor = $(dc('a')).
+                    attr('href', 'javascript:void(0)')
+                    .html(htxt);
+
+                // Invoke the callback if clicked
+                anchor.click(function() {
+                    drawmeals(page);
+                });
+
+                // Position center on the div
+                center.appendTo(div);
+
+                // Position anchor in the center
+                anchor.appendTo(center);
+
+                return div;
+            } 
+
+            function nextprevpagelinks(nextpage, prevpage) {
+    
+                var prevgrid;
+                var nextgrid;
+
+                // Normalize nextpage and prevpage
+                nextpage = nextpage && nextpage.timestamp > 0 ? nextpage : null;
+                prevpage = prevpage && prevpage.timestamp > 0 ? prevpage : null;
+    
+                // Return if neither is necessary
+                if(!nextpage && !prevpage) {
+                    return;
+                }
+
+                // Find nextprev location (this will change)
+                var nextprev = $('#nextprev');
+    
+                // Empty
+                nextprev.empty();
+
+                // Prevpage div
+                if(prevpage) {
+
+                    // Create a prev div
+                    prevgrid = nextprevdiv(prevpage, 'Previous Page', drawPrevMeals);
+
+                    // Place it on the page
+                    prevgrid.appendTo(nextprev);
+                }
+    
+                // Nextpage div
+                if(nextpage) {
+
+                    // Create a next div
+                    nextgrid = nextprevdiv(nextpage, 'Next Page', drawNextMeals);
+
+                    // Place it on the page
+                    nextgrid.appendTo(nextprev);
+                }
+
+                // Update globals
+                page_globals.nextPage = nextpage;
+                page_globals.prevPage = prevpage;
+            }
+
+            // Calculates the margintop given a picture height
+            function calculatemargintop(thumbheight) {
+                return (pictureheight + margintop) - thumbheight;
+            }
+
+            // Calculate a stripe's height 
+            function stripeheight() {
+                // Fudge for 2 lines of text
+                var fudge = 50;
+                return pictureheight + margintop + marginbottom + fudge;
+            }
 
             // Updates the grid display picture to this timestamp
             function setdisplaypicture(meal, picinfo) {
@@ -1959,8 +1891,7 @@ TODO:
                 gridpic.attr('src', imgsrc);
 
                 // Calculate the top margin
-                var margintoppx = ((pictureheight + margintop) - thumbheight) 
-                    + 'px';
+                var margintoppx = calculatemargintop(thumbheight) + 'px';
 
                 // Set the top margin
                 griddiv.css('margin-top', margintoppx);
@@ -2046,7 +1977,7 @@ TODO:
                     picturecountstring = meal.picInfo.length + " pictures";
                 }
     
-                var picturecount = $(dc('div'))
+                var picturecount = $(dc('div')) 
                     .attr('class', 'picturecount')
                     .html(picturecountstring);
     
@@ -2086,16 +2017,15 @@ TODO:
                 }
 
                 // Top margin string
-                var margintoppx = (pictureheight - thumbheight + margintop)  
-                    + 'px';
+                var margintoppx = calculatemargintop(thumbheight) + 'px';
 
                 // Bottom margin string
                 var marginbottompx = marginbottom + 'px';
 
                 // Minimum height is height + margins
-                var minheight = (pictureheight + margintop + marginbottom)
+                var picheight = (pictureheight + margintop + marginbottom)
                     + 'px';
-
+                
                 // Id this with both an index and a timestamp
                 var editgrid = $(dc('div'))
                     .attr('id', tsId)
@@ -2106,8 +2036,8 @@ TODO:
                     .css('margin-right', marginrightpx)
                     .css('margin-top', margintoppx)
                     .css('margin-bottom', marginbottompx)
-                    .css('height', 'auto')
-                    .css('min-height', minheight);
+                    .css('width', picturewidth)
+                    .css('height', picheight);
                 
                     //.attr('class', 'grid_4 editheight editgrid');
     
@@ -2156,12 +2086,8 @@ TODO:
                 // Create a horizontal div
                 if(griddiv.count % mealsperrow == 0) {
 
-                    // Fudge for 2 lines of text
-                    var fudge = 50;
-
                     // Height
-                    var heightpx = (pictureheight + margintop + marginbottom + 
-                            fudge) + 'px';
+                    var heightpx = stripeheight() + 'px';
 
                     // Create a horizontal div
                     hdiv = $(dc('div'))
@@ -2298,7 +2224,7 @@ TODO:
                             newgrid.attr('id', 'pictureGrid');
                             newgrid.appendTo($('#pictureGridDiv'));
                             newgrid.css({'display': 'block'});
-                            nextPrevPageLinks(nextpage, prevpage);
+                            nextprevpagelinks(nextpage, prevpage);
                             currentgrid = newgrid;
                         }
                     });
@@ -2308,7 +2234,8 @@ TODO:
             return {
                 displaygrid                 : displaygrid,
                 pdivint                     : pdivint,
-                setdisplaypicture           : setdisplaypicture
+                setdisplaypicture           : setdisplaypicture,
+                nextprevpagelinks           : nextprevpagelinks
             };
         }(document.getElementById('pictureGridDiv'), {}));
                 
