@@ -526,6 +526,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', end
 
 }
 
+.pictureGridDiv {
+    float: center;
+    position: relative;
+}
+
 a.dp-choose-date {
     /*
     background: url("../images/calendar.png") no-repeat scroll 0 0 transparent;

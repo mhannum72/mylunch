@@ -84,6 +84,9 @@ function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimes
     elm.viewport = $(dc('div'))
         .attr('id', 'mealviewport')
         .attr('class', 'mealviewport')
+        .css('position', 'relative')
+        .css('top', '0px')
+        .css('float', 'left')
         .css('height', '780px')
         .css('width', '1560px');
 
