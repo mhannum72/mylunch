@@ -17,7 +17,9 @@ function createPictureCarousel(username, sourcedir, picinfo, findpicix, keytimes
         .attr('id', 'mealcarousel')
         .attr('class', 'mealcarousel')
         .css('height', '780px')
-        .css('width', '780px');
+        .css('width', '780px')
+        .css('overflow', 'hidden')
+        .css('position', 'relative');
 
     // Store this away
     this.elm = elm;

@@ -5,6 +5,12 @@ mylunch
 todo
 ====
 
+* Store the height and the width of the 'window' in some variables.  Create a
+  'resize' handler that will adjust the layout a bit if the window width
+  changes.  You'll have to create a default 'minwidth'.  The only height change
+  would be if the new height exceeds your max-height, you should make the 
+  fade-mask larger.
+
 * If you've just gone into the modal to edit a meal, highlight the grid-page
   somehow showing the meal that you just edited.
 

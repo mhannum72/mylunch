@@ -30,6 +30,156 @@ TODO:
     <script src="/carousel.js"></script>
     <script type="text/javascript">
 
+        // Functionize mealinfo
+        var MEALINFO = (function() {
+
+            var NOMEAL = 0;
+            var BREAKFAST = 1;
+            var LUNCH = 2;
+            var DINNER = 3;
+            var SNACK = 4;
+            var OTHER = 5;
+            var MAXMEAL = 99;
+    
+            function mealToConst(meal)
+            {
+                if(meal == undefined || !meal)
+                {
+                    return NOMEAL;
+                }
+                if(meal == "breakfast")
+                {
+                    return BREAKFAST;
+                }
+                if(meal == "lunch")
+                {
+                    return LUNCH;
+                }
+                if(meal == "dinner")
+                {
+                    return DINNER;
+                }
+                if(meal == "snack")
+                {
+                    return SNACK;
+                }
+                if(meal == "other")
+                {
+                    return OTHER;
+                }
+                throw new Error("Invalid mealConst: " + meal);
+            }
+
+            // Change layout on resize
+            function windowresize() {
+            }
+    
+            // Utility function
+    		function mealDateToDate(mealdate)
+    		{
+    		    var year = mealdate / 1000000; mealdate %= 1000000;
+    		    var month = mealdate /  10000; mealdate %=   10000;
+    		    var day  = mealdate /     100;
+    		    return new Date(year, month-1, day);
+    		}
+    
+            function dateToMealDate(date, mealconst)
+            {
+                return  (date.getFullYear()    * 1000000) +
+                        ((date.getMonth() + 1)   * 10000) +
+                        (date.getDate()            * 100) +
+                        (mealconst);
+            }
+
+            return {
+                dateToMealDate  : dateToMealDate,
+                mealDateToDate  : mealDateToDate,
+                mealToConst     : mealToConst,
+                NOMEAL          : NOMEAL,
+                BREAKFAST       : BREAKFAST,
+                LUNCH           : LUNCH,
+                DINNER          : DINNER,
+                SNACK           : SNACK,
+                OTHER           : OTHER,
+                MAXMEAL         : MAXMEAL
+            };
+        }());
+
+        // Search for a specific timestamp
+        var findpicidx = (function(cfg) {
+
+            // 100 or less does better with linear search
+            var optcutoff = cfg && cfg.optcutoff ? cfg.optcutoff : 100;
+
+            // Binary search function
+            function binarysearch(pinfo, timestamp) {
+    
+                var left = 0;
+                var right = pinfo.length;
+                var ii = Math.floor(left + ( (right - left) / 2));
+    
+                // This shouldn't happen
+                if(!pinfo || pinfo.length <= 0) {
+                    debuglog('Error: findpicidx called with a null pinfo');
+                }
+    
+                // Loop
+                while(true) {
+    
+                    // Found index
+                    if(pinfo[ii].timestamp == timestamp)
+                        return ii;
+    
+                    // Change left endpoint
+                    if(timestamp > pinfo[ii].timestamp)
+                        left = ii + 1;
+    
+                    // Change right endpoint
+                    else if(timestamp < pinfo[ii].timestamp)
+                        right = ii;
+    
+                    // Didn't find it
+                    if(left >= right) return -1;
+    
+                    // Next element
+                    ii = Math.floor(left + ( (right - left) / 2));
+                }
+            }
+
+            // Linear search function
+            function linearsearch(pinfo, timestamp) {
+                for(var ii = 0 ; ii < pinfo.length ; ii++) {
+                    if(pinfo[ii].timestamp == timestamp)
+                        return ii;
+                }
+                return -1;
+            }
+
+            // Use binary search if it pays off
+            function optimalsearch(pinfo, timestamp) {
+                if(pinfo.length < optcutoff) {
+                    return linearsearch(pinfo, timestamp);
+                }
+                else {
+                    return binarysearch(pinfo, timestamp);
+                }
+            }
+
+            return {
+                linearsearch    : linearsearch,
+                binarysearch    : binarysearch,
+                search          : optimalsearch
+            };
+        }(  ));
+
+
+
+
+//
+        $(document).ready(function() {
+            $.ajaxSetup ({ cache: false });
+//
+
         // My own Date-string type
         Date.prototype.asMyString = function() {
             var monthNames = [ "January", "February", "March", "April", "May", "June",
@@ -82,212 +232,35 @@ TODO:
 
         var NOMEALHEIGHT = 256;
 
-        function global_editmeals(username, showMealsPerPage, nextts, prevts) {
+        function initglobals(username, showMealsPerPage, nextts, prevts) {
             this.username = username;
             this.showMealsPerPage = showMealsPerPage;
             this.nextPage = new mealPage(nextts);
             this.prevPage = new mealPage(prevts);
+            this.popup = null;
+
+            // Create maskfade object
+//            this.maskfade = $(dc('div'))
+//                .attr('id', 'maskfade')
+//                .attr('class', 'maskclass')
+//                .css({'display':'none'})
+//                .appendTo('body');
+//
+            // Return globals
             return this;
         }
 
-        var page_globals = global_editmeals(
+        var globals = initglobals(
                 "<%= user.username %>", 
                 <%= user.showMealsPerPage %>,
                 <%= nextts != undefined ? nextts:0 %>,
                 <%= prevts != undefined ? prevts:0 %>);
 
-        // Functionize mealinfo
-        var MEALINFO = (function() {
-
-            var NOMEAL = 0;
-            var BREAKFAST = 1;
-            var LUNCH = 2;
-            var DINNER = 3;
-            var SNACK = 4;
-            var OTHER = 5;
-            var MAXMEAL = 99;
-    
-            function mealToConst(meal)
-            {
-                if(meal == undefined || !meal)
-                {
-                    return NOMEAL;
-                }
-                if(meal == "breakfast")
-                {
-                    return BREAKFAST;
-                }
-                if(meal == "lunch")
-                {
-                    return LUNCH;
-                }
-                if(meal == "dinner")
-                {
-                    return DINNER;
-                }
-                if(meal == "snack")
-                {
-                    return SNACK;
-                }
-                if(meal == "other")
-                {
-                    return OTHER;
-                }
-                throw new Error("Invalid mealConst: " + meal);
-            }
-    
-            // Utility function
-    		function mealDateToDate(mealdate)
-    		{
-    		    var year = mealdate / 1000000; mealdate %= 1000000;
-    		    var month = mealdate /  10000; mealdate %=   10000;
-    		    var day  = mealdate /     100;
-    		    return new Date(year, month-1, day);
-    		}
-    
-            function dateToMealDate(date, mealconst)
-            {
-                return  (date.getFullYear()    * 1000000) +
-                        ((date.getMonth() + 1)   * 10000) +
-                        (date.getDate()            * 100) +
-                        (mealconst);
-            }
-
-            return {
-                dateToMealDate  : dateToMealDate,
-                mealDateToDate  : mealDateToDate,
-                mealToConst     : mealToConst,
-                NOMEAL          : NOMEAL,
-                BREAKFAST       : BREAKFAST,
-                LUNCH           : LUNCH,
-                DINNER          : DINNER,
-                SNACK           : SNACK,
-                OTHER           : OTHER,
-                MAXMEAL         : MAXMEAL
-            };
-        }());
-
-        function updateMealDateAjax(meal, mealdate) {
-            $.ajax({
-                url: '/savemealdate',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        timestamp: meal.timestamp,
-                        mealdate: mealdate
-                    }),
-                dataType: 'json',
-                // TODO: consolidated JSON response handling
-                complete: function(resp, astat){
-                }
-            });
-        }
-
-        function updateReviewAjax(meal, review) {
-            $.ajax({
-                url: '/savereview',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        timestamp: meal.timestamp,
-                        review: review
-                    }),
-                dataType: 'json',
-                // TODO: consolidated JSON response handling
-                complete: function(resp, astat){
-                }
-            });
-        }
-
-        function updateRatingAjax(meal, rating) {
-            $.ajax({
-                url: '/saverating',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        timestamp: meal.timestamp,
-                        rating: rating
-                    }),
-                dataType: 'json',
-                complete: function(resp, astat) {
-                    //debuglog('put a breakpoint here');
-                }
-            });
-        }
-
-        function makeKeyPicAjax(meal, picInfo) {
-            $.ajax({
-                url: '/updatekeypic',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        mealts: meal.timestamp,
-                        keyts: picInfo.timestamp,
-                    }),
-                dataType: 'json',
-                complete: function(resp, astat) {
-                }
-            });
-        }
-
-        function deletePicAjax(meal, picInfo) {
-            $.ajax({
-                url: '/deletepic',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        mealts: meal.timestamp,
-                        timestamp: picInfo.timestamp,
-                    }),
-                dataType: 'json',
-                complete: function(resp, astat) {
-                }
-            });
-        }
-
-        function updateMealAjax(meal, newMeal) {
-            $.ajax({
-                url: '/savemeal',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(
-                    {
-                        username: meal.username,
-                        timestamp: meal.timestamp,
-                        meal: newMeal
-                    }),
-                dataType: 'json',
-                complete: function(resp, astat) {
-                }
-            });
-        }
-
-        var textAreaWidthCols = 65;
-
-        $.browser.chrome = /chrome/.test(navigator.userAgent.toLowerCase());
-
-        if($.browser.mozilla) {
-            textAreaWidthCols = 65;
-        }
-        else if($.browser.chrome) {
-            textAreaWidthCols = 57;
-        }
-
         // Create a new meal via an ajax request & then show it's attributes
         function newMealPopup() {
             $.getJSON('/newmeal',
                 {
-                    username: page_globals.username
+                    username: globals.username
                 },
                 function(response) {
                     if(response.message == undefined || response.message != "success") {
@@ -303,8 +276,8 @@ TODO:
 
                     $('#pictureGridDiv').html('');
                     // XXX
-                    pictureGrid.drawnextmeals(new mealPage(parseInt(response.timestamp,10)));
-                    showAttributes(page_globals.username, response.timestamp, 0);
+                    pictureGrid.drawnextmeals(globals.username, new mealPage(parseInt(response.timestamp,10)));
+                    showattributes.show(globals.username, response.timestamp, 0);
                 });
         }
 
@@ -341,7 +314,7 @@ TODO:
                 .attr('type', 'hidden')
                 .attr('name', 'username')
                 .attr('id', 'username')
-                .val(page_globals.username);
+                .val(globals.username);
 
             // Send the timestamp of the corresponding meal
             var mealTimestamp = $(dc('input'))
@@ -421,1332 +394,7 @@ TODO:
 
         }
 
-        // Binary search for a specific timestamp
-        function findpicidx(pinfo, timestamp) {
-
-            var left = 0;
-            var right = pinfo.length;
-            var ii = Math.floor(left + ( (right - left) / 2));
-
-            // This shouldn't happen
-            if(!pinfo || pinfo.length <= 0) {
-                debuglog('Error: findpicidx called with a null pinfo');
-            }
-
-            // Loop
-            while(true) {
-
-                // Found index
-                if(pinfo[ii].timestamp == timestamp)
-                    return ii;
-
-                // Change left endpoint
-                if(timestamp > pinfo[ii].timestamp)
-                    left = ii + 1;
-
-                // Change right endpoint
-                else if(timestamp < pinfo[ii].timestamp)
-                    right = ii;
-
-                // Didn't find it
-                if(left >= right) return -1;
-
-                // Next element
-                ii = Math.floor(left + ( (right - left) / 2));
-            }
-        }
-
-        // Meal attributes / edit modal
-        function showAttributesMealInfo(meal, restaurant, restaurantId) {
-
-            var username = meal.username;
-            var timestamp = meal.timestamp;
-
-            var popup = $(dc('div'))
-                .attr('id', 'mealAttributes')
-                .attr('class', 'mealAttributesPopup');
-
-            // Center things on this popup.  
-            // The center-tag is a little old-school these days.
-            var centr = $(dc('center'));
-
-            // Carousel div
-            var carouselDivContainer = $(dc('div'))
-                .attr('id', 'mealCarouselContainer')
-                .attr('class', 'mealCarouselContainer');
-
-            // Create a carousel-  TODO: 'pics' argument from ejs ..
-            var elm = createPictureCarousel(page_globals.username, 'pics', 
-                    meal.picInfo, findpicidx, meal.keytimestamp);
-
-            // Append it to the div
-            elm.appendTo(carouselDivContainer);
-
-            // Append carousel to popup
-            carouselDivContainer.appendTo(centr);
-
-            var closexContainer = $(dc('div'))
-                .attr('id', 'mealAttributesCloseContainer')
-                .attr('class', 'mealAttributesCloseContainer');
-
-            var closex = $(dc('a'))
-                .attr('id', 'mealAttributesCloseButton')
-                .attr('class', 'mealAttributesCloseButton')
-                .html('x');
-
-            // Click handler for close button
-            closex.click(function(){
-
-                // Destroy carousel
-                elm.destroy();
-
-                // Fade out popup
-                popup.fadeOut(0);
-
-                // Remove background
-                $('#maskFade').css({'display':'none'});
-
-                // Remove popup
-                popup.remove();
-            });
-
-            closex.appendTo(closexContainer);
-            closexContainer.appendTo(popup);
-
-            // They look best below
-            centr.appendTo(popup);
-
-            // Create a class_8 container .. everything goes in here
-            var class8 = $(dc('div'))
-                .attr('id', 'mealAttributesClass8')
-                .attr('class', 'container_8');
-
-            var subcarousel = $(dc('div'))
-                .attr('id', 'subcarousel')
-                .attr('class', 'carousel_caption');
-
-            var uploadAnchor = $(dc('a'))
-                .attr('id', 'uploadPictureAnchor')
-                .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
-                .html('Upload New Picture');
-
-
-            function updatepicturecount(meal) {
-
-                // Update grid
-                //var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
-                var divstr = '#gridTimestamp' + meal.timestamp; // + ' > .picturecount';
-
-                var div = $(divstr).find('.picturecount');
-
-                var picturecountstring;
-
-                if(meal.picInfo.length == 1) {
-                    picturecountstring = "1 picture";
-                }
-                else {
-                    picturecountstring = meal.picInfo.length + " pictures";
-                }
-
-                div.html(picturecountstring);
-            }
-
-            // Click function for the upload anchor
-            uploadAnchor.click(function() {
-
-                // Popup works from a hidden frame
-                uploadMealPopup(meal.timestamp, function(err, pinfo) {
-
-                    // Throw any errors
-                    if(err) throw(err);
-
-                    // Add this to the carousel
-                    elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
-
-                        if(added) {
-
-                            // Make key photo if this was the first
-                            if(ckfirst) {
-                                pictureGrid.setdisplaypicture(meal, pinfo);
-                            }
-
-                            debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
-
-                            // Push this picture onto the meal.picInfo array
-                            meal.picInfo.push(pinfo);
-
-
-                            // Update picture count
-                            updatepicturecount(meal);
-                        }
-
-                        // Set the focus back on the carousel
-                        elm.focus();
-                    });
-
-                });
-            });
-
-            var makeKeyAnchor = $(dc('a'))
-                .attr('id', 'keyAnchor')
-                .attr('class', 'carousel_caption keyAnchor grid_2')
-                .html('Make Key Photo');
-
-            // Make this general & use same code for delete [0] case
-            makeKeyAnchor.click(function() {
-
-                // ajax for username, mealts, and keyts
-                elm.makekeypicture(function(success, pinfo) {
-
-                    if(success) {
-
-                        // Update mongo on the server
-                        makeKeyPicAjax(meal, pinfo);
-
-                        // Set the display picture
-                        pictureGrid.setdisplaypicture(meal, pinfo);
-                    }
-                });
-            });
-
-            // Create delete picture anchor
-            var deleteAnchor = $(dc('a'))
-                .attr('id', 'deletePictureAnchor')
-                .attr('class', 'carousel_caption deletePictureAnchor grid_3')
-                .html('Delete Picture');
-
-            // Click handler
-            deleteAnchor.click(function() {
-
-                // Remove picture from carousel
-                elm.removepicture(function(removed, pinfo) {
-
-                    if(removed) {
-
-                        // Find index of removed photo
-                        var ii = findpicidx(meal.picInfo, pinfo.timestamp);
-
-                        // Remove this picture
-                        if(ii >= 0) {
-                            meal.picInfo.splice(ii, 1);
-                        }
-
-                        var changepic = false;
-
-                        // Delete from mongo
-                        deletePicAjax(meal, pinfo);
-
-                        // Was this a key picture
-                        if(pinfo.timestamp == meal.keytimestamp) {
-
-                            changepic = true;
-                            meal.keytimestamp = 0;
-
-                        }
-
-                        // If this was the first picture
-                        if(!meal.keytimestamp && ii == 0) {
-                            changepic = true;
-                        }
-
-                        // Changing the displaypic
-                        if(changepic) {
-                            var pinfo0;
-
-                            // Get new key picture
-                            if(meal.picInfo.length > 0) {
-                                pinfo0 = meal.picInfo[0];
-                            }
-
-                            // Set new display picture
-                            pictureGrid.setdisplaypicture(meal, pinfo0);
-                        }
-
-                        // Update grid picture count
-                        updatepicturecount(meal);
-                    }
-                });
-            });
-
-            // Add to the carousel fadeobjs
-            elm.addfadeobj(makeKeyAnchor.get(0));
-
-            // Add to the carousel fade objects
-            elm.addfadeobj(deleteAnchor.get(0));
-
-            // Clear 
-            var carouselClear = $(dc('div'))
-                .attr('class', 'clear');
-
-            // Attach to popup
-            uploadAnchor.appendTo(subcarousel);
-            makeKeyAnchor.appendTo(subcarousel);
-            deleteAnchor.appendTo(subcarousel);
-            subcarousel.appendTo(class8);
-            carouselClear.appendTo(class8);
-
-            // Lets skip a line
-            var skipLine = $(dc('div'))
-                .attr('class', 'grid_8 skipline')
-                .html('.');
-            var skipClear = $(dc('div'))
-                .attr('class', 'clear');
-
-            skipLine.appendTo(class8);
-            skipClear.appendTo(class8);
-
-            // Create a grid to hold the title
-            var grid_title_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Title');
-
-            var title = "untitled";
-
-            if(undefined != meal.title && meal.title.length > 0) {
-                title = meal.title;
-            }
-
-            var hovertitle = $(dc('a'))
-                .attr('id', 'titleEdit')
-                .attr('class', 'titleEdit')
-                .attr('title', 'click to edit')
-                .html(title);
-
-            // Title grid
-            var grid_title = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('id', 'pop_title');
-
-            hovertitle.appendTo(grid_title);
-
-            hovertitle.click(function(){
-
-                var titleEditInput = $(dc('input'))
-                    .attr('type', 'text')
-                    .attr('class', 'titleEditInput')
-                    .attr('name', 'titleEditInput')
-                    .attr('maxlength', '29')
-                    .attr('size', '29')
-                    .val(meal.title);
-
-                titleEditInput.appendTo(grid_title);
-                $('#titleEdit').css({'display':'none'});
-
-                titleEditInput.focus();
-
-                // Disable carosel arrow behavior
-//                $(document).off("keydown.carousel");
-                elm.disablekeydown();
-
-                function blurTitleInput(meal, titleEditInput, keepcurrent) {
-                    if(titleEditInput.val() != meal.title && keepcurrent == 0) {
-
-                        var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
-
-                        meal.title = titleEditInput.val();
-                        $('#titleEdit').html(meal.title);
-                        $(titleEdit).html(meal.title);
-
-                        $.ajax({
-                            url: '/savetitle',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify(
-                                {
-                                    username: meal.username,
-                                    timestamp: meal.timestamp,
-                                    title: titleEditInput.val()
-                                }),
-                            dataType: 'json',
-                            complete: function(resp, astat) {
-                            }
-                        });
-                    }
-                    $('#titleEdit').css({'display':'inline-block'});
-                    titleEditInput.remove();
-                    elm.enablekeydown();
-                }
-
-
-                // I want certain keys (return or tab) to force a blur
-                titleEditInput.keydown(function(e){
-                    var code = (e.keyCode ? e.keyCode : e.which);
-                    switch(code) {
-                        // XXX 
-                        case 39:
-                        case 37:
-                            return true;
-                            break;
-                        case 13:
-                        case 9:
-                            titleEditInput.blur();
-                            return false;
-                            break;
-                        case 27:
-                            blurTitleInput(meal, titleEditInput, 1);
-                            return false;
-                            break;
-                    }
-                });
-
-                titleEditInput.blur(function() {
-                        blurTitleInput(meal, titleEditInput, 0);
-                });
-            });
-
-            var grid_title_clear = $(dc('div'))
-                .attr('class', 'clear');
-
-            // Append title
-            grid_title_pre.appendTo(class8);
-            grid_title.appendTo(class8);
-            grid_title_clear.appendTo(class8);
-
-            var grid_date_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Date');
-            
-            var grid_date = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('id', 'pop_date');
-
-            var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
-
-            var grid_date_anchor = $(dc('a'))
-                .attr('id', 'pop_date_anchor')
-                .attr('class', 'pop_date_anchor')
-                .attr('title', 'click to edit')
-                .css({'display':'inline-block'});
-
-            var grid_date_text = $(dc('div'))
-                .attr('id', 'pop_date_text')
-                .attr('class', 'pop_date_text')
-                .html(new Date(mealDate).asMyString());
-
-            grid_date_text.appendTo(grid_date_anchor);
-
-            var grid_date_input = $(dc('input'))
-                .attr('type', 'text')
-                .attr('class', 'pop_date_input')
-                .attr('id', 'pop_date_input')
-                .attr('name', 'pop_date_input')
-                .val(new Date(mealDate).asString());
-
-            // This append *must* occur before the call to datePicker.
-            grid_date_input.appendTo(grid_date);
-
-            grid_date_anchor.appendTo(grid_date);
-
-            grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
-
-            grid_date_input.css({'display':'none'});
-
-            grid_date_text.click(function() {
-                grid_date_input.dpDisplay(grid_date);
-            });
-
-            grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
-                // Set the pop-up date
-                $('#pop_date_text').html(sdate.asMyString());
-
-                // Calculate the mealdate
-                var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
-
-                // Update server side
-                updateMealDateAjax(meal, md);
-
-                return false;
-            });
-
-            var grid_date_clear = $(dc('div'))
-                .attr('class', 'clear');
-
-            grid_date_pre.appendTo(class8);
-            grid_date.appendTo(class8);
-            grid_date_clear.appendTo(class8);
-
-            var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-
-            // Which meal
-            var grid_meal_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Meal');
-
-            var grid_meal = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('id', 'pop_meal');
-
-            // Create the which-meal selection menu
-            var grid_meal_select_div = $(dc('div'))
-                .attr('class', 'meal_select_menu_div')
-                .attr('id', 'meal_select_menu_div')
-                .css({'display': 'block'});
-
-            var grid_meal_select = $(dc('ul'))
-                .attr('class', 'meal_select_menu')
-                .attr('id', 'meal_select_menu')
-                .attr('name', 'meal_select_menu');
-
-            // BREAKFAST
-            var grid_meal_select_meal_breakfast = $(dc('li'))
-                .attr('class', 'meal_select_menu_selection')
-                .attr('name', 'meal_select_menu_breakfast')
-                .attr('id', 'meal_select_menu_breakfast');
-
-            var grid_meal_select_meal_breakfast_anchor = $(dc('a'))
-                .attr('id', 'meal_select_breakfast_anchor')
-                .attr('class', 'meal_select_anchor')
-                .html('Breakfast');
-
-            if(meal.meal == "breakfast") {
-                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
-            }
-            
-            grid_meal_select_meal_breakfast_anchor.click(function() {
-                if(meal.meal == "breakfast") {
-                    return;
-                }
-                if(meal.meal == "lunch" ) {
-                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "dinner" ) {
-                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "snack" ) {
-                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "other" ) {
-                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-                }
-                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
-                meal.meal = "breakfast";
-                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                grid_meal.html(whichmeal);
-                updateMealAjax(meal, "breakfast");
-            });
-
-            grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
-
-            // LUNCH
-            var grid_meal_select_meal_lunch = $(dc('li'))
-                .attr('class', 'meal_select_menu_selection')
-                .attr('name', 'meal_select_menu_lunch')
-                .attr('id', 'meal_select_menu_lunch');
-
-            var grid_meal_select_meal_lunch_anchor = $(dc('a'))
-                .attr('id', 'meal_select_lunch_anchor')
-                .attr('class', 'meal_select_anchor')
-                .html('Lunch');
-            if(meal.meal == "lunch") {
-                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
-            }
-            grid_meal_select_meal_lunch_anchor.click(function() {
-                if(meal.meal == "lunch") {
-                    return;
-                }
-                if(meal.meal == "breakfast" ) {
-                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "dinner" ) {
-                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "snack" ) {
-                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "other" ) {
-                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-                }
-                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
-                meal.meal = "lunch";
-                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                grid_meal.html(whichmeal);
-                updateMealAjax(meal, "lunch");
-            });
-            grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
-
-            // DINNER
-            var grid_meal_select_meal_dinner = $(dc('li'))
-                .attr('class', 'meal_select_menu_selection')
-                .attr('name', 'meal_select_menu_dinner')
-                .attr('id', 'meal_select_menu_dinner');
-            var grid_meal_select_meal_dinner_anchor = $(dc('a'))
-                .attr('id', 'meal_select_dinner_anchor')
-                .attr('class', 'meal_select_anchor')
-                .html('Dinner');
-            if(meal.meal == "dinner") {
-                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
-            }
-            grid_meal_select_meal_dinner_anchor.click(function() {
-                if(meal.meal == "dinner") {
-                    return;
-                }
-                if(meal.meal == "breakfast" ) {
-                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "lunch" ) {
-                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "snack" ) {
-                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "other" ) {
-                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-                }
-                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
-                meal.meal = "dinner";
-                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                grid_meal.html(whichmeal);
-                updateMealAjax(meal, "dinner");
-            });
-            grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
-
-            // SNACK
-            var grid_meal_select_meal_snack = $(dc('li'))
-                .attr('class', 'meal_select_menu_selection')
-                .attr('name', 'meal_select_menu_snack')
-                .attr('id', 'meal_select_menu_snack');
-            var grid_meal_select_meal_snack_anchor = $(dc('a'))
-                .attr('id', 'meal_select_snack_anchor')
-                .attr('class', 'meal_select_anchor')
-                .html('Snack');
-            if(meal.meal == "snack") {
-                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
-            }
-            grid_meal_select_meal_snack_anchor.click(function() {
-                if(meal.meal == "snack") {
-                    return;
-                }
-                if(meal.meal == "breakfast" ) {
-                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "lunch" ) {
-                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "dinner" ) {
-                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "other" ) {
-                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-                }
-                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
-                meal.meal = "snack";
-                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                grid_meal.html(whichmeal);
-                updateMealAjax(meal, "snack");
-            });
-            grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
-
-            var grid_meal_select_meal_other = $(dc('li'))
-                .attr('class', 'meal_select_menu_selection')
-                .attr('name', 'meal_select_menu_other')
-                .attr('id', 'meal_select_menu_other');
-            var grid_meal_select_meal_other_anchor = $(dc('a'))
-                .attr('id', 'meal_select_other_anchor')
-                .attr('class', 'meal_select_anchor')
-                .html('Other');
-            if(meal.meal == "other") {
-                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
-            }
-            grid_meal_select_meal_other_anchor.click(function() {
-                if(meal.meal == "other") {
-                    return;
-                }
-                if(meal.meal == "breakfast" ) {
-                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "lunch" ) {
-                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "dinner" ) {
-                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-                }
-                if(meal.meal == "snack" ) {
-                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-                }
-                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
-                meal.meal = "other";
-                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                grid_meal.html(whichmeal);
-                updateMealAjax(meal, "other");
-            });
-            grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
-
-            // build menu
-            grid_meal_select_meal_breakfast.appendTo(grid_meal_select);
-            grid_meal_select_meal_lunch.appendTo(grid_meal_select);
-            grid_meal_select_meal_dinner.appendTo(grid_meal_select);
-            grid_meal_select_meal_snack.appendTo(grid_meal_select);
-            grid_meal_select_meal_other.appendTo(grid_meal_select);
-            grid_meal_select.appendTo(grid_meal_select_div);
-
-            // Define hover behaviors
-            /*
-            grid_meal.mouseenter(
-                function(){
-                    $('#meal_select_menu_div').css({ 'display': 'block' });
-                }
-            );
-
-            grid_meal_select_div.mouseleave(
-                function(){
-                    $('#meal_select_menu_div').css({ 'display': 'none' });
-                }
-            );
-            */
-
-            var grid_meal_clear = $(dc('div'))
-                .attr('class', 'clear');
-
-            // Append meal
-            grid_meal_pre.appendTo(class8);
-            grid_meal.appendTo(class8);
-            grid_meal_select_div.appendTo(class8);
-            grid_meal_clear.appendTo(class8);
-
-            // How many stars
-            var grid_stars_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Rating');
-
-            // Rating selector container
-            var grid_stars = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('id', 'pop_rating')
-                .attr('name', 'name_rating');
-
-            // Create a sub-div that will contain the star-elements
-            var grid_stars_select_div = $(dc('div'))
-                .attr('class', 'stars_select_menu_div')
-                .attr('id', 'stars_select_menu_div');
-
-            // Start an unordered list
-            var grid_stars_select = $(dc('ul'))
-                .attr('class', 'stars_select_menu')
-                .attr('id', 'stars_select_menu')
-                .attr('name', 'stars_select_menu');
-
-            // There will be five of them
-            var grid_stars_select_stars_0 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_0')
-                .attr('id', 'star_select_menu_0');
-
-            var grid_stars_select_stars_0_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_0_anchor')
-                .attr('class', 'stars_select_anchor')
-                .css({ 'color' : '#fff' })
-                .html('&#11036');
-
-            var grid_stars_select_stars_1_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_1_anchor')
-                .attr('class', 'stars_select_anchor')
-                .html('&#9733;');
-
-            var grid_stars_select_stars_2_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_2_anchor')
-                .attr('class', 'stars_select_anchor')
-                .html('&#9733;');
-
-            var grid_stars_select_stars_3_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_3_anchor')
-                .attr('class', 'stars_select_anchor')
-                .html('&#9733;');
-
-            var grid_stars_select_stars_4_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_4_anchor')
-                .attr('class', 'stars_select_anchor')
-                .html('&#9733;');
-
-            var grid_stars_select_stars_5_anchor = $(dc('a'))
-                .attr('id', 'stars_select_stars_5_anchor')
-                .attr('class', 'stars_select_anchor')
-                .html('&#9733;');
-
-            // TODO - this could be more efficient 
-            function reset_stars_select_classes_hover() {
-                grid_stars_select_stars_0_anchor.removeClass("stars_unselected_star_hover");
-                grid_stars_select_stars_1_anchor.removeClass("stars_unselected_star_hover");
-                grid_stars_select_stars_2_anchor.removeClass("stars_unselected_star_hover");
-                grid_stars_select_stars_3_anchor.removeClass("stars_unselected_star_hover");
-                grid_stars_select_stars_4_anchor.removeClass("stars_unselected_star_hover");
-                grid_stars_select_stars_5_anchor.removeClass("stars_unselected_star_hover");
-
-                grid_stars_select_stars_0_anchor.removeClass("stars_selected_star_hover");
-                grid_stars_select_stars_1_anchor.removeClass("stars_selected_star_hover");
-                grid_stars_select_stars_2_anchor.removeClass("stars_selected_star_hover");
-                grid_stars_select_stars_3_anchor.removeClass("stars_selected_star_hover");
-                grid_stars_select_stars_4_anchor.removeClass("stars_selected_star_hover");
-                grid_stars_select_stars_5_anchor.removeClass("stars_selected_star_hover");
-            }
-
-            // TODO - this could be more efficient 
-            function reset_stars_select_classes() {
-                grid_stars_select_stars_0_anchor.removeClass("stars_selected_star");
-                grid_stars_select_stars_1_anchor.removeClass("stars_selected_star");
-                grid_stars_select_stars_2_anchor.removeClass("stars_selected_star");
-                grid_stars_select_stars_3_anchor.removeClass("stars_selected_star");
-                grid_stars_select_stars_4_anchor.removeClass("stars_selected_star");
-                grid_stars_select_stars_5_anchor.removeClass("stars_selected_star");
-
-                grid_stars_select_stars_0_anchor.removeClass("stars_unselected_star");
-                grid_stars_select_stars_1_anchor.removeClass("stars_unselected_star");
-                grid_stars_select_stars_2_anchor.removeClass("stars_unselected_star");
-                grid_stars_select_stars_3_anchor.removeClass("stars_unselected_star");
-                grid_stars_select_stars_4_anchor.removeClass("stars_unselected_star");
-                grid_stars_select_stars_5_anchor.removeClass("stars_unselected_star");
-
-                if(meal.rating >= 1) {
-                    grid_stars_select_stars_1_anchor.attr('class', 'stars_selected_star');
-                }
-                else {
-                    grid_stars_select_stars_1_anchor.attr('class', 'stars_unselected_star');
-                }
-
-                if(meal.rating >= 2) {
-                    grid_stars_select_stars_2_anchor.attr('class', 'stars_selected_star');
-                }
-                else {
-                    grid_stars_select_stars_2_anchor.attr('class', 'stars_unselected_star');
-                }
-
-                if(meal.rating >= 3) {
-                    grid_stars_select_stars_3_anchor.attr('class', 'stars_selected_star');
-                }
-                else {
-                    grid_stars_select_stars_3_anchor.attr('class', 'stars_unselected_star');
-                }
-                if(meal.rating >= 4) {
-                    grid_stars_select_stars_4_anchor.attr('class', 'stars_selected_star');
-                }
-                else {
-                    grid_stars_select_stars_4_anchor.attr('class', 'stars_unselected_star');
-                }
-                if(meal.rating >= 5) {
-                    grid_stars_select_stars_5_anchor.attr('class', 'stars_selected_star');
-                }
-                else {
-                    grid_stars_select_stars_5_anchor.attr('class', 'stars_unselected_star');
-                }
-            }
-
-            reset_stars_select_classes();
-
-            function star_click(rating) {
-                if(rating < 0 || rating > 5)
-                    return false;
-                if(meal.rating == rating)
-                    return false;
-                meal.rating = rating;
-                updateRatingAjax(meal, rating);
-                return false;
-            }
-
-            grid_stars_select_stars_0_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
-                    }
-            );
-
-            grid_stars_select_stars_0_anchor.click(function() {
-                    star_click(0);
-            });
-
-            grid_stars_select_stars_0_anchor.appendTo(grid_stars_select_stars_0);
-
-            var grid_stars_select_stars_1 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_1')
-                .attr('id', 'star_select_menu_1');
-
-            grid_stars_select_stars_1_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
-                    }
-            );
-
-            grid_stars_select_stars_1_anchor.click(function() {
-                    star_click(1);
-            });
-
-            grid_stars_select_stars_1_anchor.appendTo(grid_stars_select_stars_1);
-
-            var grid_stars_select_stars_2 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_2')
-                .attr('id', 'star_select_menu_2');
-
-            grid_stars_select_stars_2_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
-                }
-            );
-            grid_stars_select_stars_2_anchor.click(function() {
-                    star_click(2);
-            });
-
-            grid_stars_select_stars_2_anchor.appendTo(grid_stars_select_stars_2);
-
-            var grid_stars_select_stars_3 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_3')
-                .attr('id', 'star_select_menu_3');
-
-            grid_stars_select_stars_3_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
-                }
-            );
-
-            grid_stars_select_stars_3_anchor.click(function() {
-                    star_click(3);
-            });
-            grid_stars_select_stars_3_anchor.appendTo(grid_stars_select_stars_3);
-
-            var grid_stars_select_stars_4 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_4')
-                .attr('id', 'star_select_menu_4');
-
-            grid_stars_select_stars_4_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
-                }
-            );
-
-            grid_stars_select_stars_4_anchor.click(function() {
-                    star_click(4);
-            });
-            grid_stars_select_stars_4_anchor.appendTo(grid_stars_select_stars_4);
-
-            var grid_stars_select_stars_5 = $(dc('li'))
-                .attr('class', 'star_select_menu_selection')
-                .attr('name', 'star_select_menu_5')
-                .attr('id', 'star_select_menu_5');
-
-            grid_stars_select_stars_5_anchor.mouseenter(
-                function() {
-                    reset_stars_select_classes_hover();
-                    grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_4_anchor.addClass("stars_selected_star_hover");
-                    grid_stars_select_stars_5_anchor.addClass("stars_selected_star_hover");
-                }
-            );
-
-            grid_stars_select_stars_5_anchor.click(function() {
-                    star_click(5);
-            });
-            grid_stars_select_stars_5_anchor.appendTo(grid_stars_select_stars_5);
-
-            grid_stars_select_div.mouseleave(function() {
-                reset_stars_select_classes_hover();
-                reset_stars_select_classes();
-            });
-
-            grid_stars_select_stars_0.appendTo(grid_stars_select);
-            grid_stars_select_stars_1.appendTo(grid_stars_select);
-            grid_stars_select_stars_2.appendTo(grid_stars_select);
-            grid_stars_select_stars_3.appendTo(grid_stars_select);
-            grid_stars_select_stars_4.appendTo(grid_stars_select);
-            grid_stars_select_stars_5.appendTo(grid_stars_select);
-
-            grid_stars_select.appendTo(grid_stars_select_div);
-
-            // Append this to grid_stars..
-            grid_stars_select_div.appendTo(grid_stars);
-            
-            var grid_stars_clear = $(dc('div'))
-                .attr('class', 'clear');
-
-            // Append rating
-            grid_stars_pre.appendTo(class8);
-            grid_stars.appendTo(class8);
-            grid_stars_clear.appendTo(class8);
-
-            // If there's a restaurant associated with this meal, link to it
-            if(restaurantId > 0 && restaurant != undefined) {
-            }
-
-            // If there's already a review, display it now
-            var grid_review_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Review');
-
-            var review = "(not reviewed)";
-
-            var grid_review = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('class', 'grid_review')
-                .attr('id', 'pop_review')
-                .attr('name', 'pop_review');
-
-
-            if (meal.review != undefined && meal.review.length > 0) {
-                review = meal.review;
-            }
-
-            var grid_review_textarea = $(dc('textarea'))
-                .attr('class', 'review_noedit')
-                .attr('class', 'review_text_area')
-                .attr('id', 'review_text_int')
-                .attr('cols', textAreaWidthCols)
-                .attr('rows', 20)
-                .attr('readonly',  true)
-                .html(review);
-
-            grid_review_textarea.click(function() {
-
-                elm.disablekeydown();
-
-                $('#review_text_int').removeClass('review_noedit');
-                $('#review_text_int').addClass('review_edit');
-                $('#review_text_int').attr('readonly', false);
-
-                // Zap the not-reviewed placeholder
-                if(meal.review == undefined || meal.review.length <= 0) {
-                    //grid_review_textarea.html('');
-                    $('#review_text_int').html('');
-                }
-            });
-
-            grid_review_textarea.keydown(function(e){
-                var code = (e.keyCode ? e.keyCode : e.which);
-                switch(code) {
-                    case 27:
-                    case 9:
-                        $('#review_text_int').blur();
-                        return false;
-                }
-            });
-
-            grid_review_textarea.blur(function() {
-                var tmpText = $('#review_text_int').val();
-                updateReviewAjax(meal, tmpText);
-                if(tmpText == undefined || tmpText.length <= 0) {
-                    $('#review_text_int').html('(not reviewed)');
-                }
-                meal.review = tmpText;
-
-                $('#review_text_int').addClass('review_noedit');
-                $('#review_text_int').removeClass('review_edit');
-                $('#review_text_int').attr('readonly', true);
-
-                elm.enablekeydown();
-            });
-            
-            grid_review_textarea.appendTo(grid_review);
-
-            var grid_review_clear = $(dc('div'))
-                .attr('class', 'clear');
-
-            grid_review_pre.appendTo(class8);
-            grid_review.appendTo(class8);
-            grid_review_clear.appendTo(class8);
-
-            // Delete this picture logic here. 
-            /*
-            var deletePre = $(dc('div'))
-                .attr('class', 'grid_3 delete_pre')
-                .attr('id', 'delete_pre')
-                .html('Delete');
-            */
-
-            var deleteLink = $(dc('div'))
-                .attr('class', 'grid_8 delete_link')
-                .attr('id', 'delete_link');
-
-            var deleteMealAnchor = $(dc('a'))
-                .attr('class', 'delete_link_anchor')
-                .attr('id', 'delete_link_anchor')
-                .attr('href', 'javascript:void(0)')
-                .attr('title', 'Delete this Meal')
-                .html('Delete this Meal');
-
-            var deleteClear = $(dc('div'))
-                .attr('class', 'clear');
-
-
-            // This is a getJSON request:
-            // 
-            // REQUEST
-            // * The username
-            // * The timestamp of the deleted meal
-            // * The timestamp of nextpage (if it exists)
-            //
-            // RESPONSE
-            // * mealinfo of the new lastpicture (if it exists)
-            // * new nextpage info (if it exists)
-            // * previous page meals if this was the last meal on the page
-            // * previous page prevpage if this was the last meal on the page
-            //
-            // The getJSON request and this delete-copy run concurrently.
-            // It will be up to the ajax response function to load the new 
-            // mealinfo and dismiss the modal.
-            deleteMealAnchor.click(function() {
-
-                var editGrid = $('#gridTimestamp' + meal.timestamp);
-                //var nextGrid = editGrid.next('.editgrid');
-                //var nextGrid = editGrid.next();
-                // Expose a 'count' function in the grid that returns the number of pictures
-                // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
-                var firstGrid = $('.editgrid').first();
-                var lastGrid = $('.editgrid').last();
-                var count = 1;
-                var lastPic = false;
-
-                var nmealtime = 0
-                var pmealtime = 0;
-
-                // If this is the last remaining picture on this page, request the previous page
-                if(firstGrid.attr('id') == lastGrid.attr('id')) {
-                    lastPic = true;
-                    if(page_globals.prevPage && page_globals.prevPage.timestamp > 0) {
-                        count = page_globals.showMealsPerPage;
-                    }
-                    // This shouldn't happen 
-                    if(page_globals.nextPage && page_globals.nextPage.timestamp > 0) {
-                        debuglog('deleteMealAnchor.click: page_globals nextPage.mealdate is set for empty page?');
-                    }
-
-                    // Only ask for the prev meals in this case
-                    if(page_globals.prevPage) {
-                        pmealtime = page_globals.prevPage.timestamp;
-                    }
-                }
-
-                if(page_globals.nextPage) {
-                    nmealtime = page_globals.nextPage.timestamp;
-                }
-
-                /* 
-                 * This request has two flavors.  If prevts is set at all, the
-                 * backend assumes that this is the last picture on the page,
-                 * and sends the information for the previous page.  If it is
-                 * 0, then this is a normal delete.
-                 */
-
-                $.getJSON('/deletemeal',
-                    {
-                        username: meal.username,
-                        timestamp: meal.timestamp,
-                        //nextmd: nmealdate,
-                        nextts: nmealtime,
-                        // XXX 
-                        //prevmd: pmealdate,
-                        prevts: pmealtime,
-                        count: count
-                    },
-                    function(response) {
-                        if(response.errStr != undefined && response.errStr.length > 0) {
-                            if(response.errStr == "signin") {
-                                window.location.replace("/signin");
-                            }
-                            else {
-                                debuglog("getJSON response error is ", response.errStr);
-                                window.location.replace("/");
-                            }
-                            return;
-                        }
-
-                        // Success - create prevpage and nextpage
-                        var prevpage = new mealPage(parseInt(response.prevts,10));
-                        var nextpage = new mealPage(parseInt(response.nextts,10));
-
-                        // If this was the last picture on the page & mealinfo is set, these meals belong
-                        // to the previous page.  Redraw it.
-                        if(lastPic) {
-                            pictureGrid.displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
-                        }
-                        else {
-
-                            // Success case
-                            if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
-
-                                // There's only one meal here- we'll be called when that loads
-                                var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
-                                    newInternal.appendTo(lastGrid);
-                                    pictureGrid.nextprevpagelinks(nextpage, page_globals.prevPage);
-                                });
-
-                            }
-                            else {
-
-                                lastGrid.remove();
-                                pictureGrid.nextprevpagelinks(nextpage, page_globals.prevPage);
-
-                            }
-                        }
-
-                        // Destroy carousel
-                        elm.destroy();
-
-                        // Fade out popup
-                        popup.fadeOut(0);
-
-                        // Remove background
-                        $('#maskFade').css({'display':'none'});
-
-                        // Remove popup
-                        popup.remove();
-
-                    });
-
-                // Walk gridpics, copying each into the last
-                while(nextGrid && nextGrid.length) {
-
-                    var intnl = editGrid.find('.editGridInternal');
-                    var nxtin = nextGrid.find('.editGridInternal');
-
-                    if(nxtin && nxtin.length) {
-
-                        if(intnl && intnl.length) {
-                            intnl.remove();
-                        }
-                        nxtin.remove();
-                        nxtin.appendTo(editGrid);
-
-                        // Remap id
-                        var tsId = nextGrid.attr('id');
-                        nextGrid.removeAttr('id');
-                        editGrid.removeAttr('id');
-                        editGrid.attr('id', tsId);
-
-                        editGrid = nextGrid;
-                    }
-
-                    nextGrid = nextGrid.next();
-                }
-            });
-
-            deleteMealAnchor.appendTo(deleteLink);
-
-            // Append to modal
-            // deletePre.appendTo(class8);
-            deleteLink.appendTo(class8);
-            deleteClear.appendTo(class8);
-
-            class8.appendTo(popup);
-
-            var maskWidth = $(window).width();
-            var maskHeight = '2000px';
-
-            $('#maskFade').css({'width':maskWidth, 'height':maskHeight, 'opacity':0.6, 'display':'block'});
-
-            // Click handler for background
-            $('#maskFade').click(function() {
-
-                    // Destroy carousel
-                    elm.destroy();
-
-                    // Fade out popup
-                    popup.fadeOut(0);
-
-                    // Remove background
-                    $('#maskFade').css({'display':'none'});
-
-                    // Remove popup
-                    popup.remove();
-            });
-
-            // Wait for the first carousel image to load
-            elm.loadcarousel(function(alen) {
-                var lft = 800 / 2;
-                var winw = $(window).width()/2;
-                var popleft = winw - lft;
-                popup.css('top', 30);
-                popup.css('left', popleft);
-                popup.appendTo('#boxes');
-                popup.fadeIn({ queue: true, duration: 500 });
-            });
-
-        }
-
-        function showAttributes(username, timestamp) {
-
-            $.getJSON('/ajaxgetmealinfo',
-                    {
-                        username: username,
-                        timestamp: timestamp
-                    },
-                    function(response) {
-                        if(response.errStr != undefined && response.errStr.length > 0) {
-                            if(response.errStr == "signin") {
-                                window.location.replace("/signin");
-                            }
-                            if(response.errStr == "wronguser") {
-                                window.location.replace("/");
-                            }
-                            // TODO - draw an elegant page for this case
-                            // TODO - elegant handling of all error - maybe have a box at the box
-                            // which informs the user if/when this occurs
-                            if(response.errStr == "nomeal") {
-                                window.location.replace("/");
-                            }
-                        }
-                        else {
-                            showAttributesMealInfo(response.mealInfo, response.restaurantInfo, response.restaurantId);
-                        }
-                    });
-        }
-
-        var nxpvcb = function(pvpage, nxpage, pvanchor, nxanchor) {
-
-            page_globals.prevPage = pvpage;
-            page_globals.nextPage = nxpage;
-
-            var pvdiv = $('#prevdiv');
-            var nxdiv = $('#nextdiv');
-
-            pvdiv.empty();
-            nxdiv.empty();
-
-            if(pvpage) {
-                var lnk = $(dc('div'))
-                    .attr('id', 'pvdiv')
-                    .css('z-index', '9999')
-                    .html('Previous Page');
-                lnk.appendTo(pvanchor);
-                pvanchor.appendTo(pvdiv);
-            }
-
-            if(nxpage) {
-                var lnk = $(dc('div'))
-                    .attr('id', 'nxdiv')
-                    .css('z-index', '9999')
-                    .html('Next Page');
-                lnk.appendTo(nxanchor);
-                nxanchor.appendTo(nxdiv);
-            }
-        }
-
-        $(document).ready(function() {
-            $.ajaxSetup ({ cache: false });
+        // XXX DOCUMENT READY WAS HERE XXX 
 
             var minfo = [];
 
@@ -1817,7 +465,7 @@ TODO:
             %>
 
             // Display the grid
-            pictureGrid.displaygrid(minfo, page_globals.nextPage, page_globals.prevPage, 'forwards');
+            pictureGrid.displaygrid(minfo, globals.nextPage, globals.prevPage, 'forwards');
     });
 
 
@@ -1859,10 +507,1552 @@ TODO:
 
 
         </div> <!-- boxes -->
-        <div id="maskFade" class="maskClass"></div>
         <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
 
         <script type="text/javascript">
+
+        var nxpvcb = function(pvpage, nxpage, pvanchor, nxanchor) {
+
+            //globals.prevPage = pvpage;
+            //globals.nextPage = nxpage;
+
+            var pvdiv = $('#prevdiv');
+            var nxdiv = $('#nextdiv');
+
+            pvdiv.empty();
+            nxdiv.empty();
+
+            if(pvpage) {
+                var lnk = $(document.createElement('div'))
+                    .attr('id', 'pvdiv')
+                    .css('z-index', '9999')
+                    .html('Previous Page');
+                lnk.appendTo(pvanchor);
+                pvanchor.appendTo(pvdiv);
+            }
+
+            if(nxpage) {
+                var lnk = $(document.createElement('div'))
+                    .attr('id', 'nxdiv')
+                    .css('z-index', '9999')
+                    .html('Next Page');
+                lnk.appendTo(nxanchor);
+                nxanchor.appendTo(nxdiv);
+            }
+        }
+
+        // Show attributes 
+        showattributes = (function(findp, cfg) {
+
+            // Hold popup in here
+            var popup = null;
+
+            // Holds carousel object
+            var elm = null;
+
+            // Hold fademask in here
+            var maskfade=null;
+
+            // Minimum mask width
+            var minmaskfadewidth = cfg.minmaskfadewidth ? cfg.minmaskfadewidth : 1024;
+
+            // Mask height
+            var maskfadeheight = cfg.maskfadeheight ? cfg.maskfadeheight : 2000;
+
+            // Opacity
+            var maskfadeopacity = cfg.maskfadeopacity ? cfg.maskfadeopacity : 0.6;
+
+            // Where to append the 
+            var appendpop = cfg.appendpop ? cfg.appendpop : null;
+
+            // Width of modal
+            var modalwidth = cfg.modalwidth ? cfg.modalwidth : 800;
+
+            // Keep track of the window's width
+            var windowwidth = $(window).width();
+
+            // Keep track of the window's height
+            var windowheight = $(window).height();
+
+            // Keep track of the maskfade width
+            var maskfadewidth;
+
+            // Height of modal
+            // var modalheight = cfg.modalheight ? cfg.modalheight : 
+            
+            // Element creator
+            var dc = cfg.createelm ? cfg.createelm : function(a) {
+                return document.createElement(a);
+            }
+
+            // Set search function
+            var findpicidx = findp;
+
+            // Create the background for this
+            maskfade = $(dc('div'))
+                .attr('id', 'maskfade')
+                .attr('class', 'maskclass')
+                .css({'display':'none'})
+                .appendTo('body');
+
+            // Click handler for background
+            maskfade.click(function() {
+
+                destroymodal();
+
+            });
+
+            // Update the rating
+            function updateRatingAjax(meal, rating) {
+                $.ajax({
+                    url: '/saverating',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            timestamp: meal.timestamp,
+                            rating: rating
+                        }),
+                    dataType: 'json',
+                    complete: function(resp, astat) {
+                        //debuglog('put a breakpoint here');
+                    }
+                });
+            }
+    
+            // Make this a key picture
+            function makeKeyPicAjax(meal, picInfo) {
+                $.ajax({
+                    url: '/updatekeypic',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            mealts: meal.timestamp,
+                            keyts: picInfo.timestamp,
+                        }),
+                    dataType: 'json',
+                    complete: function(resp, astat) {
+                    }
+                });
+            }
+    
+            // Delete this picture
+            function deletePicAjax(meal, picInfo) {
+                $.ajax({
+                    url: '/deletepic',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            mealts: meal.timestamp,
+                            timestamp: picInfo.timestamp,
+                        }),
+                    dataType: 'json',
+                    complete: function(resp, astat) {
+                    }
+                });
+            }
+    
+            // Update the server meal
+            function updateMealAjax(meal, newMeal) {
+                $.ajax({
+                    url: '/savemeal',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            timestamp: meal.timestamp,
+                            meal: newMeal
+                        }),
+                    dataType: 'json',
+                    complete: function(resp, astat) {
+                    }
+                });
+            }
+    
+            // Update the server review
+            function updateReviewAjax(meal, review) {
+                $.ajax({
+                    url: '/savereview',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            timestamp: meal.timestamp,
+                            review: review
+                        }),
+                    dataType: 'json',
+                    // TODO: consolidated JSON response handling
+                    complete: function(resp, astat){
+                    }
+                });
+            }
+    
+            // Update the server mealdate
+            function updateMealDateAjax(meal, mealdate) {
+                $.ajax({
+                    url: '/savemealdate',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            timestamp: meal.timestamp,
+                            mealdate: mealdate
+                        }),
+                    dataType: 'json',
+                    // TODO: consolidated JSON response handling
+                    complete: function(resp, astat){
+                    }
+                });
+            }
+
+            // Calculate size of the modal textarea
+            function gettextareawidth() {
+
+                $.browser.chrome = /chrome/.test(navigator.userAgent.toLowerCase());
+        
+                // Return 65 if we're mozilla
+                if($.browser.mozilla) {
+                    return 65;
+                }
+
+                // Return 57 if we're chrome
+                if($.browser.chrome) {
+                    return 57;
+                }
+
+                // Default to 65
+                return 65;
+            }
+
+            // Set textarea width
+            var textareawidth = gettextareawidth();
+
+            // Tear down
+            function destroymodal() {
+
+                // Destroy carousel
+                elm.destroy();
+
+                // Nullify
+                elm = null;
+
+                // Fade out popup
+                popup.fadeOut(0);
+
+                // Remove background
+                maskfade.css({'display':'none'});
+
+                // Remove popup
+                popup.remove();
+
+                // nullify attribute
+                popup = null;
+
+            }
+
+            // Update sizes
+            function updatewindowdims() {
+
+                // Set width of the window
+                windowwidth = $(window).width();
+
+                // Set height of the window
+                windowheight = $(window).height();
+
+            }
+
+            // Set dimentions & display modal
+            function positionmodal() {
+
+                // Half the width of the modal
+                var left = modalwidth / 2;
+
+                // Half the width of the mask
+                var halfmaskwidth = maskfadewidth / 2;
+
+                // Location of the left side of the popup
+                var popupleft = halfmaskwidth - left;
+
+                // Top stays static
+                popup.css('top', 30);
+
+                // Set the left
+                popup.css('left', popupleft);
+
+            }
+
+            // Set dimensions & display background
+            function showmaskfade() {
+
+                // Get window width
+                var wid = windowwidth;
+
+                // Set sane minimum
+                if(wid < minmaskfadewidth) 
+                    wid = minmaskfadewidth;
+
+                // Set css
+                maskfade.css(
+                        {
+                            'width':wid + 'px', 
+                            'height': maskfadeheight + 'px', 
+                            'opacity':maskfadeopacity, 
+                            'display':'block'
+                        }
+                );
+
+                maskfadewidth = wid;
+            }
+
+            // Meal attributes / edit modal
+            function showattributesmealinfo(username, meal, restaurant, restaurantId) {
+    
+                var username = meal.username;
+                var timestamp = meal.timestamp;
+    
+                popup = $(dc('div'))
+                    .attr('id', 'mealAttributes')
+                    .attr('class', 'mealAttributesPopup')
+                    .css('z-index', '9999')
+                    .css('padding', '20px');
+    
+                // Center things on this popup.  
+                // The center-tag is a little old-school these days.
+                var centr = $(dc('center'));
+    
+                // Carousel div
+                var carouselDivContainer = $(dc('div'))
+                    .attr('id', 'mealCarouselContainer')
+                    .attr('class', 'mealCarouselContainer');
+    
+                // Create a carousel-  TODO: 'pics' argument from ejs ..
+                elm = createPictureCarousel(username, 'pics', 
+                        meal.picInfo, findpicidx, meal.keytimestamp);
+    
+                // Append it to the div
+                elm.appendTo(carouselDivContainer);
+    
+                // Append carousel to popup
+                carouselDivContainer.appendTo(centr);
+    
+                var closexContainer = $(dc('div'))
+                    .attr('id', 'mealAttributesCloseContainer')
+                    .attr('class', 'mealAttributesCloseContainer');
+    
+                var closex = $(dc('a'))
+                    .attr('id', 'mealAttributesCloseButton')
+                    .attr('class', 'mealAttributesCloseButton')
+                    .html('x');
+    
+                // Click handler for close button
+                closex.click(function(){
+    
+                    destroymodal();
+
+                });
+    
+                closex.appendTo(closexContainer);
+                closexContainer.appendTo(popup);
+    
+                // They look best below
+                centr.appendTo(popup);
+    
+                // Create a class_8 container .. everything goes in here
+                var class8 = $(dc('div'))
+                    .attr('id', 'mealAttributesClass8')
+                    .attr('class', 'container_8');
+    
+                var subcarousel = $(dc('div'))
+                    .attr('id', 'subcarousel')
+                    .attr('class', 'carousel_caption');
+    
+                var uploadAnchor = $(dc('a'))
+                    .attr('id', 'uploadPictureAnchor')
+                    .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
+                    .html('Upload New Picture');
+    
+    
+                function updatepicturecount(meal) {
+    
+                    // Update grid
+                    //var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
+                    var divstr = '#gridTimestamp' + meal.timestamp; // + ' > .picturecount';
+    
+                    var div = $(divstr).find('.picturecount');
+    
+                    var picturecountstring;
+    
+                    if(meal.picInfo.length == 1) {
+                        picturecountstring = "1 picture";
+                    }
+                    else {
+                        picturecountstring = meal.picInfo.length + " pictures";
+                    }
+    
+                    div.html(picturecountstring);
+                }
+    
+                // Click function for the upload anchor
+                uploadAnchor.click(function() {
+    
+                    // Popup works from a hidden frame
+                    uploadMealPopup(meal.timestamp, function(err, pinfo) {
+    
+                        // Throw any errors
+                        if(err) throw(err);
+    
+                        // Add this to the carousel
+                        elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
+    
+                            if(added) {
+    
+                                // Make key photo if this was the first
+                                if(ckfirst) {
+                                    pictureGrid.setdisplaypicture(meal, pinfo);
+                                }
+    
+                                debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
+    
+                                // Push this picture onto the meal.picInfo array
+                                meal.picInfo.push(pinfo);
+    
+    
+                                // Update picture count
+                                updatepicturecount(meal);
+                            }
+    
+                            // Set the focus back on the carousel
+                            elm.focus();
+                        });
+    
+                    });
+                });
+    
+                var makeKeyAnchor = $(dc('a'))
+                    .attr('id', 'keyAnchor')
+                    .attr('class', 'carousel_caption keyAnchor grid_2')
+                    .html('Make Key Photo');
+    
+                // Make this general & use same code for delete [0] case
+                makeKeyAnchor.click(function() {
+    
+                    // ajax for username, mealts, and keyts
+                    elm.makekeypicture(function(success, pinfo) {
+    
+                        if(success) {
+    
+                            // Update mongo on the server
+                            makeKeyPicAjax(meal, pinfo);
+    
+                            // Set the display picture
+                            pictureGrid.setdisplaypicture(meal, pinfo);
+                        }
+                    });
+                });
+    
+                // Create delete picture anchor
+                var deleteAnchor = $(dc('a'))
+                    .attr('id', 'deletePictureAnchor')
+                    .attr('class', 'carousel_caption deletePictureAnchor grid_3')
+                    .html('Delete Picture');
+    
+                // Click handler
+                deleteAnchor.click(function() {
+    
+                    // Remove picture from carousel
+                    elm.removepicture(function(removed, pinfo) {
+    
+                        if(removed) {
+    
+                            // Find index of removed photo
+                            var ii = findpicidx(meal.picInfo, pinfo.timestamp);
+    
+                            // Remove this picture
+                            if(ii >= 0) {
+                                meal.picInfo.splice(ii, 1);
+                            }
+    
+                            var changepic = false;
+    
+                            // Delete from mongo
+                            deletePicAjax(meal, pinfo);
+    
+                            // Was this a key picture
+                            if(pinfo.timestamp == meal.keytimestamp) {
+    
+                                changepic = true;
+                                meal.keytimestamp = 0;
+    
+                            }
+    
+                            // If this was the first picture
+                            if(!meal.keytimestamp && ii == 0) {
+                                changepic = true;
+                            }
+    
+                            // Changing the displaypic
+                            if(changepic) {
+                                var pinfo0;
+    
+                                // Get new key picture
+                                if(meal.picInfo.length > 0) {
+                                    pinfo0 = meal.picInfo[0];
+                                }
+    
+                                // Set new display picture
+                                pictureGrid.setdisplaypicture(meal, pinfo0);
+                            }
+    
+                            // Update grid picture count
+                            updatepicturecount(meal);
+                        }
+                    });
+                });
+    
+                // Add to the carousel fadeobjs
+                elm.addfadeobj(makeKeyAnchor.get(0));
+    
+                // Add to the carousel fade objects
+                elm.addfadeobj(deleteAnchor.get(0));
+    
+                // Clear 
+                var carouselClear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                // Attach to popup
+                uploadAnchor.appendTo(subcarousel);
+                makeKeyAnchor.appendTo(subcarousel);
+                deleteAnchor.appendTo(subcarousel);
+                subcarousel.appendTo(class8);
+                carouselClear.appendTo(class8);
+    
+                // Lets skip a line
+                var skipLine = $(dc('div'))
+                    .attr('class', 'grid_8 skipline')
+                    .html('.');
+                var skipClear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                skipLine.appendTo(class8);
+                skipClear.appendTo(class8);
+    
+                // Create a grid to hold the title
+                var grid_title_pre = $(dc('div'))
+                    .attr('class', 'grid_3')
+                    .html('Title');
+    
+                var title = "untitled";
+    
+                if(undefined != meal.title && meal.title.length > 0) {
+                    title = meal.title;
+                }
+    
+                var hovertitle = $(dc('a'))
+                    .attr('id', 'titleEdit')
+                    .attr('class', 'titleEdit')
+                    .attr('title', 'click to edit')
+                    .html(title);
+    
+                // Title grid
+                var grid_title = $(dc('div'))
+                    .attr('class', 'grid_5')
+                    .attr('id', 'pop_title');
+    
+                hovertitle.appendTo(grid_title);
+    
+                hovertitle.click(function(){
+    
+                    var titleEditInput = $(dc('input'))
+                        .attr('type', 'text')
+                        .attr('class', 'titleEditInput')
+                        .attr('name', 'titleEditInput')
+                        .attr('maxlength', '29')
+                        .attr('size', '29')
+                        .val(meal.title);
+    
+                    titleEditInput.appendTo(grid_title);
+                    $('#titleEdit').css({'display':'none'});
+    
+                    titleEditInput.focus();
+    
+                    // Disable carosel arrow behavior
+    //                $(document).off("keydown.carousel");
+                    elm.disablekeydown();
+    
+                    function blurTitleInput(meal, titleEditInput, keepcurrent) {
+                        if(titleEditInput.val() != meal.title && keepcurrent == 0) {
+    
+                            var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
+    
+                            meal.title = titleEditInput.val();
+                            $('#titleEdit').html(meal.title);
+                            $(titleEdit).html(meal.title);
+    
+                            $.ajax({
+                                url: '/savetitle',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify(
+                                    {
+                                        username: meal.username,
+                                        timestamp: meal.timestamp,
+                                        title: titleEditInput.val()
+                                    }),
+                                dataType: 'json',
+                                complete: function(resp, astat) {
+                                }
+                            });
+                        }
+                        $('#titleEdit').css({'display':'inline-block'});
+                        titleEditInput.remove();
+                        elm.enablekeydown();
+                    }
+    
+    
+                    // I want certain keys (return or tab) to force a blur
+                    titleEditInput.keydown(function(e){
+                        var code = (e.keyCode ? e.keyCode : e.which);
+                        switch(code) {
+                            // XXX 
+                            case 39:
+                            case 37:
+                                return true;
+                                break;
+                            case 13:
+                            case 9:
+                                titleEditInput.blur();
+                                return false;
+                                break;
+                            case 27:
+                                blurTitleInput(meal, titleEditInput, 1);
+                                return false;
+                                break;
+                        }
+                    });
+    
+                    titleEditInput.blur(function() {
+                            blurTitleInput(meal, titleEditInput, 0);
+                    });
+                });
+    
+                var grid_title_clear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                // Append title
+                grid_title_pre.appendTo(class8);
+                grid_title.appendTo(class8);
+                grid_title_clear.appendTo(class8);
+    
+                var grid_date_pre = $(dc('div'))
+                    .attr('class', 'grid_3')
+                    .html('Date');
+                
+                var grid_date = $(dc('div'))
+                    .attr('class', 'grid_5')
+                    .attr('id', 'pop_date');
+    
+                var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
+    
+                var grid_date_anchor = $(dc('a'))
+                    .attr('id', 'pop_date_anchor')
+                    .attr('class', 'pop_date_anchor')
+                    .attr('title', 'click to edit')
+                    .css({'display':'inline-block'});
+    
+                var grid_date_text = $(dc('div'))
+                    .attr('id', 'pop_date_text')
+                    .attr('class', 'pop_date_text')
+                    .html(new Date(mealDate).asMyString());
+    
+                grid_date_text.appendTo(grid_date_anchor);
+    
+                var grid_date_input = $(dc('input'))
+                    .attr('type', 'text')
+                    .attr('class', 'pop_date_input')
+                    .attr('id', 'pop_date_input')
+                    .attr('name', 'pop_date_input')
+                    .val(new Date(mealDate).asString());
+    
+                // This append *must* occur before the call to datePicker.
+                grid_date_input.appendTo(grid_date);
+    
+                grid_date_anchor.appendTo(grid_date);
+    
+                grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
+    
+                grid_date_input.css({'display':'none'});
+    
+                grid_date_text.click(function() {
+                    grid_date_input.dpDisplay(grid_date);
+                });
+    
+                grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
+                    // Set the pop-up date
+                    $('#pop_date_text').html(sdate.asMyString());
+    
+                    // Calculate the mealdate
+                    var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
+    
+                    // Update server side
+                    updateMealDateAjax(meal, md);
+    
+                    return false;
+                });
+    
+                var grid_date_clear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                grid_date_pre.appendTo(class8);
+                grid_date.appendTo(class8);
+                grid_date_clear.appendTo(class8);
+    
+                var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+    
+                // Which meal
+                var grid_meal_pre = $(dc('div'))
+                    .attr('class', 'grid_3')
+                    .html('Meal');
+    
+                var grid_meal = $(dc('div'))
+                    .attr('class', 'grid_5')
+                    .attr('id', 'pop_meal');
+    
+                // Create the which-meal selection menu
+                var grid_meal_select_div = $(dc('div'))
+                    .attr('class', 'meal_select_menu_div')
+                    .attr('id', 'meal_select_menu_div')
+                    .css({'display': 'block'});
+    
+                var grid_meal_select = $(dc('ul'))
+                    .attr('class', 'meal_select_menu')
+                    .attr('id', 'meal_select_menu')
+                    .attr('name', 'meal_select_menu');
+    
+                // BREAKFAST
+                var grid_meal_select_meal_breakfast = $(dc('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_breakfast')
+                    .attr('id', 'meal_select_menu_breakfast');
+    
+                var grid_meal_select_meal_breakfast_anchor = $(dc('a'))
+                    .attr('id', 'meal_select_breakfast_anchor')
+                    .attr('class', 'meal_select_anchor')
+                    .html('Breakfast');
+    
+                if(meal.meal == "breakfast") {
+                    grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+                }
+                
+                grid_meal_select_meal_breakfast_anchor.click(function() {
+                    if(meal.meal == "breakfast") {
+                        return;
+                    }
+                    if(meal.meal == "lunch" ) {
+                        grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "dinner" ) {
+                        grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "snack" ) {
+                        grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "other" ) {
+                        grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                    }
+                    grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+                    meal.meal = "breakfast";
+                    whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    grid_meal.html(whichmeal);
+                    updateMealAjax(meal, "breakfast");
+                });
+    
+                grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
+    
+                // LUNCH
+                var grid_meal_select_meal_lunch = $(dc('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_lunch')
+                    .attr('id', 'meal_select_menu_lunch');
+    
+                var grid_meal_select_meal_lunch_anchor = $(dc('a'))
+                    .attr('id', 'meal_select_lunch_anchor')
+                    .attr('class', 'meal_select_anchor')
+                    .html('Lunch');
+                if(meal.meal == "lunch") {
+                    grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+                }
+                grid_meal_select_meal_lunch_anchor.click(function() {
+                    if(meal.meal == "lunch") {
+                        return;
+                    }
+                    if(meal.meal == "breakfast" ) {
+                        grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "dinner" ) {
+                        grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "snack" ) {
+                        grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "other" ) {
+                        grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                    }
+                    grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+                    meal.meal = "lunch";
+                    whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    grid_meal.html(whichmeal);
+                    updateMealAjax(meal, "lunch");
+                });
+                grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
+    
+                // DINNER
+                var grid_meal_select_meal_dinner = $(dc('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_dinner')
+                    .attr('id', 'meal_select_menu_dinner');
+                var grid_meal_select_meal_dinner_anchor = $(dc('a'))
+                    .attr('id', 'meal_select_dinner_anchor')
+                    .attr('class', 'meal_select_anchor')
+                    .html('Dinner');
+                if(meal.meal == "dinner") {
+                    grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+                }
+                grid_meal_select_meal_dinner_anchor.click(function() {
+                    if(meal.meal == "dinner") {
+                        return;
+                    }
+                    if(meal.meal == "breakfast" ) {
+                        grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "lunch" ) {
+                        grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "snack" ) {
+                        grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "other" ) {
+                        grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                    }
+                    grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+                    meal.meal = "dinner";
+                    whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    grid_meal.html(whichmeal);
+                    updateMealAjax(meal, "dinner");
+                });
+                grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
+    
+                // SNACK
+                var grid_meal_select_meal_snack = $(dc('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_snack')
+                    .attr('id', 'meal_select_menu_snack');
+                var grid_meal_select_meal_snack_anchor = $(dc('a'))
+                    .attr('id', 'meal_select_snack_anchor')
+                    .attr('class', 'meal_select_anchor')
+                    .html('Snack');
+                if(meal.meal == "snack") {
+                    grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+                }
+                grid_meal_select_meal_snack_anchor.click(function() {
+                    if(meal.meal == "snack") {
+                        return;
+                    }
+                    if(meal.meal == "breakfast" ) {
+                        grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "lunch" ) {
+                        grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "dinner" ) {
+                        grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "other" ) {
+                        grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                    }
+                    grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+                    meal.meal = "snack";
+                    whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    grid_meal.html(whichmeal);
+                    updateMealAjax(meal, "snack");
+                });
+                grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
+    
+                var grid_meal_select_meal_other = $(dc('li'))
+                    .attr('class', 'meal_select_menu_selection')
+                    .attr('name', 'meal_select_menu_other')
+                    .attr('id', 'meal_select_menu_other');
+                var grid_meal_select_meal_other_anchor = $(dc('a'))
+                    .attr('id', 'meal_select_other_anchor')
+                    .attr('class', 'meal_select_anchor')
+                    .html('Other');
+                if(meal.meal == "other") {
+                    grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+                }
+                grid_meal_select_meal_other_anchor.click(function() {
+                    if(meal.meal == "other") {
+                        return;
+                    }
+                    if(meal.meal == "breakfast" ) {
+                        grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "lunch" ) {
+                        grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "dinner" ) {
+                        grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                    }
+                    if(meal.meal == "snack" ) {
+                        grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                    }
+                    grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+                    meal.meal = "other";
+                    whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    grid_meal.html(whichmeal);
+                    updateMealAjax(meal, "other");
+                });
+                grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
+    
+                // build menu
+                grid_meal_select_meal_breakfast.appendTo(grid_meal_select);
+                grid_meal_select_meal_lunch.appendTo(grid_meal_select);
+                grid_meal_select_meal_dinner.appendTo(grid_meal_select);
+                grid_meal_select_meal_snack.appendTo(grid_meal_select);
+                grid_meal_select_meal_other.appendTo(grid_meal_select);
+                grid_meal_select.appendTo(grid_meal_select_div);
+    
+                // Define hover behaviors
+                /*
+                grid_meal.mouseenter(
+                    function(){
+                        $('#meal_select_menu_div').css({ 'display': 'block' });
+                    }
+                );
+    
+                grid_meal_select_div.mouseleave(
+                    function(){
+                        $('#meal_select_menu_div').css({ 'display': 'none' });
+                    }
+                );
+                */
+    
+                var grid_meal_clear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                // Append meal
+                grid_meal_pre.appendTo(class8);
+                grid_meal.appendTo(class8);
+                grid_meal_select_div.appendTo(class8);
+                grid_meal_clear.appendTo(class8);
+    
+                // How many stars
+                var grid_stars_pre = $(dc('div'))
+                    .attr('class', 'grid_3')
+                    .html('Rating');
+    
+                // Rating selector container
+                var grid_stars = $(dc('div'))
+                    .attr('class', 'grid_5')
+                    .attr('id', 'pop_rating')
+                    .attr('name', 'name_rating');
+    
+                // Create a sub-div that will contain the star-elements
+                var grid_stars_select_div = $(dc('div'))
+                    .attr('class', 'stars_select_menu_div')
+                    .attr('id', 'stars_select_menu_div');
+    
+                // Start an unordered list
+                var grid_stars_select = $(dc('ul'))
+                    .attr('class', 'stars_select_menu')
+                    .attr('id', 'stars_select_menu')
+                    .attr('name', 'stars_select_menu');
+    
+                // There will be five of them
+                var grid_stars_select_stars_0 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_0')
+                    .attr('id', 'star_select_menu_0');
+    
+                var grid_stars_select_stars_0_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_0_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .css({ 'color' : '#fff' })
+                    .html('&#11036');
+    
+                var grid_stars_select_stars_1_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_1_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .html('&#9733;');
+    
+                var grid_stars_select_stars_2_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_2_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .html('&#9733;');
+    
+                var grid_stars_select_stars_3_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_3_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .html('&#9733;');
+    
+                var grid_stars_select_stars_4_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_4_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .html('&#9733;');
+    
+                var grid_stars_select_stars_5_anchor = $(dc('a'))
+                    .attr('id', 'stars_select_stars_5_anchor')
+                    .attr('class', 'stars_select_anchor')
+                    .html('&#9733;');
+    
+                // TODO - this could be more efficient 
+                function reset_stars_select_classes_hover() {
+                    grid_stars_select_stars_0_anchor.removeClass("stars_unselected_star_hover");
+                    grid_stars_select_stars_1_anchor.removeClass("stars_unselected_star_hover");
+                    grid_stars_select_stars_2_anchor.removeClass("stars_unselected_star_hover");
+                    grid_stars_select_stars_3_anchor.removeClass("stars_unselected_star_hover");
+                    grid_stars_select_stars_4_anchor.removeClass("stars_unselected_star_hover");
+                    grid_stars_select_stars_5_anchor.removeClass("stars_unselected_star_hover");
+    
+                    grid_stars_select_stars_0_anchor.removeClass("stars_selected_star_hover");
+                    grid_stars_select_stars_1_anchor.removeClass("stars_selected_star_hover");
+                    grid_stars_select_stars_2_anchor.removeClass("stars_selected_star_hover");
+                    grid_stars_select_stars_3_anchor.removeClass("stars_selected_star_hover");
+                    grid_stars_select_stars_4_anchor.removeClass("stars_selected_star_hover");
+                    grid_stars_select_stars_5_anchor.removeClass("stars_selected_star_hover");
+                }
+    
+                // TODO - this could be more efficient 
+                function reset_stars_select_classes() {
+                    grid_stars_select_stars_0_anchor.removeClass("stars_selected_star");
+                    grid_stars_select_stars_1_anchor.removeClass("stars_selected_star");
+                    grid_stars_select_stars_2_anchor.removeClass("stars_selected_star");
+                    grid_stars_select_stars_3_anchor.removeClass("stars_selected_star");
+                    grid_stars_select_stars_4_anchor.removeClass("stars_selected_star");
+                    grid_stars_select_stars_5_anchor.removeClass("stars_selected_star");
+    
+                    grid_stars_select_stars_0_anchor.removeClass("stars_unselected_star");
+                    grid_stars_select_stars_1_anchor.removeClass("stars_unselected_star");
+                    grid_stars_select_stars_2_anchor.removeClass("stars_unselected_star");
+                    grid_stars_select_stars_3_anchor.removeClass("stars_unselected_star");
+                    grid_stars_select_stars_4_anchor.removeClass("stars_unselected_star");
+                    grid_stars_select_stars_5_anchor.removeClass("stars_unselected_star");
+    
+                    if(meal.rating >= 1) {
+                        grid_stars_select_stars_1_anchor.attr('class', 'stars_selected_star');
+                    }
+                    else {
+                        grid_stars_select_stars_1_anchor.attr('class', 'stars_unselected_star');
+                    }
+    
+                    if(meal.rating >= 2) {
+                        grid_stars_select_stars_2_anchor.attr('class', 'stars_selected_star');
+                    }
+                    else {
+                        grid_stars_select_stars_2_anchor.attr('class', 'stars_unselected_star');
+                    }
+    
+                    if(meal.rating >= 3) {
+                        grid_stars_select_stars_3_anchor.attr('class', 'stars_selected_star');
+                    }
+                    else {
+                        grid_stars_select_stars_3_anchor.attr('class', 'stars_unselected_star');
+                    }
+                    if(meal.rating >= 4) {
+                        grid_stars_select_stars_4_anchor.attr('class', 'stars_selected_star');
+                    }
+                    else {
+                        grid_stars_select_stars_4_anchor.attr('class', 'stars_unselected_star');
+                    }
+                    if(meal.rating >= 5) {
+                        grid_stars_select_stars_5_anchor.attr('class', 'stars_selected_star');
+                    }
+                    else {
+                        grid_stars_select_stars_5_anchor.attr('class', 'stars_unselected_star');
+                    }
+                }
+    
+                reset_stars_select_classes();
+    
+                function star_click(rating) {
+                    if(rating < 0 || rating > 5)
+                        return false;
+                    if(meal.rating == rating)
+                        return false;
+                    meal.rating = rating;
+                    updateRatingAjax(meal, rating);
+                    return false;
+                }
+    
+                grid_stars_select_stars_0_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
+                        }
+                );
+    
+                grid_stars_select_stars_0_anchor.click(function() {
+                        star_click(0);
+                });
+    
+                grid_stars_select_stars_0_anchor.appendTo(grid_stars_select_stars_0);
+    
+                var grid_stars_select_stars_1 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_1')
+                    .attr('id', 'star_select_menu_1');
+    
+                grid_stars_select_stars_1_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
+                        }
+                );
+    
+                grid_stars_select_stars_1_anchor.click(function() {
+                        star_click(1);
+                });
+    
+                grid_stars_select_stars_1_anchor.appendTo(grid_stars_select_stars_1);
+    
+                var grid_stars_select_stars_2 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_2')
+                    .attr('id', 'star_select_menu_2');
+    
+                grid_stars_select_stars_2_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
+                    }
+                );
+                grid_stars_select_stars_2_anchor.click(function() {
+                        star_click(2);
+                });
+    
+                grid_stars_select_stars_2_anchor.appendTo(grid_stars_select_stars_2);
+    
+                var grid_stars_select_stars_3 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_3')
+                    .attr('id', 'star_select_menu_3');
+    
+                grid_stars_select_stars_3_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_unselected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
+                    }
+                );
+    
+                grid_stars_select_stars_3_anchor.click(function() {
+                        star_click(3);
+                });
+                grid_stars_select_stars_3_anchor.appendTo(grid_stars_select_stars_3);
+    
+                var grid_stars_select_stars_4 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_4')
+                    .attr('id', 'star_select_menu_4');
+    
+                grid_stars_select_stars_4_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_unselected_star_hover");
+                    }
+                );
+    
+                grid_stars_select_stars_4_anchor.click(function() {
+                        star_click(4);
+                });
+                grid_stars_select_stars_4_anchor.appendTo(grid_stars_select_stars_4);
+    
+                var grid_stars_select_stars_5 = $(dc('li'))
+                    .attr('class', 'star_select_menu_selection')
+                    .attr('name', 'star_select_menu_5')
+                    .attr('id', 'star_select_menu_5');
+    
+                grid_stars_select_stars_5_anchor.mouseenter(
+                    function() {
+                        reset_stars_select_classes_hover();
+                        grid_stars_select_stars_1_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_2_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_3_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_4_anchor.addClass("stars_selected_star_hover");
+                        grid_stars_select_stars_5_anchor.addClass("stars_selected_star_hover");
+                    }
+                );
+    
+                grid_stars_select_stars_5_anchor.click(function() {
+                        star_click(5);
+                });
+                grid_stars_select_stars_5_anchor.appendTo(grid_stars_select_stars_5);
+    
+                grid_stars_select_div.mouseleave(function() {
+                    reset_stars_select_classes_hover();
+                    reset_stars_select_classes();
+                });
+    
+                grid_stars_select_stars_0.appendTo(grid_stars_select);
+                grid_stars_select_stars_1.appendTo(grid_stars_select);
+                grid_stars_select_stars_2.appendTo(grid_stars_select);
+                grid_stars_select_stars_3.appendTo(grid_stars_select);
+                grid_stars_select_stars_4.appendTo(grid_stars_select);
+                grid_stars_select_stars_5.appendTo(grid_stars_select);
+    
+                grid_stars_select.appendTo(grid_stars_select_div);
+    
+                // Append this to grid_stars..
+                grid_stars_select_div.appendTo(grid_stars);
+                
+                var grid_stars_clear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                // Append rating
+                grid_stars_pre.appendTo(class8);
+                grid_stars.appendTo(class8);
+                grid_stars_clear.appendTo(class8);
+    
+                // If there's a restaurant associated with this meal, link to it
+                if(restaurantId > 0 && restaurant != undefined) {
+                }
+    
+                // If there's already a review, display it now
+                var grid_review_pre = $(dc('div'))
+                    .attr('class', 'grid_3')
+                    .html('Review');
+    
+                var review = "(not reviewed)";
+    
+                var grid_review = $(dc('div'))
+                    .attr('class', 'grid_5')
+                    .attr('class', 'grid_review')
+                    .attr('id', 'pop_review')
+                    .attr('name', 'pop_review');
+    
+    
+                if (meal.review != undefined && meal.review.length > 0) {
+                    review = meal.review;
+                }
+    
+                var grid_review_textarea = $(dc('textarea'))
+                    .attr('class', 'review_noedit')
+                    .attr('class', 'review_text_area')
+                    .attr('id', 'review_text_int')
+                    .attr('cols', textareawidth)
+                    .attr('rows', 20)
+                    .attr('readonly',  true)
+                    .html(review);
+    
+                grid_review_textarea.click(function() {
+    
+                    elm.disablekeydown();
+    
+                    $('#review_text_int').removeClass('review_noedit');
+                    $('#review_text_int').addClass('review_edit');
+                    $('#review_text_int').attr('readonly', false);
+    
+                    // Zap the not-reviewed placeholder
+                    if(meal.review == undefined || meal.review.length <= 0) {
+                        //grid_review_textarea.html('');
+                        $('#review_text_int').html('');
+                    }
+                });
+    
+                grid_review_textarea.keydown(function(e){
+                    var code = (e.keyCode ? e.keyCode : e.which);
+                    switch(code) {
+                        case 27:
+                        case 9:
+                            $('#review_text_int').blur();
+                            return false;
+                    }
+                });
+    
+                grid_review_textarea.blur(function() {
+                    var tmpText = $('#review_text_int').val();
+                    updateReviewAjax(meal, tmpText);
+                    if(tmpText == undefined || tmpText.length <= 0) {
+                        $('#review_text_int').html('(not reviewed)');
+                    }
+                    meal.review = tmpText;
+    
+                    $('#review_text_int').addClass('review_noedit');
+                    $('#review_text_int').removeClass('review_edit');
+                    $('#review_text_int').attr('readonly', true);
+    
+                    elm.enablekeydown();
+                });
+                
+                grid_review_textarea.appendTo(grid_review);
+    
+                var grid_review_clear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+                grid_review_pre.appendTo(class8);
+                grid_review.appendTo(class8);
+                grid_review_clear.appendTo(class8);
+    
+                // Delete this picture logic here. 
+                /*
+                var deletePre = $(dc('div'))
+                    .attr('class', 'grid_3 delete_pre')
+                    .attr('id', 'delete_pre')
+                    .html('Delete');
+                */
+    
+                var deleteLink = $(dc('div'))
+                    .attr('class', 'grid_8 delete_link')
+                    .attr('id', 'delete_link');
+    
+                var deleteMealAnchor = $(dc('a'))
+                    .attr('class', 'delete_link_anchor')
+                    .attr('id', 'delete_link_anchor')
+                    .attr('href', 'javascript:void(0)')
+                    .attr('title', 'Delete this Meal')
+                    .html('Delete this Meal');
+    
+                var deleteClear = $(dc('div'))
+                    .attr('class', 'clear');
+    
+    
+                // This is a getJSON request:
+                // 
+                // REQUEST
+                // * The username
+                // * The timestamp of the deleted meal
+                // * The timestamp of nextpage (if it exists)
+                //
+                // RESPONSE
+                // * mealinfo of the new lastpicture (if it exists)
+                // * new nextpage info (if it exists)
+                // * previous page meals if this was the last meal on the page
+                // * previous page prevpage if this was the last meal on the page
+                //
+                // The getJSON request and this delete-copy run concurrently.
+                // It will be up to the ajax response function to load the new 
+                // mealinfo and dismiss the modal.
+                deleteMealAnchor.click(function() {
+    
+                    var editGrid = $('#gridTimestamp' + meal.timestamp);
+                    //var nextGrid = editGrid.next('.editgrid');
+                    //var nextGrid = editGrid.next();
+                    // Expose a 'count' function in the grid that returns the number of pictures
+                    // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
+                    var firstGrid = $('.editgrid').first();
+                    var lastGrid = $('.editgrid').last();
+                    var count = 1;
+                    var lastPic = false;
+    
+                    var nmealtime = 0
+                    var pmealtime = 0;
+    
+                    // If this is the last remaining picture on this page, request the previous page
+                    if(firstGrid.attr('id') == lastGrid.attr('id')) {
+                        lastPic = true;
+                        if(globals.prevPage && globals.prevPage.timestamp > 0) {
+                            count = globals.showMealsPerPage;
+                        }
+                        // This shouldn't happen 
+                        if(globals.nextPage && globals.nextPage.timestamp > 0) {
+                            debuglog('deleteMealAnchor.click: globals nextPage.mealdate is set for empty page?');
+                        }
+    
+                        // Only ask for the prev meals in this case
+                        if(globals.prevPage) {
+                            pmealtime = globals.prevPage.timestamp;
+                        }
+                    }
+    
+                    if(globals.nextPage) {
+                        nmealtime = globals.nextPage.timestamp;
+                    }
+    
+                    /* 
+                     * This request has two flavors.  If prevts is set at all, the
+                     * backend assumes that this is the last picture on the page,
+                     * and sends the information for the previous page.  If it is
+                     * 0, then this is a normal delete.
+                     */
+    
+                    $.getJSON('/deletemeal',
+                        {
+                            username: meal.username,
+                            timestamp: meal.timestamp,
+                            //nextmd: nmealdate,
+                            nextts: nmealtime,
+                            // XXX 
+                            //prevmd: pmealdate,
+                            prevts: pmealtime,
+                            count: count
+                        },
+                        function(response) {
+                            if(response.errStr != undefined && response.errStr.length > 0) {
+                                if(response.errStr == "signin") {
+                                    window.location.replace("/signin");
+                                }
+                                else {
+                                    debuglog("getJSON response error is ", response.errStr);
+                                    window.location.replace("/");
+                                }
+                                return;
+                            }
+    
+                            // Success - create prevpage and nextpage
+                            var prevpage = new mealPage(parseInt(response.prevts,10));
+                            var nextpage = new mealPage(parseInt(response.nextts,10));
+    
+                            // If this was the last picture on the page & mealinfo is set, these meals belong
+                            // to the previous page.  Redraw it.
+                            if(lastPic) {
+                                pictureGrid.displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+                            }
+                            else {
+    
+                                // Success case
+                                if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
+    
+                                    // There's only one meal here- we'll be called when that loads
+                                    var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
+                                        newInternal.appendTo(lastGrid);
+                                        globals.nextPage = nextpage;
+                                        pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
+                                    });
+    
+                                }
+                                else {
+    
+                                    lastGrid.remove();
+                                    globals.nextPage = nextpage;
+                                    pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
+    
+                                }
+                            }
+    
+                            destroymodal();
+
+                        });
+    
+                    // Walk gridpics, copying each into the last
+                    while(nextGrid && nextGrid.length) {
+    
+                        var intnl = editGrid.find('.editGridInternal');
+                        var nxtin = nextGrid.find('.editGridInternal');
+    
+                        if(nxtin && nxtin.length) {
+    
+                            if(intnl && intnl.length) {
+                                intnl.remove();
+                            }
+                            nxtin.remove();
+                            nxtin.appendTo(editGrid);
+    
+                            // Remap id
+                            var tsId = nextGrid.attr('id');
+                            nextGrid.removeAttr('id');
+                            editGrid.removeAttr('id');
+                            editGrid.attr('id', tsId);
+    
+                            editGrid = nextGrid;
+                        }
+    
+                        nextGrid = nextGrid.next();
+                    }
+                });
+    
+                deleteMealAnchor.appendTo(deleteLink);
+    
+                // Append to modal
+                // deletePre.appendTo(class8);
+                deleteLink.appendTo(class8);
+                deleteClear.appendTo(class8);
+    
+                class8.appendTo(popup);
+
+                // Display background
+                showmaskfade();
+       
+                // Wait for the first carousel image to load
+                elm.loadcarousel(function(alen) {
+
+                    positionmodal();
+
+                    if(appendpop) {
+                        popup.appendTo(appendpop);
+                    }
+                    else {
+                        popup.appendTo('body');
+                    }
+                    popup.fadeIn({ queue: true, duration: 500 });
+                });
+            }
+
+            function show(username, timestamp) {
+                $.getJSON('/ajaxgetmealinfo',
+                    {
+                        username: username,
+                        timestamp: timestamp
+                    },
+                    function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+                            if(response.errStr == "signin") {
+                                window.location.replace("/signin");
+                            }
+                            if(response.errStr == "wronguser") {
+                                window.location.replace("/");
+                            }
+                            // TODO - draw an elegant page for this case
+                            // TODO - elegant handling of all error - maybe have a box at the box
+                            // which informs the user if/when this occurs
+                            if(response.errStr == "nomeal") {
+                                window.location.replace("/");
+                            }
+                        }
+                        else {
+                            showattributesmealinfo(username, response.mealInfo, 
+                                    response.restaurantInfo, response.restaurantId);
+                        }
+                    }
+                );
+            }
+
+            return {
+                show                        : show
+            };
+
+
+        }(  
+            findpicidx.search, { }
+        ));
+
+
+
+
         var pictureGrid = (function (indiv, cfg) {
 
             // Where this will appear on the page
@@ -1884,9 +2074,6 @@ TODO:
             var picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
 
             // What's the heigth of a picture
-            var pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
-
-            // What's the height of a picture
             var pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
 
             // How many pictures per row
@@ -1911,6 +2098,22 @@ TODO:
             // Speed to change pages
             var gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
 
+            // Viewport width leaves a little breathing room at the edges
+            var viewportwidth = gridwidth + marginleft + marginright;
+
+            // Some fudge for stripe text
+            var stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
+
+            // Set the anchor click function
+            var anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
+
+            // The stripe height
+            var stripeheight = pictureheight + margintop + marginbottom + 
+                stripefudge;
+
+            // Calculate the container grid height
+            var containerheight = rowsperpage * stripeheight;
+
             // Set the easing function in jQuery
             if(!jQuery.easing[grideasing]) {
                 jQuery.easing[grideasing] = function (x, t, b, c, d) {
@@ -1920,6 +2123,20 @@ TODO:
 
             // Where it's located
             // var pagelocation = cfg.pagelocation ? cfg.pagelocation : null;
+
+
+            // Linear find picindex 
+            function findpicidxlinear(pinfo, timestamp) {
+
+                for(var ii = 0 ; ii < pinfo.length ; ii++) {
+                    if(pinfo[ii].timestamp == timestamp)
+                        return ii;
+                }
+                return -1;
+            }
+
+            // How to locate a picindex
+            var findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
 
             // Keep track of what's currently displayed
             var currentgrid;
@@ -1934,26 +2151,43 @@ TODO:
             var gridviewport = $(dc('div'))
                 .attr('id', 'gridviewport')
                 .attr('class', 'gridviewport')
-//                .css('height', pictureheight + 'px')
                 .css('position', 'relative')
                 .css('top', '0px')
                 .css('float', 'left')
                 .css('height', '100%')
-                .css('width', gridwidth + 'px');
+                .css('width', viewportwidth + 'px');
 
+            // Viewport container will hide picture edges
+            var gridcontainer = $(dc('div'))
+                .attr('id', 'gridcontainer')
+                .attr('class', 'gridcontainer')
+                .css('height', containerheight + 'px')
+                .css('width', gridwidth + 'px')
+                .css('overflow', 'hidden')
+                .css('position', 'relative');
+
+            // Set the viewport height dynamically
             var viewportheight = 0;
+
+            // Append the viewport to the container
+            gridviewport.appendTo(gridcontainer);
 
             // Append this to the parentdiv if there is one
             if(parentdiv) {
-                gridviewport.appendTo(parentdiv);
+                gridcontainer.appendTo(parentdiv);
+            }
+
+            // Allow user to set the nextprev callback
+            function setnextprevcallback(cb) {
+                nxpvcallback = cb;
             }
 
             // Request previous pages meals from the server
-            function drawprevmeals(prevpage) {
+            function drawprevmeals(username, prevpage) {
 
                 $.getJSON('/editpageprev',
                 {
-                    username: page_globals.username,
+                    username: username,
                     prevts: prevpage.timestamp,
                     count: mealspergrid
                 },
@@ -1974,16 +2208,16 @@ TODO:
             }
 
 
-            function drawnextmeals(nextpage) {
+            function drawnextmeals(username, nextpage) {
     
                 // Make this an ajax request that will return enough information
                 $.getJSON('/editpagenext',
                         {
-                            username: page_globals.username,
+                            username: username,
                             //nextpage: nextpage,
                             //nextmd: nextpage.mealdate,
                             nextts: nextpage.timestamp,
-                            count: page_globals.showMealsPerPage
+                            count: globals.showMealsPerPage
                         },
                         function(response) {
                             if(response.errStr != undefined && response.errStr.length > 0) {
@@ -1992,11 +2226,9 @@ TODO:
                             }
                             else {
                                 var nextpage = new mealPage(
-                                    //parseInt(response.nextmd,10), 
                                     parseInt(response.nextts,10) 
                                 );
                                 var prevpage = new mealPage(
-                                    //parseInt(response.prevmd,10),
                                     parseInt(response.prevts,10)
                                 );
                                 displaygrid(response.mealinfo, nextpage, prevpage, 'forwards');
@@ -2006,7 +2238,7 @@ TODO:
             }
     
             // Create div & link for a next or prev page
-            function nextprevlnk(page, drawmeals) {
+            function nextprevlnk(username, page, drawmeals) {
 
                 // Create click anchor
                 var anchor = $(dc('a'))
@@ -2014,13 +2246,13 @@ TODO:
 
                 // Invoke the callback if clicked
                 anchor.click(function() {
-                    drawmeals(page);
+                    drawmeals(username, page);
                 });
 
                 return anchor;
             } 
 
-            function nextprevpagelinks(nextpage, prevpage) {
+            function nextprevpagelinks(username, nextpage, prevpage) {
     
                 var prevanchor;
                 var nextanchor;
@@ -2057,13 +2289,6 @@ TODO:
             // Calculates the margintop given a picture height
             function calculatemargintop(thumbheight) {
                 return (pictureheight + margintop) - thumbheight;
-            }
-
-            // Calculate a stripe's height 
-            function stripeheight() {
-                // Fudge for 2 lines of text
-                var fudge = 50;
-                return pictureheight + margintop + marginbottom + fudge;
             }
 
             // Updates the grid display picture to this timestamp
@@ -2127,23 +2352,30 @@ TODO:
                 var center = $(dc('center'));
                 center.appendTo(editInternal);
     
-                var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-                var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
-                var hoverTxt = mealtxt + " on " + hoverDate;
-                hoverTxt = mealtxt + " uploaded " + meal.timestamp;
     
                 var editImageDiv = $(dc('div'));
     
                 editImageDiv.appendTo(center);
     
-                var onClickStr = 'showAttributes("' + meal.username + '",' + meal.timestamp + ');';
+                // Append an anchor to the 
+                if(anchorclickfn) {
+
+                    var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+
+                    // var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
+                    // var hoverTxt = mealtxt + " on " + hoverDate;
+                    var hovertxt = mealtxt + " created on " + meal.timestamp;
     
-                var anchor = $(dc('a'))
-                    .attr('href', 'javascript:void(0)')
-                    .attr('onclick', onClickStr)
-                    .attr('title', hoverTxt);
+                    var anchor = $(dc('a'))
+                        .attr('href', 'javascript:void(0)')
+                        .attr('title', hovertxt);
     
-                anchor.appendTo(editImageDiv);
+                    anchor.click(function() {
+                        anchorclickfn(meal.username, meal.timestamp);
+                    });
+    
+                    anchor.appendTo(editImageDiv);
+                }
     
                 var imgSource;
     
@@ -2162,8 +2394,13 @@ TODO:
                 var image = $(dc('img'))
                     .attr('class', 'editImage')
                     .attr('src', imgSource);
-    
-                image.appendTo(anchor);
+
+                if(anchorclickfn) {
+                    image.appendTo(anchor);
+                }
+                else {
+                    image.appendTo(editImageDiv);
+                }
     
                 var titletext = $(dc('div'))
                     .attr('class', 'titleText');
@@ -2299,13 +2536,16 @@ TODO:
                 if(griddiv.count % mealsperrow == 0) {
 
                     // Height
-                    var heightpx = stripeheight() + 'px';
+                    var heightpx = stripeheight + 'px';
 
                     // Increment the viewport's height variable
                     viewportheight += heightpx;
 
                     // Apply new height to viewport
                     gridviewport.css('height', viewportheight + 'px');
+
+                    // Apply new height to container
+                    gridcontainer.css('height', viewportheight + 'px');
 
                     // Create a horizontal div
                     hdiv = $(dc('div'))
@@ -2474,7 +2714,8 @@ TODO:
                                     if($cg) $cg.remove();
 
                                     // Set up my next and previous page links
-                                    nextprevpagelinks(nextpage, prevpage);
+                                    nextprevpagelinks(mealinfo.username, 
+                                            nextpage, prevpage);
 
                                     // This is the new current
                                     currentgrid = newgrid;
@@ -2512,14 +2753,18 @@ TODO:
                 pdivint                     : pdivint,
                 setdisplaypicture           : setdisplaypicture,
                 nextprevpagelinks           : nextprevpagelinks,
-                drawnextmeals               : drawnextmeals
+                drawnextmeals               : drawnextmeals,
+                setnextprevcallback         : setnextprevcallback
+
             };
         }(
                 document.getElementById('pictureGridDiv'), 
                 { 
-                    nextdiv: document.getElementById('nextdiv'),
-                    prevdiv: document.getElementById('prevdiv'),
-                    nxpvcallback: nxpvcb
+                    nextdiv         : document.getElementById('nextdiv'),
+                    prevdiv         : document.getElementById('prevdiv'),
+                    nxpvcallback    : nxpvcb,
+                    anchorclickfn   : showattributes.show,
+                    findpicidx      : findpicidx.search
                 }
         ));
         </script>

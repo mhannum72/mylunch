@@ -86,9 +86,11 @@ textarea {
 }
 
 .mealAttributesPopup {
+    /*
     width:440px;
     z-index:9999;
     padding:20px;
+    */
 }
 
 .uploadMealPopup {
@@ -102,7 +104,7 @@ textarea {
     background:#FFF;
 }
 
-.maskClass {
+.maskclass {
     position:absolute;
     z-index:9000;
     left:0;
@@ -346,10 +348,12 @@ textarea {
 }
 
 .mealcarousel {
+    /*
   height: 780px;
   width: 780px;
   overflow: hidden;
   position: relative;
+  */
 }
 
 .pic-div {
