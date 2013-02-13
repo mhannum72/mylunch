@@ -3933,7 +3933,7 @@ app.get('/editmeals_change_pics/:newpics', function(req, res, next) {
 // to differentiate the global-folder from the others.
 function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thumbheight) {
 
-    var mealthumb = new mealThumb(req.session.user.username, picinfo, image, req.files.inputUpload.type);
+    var mealthumb = new mealThumb(req.session.user.username, picinfo, image, req.files.inputupload.type);
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
@@ -3994,7 +3994,7 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
         if(err) throw(err);
     });
 
-    var mealpic = new mealPic(req.session.user.username, picinfo, image, req.files.inputUpload.type);
+    var mealpic = new mealPic(req.session.user.username, picinfo, image, req.files.inputupload.type);
     setMealPicInMongo(mealpic, function(err, object) {
 
         if(err) throw(err);
@@ -4133,10 +4133,10 @@ function imageFeatures(path, callback) {
 // Massage a mealpic that the user has just uploaded
 function editMealsUploadPost(req, res, mealinfo, next) {
 
-    imageFeatures(req.files.inputUpload.path, function(err, features) {
+    imageFeatures(req.files.inputupload.path, function(err, features) {
 
         if(err) {
-            console.log("Error identifying uploaded file: " + req.files.inputUpload.path);
+            console.log("Error identifying uploaded file: " + req.files.inputupload.path);
             req.session.uploadmsg = "Error uploading your file!";
 
             res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -4147,14 +4147,14 @@ function editMealsUploadPost(req, res, mealinfo, next) {
         }
 
         if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
-            fs.readFile(req.files.inputUpload.path, "binary", function(error, image) {
+            fs.readFile(req.files.inputupload.path, "binary", function(error, image) {
                 var picinfo = new picInfo(
                     mealinfo.timestamp,
-                    req.files.inputUpload.name, 
-                    req.files.inputUpload.size, 
+                    req.files.inputupload.name, 
+                    req.files.inputupload.size, 
                     features.width,
                     features.height,
-                    req.files.inputUpload.type,
+                    req.files.inputupload.type,
                     features);
 
                 edit_upload_internal_1(req, res, next, image, mealinfo, picinfo);
@@ -4198,7 +4198,7 @@ function editMealsUploadPost(req, res, mealinfo, next) {
 
         // Okay - resize this and then upload
         im.resize( { 
-            srcPath: req.files.inputUpload.path,
+            srcPath: req.files.inputupload.path,
             width: scaleWidth, 
             height: scaleHeight
         }, // The resized image is stdout.
@@ -4207,11 +4207,11 @@ function editMealsUploadPost(req, res, mealinfo, next) {
             // XXX picinfo not mealinfo
                 var picinfo = new picInfo(
                     mealinfo.timestamp,
-                    req.files.inputUpload.name, 
+                    req.files.inputupload.name, 
                     stdout.length,
                     scaleWidth,
                     scaleHeight,
-                    req.files.inputUpload.type,
+                    req.files.inputupload.type,
                     features);
 
                 edit_upload_internal_1(req, res, next, stdout, mealinfo, picinfo);

@@ -277,121 +277,8 @@ TODO:
                     $('#pictureGridDiv').html('');
                     // XXX
                     pictureGrid.drawnextmeals(globals.username, new mealPage(parseInt(response.timestamp,10)));
-                    showattributes.show(globals.username, response.timestamp, 0);
+                    showattributes.show(globals.username, response.timestamp);
                 });
-        }
-
-        function uploadMealPopup(mealts, callback) {
-
-            var hiddenElements = $('#hiddenElements');
-
-            hiddenElements.empty();
-
-            var hiddenIFrame = $(dc('iframe'))
-                .attr('style', 'width:0px;height:0px;border:0px;')
-                .attr('name', 'hiddenIFrame')
-                .attr('id', 'hiddenIFrame');
-
-            var uploadForm = $(dc('form'))
-                .attr('id', 'uploadForm')
-                .attr('name', 'uploadForm')
-                .attr('method', 'post')
-                .attr('enctype', 'multipart/form-data')
-                .attr('action', '/editmealsupload')
-                .attr('target', 'hiddenIFrame');
-
-            uploadForm.appendTo(hiddenIFrame);
-
-            // Wait for the html of the hidden iframe to change: tells you that
-            // the upload was successful.
-            var fileUpload = $(dc('input'))
-                .attr('type', 'file')
-                .attr('name', 'inputUpload')
-                .attr('id', 'inputUpload');
-
-            // Pass the userid.
-            var userId = $(dc('input'))
-                .attr('type', 'hidden')
-                .attr('name', 'username')
-                .attr('id', 'username')
-                .val(globals.username);
-
-            // Send the timestamp of the corresponding meal
-            var mealTimestamp = $(dc('input'))
-                .attr('type', 'hidden')
-                .attr('name', 'mealInfo')
-                .attr('id', 'mealInfo')
-                .val(mealts);
-
-            hiddenIFrame.appendTo(hiddenElements);
-
-            var cnt = 0;
-
-            // TODO - this could be slow.. maybe i could show a popup saying that things are uploading?
-            function checkUploaded() {
-
-                var hiddenIFrame = $('#hiddenIFrame');
-                var bodyText = hiddenIFrame.contents().find('body').html();
-
-                // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight>"
-                var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+$/;
-
-                // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
-                // if the timeout expires, reload the 'main' page with a special
-                // tag that says 'edit the first picture if it's greater than the 
-                // first picture I've ever seen (pass that in the request).  Otherwise, 
-                // print an error message.
-                if(null == bodyText || bodyText == "") {
-                    debuglog('checkUploaded bodyText is null - resetting timeout, cnt is ' + cnt++);
-                    setTimeout(checkUploaded, 500);
-                    return;
-                }
-
-                // Success case 
-                if(regex.test(bodyText)) {
-
-                    // Split on the spaces
-                    var ar = bodyText.split(" ");
-
-                    // Retrieve picture timestamp
-                    var picts = parseInt(ar[1], 10);
-
-                    // Retrieve picture height
-                    var height = parseInt(ar[2], 10);
-
-                    // Retrieve thumbnail height
-                    var thumbheight = parseInt(ar[3], 10);
-
-                    // Create minimal picinfo
-                    var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
-
-                    // Debug messages
-                    debuglog('checkUploaded timestamp is ' + picts);
-                    debuglog('checkUploaded height is ' + height);
-                    debuglog('cnt is ' + cnt++);
-
-                    // Add to the picture-mobile
-                    callback(null, pinfo);
-                    return;
-                }
-                else {
-                    // Redirect to the homepage on error
-                    debuglog('Error from server: ' + bodyText);
-                    window.location.replace("/");
-                }
-            }
-
-            fileUpload.change(function() {
-                uploadForm.submit();
-                setTimeout(checkUploaded, 500);
-            });
-
-            fileUpload.appendTo(uploadForm);
-            userId.appendTo(uploadForm);
-            mealTimestamp.appendTo(uploadForm);
-
-            $('#inputUpload').click();
-
         }
 
         // XXX DOCUMENT READY WAS HERE XXX 
@@ -577,6 +464,21 @@ TODO:
             // Keep track of the maskfade width
             var maskfadewidth;
 
+            // Grid object coresponding to modal
+            var gridobj = null;
+
+            // Hidden frame
+            var hiddenframe = cfg.hiddenframe ? cfg.hiddenframe : $('#hiddenElements')[0];
+
+            // Grid delete function
+            var griddelete = cfg.griddelete ? cfg.griddelete : null;
+
+            // Set the display picture
+            var setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
+
+            // Set the update count function
+            var setgridcount = cfg.setgridcount ? cfg.setgridcount : null;
+
             // Height of modal
             // var modalheight = cfg.modalheight ? cfg.modalheight : 
             
@@ -713,6 +615,13 @@ TODO:
                 });
             }
 
+            // Set the griddelete function
+            function setgriddeletecallback(callback) {
+
+                griddelete = callback;
+
+            }
+
             // Calculate size of the modal textarea
             function gettextareawidth() {
 
@@ -735,6 +644,16 @@ TODO:
             // Set textarea width
             var textareawidth = gettextareawidth();
 
+            // Glue to set the grid display picture
+            function setgriddisplaycallback(callback) {
+                setgriddisplay = callback;
+            }
+
+            // Callback to update the grid counter
+            function setgridcountcallback(callback) {
+                setgridcount = callback;
+            }
+
             // Tear down
             function destroymodal() {
 
@@ -755,6 +674,9 @@ TODO:
 
                 // nullify attribute
                 popup = null;
+
+                // nullify gridobj
+                gridobj = null;
 
             }
 
@@ -789,6 +711,8 @@ TODO:
 
             }
 
+            // TODO: resize handler function
+
             // Set dimensions & display background
             function showmaskfade() {
 
@@ -801,17 +725,142 @@ TODO:
 
                 // Set css
                 maskfade.css(
-                        {
-                            'width':wid + 'px', 
-                            'height': maskfadeheight + 'px', 
-                            'opacity':maskfadeopacity, 
-                            'display':'block'
-                        }
+                    {
+                        'width':wid + 'px', 
+                        'height': maskfadeheight + 'px', 
+                        'opacity':maskfadeopacity, 
+                        'display':'block'
+                    }
                 );
 
+                // Set new maskfadewidth
                 maskfadewidth = wid;
             }
 
+            // Meal attributes / edit modal
+            function uploadmealpopup(username, mealts, callback) {
+    
+                $(hiddenframe).empty();
+    
+                var hiddeniframe = $(dc('iframe'))
+                    .attr('style', 'width:0px;height:0px;border:0px;')
+                    .attr('name', 'hiddeniframe')
+                    .attr('id', 'hiddeniframe');
+    
+                var uploadform = $(dc('form'))
+                    .attr('id', 'uploadform')
+                    .attr('name', 'uploadform')
+                    .attr('method', 'post')
+                    .attr('enctype', 'multipart/form-data')
+                    .attr('action', '/editmealsupload')
+                    .attr('target', 'hiddeniframe');
+    
+                uploadform.appendTo(hiddeniframe);
+    
+                // Wait for the html of the hidden iframe to change: tells you that
+                // the upload was successful.
+                var fileupload = $(dc('input'))
+                    .attr('type', 'file')
+                    .attr('name', 'inputupload')
+                    .attr('id', 'inputupload');
+    
+                // Pass the userid.
+                var userid = $(dc('input'))
+                    .attr('type', 'hidden')
+                    .attr('name', 'username')
+                    .attr('id', 'username')
+                    .val(username);
+    
+                // Send the timestamp of the corresponding meal
+                var mealtimestamp = $(dc('input'))
+                    .attr('type', 'hidden')
+                    .attr('name', 'mealInfo')
+                    .attr('id', 'mealInfo')
+                    .val(mealts);
+    
+                hiddeniframe.appendTo(hiddenframe);
+    
+                var cnt = 0;
+    
+                // TODO - this could be slow.. maybe i could show a popup saying that things are uploading?
+                function checkuploaded() {
+    
+                    // Jquery-ize hidden iframe
+                    var $hiddeniframe = $(hiddeniframe);
+
+                    // Grab the text
+                    var bodytext = $hiddeniframe.contents().find('body').html();
+    
+                    // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight>"
+                    var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+$/;
+    
+                    // XXX
+                    // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
+                    // if the timeout expires, reload the 'main' page with a special
+                    // tag that says 'edit the first picture if it's greater than the 
+                    // first picture I've ever seen (pass that in the request).  Otherwise, 
+                    // print an error message.
+                    if(null == bodytext || bodytext == "") {
+
+                        debuglog('checkuploaded bodytext is null - resetting timeout, cnt is ' + cnt++);
+                        setTimeout(checkuploaded, 500);
+                        return;
+
+                    }
+    
+                    // Success case 
+                    if(regex.test(bodytext)) {
+    
+                        // Split on the spaces
+                        var ar = bodytext.split(" ");
+    
+                        // Retrieve picture timestamp
+                        var picts = parseInt(ar[1], 10);
+    
+                        // Retrieve picture height
+                        var height = parseInt(ar[2], 10);
+    
+                        // Retrieve thumbnail height
+                        var thumbheight = parseInt(ar[3], 10);
+    
+                        // Create minimal picinfo
+                        var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
+    
+                        // Debug messages
+                        debuglog('checkuploaded timestamp is ' + picts);
+                        debuglog('checkuploaded height is ' + height);
+                        debuglog('cnt is ' + cnt++);
+    
+                        // Add to the picture-mobile
+                        callback(null, pinfo);
+                        return;
+                    }
+                    else {
+
+                        // Redirect to the homepage on error
+                        debuglog('Error from server: ' + bodytext);
+                        window.location.replace("/");
+                    }
+                }
+    
+                // Invoked when the user selects a file
+                fileupload.change(function() {
+
+                    uploadform.submit();
+                    setTimeout(checkuploaded, 500);
+
+                });
+    
+                // Append these to the form
+                fileupload.appendTo(uploadform);
+                userid.appendTo(uploadform);
+                mealtimestamp.appendTo(uploadform);
+    
+                // Display a dialog box
+                $(fileupload).click();
+    
+            }
+    
             // Meal attributes / edit modal
             function showattributesmealinfo(username, meal, restaurant, restaurantId) {
     
@@ -879,32 +928,19 @@ TODO:
                     .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
                     .html('Upload New Picture');
     
-    
-                function updatepicturecount(meal) {
-    
-                    // Update grid
-                    //var divstr = '#gridTimestamp' + meal.timestamp + ' > div > center > .picturecount';
-                    var divstr = '#gridTimestamp' + meal.timestamp; // + ' > .picturecount';
-    
-                    var div = $(divstr).find('.picturecount');
-    
-                    var picturecountstring;
-    
-                    if(meal.picInfo.length == 1) {
-                        picturecountstring = "1 picture";
-                    }
-                    else {
-                        picturecountstring = meal.picInfo.length + " pictures";
-                    }
-    
-                    div.html(picturecountstring);
+                
+                // Set the count in the grid
+                /*
+                if(setgridcount) {
+                    setgridcount(meal);
                 }
-    
+                */
+
                 // Click function for the upload anchor
                 uploadAnchor.click(function() {
     
                     // Popup works from a hidden frame
-                    uploadMealPopup(meal.timestamp, function(err, pinfo) {
+                    uploadmealpopup(meal.username, meal.timestamp, function(err, pinfo) {
     
                         // Throw any errors
                         if(err) throw(err);
@@ -915,8 +951,8 @@ TODO:
                             if(added) {
     
                                 // Make key photo if this was the first
-                                if(ckfirst) {
-                                    pictureGrid.setdisplaypicture(meal, pinfo);
+                                if(ckfirst && setgriddisplay) {
+                                    setgriddisplay(meal, pinfo);
                                 }
     
                                 debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
@@ -924,9 +960,9 @@ TODO:
                                 // Push this picture onto the meal.picInfo array
                                 meal.picInfo.push(pinfo);
     
-    
                                 // Update picture count
-                                updatepicturecount(meal);
+                                if(setgridcount) 
+                                    setgridcount(meal);
                             }
     
                             // Set the focus back on the carousel
@@ -953,7 +989,9 @@ TODO:
                             makeKeyPicAjax(meal, pinfo);
     
                             // Set the display picture
-                            pictureGrid.setdisplaypicture(meal, pinfo);
+                            if(setgriddisplay) {
+                                setgriddisplay(meal, pinfo);
+                            }
                         }
                     });
                 });
@@ -1008,11 +1046,15 @@ TODO:
                                 }
     
                                 // Set new display picture
-                                pictureGrid.setdisplaypicture(meal, pinfo0);
+                                if(setgriddisplay) {
+                                    setgriddisplay(meal, pinfo0);
+                                }
+                                //pictureGrid.setdisplaypicture(meal, pinfo0);
                             }
     
                             // Update grid picture count
-                            updatepicturecount(meal);
+                            if(setgridcount)
+                                setgridcount(meal);
                         }
                     });
                 });
@@ -1090,10 +1132,25 @@ TODO:
                     function blurTitleInput(meal, titleEditInput, keepcurrent) {
                         if(titleEditInput.val() != meal.title && keepcurrent == 0) {
     
-                            var titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
+                            var titleEdit; 
+                            
+                            /*
+                            if(gridobj) {
+                                titleEdit = gridobj.find('> div > center > .titleText');
+                            }
+                            else {
+                                titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
+                            }
+                            */
     
+                            // This is dumb - these should be cached as variables
+                            titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
+
                             meal.title = titleEditInput.val();
+
+                            // Why do this?  Why not cache & update?
                             $('#titleEdit').html(meal.title);
+
                             $(titleEdit).html(meal.title);
     
                             $.ajax({
@@ -1840,149 +1897,13 @@ TODO:
                 var deleteClear = $(dc('div'))
                     .attr('class', 'clear');
     
-    
-                // This is a getJSON request:
-                // 
-                // REQUEST
-                // * The username
-                // * The timestamp of the deleted meal
-                // * The timestamp of nextpage (if it exists)
-                //
-                // RESPONSE
-                // * mealinfo of the new lastpicture (if it exists)
-                // * new nextpage info (if it exists)
-                // * previous page meals if this was the last meal on the page
-                // * previous page prevpage if this was the last meal on the page
-                //
-                // The getJSON request and this delete-copy run concurrently.
-                // It will be up to the ajax response function to load the new 
-                // mealinfo and dismiss the modal.
                 deleteMealAnchor.click(function() {
-    
-                    var editGrid = $('#gridTimestamp' + meal.timestamp);
-                    //var nextGrid = editGrid.next('.editgrid');
-                    //var nextGrid = editGrid.next();
-                    // Expose a 'count' function in the grid that returns the number of pictures
-                    // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
-                    var firstGrid = $('.editgrid').first();
-                    var lastGrid = $('.editgrid').last();
-                    var count = 1;
-                    var lastPic = false;
-    
-                    var nmealtime = 0
-                    var pmealtime = 0;
-    
-                    // If this is the last remaining picture on this page, request the previous page
-                    if(firstGrid.attr('id') == lastGrid.attr('id')) {
-                        lastPic = true;
-                        if(globals.prevPage && globals.prevPage.timestamp > 0) {
-                            count = globals.showMealsPerPage;
-                        }
-                        // This shouldn't happen 
-                        if(globals.nextPage && globals.nextPage.timestamp > 0) {
-                            debuglog('deleteMealAnchor.click: globals nextPage.mealdate is set for empty page?');
-                        }
-    
-                        // Only ask for the prev meals in this case
-                        if(globals.prevPage) {
-                            pmealtime = globals.prevPage.timestamp;
-                        }
-                    }
-    
-                    if(globals.nextPage) {
-                        nmealtime = globals.nextPage.timestamp;
-                    }
-    
-                    /* 
-                     * This request has two flavors.  If prevts is set at all, the
-                     * backend assumes that this is the last picture on the page,
-                     * and sends the information for the previous page.  If it is
-                     * 0, then this is a normal delete.
-                     */
-    
-                    $.getJSON('/deletemeal',
-                        {
-                            username: meal.username,
-                            timestamp: meal.timestamp,
-                            //nextmd: nmealdate,
-                            nextts: nmealtime,
-                            // XXX 
-                            //prevmd: pmealdate,
-                            prevts: pmealtime,
-                            count: count
-                        },
-                        function(response) {
-                            if(response.errStr != undefined && response.errStr.length > 0) {
-                                if(response.errStr == "signin") {
-                                    window.location.replace("/signin");
-                                }
-                                else {
-                                    debuglog("getJSON response error is ", response.errStr);
-                                    window.location.replace("/");
-                                }
-                                return;
-                            }
-    
-                            // Success - create prevpage and nextpage
-                            var prevpage = new mealPage(parseInt(response.prevts,10));
-                            var nextpage = new mealPage(parseInt(response.nextts,10));
-    
-                            // If this was the last picture on the page & mealinfo is set, these meals belong
-                            // to the previous page.  Redraw it.
-                            if(lastPic) {
-                                pictureGrid.displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
-                            }
-                            else {
-    
-                                // Success case
-                                if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
-    
-                                    // There's only one meal here- we'll be called when that loads
-                                    var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
-                                        newInternal.appendTo(lastGrid);
-                                        globals.nextPage = nextpage;
-                                        pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
-                                    });
-    
-                                }
-                                else {
-    
-                                    lastGrid.remove();
-                                    globals.nextPage = nextpage;
-                                    pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
-    
-                                }
-                            }
-    
-                            destroymodal();
 
-                        });
-    
-                    // Walk gridpics, copying each into the last
-                    while(nextGrid && nextGrid.length) {
-    
-                        var intnl = editGrid.find('.editGridInternal');
-                        var nxtin = nextGrid.find('.editGridInternal');
-    
-                        if(nxtin && nxtin.length) {
-    
-                            if(intnl && intnl.length) {
-                                intnl.remove();
-                            }
-                            nxtin.remove();
-                            nxtin.appendTo(editGrid);
-    
-                            // Remap id
-                            var tsId = nextGrid.attr('id');
-                            nextGrid.removeAttr('id');
-                            editGrid.removeAttr('id');
-                            editGrid.attr('id', tsId);
-    
-                            editGrid = nextGrid;
-                        }
-    
-                        nextGrid = nextGrid.next();
+                    if(griddelete) {
+
+                        griddelete(meal, destroymodal);
                     }
+
                 });
     
                 deleteMealAnchor.appendTo(deleteLink);
@@ -2012,7 +1933,18 @@ TODO:
                 });
             }
 
-            function show(username, timestamp) {
+            function show(username, timestamp, griddiv) {
+
+                // Latch griddiv immediately
+                if(griddiv) {
+                    gridobj = griddiv;
+                }
+                // Otherwise hit jquery hash
+                else {
+                    var gts = '#gridTimestamp' + timestamp;
+                    gridobj = $(gts)[0];
+                }
+
                 $.getJSON('/ajaxgetmealinfo',
                     {
                         username: username,
@@ -2034,6 +1966,7 @@ TODO:
                             }
                         }
                         else {
+                            response.mealInfo.gridobj = gridobj;
                             showattributesmealinfo(username, response.mealInfo, 
                                     response.restaurantInfo, response.restaurantId);
                         }
@@ -2042,15 +1975,20 @@ TODO:
             }
 
             return {
-                show                        : show
+                show                        : show,
+                destroy                     : destroymodal,
+                setgriddeletecallback       : setgriddeletecallback,
+                setgriddisplaycallback      : setgriddisplaycallback,
+                setgridcountcallback        : setgridcountcallback
             };
 
 
         }(  
-            findpicidx.search, { }
+            findpicidx.search, 
+            { 
+                hiddenframe         : $('#hiddenElements')[0]
+            }
         ));
-
-
 
 
         var pictureGrid = (function (indiv, cfg) {
@@ -2181,6 +2119,32 @@ TODO:
             function setnextprevcallback(cb) {
                 nxpvcallback = cb;
             }
+
+            // Should be part of the grid and exposed as a callback
+            function updatepicturecount(meal) {
+
+                // Grid object
+                var div; 
+
+                // Update string
+                var picturecountstring;
+
+                // Find the picturecount field
+                div = meal.gridobj.find('.picturecount');
+
+                // Create appropriate string
+                if(meal.picInfo.length == 1) {
+                    picturecountstring = "1 picture";
+                }
+                else {
+                    picturecountstring = meal.picInfo.length + " pictures";
+                }
+
+                // Set the html
+                div.html(picturecountstring);
+
+            }
+
 
             // Request previous pages meals from the server
             function drawprevmeals(username, prevpage) {
@@ -2343,7 +2307,7 @@ TODO:
             }
 
             // Create the 'internal' grid object.  Exposed (for now).
-            function pdivint(meal, picturegrid) {
+            function pdivint(meal, picturegrid, editgrid) {
     
                 // I can manipulate this directly in the delete code.
                 var editInternal = $(dc('div'));
@@ -2351,7 +2315,6 @@ TODO:
     
                 var center = $(dc('center'));
                 center.appendTo(editInternal);
-    
     
                 var editImageDiv = $(dc('div'));
     
@@ -2371,7 +2334,7 @@ TODO:
                         .attr('title', hovertxt);
     
                     anchor.click(function() {
-                        anchorclickfn(meal.username, meal.timestamp);
+                        anchorclickfn(meal.username, meal.timestamp, editgrid);
                     });
     
                     anchor.appendTo(editImageDiv);
@@ -2491,7 +2454,7 @@ TODO:
                     //.attr('class', 'grid_4 editheight editgrid');
     
                 // Create an internal pictureDiv that I can switchout in the delete code
-                var editInternal = pdivint(meal, griddiv);
+                var editInternal = pdivint(meal, griddiv, editgrid);
     
                 editInternal.appendTo(editgrid);
     
@@ -2597,6 +2560,166 @@ TODO:
                 }
 
                 return true;
+            }
+
+            // This is a getJSON request:
+            // 
+            // REQUEST
+            // * The username
+            // * The timestamp of the deleted meal
+            // * The timestamp of nextpage (if it exists)
+            //
+            // RESPONSE
+            // * mealinfo of the new lastpicture (if it exists)
+            // * new nextpage info (if it exists)
+            // * previous page meals if this was the last meal on the page
+            // * previous page prevpage if this was the last meal on the page
+            //
+            // The getJSON request and this delete-copy run concurrently.
+            // It will be up to the ajax response function to load the new 
+            // mealinfo and dismiss the modal.
+            //
+            // This should be a grid-code callback
+
+            // XXX YOU ARE HERE - MAKE THIS WORK XXX 
+            function deletepicfromgrid(meal, callback) {
+
+                var editGrid;
+                //var nextGrid = editGrid.next('.editgrid');
+                //var nextGrid = editGrid.next();
+                // Expose a 'count' function in the grid that returns the number of pictures
+                // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
+
+                if(gridobj) {
+                    editGrid = gridobj;
+                }
+                else {
+                    editGrid = $('#gridTimestamp' + meal.timestamp);
+                }
+
+                var firstGrid = $('.editgrid').first();
+                var lastGrid = $('.editgrid').last();
+                var count = 1;
+                var lastPic = false;
+
+                var nmealtime = 0
+                var pmealtime = 0;
+
+                // If this is the last remaining picture on this page, request the previous page
+                if(firstGrid.attr('id') == lastGrid.attr('id')) {
+                    lastPic = true;
+                    if(globals.prevPage && globals.prevPage.timestamp > 0) {
+                        count = globals.showMealsPerPage;
+                    }
+                    // This shouldn't happen 
+                    if(globals.nextPage && globals.nextPage.timestamp > 0) {
+                        debuglog('deleteMealAnchor.click: globals nextPage.mealdate is set for empty page?');
+                    }
+
+                    // Only ask for the prev meals in this case
+                    if(globals.prevPage) {
+                        pmealtime = globals.prevPage.timestamp;
+                    }
+                }
+
+                if(globals.nextPage) {
+                    nmealtime = globals.nextPage.timestamp;
+                }
+
+                /* 
+                 * This request has two flavors.  If prevts is set at all, the
+                 * backend assumes that this is the last picture on the page,
+                 * and sends the information for the previous page.  If it is
+                 * 0, then this is a normal delete.
+                 */
+
+                $.getJSON('/deletemeal',
+                    {
+                        username: meal.username,
+                        timestamp: meal.timestamp,
+                        //nextmd: nmealdate,
+                        nextts: nmealtime,
+                        // XXX 
+                        //prevmd: pmealdate,
+                        prevts: pmealtime,
+                        count: count
+                    },
+                    function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+                            if(response.errStr == "signin") {
+                                window.location.replace("/signin");
+                            }
+                            else {
+                                debuglog("getJSON response error is ", response.errStr);
+                                window.location.replace("/");
+                            }
+                            return;
+                        }
+
+                        // Success - create prevpage and nextpage
+                        var prevpage = new mealPage(parseInt(response.prevts,10));
+                        var nextpage = new mealPage(parseInt(response.nextts,10));
+
+                        // If this was the last picture on the page & mealinfo is set, these meals belong
+                        // to the previous page.  Redraw it.
+                        if(lastPic) {
+                            pictureGrid.displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+                        }
+                        else {
+
+                            // Success case
+                            if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
+
+                                // There's only one meal here- we'll be called when that loads
+                                var newInternal = pictureGrid.pdivint(response.mealinfo[0], function (showImages) {
+                                    newInternal.appendTo(lastGrid);
+                                    globals.nextPage = nextpage;
+                                    pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
+                                });
+
+                            }
+                            else {
+
+                                lastGrid.remove();
+                                globals.nextPage = nextpage;
+                                pictureGrid.nextprevpagelinks(globals.username, nextpage, globals.prevPage);
+
+                            }
+                        }
+
+                        if(callback) {
+                            callback();
+                            // destroymodal();
+                        }
+
+                    }
+                );  // getJSON
+
+                // Walk gridpics, copying each into the last
+                while(nextGrid && nextGrid.length) {
+
+                    var intnl = editGrid.find('.editGridInternal');
+                    var nxtin = nextGrid.find('.editGridInternal');
+
+                    if(nxtin && nxtin.length) {
+
+                        if(intnl && intnl.length) {
+                            intnl.remove();
+                        }
+                        nxtin.remove();
+                        nxtin.appendTo(editGrid);
+
+                        // Remap id
+                        var tsId = nextGrid.attr('id');
+                        nextGrid.removeAttr('id');
+                        editGrid.removeAttr('id');
+                        editGrid.attr('id', tsId);
+
+                        editGrid = nextGrid;
+                    }
+
+                    nextGrid = nextGrid.next();
+                }
             }
 
             // Fill a picture grid from an array
@@ -2748,13 +2871,16 @@ TODO:
                 }
             }
 
+            // Exposed functions
             return {
                 displaygrid                 : displaygrid,
                 pdivint                     : pdivint,
                 setdisplaypicture           : setdisplaypicture,
                 nextprevpagelinks           : nextprevpagelinks,
                 drawnextmeals               : drawnextmeals,
-                setnextprevcallback         : setnextprevcallback
+                setnextprevcallback         : setnextprevcallback,
+                deletepicfromgrid           : deletepicfromgrid,
+                updatepicturecount          : updatepicturecount
 
             };
         }(
@@ -2767,6 +2893,16 @@ TODO:
                     findpicidx      : findpicidx.search
                 }
         ));
+
+        // Set attributes callback for deleting a picture
+        showattributes.setgriddeletecallback(pictureGrid.deletepicfromgrid);
+
+        // Set grid-display callback in modal
+        showattributes.setgriddisplaycallback(pictureGrid.setdisplaypicture);
+
+        // Set grid-update picture count callback in modal
+        showattributes.setgridcountcallback(pictureGrid.updatepicturecount);
+
         </script>
     </body>
 </html>

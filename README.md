@@ -11,6 +11,9 @@ todo
   would be if the new height exceeds your max-height, you should make the 
   fade-mask larger.
 
+* Set pictitle, meal, and other callback functions in the grid.  I am busy
+  cleaning my room.
+
 * If you've just gone into the modal to edit a meal, highlight the grid-page
   somehow showing the meal that you just edited.
 
