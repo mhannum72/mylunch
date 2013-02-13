@@ -170,34 +170,32 @@ TODO:
                 binarysearch    : binarysearch,
                 search          : optimalsearch
             };
-        }(  ));
+        }( ));
 
 
-
-
-//
+        // jquery ready handler
         $(document).ready(function() {
+
             $.ajaxSetup ({ cache: false });
-//
-
-        // My own Date-string type
-        Date.prototype.asMyString = function() {
-            var monthNames = [ "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December" ];
-            return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
-        }
-
-        // Create element wrapper
-        var dc = function(a)
-        {
-            return document.createElement(a);
-        };
-
-        // Enable or disable debug trace
-        debuglog = function(text) {
-            console.log(text);
-        }
-
+    
+            // My own Date-string type
+            Date.prototype.asMyString = function() {
+                var monthNames = [ "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December" ];
+                return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+            }
+    
+            // Create element wrapper
+            var dc = function(a)
+            {
+                return document.createElement(a);
+            };
+    
+            // Enable or disable debug trace
+            debuglog = function(text) {
+                console.log(text);
+            }
+    
 
 /* Not yet */
 /*
@@ -225,64 +223,53 @@ TODO:
             );
         }
 */
-        function mealPage(timestamp) {
-            this.timestamp = timestamp;
-            return this;
-        }
+            function mealPage(timestamp) {
+                this.timestamp = timestamp;
+                return this;
+            }
+    
+            var NOMEALHEIGHT = 256;
+    
+            function initglobals(username, showMealsPerPage, nextts, prevts) {
+                this.username = username;
+                this.showMealsPerPage = showMealsPerPage;
+                this.nextPage = new mealPage(nextts);
+                this.prevPage = new mealPage(prevts);
+                this.popup = null;
+                return this;
+            }
 
-        var NOMEALHEIGHT = 256;
-
-        function initglobals(username, showMealsPerPage, nextts, prevts) {
-            this.username = username;
-            this.showMealsPerPage = showMealsPerPage;
-            this.nextPage = new mealPage(nextts);
-            this.prevPage = new mealPage(prevts);
-            this.popup = null;
-
-            // Create maskfade object
-//            this.maskfade = $(dc('div'))
-//                .attr('id', 'maskfade')
-//                .attr('class', 'maskclass')
-//                .css({'display':'none'})
-//                .appendTo('body');
-//
-            // Return globals
-            return this;
-        }
-
-        var globals = initglobals(
+            var globals = initglobals(
                 "<%= user.username %>", 
                 <%= user.showMealsPerPage %>,
                 <%= nextts != undefined ? nextts:0 %>,
                 <%= prevts != undefined ? prevts:0 %>);
 
-        // Create a new meal via an ajax request & then show it's attributes
-        function newMealPopup() {
-            $.getJSON('/newmeal',
-                {
-                    username: globals.username
-                },
-                function(response) {
-                    if(response.message == undefined || response.message != "success") {
-                        if("baduser" == response.message) {
-                            window.location.replace("/signin");
+            // Create a new meal via an ajax request & then show it's attributes
+            function newMealPopup() {
+                $.getJSON('/newmeal',
+                    {
+                        username: globals.username
+                    },
+                    function(response) {
+                        if(response.message == undefined || response.message != "success") {
+                            if("baduser" == response.message) {
+                                window.location.replace("/signin");
+                            }
+                            else {
+                                debuglog("Response error is ", response.message);
+                                window.location.replace("/");
+                            }
+                            return;
                         }
-                        else {
-                            debuglog("Response error is ", response.message);
-                            window.location.replace("/");
-                        }
-                        return;
-                    }
-
-                    $('#pictureGridDiv').html('');
-                    // XXX
-                    pictureGrid.drawnextmeals(globals.username, new mealPage(parseInt(response.timestamp,10)));
-                    showattributes.show(globals.username, response.timestamp);
-                });
-        }
-
-        // XXX DOCUMENT READY WAS HERE XXX 
-
+    
+                        $('#pictureGridDiv').html('');
+                        // XXX
+                        pictureGrid.drawnextmeals(globals.username, new mealPage(parseInt(response.timestamp,10)));
+                        showattributes.show(globals.username, response.timestamp);
+                    });
+            }
+    
             var minfo = [];
 
             function truncMeal(username, timestamp, keytimestamp, title, meal, mealDate, picInfo) {
@@ -353,7 +340,7 @@ TODO:
 
             // Display the grid
             pictureGrid.displaygrid(minfo, globals.nextPage, globals.prevPage, 'forwards');
-    });
+        });
 
 
     </script>
@@ -476,8 +463,14 @@ TODO:
             // Set the display picture
             var setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
 
+            // Set the grid title
+            var setgridtitle = cfg.setgridtitle ? cfg.setgridtitle : null;
+
             // Set the update count function
             var setgridcount = cfg.setgridcount ? cfg.setgridcount : null;
+
+            // Set the meal on the grid
+            var setgridmeal = cfg.setgridmeal ? cfg.setgridmeal : null;
 
             // Height of modal
             // var modalheight = cfg.modalheight ? cfg.modalheight : 
@@ -644,6 +637,11 @@ TODO:
             // Set textarea width
             var textareawidth = gettextareawidth();
 
+            // Glue to set the grid title 
+            function setgridtitlecallback(callback) {
+                setgridtitle = callback;
+            }
+
             // Glue to set the grid display picture
             function setgriddisplaycallback(callback) {
                 setgriddisplay = callback;
@@ -652,6 +650,11 @@ TODO:
             // Callback to update the grid counter
             function setgridcountcallback(callback) {
                 setgridcount = callback;
+            }
+
+            // Callback to update grid meal
+            function setgridmealcallback(callback) {
+                setgridmeal = callback;
             }
 
             // Tear down
@@ -794,8 +797,8 @@ TODO:
                     // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight>"
                     var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+$/;
     
-                    // XXX
-                    // Put a reasonable hard-timeout here.  Uploading seems to be wanky - 
+                    // TODO: put a reasonable hard-timeout here.
+                    //
                     // if the timeout expires, reload the 'main' page with a special
                     // tag that says 'edit the first picture if it's greater than the 
                     // first picture I've ever seen (pass that in the request).  Otherwise, 
@@ -860,82 +863,16 @@ TODO:
                 $(fileupload).click();
     
             }
-    
-            // Meal attributes / edit modal
-            function showattributesmealinfo(username, meal, restaurant, restaurantId) {
-    
-                var username = meal.username;
-                var timestamp = meal.timestamp;
-    
-                popup = $(dc('div'))
-                    .attr('id', 'mealAttributes')
-                    .attr('class', 'mealAttributesPopup')
-                    .css('z-index', '9999')
-                    .css('padding', '20px');
-    
-                // Center things on this popup.  
-                // The center-tag is a little old-school these days.
-                var centr = $(dc('center'));
-    
-                // Carousel div
-                var carouselDivContainer = $(dc('div'))
-                    .attr('id', 'mealCarouselContainer')
-                    .attr('class', 'mealCarouselContainer');
-    
-                // Create a carousel-  TODO: 'pics' argument from ejs ..
-                elm = createPictureCarousel(username, 'pics', 
-                        meal.picInfo, findpicidx, meal.keytimestamp);
-    
-                // Append it to the div
-                elm.appendTo(carouselDivContainer);
-    
-                // Append carousel to popup
-                carouselDivContainer.appendTo(centr);
-    
-                var closexContainer = $(dc('div'))
-                    .attr('id', 'mealAttributesCloseContainer')
-                    .attr('class', 'mealAttributesCloseContainer');
-    
-                var closex = $(dc('a'))
-                    .attr('id', 'mealAttributesCloseButton')
-                    .attr('class', 'mealAttributesCloseButton')
-                    .html('x');
-    
-                // Click handler for close button
-                closex.click(function(){
-    
-                    destroymodal();
 
-                });
-    
-                closex.appendTo(closexContainer);
-                closexContainer.appendTo(popup);
-    
-                // They look best below
-                centr.appendTo(popup);
-    
-                // Create a class_8 container .. everything goes in here
-                var class8 = $(dc('div'))
-                    .attr('id', 'mealAttributesClass8')
-                    .attr('class', 'container_8');
-    
-                var subcarousel = $(dc('div'))
-                    .attr('id', 'subcarousel')
-                    .attr('class', 'carousel_caption');
-    
+            // Internal function creates the subcarousel upload anchor
+            function createuploadanchor(meal) {
+
+                // Create anchor object
                 var uploadAnchor = $(dc('a'))
                     .attr('id', 'uploadPictureAnchor')
                     .attr('class', 'carousel_caption uploadPictureAnchor grid_3')
                     .html('Upload New Picture');
     
-                
-                // Set the count in the grid
-                /*
-                if(setgridcount) {
-                    setgridcount(meal);
-                }
-                */
-
                 // Click function for the upload anchor
                 uploadAnchor.click(function() {
     
@@ -971,7 +908,78 @@ TODO:
     
                     });
                 });
+
+                return uploadAnchor;
+            }
     
+            // Meal attributes / edit modal
+            function showattributesmealinfo(username, meal, restaurant, restaurantId) {
+    
+                var username = meal.username;
+                var timestamp = meal.timestamp;
+    
+                // Create the popup div
+                popup = $(dc('div'))
+                    .attr('id', 'mealAttributes')
+                    .attr('class', 'mealAttributesPopup')
+                    .css('z-index', '9999')
+                    .css('padding', '20px');
+    
+                // Center things on this popup.  
+                var centr = $(dc('center'));
+    
+                // Carousel div
+                var carouselDivContainer = $(dc('div'))
+                    .attr('id', 'mealCarouselContainer')
+                    .attr('class', 'mealCarouselContainer');
+    
+                // Create a carousel
+                elm = createPictureCarousel(username, 'pics', 
+                        meal.picInfo, findpicidx, meal.keytimestamp);
+    
+                // Append it to the div
+                elm.appendTo(carouselDivContainer);
+    
+                // Append carousel to popup
+                carouselDivContainer.appendTo(centr);
+    
+                // Create a container for the dismiss box
+                var closexContainer = $(dc('div'))
+                    .attr('id', 'mealAttributesCloseContainer')
+                    .attr('class', 'mealAttributesCloseContainer');
+    
+                // Create an anchor for the dismiss box
+                var closex = $(dc('a'))
+                    .attr('id', 'mealAttributesCloseButton')
+                    .attr('class', 'mealAttributesCloseButton')
+                    .html('x');
+    
+                // Click handler for dismiss box
+                closex.click(function(){
+                    destroymodal();
+                });
+    
+                // Append to popup
+                closex.appendTo(closexContainer);
+                closexContainer.appendTo(popup);
+    
+                // Append center to popup
+                centr.appendTo(popup);
+    
+                // Create a class_8 container
+                var class8 = $(dc('div'))
+                    .attr('id', 'mealAttributesClass8')
+                    .attr('class', 'container_8');
+    
+                // Hold objects directly beneath the carousel
+                var subcarousel = $(dc('div'))
+                    .attr('id', 'subcarousel')
+                    .attr('class', 'carousel_caption');
+    
+                // Create my upload anchor
+                var uploadAnchor = createuploadanchor(meal);
+    
+                // XXX TODO functionize the rest of this
                 var makeKeyAnchor = $(dc('a'))
                     .attr('id', 'keyAnchor')
                     .attr('class', 'carousel_caption keyAnchor grid_2')
@@ -1126,32 +1134,22 @@ TODO:
                     titleEditInput.focus();
     
                     // Disable carosel arrow behavior
-    //                $(document).off("keydown.carousel");
                     elm.disablekeydown();
     
                     function blurTitleInput(meal, titleEditInput, keepcurrent) {
                         if(titleEditInput.val() != meal.title && keepcurrent == 0) {
     
                             var titleEdit; 
-                            
-                            /*
-                            if(gridobj) {
-                                titleEdit = gridobj.find('> div > center > .titleText');
-                            }
-                            else {
-                                titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
-                            }
-                            */
-    
-                            // This is dumb - these should be cached as variables
-                            titleEdit = '#gridTimestamp' + meal.timestamp + ' > div > center > .titleText';
 
                             meal.title = titleEditInput.val();
 
-                            // Why do this?  Why not cache & update?
-                            $('#titleEdit').html(meal.title);
+                            // Change modal title
+                            $(hovertitle).html(meal.title);
 
-                            $(titleEdit).html(meal.title);
+                            // Change grid title
+                            if(setgridtitle) {
+                                setgridtitle(meal);
+                            }
     
                             $.ajax({
                                 url: '/savetitle',
@@ -1168,8 +1166,14 @@ TODO:
                                 }
                             });
                         }
-                        $('#titleEdit').css({'display':'inline-block'});
+
+                        // Change grid title css
+                        $(hovertitle).css({'display':'inline-block'});
+
+                        // Remove input box
                         titleEditInput.remove();
+
+                        // Allow keyboard carousel control
                         elm.enablekeydown();
                     }
     
@@ -1329,6 +1333,7 @@ TODO:
                     whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
                     grid_meal.html(whichmeal);
                     updateMealAjax(meal, "breakfast");
+                    if(setgridmeal) setgridmeal(meal);
                 });
     
                 grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
@@ -1367,6 +1372,7 @@ TODO:
                     whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
                     grid_meal.html(whichmeal);
                     updateMealAjax(meal, "lunch");
+                    if(setgridmeal) setgridmeal(meal);
                 });
                 grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
     
@@ -1403,6 +1409,7 @@ TODO:
                     whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
                     grid_meal.html(whichmeal);
                     updateMealAjax(meal, "dinner");
+                    if(setgridmeal) setgridmeal(meal);
                 });
                 grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
     
@@ -1439,6 +1446,7 @@ TODO:
                     whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
                     grid_meal.html(whichmeal);
                     updateMealAjax(meal, "snack");
+                    if(setgridmeal) setgridmeal(meal);
                 });
                 grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
     
@@ -1474,7 +1482,7 @@ TODO:
                     whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
                     grid_meal.html(whichmeal);
                     updateMealAjax(meal, "other");
-                });
+                    if(setgridmeal) setgridmeal(meal); });
                 grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
     
                 // build menu
@@ -1979,7 +1987,9 @@ TODO:
                 destroy                     : destroymodal,
                 setgriddeletecallback       : setgriddeletecallback,
                 setgriddisplaycallback      : setgriddisplaycallback,
-                setgridcountcallback        : setgridcountcallback
+                setgridcountcallback        : setgridcountcallback,
+                setgridtitlecallback        : setgridtitlecallback,
+                setgridmealcallback         : setgridmealcallback,
             };
 
 
@@ -2120,29 +2130,45 @@ TODO:
                 nxpvcallback = cb;
             }
 
-            // Should be part of the grid and exposed as a callback
+            // Updates title displayed on the grid
+            function updatetitle(meal) {
+
+                // Div object
+                var div = meal.gridobj.find('> div > center > .titleText'); 
+
+                // Set the html
+                div.html(meal.title);
+            }
+
+            // Updates hover meal text displayed on the grid
+            function updatemeal(meal) {
+
+                // Capitalize
+                var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+
+                // Complete text
+                var hovertxt = mealtxt + " created on " + 
+                    new Date(meal.timestamp).asMyString();
+
+                // Div object
+                var div = meal.gridobj.find('> div > center > div > a');
+
+                // Set the title
+                if(div) div.attr('title', hovertxt);
+            }
+
+            // Updates picture count displayed on the grid
             function updatepicturecount(meal) {
 
                 // Grid object
-                var div; 
+                var div = meal.gridobj.find('.picturecount'); 
 
                 // Update string
-                var picturecountstring;
-
-                // Find the picturecount field
-                div = meal.gridobj.find('.picturecount');
-
-                // Create appropriate string
-                if(meal.picInfo.length == 1) {
-                    picturecountstring = "1 picture";
-                }
-                else {
-                    picturecountstring = meal.picInfo.length + " pictures";
-                }
+                var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
+                    meal.picInfo.length + " pictures";
 
                 // Set the html
                 div.html(picturecountstring);
-
             }
 
 
@@ -2261,11 +2287,8 @@ TODO:
                 // New source for key timestamp
                 var imgsrc;
 
-                // Find the container
-                var gridcon = '#gridTimestamp' + meal.timestamp;
-
                 // Hit a hash to get this div
-                var griddiv = $(gridcon);
+                var griddiv = $(meal.gridobj);
 
                 // Get the element
                 var gridpic = griddiv.find('div > center > div > a > img');
@@ -2327,7 +2350,8 @@ TODO:
 
                     // var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
                     // var hoverTxt = mealtxt + " on " + hoverDate;
-                    var hovertxt = mealtxt + " created on " + meal.timestamp;
+                    var hovertxt = mealtxt + " created on " + 
+                        new Date(meal.timestamp).asMyString();
     
                     var anchor = $(dc('a'))
                         .attr('href', 'javascript:void(0)')
@@ -2880,8 +2904,9 @@ TODO:
                 drawnextmeals               : drawnextmeals,
                 setnextprevcallback         : setnextprevcallback,
                 deletepicfromgrid           : deletepicfromgrid,
-                updatepicturecount          : updatepicturecount
-
+                updatepicturecount          : updatepicturecount,
+                updatetitle                 : updatetitle,
+                updatemeal                  : updatemeal
             };
         }(
                 document.getElementById('pictureGridDiv'), 
@@ -2900,8 +2925,14 @@ TODO:
         // Set grid-display callback in modal
         showattributes.setgriddisplaycallback(pictureGrid.setdisplaypicture);
 
-        // Set grid-update picture count callback in modal
+        // Set grid-update picture count
         showattributes.setgridcountcallback(pictureGrid.updatepicturecount);
+
+        // Set grid-update title callback
+        showattributes.setgridtitlecallback(pictureGrid.updatetitle);
+
+        // Set grid update meal callback
+        showattributes.setgridmealcallback(pictureGrid.updatemeal);
 
         </script>
     </body>
