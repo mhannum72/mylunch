@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* Tweak the delete handler: what would really be cool is if when a picture is
+  deleted, all of the other pictures shift over.  This should be doable.  Will
+  write more in code.
+
 * Store the height and the width of the 'window' in some variables.  Create a
   'resize' handler that will adjust the layout a bit if the window width
   changes.  You'll have to create a default 'minwidth'.  The only height change
