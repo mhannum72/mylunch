@@ -1918,13 +1918,13 @@ TODO:
 
 
         // The picture grid
-        var pictureGrid = (function (indiv, uname, prevpage, nextpage, cfg) {
+        var pictureGrid = (function (indiv, uname, pvpg, nxpg, cfg) {
 
             // Previous page
-            var gridprevpage = null;
+            var gridprevpage = pvpg;
 
             // Next page
-            var gridnextpage = null;
+            var gridnextpage = nxpg;
 
             // Where this will appear on the page
             var parentdiv = indiv;
@@ -2473,16 +2473,28 @@ TODO:
                     .css('width', picturewidth)
                     .css('height', picheight);
                 
+                // Store this away?  Maybe just create an 'outer' ..
+                //editgrid.marginleft = marginleftpx;
+
                     //.attr('class', 'grid_4 editheight editgrid');
     
+                var egcontainer = $(dc('div'))
+                    .css('display', 'inline');
+
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
     
                 // Append this to the edit grid
                 intn.appendTo(editgrid);
+
+                // Append my editgrid (with size info) to the container
+                editgrid.appendTo(egcontainer);
+
+                // Direct lookup for editgrid
+                egcontainer.editgrid = editgrid;
     
                 // Return the top-level object
-                return editgrid;
+                return egcontainer;
             }
 
             // Append picture to the end of the grid
@@ -2567,6 +2579,9 @@ TODO:
                     hdiv = griddiv.laststripe;
                 }
 
+                // Add a pointer to the stripe
+                gridpic.stripe = hdiv;
+
                 // Append this to the grid
                 gridpic.appendTo(hdiv);
 
@@ -2618,7 +2633,12 @@ TODO:
             //   horizontal stripe
             // 5 Move everything over to the left
             //
-            // I want this to work .. make this work
+            // XXX
+            //
+            // For now, make it simple: I can just copy the inner object into 
+            // the previous one.
+            //
+            // Assign each 'outer.gridpic' to the next 'outer.gridpic'.
 
             function deletepicfromgrid(meal, callback) {
 
@@ -2950,6 +2970,10 @@ TODO:
                     findpicidx      : findpicidx.search
                 }
         ));
+
+        // A cleverer way to do this is to have a single 'grid' registration
+        // in the show attributes which then uses the grid object to call these
+        // directly.
 
         // Set attributes callback for deleting a picture
         showattributes.setgriddeletecallback(pictureGrid.deletepicfromgrid);
