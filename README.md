@@ -5,7 +5,13 @@ mylunch
 todo
 ====
 
+* Delete meal is sortof working - study the 'lastpage' case, and the 'last
+  item on last page' case.  The last-item case should go to the previous 
+  page.  The general lastpage case should destroy hdivs (for now).
+
 * Cut 1 keep whats there (sortof).
+
+* Why is the modal torn down when I send an ajax request?
 
 * Tweak the delete handler: what would really be cool is if when a picture is
   deleted, all of the other pictures shift over.  This should be doable.  Will

@@ -358,6 +358,9 @@ TODO:
             // Grid delete function
             var griddelete = cfg.griddelete ? cfg.griddelete : null;
 
+            // Setfirst grid-obj function
+            // var setfirstgridobj = cfg.setfirstgridobj ? cfg.setfirstgridobj : null;
+
             // Set the display picture
             var setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
 
@@ -369,6 +372,9 @@ TODO:
 
             // Set the meal on the grid
             var setgridmeal = cfg.setgridmeal ? cfg.setgridmeal : null;
+
+            // Mealinfo of the current popup
+            var gridmealinfo = null;
 
             // Height of modal
             // var modalheight = cfg.modalheight ? cfg.modalheight : 
@@ -506,6 +512,13 @@ TODO:
                 });
             }
 
+            // Function to set the first gridobj
+            // function setfirstgridobjcallback(callback) {
+
+            //    setfirstgridobj = callback;
+
+            //}
+
             // Set the griddelete function
             function setgriddeletecallback(callback) {
 
@@ -537,22 +550,30 @@ TODO:
 
             // Glue to set the grid title 
             function setgridtitlecallback(callback) {
+
                 setgridtitle = callback;
+
             }
 
             // Glue to set the grid display picture
             function setgriddisplaycallback(callback) {
+
                 setgriddisplay = callback;
+
             }
 
             // Callback to update the grid counter
             function setgridcountcallback(callback) {
+
                 setgridcount = callback;
+
             }
 
             // Callback to update grid meal
             function setgridmealcallback(callback) {
+
                 setgridmeal = callback;
+
             }
 
             // Tear down
@@ -1854,6 +1875,20 @@ TODO:
                 });
             }
 
+            // Getter for the showattributes gridobject
+            function getgridobj() {
+
+                return gridobj;
+
+            }
+
+            // Setter for the showattributes gridobject
+            function setgridobj(griddiv) {
+
+                gridobj = griddiv;
+
+            }
+
             function show(username, timestamp, griddiv) {
 
                 // Latch griddiv immediately
@@ -1861,6 +1896,7 @@ TODO:
                     gridobj = griddiv;
                 }
                 // Otherwise hit jquery hash
+                /*
                 else {
 
                     // Might be inevitable
@@ -1868,6 +1904,7 @@ TODO:
                     var gts = '#gridTimestamp' + timestamp;
                     gridobj = $(gts)[0];
                 }
+                */
 
                 $.getJSON('/ajaxgetmealinfo',
                     {
@@ -1900,6 +1937,8 @@ TODO:
 
             return {
                 show                        : show,
+                setgridobj                  : setgridobj,
+                getgridobj                  : getgridobj,
                 destroy                     : destroymodal,
                 setgriddeletecallback       : setgriddeletecallback,
                 setgriddisplaycallback      : setgriddisplaycallback,
@@ -2001,7 +2040,6 @@ TODO:
             // Where it's located
             // var pagelocation = cfg.pagelocation ? cfg.pagelocation : null;
 
-
             // Linear find picindex 
             function findpicidxlinear(pinfo, timestamp) {
 
@@ -2074,101 +2112,117 @@ TODO:
                             return;
                         }
     
-                        //$(parentdiv).html('');
-                        // XXX
-                        drawnextmeals(new mealpage(parseInt(response.timestamp,10)));
+                        // Create a new grid
+                        drawnextmeals( 
+                            new mealpage(parseInt(response.timestamp,10)),
+                            showattributes.setgridobj
+                        );
+
+                        // Display a popup
                         showattributes.show(username, response.timestamp);
                     });
-            }
+                }
 
-            // If a newmeal anchor is specified set its click handler
-            if(newmealanchor) {
-                $(newmealanchor).click(function() {
-                    newmealpopup();
-                });
-            }
+                // If a newmeal anchor is specified set its click handler
+                if(newmealanchor) {
+                    $(newmealanchor).click(function() {
+                        newmealpopup();
+                    });
+                }
 
-            // Allow user to set the nextprev callback
-            function setnextprevcallback(cb) {
-                nxpvcallback = cb;
-            }
+                // Allow user to set the nextprev callback
+                function setnextprevcallback(cb) {
+                    nxpvcallback = cb;
+                }
 
-            // Updates title displayed on the grid
-            function updatetitle(meal) {
+                // Set this meals gridobj pointer
+                function normalizegridobj(meal) {
+                }
 
-                // Div object
-                var div = meal.gridobj.find('> div > center > .titleText'); 
+                // Updates title displayed on the grid
+                function updatetitle(meal) {
 
-                // Set the html
-                div.html(meal.title);
-            }
+                    // Grab the gridobj
+                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
-            // Updates hover meal text displayed on the grid
-            function updatemeal(meal) {
+                    // Div object
+                    var div = $(meal.gridobj).find('div > center > .titleText'); 
 
-                // Capitalize
-                var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                    // Set the html
+                    div.html(meal.title);
+                }
 
-                // Complete text
-                var hovertxt = mealtxt + " created on " + 
-                    new Date(meal.timestamp).asMyString();
+                // Updates hover meal text displayed on the grid
+                function updatemeal(meal) {
 
-                // Div object
-                var div = meal.gridobj.find('> div > center > div > a');
+                    // Grab the gridobj
+                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+                    
+                    // Capitalize
+                    var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
 
-                // Set the title
-                if(div) div.attr('title', hovertxt);
-            }
+                    // Complete text
+                    var hovertxt = mealtxt + " created on " + 
+                        new Date(meal.timestamp).asMyString();
 
-            // Updates picture count displayed on the grid
-            function updatepicturecount(meal) {
+                    // Div object
+                    var div = $(meal.gridobj).find('div > center > div > a');
 
-                // Grid object
-                var div = meal.gridobj.find('.picturecount'); 
+                    // Set the title
+                    if(div) div.attr('title', hovertxt);
+                }
 
-                // Update string
-                var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
-                    meal.picInfo.length + " pictures";
+                // Updates picture count displayed on the grid
+                function updatepicturecount(meal) {
 
-                // Set the html
-                div.html(picturecountstring);
-            }
+                    // Grab the gridobj
+                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
+                    // Grid object
+                    var div = $(meal.gridobj).find('.picturecount'); 
 
-            // Request previous pages meals from the server
-            function drawprevmeals(prevpage) {
+                    // Update string
+                    var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
+                        meal.picInfo.length + " pictures";
 
-                $.getJSON('/editpageprev',
-                {
-                    username: username,
-                    prevts: prevpage.timestamp,
-                    count: mealspergrid
-                },
-                function(response) {
-                    if(response.errStr != undefined && response.errStr.length > 0) {
-
-                        // Send this error to a space at the top..
-                        debuglog('editpageprev error: ' + response.errStr);
-                    }
-                    else {
-                        var nextpage = new mealpage(parseInt(response.nextts,10));
-                        var prevpage = new mealpage(parseInt(response.prevts,10));
-
-                        displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
-                    }
-                });
-                return 0;
-            }
+                    // Set the html
+                    div.html(picturecountstring);
+                }
 
 
-            function drawnextmeals(nextpage) {
+                // Request previous pages meals from the server
+                function drawprevmeals(prevpage) {
+
+                    $.getJSON('/editpageprev',
+                    {
+                        username: username,
+                        prevts: prevpage.timestamp,
+                        count: mealspergrid
+                    },
+                    function(response) {
+                        if(response.errStr != undefined && response.errStr.length > 0) {
+
+                            // Send this error to a space at the top..
+                            debuglog('editpageprev error: ' + response.errStr);
+                        }
+                        else {
+                            var nextpage = new mealpage(parseInt(response.nextts,10));
+                            var prevpage = new mealpage(parseInt(response.prevts,10));
+
+                            displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+                        }
+                    });
+                    return 0;
+                }
+
+
+                // Request the next page of meals
+                function drawnextmeals(nextpage, callback) {
     
-                // Make this an ajax request that will return enough information
-                $.getJSON('/editpagenext',
+                    // Make this an ajax request that will return enough information
+                    $.getJSON('/editpagenext',
                         {
                             username: username,
-                            //nextpage: nextpage,
-                            //nextmd: nextpage.mealdate,
                             nextts: nextpage.timestamp,
                             count: mealspergrid
                         },
@@ -2184,10 +2238,11 @@ TODO:
                                 var prevpage = new mealpage(
                                     parseInt(response.prevts,10)
                                 );
-                                displaygrid(response.mealinfo, nextpage, prevpage, 'forwards');
+                                displaygrid(response.mealinfo, nextpage, prevpage, 'forwards', callback);
                             }
-                        });
-                return 0;
+                        }
+                    );
+                    return 0;
             }
     
             // Create div & link for a next or prev page
@@ -2209,11 +2264,16 @@ TODO:
             // Set up the links for the next and previous page
             function nextprevpagelinks(nextpage, prevpage) {
     
+                // Pointer to possible prevanchor
                 var prevanchor;
+
+                // Pointer to possible nextanchor
                 var nextanchor;
 
-                // Normalize nextpage and prevpage
+                // Normalize nextpage argument
                 nextpage = nextpage && nextpage.timestamp > 0 ? nextpage : null;
+
+                // Normalize prevpage argument
                 prevpage = prevpage && prevpage.timestamp > 0 ? prevpage : null;
     
                 // Prevpage div
@@ -2243,16 +2303,26 @@ TODO:
 
             // Calculates the margintop given a picture height
             function calculatemargintop(thumbheight) {
+
+                // Container height and margin minus the thumbheight
                 return (pictureheight + margintop) - thumbheight;
+
             }
+
+            // Sets argument's gridobj attribute to the first gridobject
+            // function setfirstgridobj(mealinfo) {
+
+            //     mealinfo.gridobj = currentgrid.firstg.editgrid;
+
+            //}
 
             // Updates the grid display picture to this timestamp
             function setdisplaypicture(meal, picinfo) {
 
-                // New source for key timestamp
-                var imgsrc;
+                // Get the gridobj
+                if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
-                // Hit a hash to get this div
+                // Jqueryize
                 var griddiv = $(meal.gridobj);
 
                 // Get the element
@@ -2260,6 +2330,9 @@ TODO:
 
                 // Init thumb height
                 var thumbheight = 0;
+
+                // New source for key timestamp
+                var imgsrc;
 
                 // Pulling from picinfo
                 if(picinfo) {
@@ -2298,7 +2371,7 @@ TODO:
                 }
             }
 
-            // Create the 'internal' grid object.  Exposed (for now).
+            // The internal grid object contains the click logic
             function pdivint(meal, editgrid) {
     
                 // I can manipulate this directly in the delete code.
@@ -2364,7 +2437,7 @@ TODO:
     
                 // Image teag
                 var image = $(dc('img'))
-                    .attr('class', 'editImage')
+                    .attr('class', 'gridimage')
                     .attr('src', imgsource);
 
                 // Append it to anchor if we made one
@@ -2420,31 +2493,32 @@ TODO:
                 return editInternal;
             }
 
-            // Create a frame
-            function pdiv(meal, griddiv) {
+            // Create an inner (attributed) pdiv object
+            function pdivinner(meal) {
     
-                // Id string - I don't think this is right
-                // var tsId = 'gridTimestamp' + meal.timestamp;
-
                 // Left margin string
                 var marginleftpx = marginleft + 'px';
 
                 // Right margin string
                 var marginrightpx = marginright + 'px';
 
+                // Calculate the thumb height here
                 var thumbheight;
 
-                // If this meal has a key find the thumbheight
+                // Find the key pic in the picInfo array
                 if(meal.keytimestamp) {
 
                     var idx = findpicidx(meal.picInfo, meal.keytimestamp);
 
                     if(idx >= 0) thumbheight = meal.picInfo[idx].thumbheight;
                 }
+
+                // Otherwise use the first picture
                 else if(meal.picInfo && meal.picInfo.length > 0) {
 
                     thumbheight = meal.picInfo[0].thumbheight;
                 }
+
                 // Height of the nomeal picture
                 else {
                     thumbheight = NOMEALHEIGHT;
@@ -2460,11 +2534,9 @@ TODO:
                 var picheight = (pictureheight + margintop + marginbottom)
                     + 'px';
                 
-                // Id this with both an index and a timestamp
+                // Create the editgrid div
                 var editgrid = $(dc('div'))
-                    // .attr('id', tsId)
                     .css('display', 'inline')
-                    //.css('float', 'bottom')
                     .css('float', 'left')
                     .css('margin-left', marginleftpx)
                     .css('margin-right', marginrightpx)
@@ -2473,32 +2545,38 @@ TODO:
                     .css('width', picturewidth)
                     .css('height', picheight);
                 
-                // Store this away?  Maybe just create an 'outer' ..
-                //editgrid.marginleft = marginleftpx;
-
-                    //.attr('class', 'grid_4 editheight editgrid');
-    
-                var egcontainer = $(dc('div'))
-                    .css('display', 'inline');
-
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
     
                 // Append this to the edit grid
                 intn.appendTo(editgrid);
 
+                // Return grid
+                return editgrid;
+            }
+
+            // Create a pdiv
+            function pdiv(meal) {
+
+                // Create an outer shell container 
+                var egcontainer = $(dc('div'))
+                    .css('display', 'inline')[0];
+
+                // Create the grid components
+                var editgrid = pdivinner(meal);
+
                 // Append my editgrid (with size info) to the container
                 editgrid.appendTo(egcontainer);
 
                 // Direct lookup for editgrid
-                egcontainer.editgrid = editgrid;
+                egcontainer.editgrid = editgrid[0];
     
                 // Return the top-level object
                 return egcontainer;
             }
 
             // Append picture to the end of the grid
-            function addpictogrid(griddiv, gridpic, loadcb) {
+            function addmealtogrid(griddiv, gridpic, loadcb) {
 
                 var hdiv = null;
 
@@ -2508,26 +2586,29 @@ TODO:
                 }
 
                 // Update last picture
-                if(griddiv.last) {
+                if(griddiv.lastg) {
 
                     // Current last's 'next' will point to this
-                    griddiv.last.next = gridpic;
+                    griddiv.lastg.nextg = gridpic;
 
                     // This prev will be the current last
-                    gridpic.prev = griddiv.last;
-
-                    // Nothing after
-                    gridpic.next = null;
-
-                    // This is the new last
-                    griddiv.last = griddiv;
+                    gridpic.prevg = griddiv.lastg;
+                }
+                else {
+                    gridpic.prevg = null;
                 }
 
+                // Nothing after
+                gridpic.nextg = null;
+
+                // This is the new last
+                griddiv.lastg = gridpic;
+
                 // It's also the first if there is none
-                if(!griddiv.first) {
+                if(!griddiv.firstg) {
 
                     // Make this the first picture
-                    griddiv.first = gridpic;
+                    griddiv.firstg = gridpic;
                 }
 
                 // Create a horizontal div
@@ -2555,10 +2636,10 @@ TODO:
                     if(griddiv.laststripe) {
 
                         // Current last's next will point to this
-                        griddiv.laststripe.next = hdiv;
+                        griddiv.laststripe.nextst = hdiv;
 
                         // This prev will point to current last
-                        hdiv.prev = griddiv.laststripe;
+                        hdiv.prevst = griddiv.laststripe;
                     }
 
                     // This is the new last
@@ -2583,14 +2664,14 @@ TODO:
                 gridpic.stripe = hdiv;
 
                 // Append this to the grid
-                gridpic.appendTo(hdiv);
+                $(gridpic).appendTo(hdiv);
 
                 // Increment count
                 griddiv.count++;
 
                 // Invoke 'pic-is-loaded' callback
                 if(loadcb) {
-                    var image = $(gridpic).find('.editImage');
+                    var image = $(gridpic).find('.gridimage');
                     image.on('load.picdivinternal', function() {
                         image.off('load.picdivinternal');
                         loadcb(griddiv);
@@ -2640,58 +2721,98 @@ TODO:
             //
             // Assign each 'outer.gridpic' to the next 'outer.gridpic'.
 
-            function deletepicfromgrid(meal, callback) {
+            function deletemealfromgrid(meal, callback) {
 
-                var editGrid;
-                //var nextGrid = editGrid.next('.editgrid');
-                //var nextGrid = editGrid.next();
+                var editgrid;
+                //var nextgrid = editgrid.next('.editgrid');
+                //var nextgrid = editgrid.next();
                 // Expose a 'count' function in the grid that returns the number of pictures
                 // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
 
-                // Grab gridobj directly
+                // Grab gridobj directly - i think this can only be gridobj
                 if(meal.gridobj) {
-                    editGrid = meal.gridobj;
+                    editgrid = meal.gridobj.parent()[0];
                 }
 
                 // Shouldn't fall into this case
                 else {
                     debuglog('Using jquery hash-lookup for gridTimestamp' + meal.timestamp);
-                    editGrid = $('#gridTimestamp' + meal.timestamp);
+                    editgrid = $('#gridTimestamp' + meal.timestamp);
                 }
 
                 // var firstGrid = $('.editgrid').first();
-                var firstGrid = griddiv.first;
+                // Grab a pointer to the first
+                var firstgrid = currentgrid.firstg;
 
                 // var lastGrid = $('.editgrid').last();
-                var lastGrid = griddiv.last;
+                // Grab a pointer to the last
+                var lastgrid = currentgrid.lastg;
                 
+                // How many pictures to request from the server
+                var reqcount = 1;
 
-                var count = 1;
-                var lastPic = false;
+                // Set to redraw entire grid
+                var redraw = false;
 
-                var nmealtime = 0
+                // Next-meal request variable
+                var nmealtime = 0;
+
+                // Prev-meal request variable
                 var pmealtime = 0;
 
-                // If this is the last remaining picture on this page, request the previous page
-                if(firstGrid.attr('id') == lastGrid.attr('id')) {
-                    lastPic = true;
-                    if(gridprevpage && gridprevpage.timestamp > 0) {
-                        count = mealspergrid;
-                    }
-                    // This shouldn't happen 
-                    if(gridnextpage && gridnextpage.timestamp > 0) {
-                        debuglog('deleteMealAnchor.click: globals nextPage.mealdate is set for empty page?');
-                    }
+                // Last remaining picture on the grid
+                if(firstgrid == lastgrid) {
 
-                    // Only ask for the prev meals in this case
+                    // We'll want to redraw the previous page
+                    redraw = true;
+
+                    // Ask the server for the previous page
                     if(gridprevpage) {
+
+                        // Grab prevmeal timestamp
                         pmealtime = gridprevpage.timestamp;
+
+                        // Ask for an entire grid
+                        reqcount = mealspergrid;
                     }
                 }
 
-                if(gridnextpage) {
+                // If there's a next page..
+                else if(gridnextpage) {
+                    // ..ask for a single meal
                     nmealtime = gridnextpage.timestamp;
                 }
+
+                // Get pointer to next
+                var nextgrid = editgrid.nextg;
+
+                // Remove meal
+                $(editgrid.editgrid).remove();
+
+                // Walk gridpics, copying each into the last
+                while(nextgrid) {
+
+                    // Repoint me to next
+                    editgrid.editgrid = nextgrid.editgrid;
+
+                    // Jquery wrapper for internal
+                    var $igrid = $(nextgrid.editgrid);
+
+                    // Detach from nextgrid
+                    $igrid.detach();
+
+                    // Reattach to currentgrid
+                    $igrid.appendTo(editgrid);
+
+                    // Set editgrid to nextgrid
+                    editgrid = nextgrid;
+
+                    // Set nextgrid to nextgrid.next
+                    nextgrid = editgrid.nextg;
+                }
+
+                // Zap internals- this may be filled above
+                editgrid.editgrid = null;
 
                 /* 
                  * This request has two flavors.  If prevts is set at all, the
@@ -2700,16 +2821,14 @@ TODO:
                  * 0, then this is a normal delete.
                  */
 
+                // Ask server to delete the meal
                 $.getJSON('/deletemeal',
                     {
                         username: meal.username,
                         timestamp: meal.timestamp,
-                        //nextmd: nmealdate,
                         nextts: nmealtime,
-                        // XXX 
-                        //prevmd: pmealdate,
                         prevts: pmealtime,
-                        count: count
+                        count: reqcount
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
@@ -2723,70 +2842,99 @@ TODO:
                             return;
                         }
 
-                        // Success: create prevpage and nextpage
+                        // Create a new prevpage
                         var prevpage = new mealpage(parseInt(response.prevts,10));
+
+                        // Create a new nextpage
                         var nextpage = new mealpage(parseInt(response.nextts,10));
 
-                        // If this was the last picture on the page & mealinfo is set, these meals belong
-                        // to the previous page.  Redraw it.
-                        if(lastPic) {
+                        // Redraw the grid
+                        if(redraw) {
+
                             displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+
                         }
+
+                        // Normal case
                         else {
 
-                            // Success case
-                            if(response.mealinfo != undefined && response.mealinfo.length >= 1) {
+                            // Update nextpage with the server response
+                            gridnextpage = nextpage;
 
-                                // There's only one meal here- we'll be called when that loads
-                                var newInternal = pdivint(response.mealinfo[0], function (showImages) {
-                                    newInternal.appendTo(lastGrid);
-                                    gridnextpage = nextpage;
-                                    nextprevpagelinks(nextpage, globals.prevPage);
+                            // Found a new last meal
+                            if(response.mealinfo && response.mealinfo.length >= 1) {
+
+                                // Create a pdiv
+                                var $newpic = $(pdivinner(response.mealinfo[0]));
+
+                                // Switch out internals
+                                lastgrid.editgrid = $newpic[0];
+
+                                // Append
+                                $newpic.appendTo(lastgrid);
+
+                                // Grab the image tag
+                                var image = $newpic.find('.gridimage');
+
+                                // Wait for this to load
+                                image.on('load.deletepic', function() {
+
+                                    // Cancel event trigger
+                                    image.off('load.deletepic');
+
+                                    // Set up next and prev page links
+                                    nextprevpagelinks(nextpage, prevpage);
                                 });
-
                             }
+
+                            // Delete last grid object
                             else {
 
-                                lastGrid.remove();
-                                gridnextpage = nextpage;
+                                // Get a pointer to the previous
+                                var prev = lastgrid.prev;
+
+                                // Cut out of the linked list
+                                prev.next = null;
+
+                                // Update the lastgrid
+                                currentgrid.last = prev;
+
+                                // Might have to delete stripe
+                                if(prev.stripe != lastgrid.stripe) {
+
+                                    // New last stripe
+                                    currentgrid.laststripe = prev.stripe;
+
+                                    // Nullify next
+                                    currentgrid.laststripe.next = null;
+
+                                    // Remove the stripe
+                                    currentgrid.laststripe.remove();
+                                    
+                                }
+                                // Remove the grid
+                                else {
+                                    lastgrid.remove();
+                                }
+
+                                // Decrement count
+                                currentgrid.count--;
+
+                                // Set next and prev links
                                 nextprevpagelinks(nextpage, gridprevpage);
 
                             }
                         }
 
-                        if(callback) {
-                            callback();
-                            // destroymodal();
-                        }
+                        // Tear down modal
+                        if(callback) callback();
 
                     }
                 );  // getJSON
 
-                // Walk gridpics, copying each into the last
-                while(nextGrid && nextGrid.length) {
+                // Get internal pointer - not sure if I need it
+                // var igrid = editgrid.editgrid;
 
-                    var intnl = editGrid.find('.editGridInternal');
-                    var nxtin = nextGrid.find('.editGridInternal');
-
-                    if(nxtin && nxtin.length) {
-
-                        if(intnl && intnl.length) {
-                            intnl.remove();
-                        }
-                        nxtin.remove();
-                        nxtin.appendTo(editGrid);
-
-                        // Remap id
-                        var tsId = nextGrid.attr('id');
-                        nextGrid.removeAttr('id');
-                        editGrid.removeAttr('id');
-                        editGrid.attr('id', tsId);
-
-                        editGrid = nextGrid;
-                    }
-
-                    nextGrid = nextGrid.next();
-                }
             }
 
             // Fill a picture grid from an array
@@ -2796,10 +2944,10 @@ TODO:
                 for(cnt = 0 ; cnt < mealinfo.length ; cnt++) {
 
                     // Create a gridpic
-                    var gridpic = pdiv(mealinfo[cnt], griddiv);
+                    var gridmeal = pdiv(mealinfo[cnt]);
 
                     // Add it to the grid
-                    if(!addpictogrid(griddiv, gridpic, callback))
+                    if(!addmealtogrid(griddiv, gridmeal, callback))
                         break;
                 }
             }
@@ -2831,7 +2979,7 @@ TODO:
             }
 
             // Universal display function
-            function displaygrid(mealinfo, nextpage, prevpage, direction) {
+            function displaygrid(mealinfo, nextpage, prevpage, direction, callback) {
 
                 // Normalize nextpage
                 nextpage = (null != nextpage) ? nextpage : gridnextpage;
@@ -2854,6 +3002,7 @@ TODO:
                     var endpic = (mealinfo.length < mealspergrid) ? 
                         mealinfo.length : mealspergrid;
 
+                    // Make a new picture grid
                     var newgrid = makegrid();
 
                     // The callback is fired once per meal in the array
@@ -2890,6 +3039,7 @@ TODO:
 
                                 // Put just out of view in front
                                 $ng.css('left', gridwidth + 'px');
+
                             }
                             else {
 
@@ -2898,6 +3048,7 @@ TODO:
 
                                 // Put just out of view in back
                                 $ng.css('left', -gridwidth + 'px');
+
                             }
 
                             // Completion function
@@ -2914,6 +3065,11 @@ TODO:
 
                                     // This is the new current
                                     currentgrid = newgrid;
+
+                                    // Invoke callback to link first picture
+                                    if(callback) {
+                                        callback(currentgrid.firstg);
+                                    }
                                 }
                             }
 
@@ -2936,22 +3092,21 @@ TODO:
                                     alldone
                                 )
                             }
+                        } // ++loaded == endpic
+                    }); // fillfromarray
 
-                            return newgrid;
-                        }
-                    });
+                    return newgrid;
                 }
             }
 
             // Exposed functions
             return {
                 displaygrid                 : displaygrid,
-                pdivint                     : pdivint,
+                //setfirstgridobj             : setfirstgridobj,
                 setdisplaypicture           : setdisplaypicture,
                 nextprevpagelinks           : nextprevpagelinks,
-                drawnextmeals               : drawnextmeals,
                 setnextprevcallback         : setnextprevcallback,
-                deletepicfromgrid           : deletepicfromgrid,
+                deletemealfromgrid          : deletemealfromgrid,
                 updatepicturecount          : updatepicturecount,
                 updatetitle                 : updatetitle,
                 updatemeal                  : updatemeal
@@ -2974,9 +3129,12 @@ TODO:
         // A cleverer way to do this is to have a single 'grid' registration
         // in the show attributes which then uses the grid object to call these
         // directly.
+        //
+        // Set gridobjs callback
+        // showattributes.setfirstgridobjcallback(pictureGrid.setfirstgridobj);
 
         // Set attributes callback for deleting a picture
-        showattributes.setgriddeletecallback(pictureGrid.deletepicfromgrid);
+        showattributes.setgriddeletecallback(pictureGrid.deletemealfromgrid);
 
         // Set grid-display callback in modal
         showattributes.setgriddisplaycallback(pictureGrid.setdisplaypicture);
