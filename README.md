@@ -5,6 +5,12 @@ mylunch
 todo
 ====
 
+* Maybe while the modal is up, have the scrolling in the back be at half
+  pace.
+
+* The 'prevpage' variable is wrong in the deletemeals code, but correct
+  if you actually click on the link.
+
 * Delete meal is sortof working - study the 'lastpage' case, and the 'last
   item on last page' case.  The last-item case should go to the previous 
   page.  The general lastpage case should destroy hdivs (for now).

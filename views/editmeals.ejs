@@ -1927,7 +1927,9 @@ TODO:
                             }
                         }
                         else {
-                            response.mealInfo.gridobj = gridobj;
+                            if(griddiv) {
+                                response.mealInfo.gridobj = griddiv;
+                            }
                             showattributesmealinfo(username, response.mealInfo, 
                                     response.restaurantInfo, response.restaurantId);
                         }
@@ -2131,9 +2133,9 @@ TODO:
                 }
 
                 // Allow user to set the nextprev callback
-                function setnextprevcallback(cb) {
-                    nxpvcallback = cb;
-                }
+                // function setnextprevcallback(cb) {
+                //    nxpvcallback = cb;
+                //}
 
                 // Set this meals gridobj pointer
                 function normalizegridobj(meal) {
@@ -2270,6 +2272,12 @@ TODO:
                 // Pointer to possible nextanchor
                 var nextanchor;
 
+                // Set object nextpage
+                gridnextpage = nextpage;
+
+                // Set object prevpage
+                gridprevpage = prevpage;
+
                 // Normalize nextpage argument
                 nextpage = nextpage && nextpage.timestamp > 0 ? nextpage : null;
 
@@ -2317,7 +2325,7 @@ TODO:
             //}
 
             // Updates the grid display picture to this timestamp
-            function setdisplaypicture(meal, picinfo) {
+            function updatedisplaypicture(meal, picinfo) {
 
                 // Get the gridobj
                 if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
@@ -2681,27 +2689,7 @@ TODO:
                 return true;
             }
 
-            // This is a getJSON request:
-            // 
-            // REQUEST
-            // * The username
-            // * The timestamp of the deleted meal
-            // * The timestamp of nextpage (if it exists)
-            //
-            // RESPONSE
-            // * mealinfo of the new lastpicture (if it exists)
-            // * new nextpage info (if it exists)
-            // * previous page meals if this was the last meal on the page
-            // * previous page prevpage if this was the last meal on the page
-            //
-            // The getJSON request and this delete-copy run concurrently.
-            // It will be up to the ajax response function to load the new 
-            // mealinfo and dismiss the modal.
-            //
-            // This should be a grid-code callback
-
-            // XXX YOU ARE HERE - MAKE THIS WORK XXX 
-            //
+            // TODO:
             // Tweak the delete handler: what would really be cool is if when a 
             // picture is deleted, all of the other pictures shift over.  Here 
             // are a few steps to make this happen:
@@ -2714,37 +2702,26 @@ TODO:
             //   horizontal stripe
             // 5 Move everything over to the left
             //
-            // XXX
-            //
-            // For now, make it simple: I can just copy the inner object into 
-            // the previous one.
-            //
-            // Assign each 'outer.gridpic' to the next 'outer.gridpic'.
+            // TODO
+            // Another posibility is to make this like the 'New Meal' request. 
+            // The effect there seems cooler than what I've got here - and it
+            // would probably be simpler code - but I'd expect this to behave
+            // better over a network.
 
+            // Delete a meal from the grid
             function deletemealfromgrid(meal, callback) {
 
                 var editgrid;
-                //var nextgrid = editgrid.next('.editgrid');
-                //var nextgrid = editgrid.next();
-                // Expose a 'count' function in the grid that returns the number of pictures
-                // being displayed.  If that is 1, firstGrid.attr == lastGrid.attr
+
+                // Get the gridobj
+                if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
                 // Grab gridobj directly - i think this can only be gridobj
-                if(meal.gridobj) {
-                    editgrid = meal.gridobj.parent()[0];
-                }
+                editgrid = $(meal.gridobj).parent()[0];
 
-                // Shouldn't fall into this case
-                else {
-                    debuglog('Using jquery hash-lookup for gridTimestamp' + meal.timestamp);
-                    editgrid = $('#gridTimestamp' + meal.timestamp);
-                }
-
-                // var firstGrid = $('.editgrid').first();
                 // Grab a pointer to the first
                 var firstgrid = currentgrid.firstg;
 
-                // var lastGrid = $('.editgrid').last();
                 // Grab a pointer to the last
                 var lastgrid = currentgrid.lastg;
                 
@@ -2891,13 +2868,13 @@ TODO:
                             else {
 
                                 // Get a pointer to the previous
-                                var prev = lastgrid.prev;
+                                var prev = lastgrid.prevg;
 
                                 // Cut out of the linked list
-                                prev.next = null;
+                                prev.nextg = null;
 
                                 // Update the lastgrid
-                                currentgrid.last = prev;
+                                currentgrid.lastg = prev;
 
                                 // Might have to delete stripe
                                 if(prev.stripe != lastgrid.stripe) {
@@ -2906,15 +2883,16 @@ TODO:
                                     currentgrid.laststripe = prev.stripe;
 
                                     // Nullify next
-                                    currentgrid.laststripe.next = null;
+                                    currentgrid.laststripe.nextst = null;
 
-                                    // Remove the stripe
-                                    currentgrid.laststripe.remove();
+                                    // Remove the lastgrid stripe
+                                    lastgrid.stripe.remove();
                                     
                                 }
+
                                 // Remove the grid
                                 else {
-                                    lastgrid.remove();
+                                    $(lastgrid).remove();
                                 }
 
                                 // Decrement count
@@ -2931,10 +2909,6 @@ TODO:
 
                     }
                 );  // getJSON
-
-                // Get internal pointer - not sure if I need it
-                // var igrid = editgrid.editgrid;
-
             }
 
             // Fill a picture grid from an array
@@ -3068,21 +3042,26 @@ TODO:
 
                                     // Invoke callback to link first picture
                                     if(callback) {
-                                        callback(currentgrid.firstg);
+
+                                        // Normalize
+                                        var gobj = currentgrid.firstg ? 
+                                            currentgrid.firstg.editgrid : null;
+
+                                        // Set gridobj
+                                        callback(gobj);
                                     }
                                 }
                             }
 
-                            // Animate pictures entering grid
+                            // Animate entering grid
                             $ng.stop().animate(
-                                // TODO does this work?
                                 { left : direction + gridwidth + 'px'},
                                 gridspeed,
                                 grideasing,
                                 alldone
                             );
 
-                            // Annimate current grid leaving
+                            // Annimate leaving grid
                             if(currentgrid) {
 
                                 $cg.stop().animate(
@@ -3102,10 +3081,9 @@ TODO:
             // Exposed functions
             return {
                 displaygrid                 : displaygrid,
-                //setfirstgridobj             : setfirstgridobj,
-                setdisplaypicture           : setdisplaypicture,
-                nextprevpagelinks           : nextprevpagelinks,
-                setnextprevcallback         : setnextprevcallback,
+                updatedisplaypicture        : updatedisplaypicture,
+                // nextprevpagelinks           : nextprevpagelinks,
+                // setnextprevcallback         : setnextprevcallback,
                 deletemealfromgrid          : deletemealfromgrid,
                 updatepicturecount          : updatepicturecount,
                 updatetitle                 : updatetitle,
@@ -3137,7 +3115,7 @@ TODO:
         showattributes.setgriddeletecallback(pictureGrid.deletemealfromgrid);
 
         // Set grid-display callback in modal
-        showattributes.setgriddisplaycallback(pictureGrid.setdisplaypicture);
+        showattributes.setgriddisplaycallback(pictureGrid.updatedisplaypicture);
 
         // Set grid-update picture count
         showattributes.setgridcountcallback(pictureGrid.updatepicturecount);
