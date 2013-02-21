@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* Quick job: make the modal as modular as the grid
+
 * Maybe while the modal is up, have the scrolling in the back be at half
   pace.
 

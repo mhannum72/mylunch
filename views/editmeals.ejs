@@ -187,17 +187,17 @@ TODO:
             return this;
         }
 
+        // Create string format for dates
+        Date.prototype.asMyString = function() {
+            var monthNames = [ "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December" ];
+            return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+        }
+
         // jquery ready handler
         $(document).ready(function() {
 
             $.ajaxSetup ({ cache: false });
-    
-            // My own Date-string type
-            Date.prototype.asMyString = function() {
-                var monthNames = [ "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December" ];
-                return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
-            }
     
             // Create element wrapper
             var dc = function(a)
@@ -239,7 +239,7 @@ TODO:
 */
     
             // Display the initial grid
-            pictureGrid.displaygrid(minfo, null, null, 'forwards');
+            // picturegrid.displaygrid(minfo, null, null, 'forwards');
         });
 
 
@@ -269,7 +269,7 @@ TODO:
             <br><br>
             </div> <!-- container_12 -->
 
-            <div class='pictureGridDiv' id='pictureGridDiv' name='pictureGridDiv'>
+            <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'>
 
                 <div class='prevdiv' id='prevdiv' name='prevdiv'>
                 </div>
@@ -314,92 +314,138 @@ TODO:
         }
 
         // Show attributes 
-        showattributes = (function(findp, cfg) {
-
-            // Hold popup in here
-            var popup = null;
-
-            // Holds carousel object
-            var elm = null;
-
-            // Hold fademask in here
-            var maskfade=null;
-
-            // Minimum mask width
-            var minmaskfadewidth = cfg.minmaskfadewidth ? cfg.minmaskfadewidth : 1024;
-
-            // Mask height
-            var maskfadeheight = cfg.maskfadeheight ? cfg.maskfadeheight : 2000;
-
-            // Opacity
-            var maskfadeopacity = cfg.maskfadeopacity ? cfg.maskfadeopacity : 0.6;
-
-            // Where to append the 
-            var appendpop = cfg.appendpop ? cfg.appendpop : null;
-
-            // Width of modal
-            var modalwidth = cfg.modalwidth ? cfg.modalwidth : 800;
-
-            // Keep track of the window's width
-            var windowwidth = $(window).width();
-
-            // Keep track of the window's height
-            var windowheight = $(window).height();
+        showattributes = (function($) {
 
             // Keep track of the maskfade width
             var maskfadewidth;
 
             // Grid object coresponding to modal
-            var gridobj = null;
-
-            // Hidden frame
-            var hiddenframe = cfg.hiddenframe ? cfg.hiddenframe : $('#hiddenElements')[0];
-
-            // Grid delete function
-            var griddelete = cfg.griddelete ? cfg.griddelete : null;
-
-            // Setfirst grid-obj function
-            // var setfirstgridobj = cfg.setfirstgridobj ? cfg.setfirstgridobj : null;
-
-            // Set the display picture
-            var setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
-
-            // Set the grid title
-            var setgridtitle = cfg.setgridtitle ? cfg.setgridtitle : null;
-
-            // Set the update count function
-            var setgridcount = cfg.setgridcount ? cfg.setgridcount : null;
-
-            // Set the meal on the grid
-            var setgridmeal = cfg.setgridmeal ? cfg.setgridmeal : null;
-
-            // Mealinfo of the current popup
-            var gridmealinfo = null;
-
-            // Height of modal
-            // var modalheight = cfg.modalheight ? cfg.modalheight : 
-            
-            // Element creator
-            var dc = cfg.createelm ? cfg.createelm : function(a) {
-                return document.createElement(a);
-            }
+            var gridobj;
 
             // Set search function
-            var findpicidx = findp;
+            var findpicidx; 
 
-            // Create the background for this
-            maskfade = $(dc('div'))
-                .attr('id', 'maskfade')
-                .attr('class', 'maskclass')
-                .css({'display':'none'})
-                .appendTo('body');
+            // Hold popup in here
+            var popup;
 
-            // Click handler for background
-            maskfade.click(function() {
+            // Holds carousel object
+            var elm;
 
-                destroymodal();
+            // Hold fademask in here
+            var maskfade=null;
 
-            });
+            // Minimum mask width
+            var minmaskfadewidth;
+
+            // Mask height
+            var maskfadeheight;
+
+            // Opacity
+            var maskfadeopacity;
+
+            // Where to append the 
+            var appendpop;
+
+            // Width of modal
+            var modalwidth;
+
+            // Hidden frame
+            var hiddenframe;
+
+            // Grid delete function
+            var griddelete;
+
+            // Set the display picture
+            var setgriddisplay;
+
+            // Set the grid title
+            var setgridtitle;
+
+            // Set the update count function
+            var setgridcount;
+
+            // Set the meal on the grid
+            var setgridmeal;
+
+            // Element creator
+            var dc;
+
+            // Keep track of the window's width
+            var windowwidth;
+
+            // Keep track of the window's height
+            var windowheight;
+
+            // Create a carousel
+            var createcarousel;
+
+            // Must init before using
+            function init(findp, makecarousel, cfg) {
+
+                // Set search function
+                findpicidx = findp;
+
+                // Set the create carousel function
+                createcarousel = makecarousel;
+
+                // Minimum mask width
+                minmaskfadewidth = cfg.minmaskfadewidth ? cfg.minmaskfadewidth : 1024;
+    
+                // Mask height
+                maskfadeheight = cfg.maskfadeheight ? cfg.maskfadeheight : 2000;
+    
+                // Opacity
+                maskfadeopacity = cfg.maskfadeopacity ? cfg.maskfadeopacity : 0.6;
+    
+                // Where to append the 
+                appendpop = cfg.appendpop ? cfg.appendpop : null;
+    
+                // Width of modal
+                modalwidth = cfg.modalwidth ? cfg.modalwidth : 800;
+    
+                // Hidden frame
+                hiddenframe = cfg.hiddenframe ? cfg.hiddenframe : $('#hiddenElements')[0];
+    
+                // Grid delete function
+                griddelete = cfg.griddelete ? cfg.griddelete : null;
+    
+                // Set the display picture
+                setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
+    
+                // Set the grid title
+                setgridtitle = cfg.setgridtitle ? cfg.setgridtitle : null;
+    
+                // Set the update count function
+                setgridcount = cfg.setgridcount ? cfg.setgridcount : null;
+    
+                // Set the meal on the grid
+                setgridmeal = cfg.setgridmeal ? cfg.setgridmeal : null;
+    
+                // Element creator
+                dc = cfg.createelm ? cfg.createelm : function(a) {
+                    return document.createElement(a);
+                }
+    
+                // Keep track of the window's width
+                windowwidth = $(window).width();
+    
+                // Keep track of the window's height
+                windowheight = $(window).height();
+
+                // Create the background for this
+                maskfade = $(dc('div'))
+                    .attr('id', 'maskfade')
+                    .attr('class', 'maskclass')
+                    .css({'display':'none'})
+                    .appendTo('body');
+    
+                // Click handler for background
+                maskfade.click(function() {
+    
+                    destroymodal();
+    
+                });
+            }
 
             // Update the rating
             function updateRatingAjax(meal, rating) {
@@ -511,13 +557,6 @@ TODO:
                     }
                 });
             }
-
-            // Function to set the first gridobj
-            // function setfirstgridobjcallback(callback) {
-
-            //    setfirstgridobj = callback;
-
-            //}
 
             // Set the griddelete function
             function setgriddeletecallback(callback) {
@@ -838,7 +877,6 @@ TODO:
                                 if(setgriddisplay) {
                                     setgriddisplay(meal, pinfo0);
                                 }
-                                //pictureGrid.setdisplaypicture(meal, pinfo0);
                             }
     
                             // Update grid picture count
@@ -950,7 +988,7 @@ TODO:
                     .attr('class', 'mealCarouselContainer');
     
                 // Create a carousel
-                elm = createPictureCarousel(username, 'pics', 
+                elm = createcarousel(username, 'pics', 
                         meal.picInfo, findpicidx, meal.keytimestamp);
     
                 // Append it to the div
@@ -1938,6 +1976,7 @@ TODO:
             }
 
             return {
+                init                        : init,
                 show                        : show,
                 setgridobj                  : setgridobj,
                 getgridobj                  : getgridobj,
@@ -1949,115 +1988,103 @@ TODO:
                 setgridmealcallback         : setgridmealcallback,
             };
 
+        }(jQuery));  
 
-        }(  
-            findpicidx.search, 
-            { 
-                hiddenframe         : $('#hiddenElements')[0]
-            }
-        ));
-
+        // Initialize showattributes object
+        showattributes.init(
+                findpicidx.search, 
+                picturecarousel.create,
+                { 
+                    hiddenframe     : $('#hiddenElements')[0]
+                }
+        );
 
         // The picture grid
-        var pictureGrid = (function (indiv, uname, pvpg, nxpg, cfg) {
+        var picturegrid = (function ($) {
 
             // Previous page
-            var gridprevpage = pvpg;
+            var gridprevpage;
 
             // Next page
-            var gridnextpage = nxpg;
+            var gridnextpage;
 
             // Where this will appear on the page
-            var parentdiv = indiv;
+            var parentdiv;
 
             // Name of the user
-            var username = uname;
+            var username;
 
             // What's the left margin
-            var marginleft = cfg.marginleft ? cfg.marginleft : 25;
+            var marginleft;
 
             // What's the right margin
-            var marginright = cfg.marginright ? cfg.marginright : 25;
+            var marginright;
 
             // What's the top margin
-            var margintop = cfg.margintop ? cfg.margintop : 10;
+            var margintop;
 
             // What's the bottom margin
-            var marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+            var marginbottom;
 
             // What's the width of a picture
-            var picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
+            var picturewidth;
 
             // What's the heigth of a picture
-            var pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+            var pictureheight;
 
             // How many pictures per row
-            var mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
+            var mealsperrow;
 
             // How many rows per page
-            var rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
+            var rowsperpage;
 
             // Derived: how many meals per grid
-            var mealspergrid = mealsperrow * rowsperpage;
+            var mealspergrid;
 
             // Derived: how many pixels wide?
-            var gridwidth = (picturewidth + marginleft + marginright) * 
-                mealsperrow;
+            var gridwidth;
 
             // Allow 
-            var nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
+            var nxpvcallback;
 
             // Easing function
-            var grideasing = cfg.grideasing ? cfg.grideasing : 'grideasingfunc';
+            var grideasing;
 
             // Speed to change pages
-            var gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
+            var gridspeed;
 
             // Viewport width leaves a little breathing room at the edges
-            var viewportwidth = gridwidth + marginleft + marginright;
+            var viewportwidth;
 
             // Some fudge for stripe text
-            var stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
+            var stripefudge;
 
             // Set the anchor click function
-            var anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
+            var anchorclickfn;
 
             // New meal anchor
-            var newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
+            var newmealanchor;
 
             // The stripe height
-            var stripeheight = pictureheight + margintop + marginbottom + 
-                stripefudge;
+            var stripeheight;
 
             // Calculate the container grid height
-            var containerheight = rowsperpage * stripeheight;
-
-            // Set the easing function in jQuery
-            if(!jQuery.easing[grideasing]) {
-                jQuery.easing[grideasing] = function (x, t, b, c, d) {
-                    return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-                }
-            }
-
-            // Where it's located
-            // var pagelocation = cfg.pagelocation ? cfg.pagelocation : null;
-
-            // Linear find picindex 
-            function findpicidxlinear(pinfo, timestamp) {
-
-                // XXX abort();
-                for(var ii = 0 ; ii < pinfo.length ; ii++) {
-                    if(pinfo[ii].timestamp == timestamp)
-                        return ii;
-                }
-                return -1;
-            }
-
-            // How to locate a picindex
-            var findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
+            var containerheight;
 
             // Keep track of what's currently displayed
             var currentgrid;
+
+            // How to locate a picindex
+            var findpicidx;
+
+            // Viewport for grid
+            var gridviewport;
+
+            // Container for grid
+            var gridcontainer;
+
+            // Maintain the height of viewport
+            var viewportheight;
 
             // Create element wrapper
             var dc = function(a)
@@ -2065,35 +2092,134 @@ TODO:
                 return document.createElement(a);
             }
 
-            // Height will change as pictures are added
-            var gridviewport = $(dc('div'))
-                .attr('id', 'gridviewport')
-                .attr('class', 'gridviewport')
-                .css('position', 'relative')
-                .css('top', '0px')
-                .css('float', 'left')
-                .css('height', '100%')
-                .css('width', viewportwidth + 'px');
+            // Must be called before anything else
+            function init(indiv, uname, pvpg, nxpg, cfg) {
 
-            // Viewport container will hide picture edges
-            var gridcontainer = $(dc('div'))
-                .attr('id', 'gridcontainer')
-                .attr('class', 'gridcontainer')
-                .css('height', containerheight + 'px')
-                .css('width', gridwidth + 'px')
-                .css('overflow', 'hidden')
-                .css('position', 'relative');
+                // Where this will appear on the page
+                parentdiv = indiv;
 
-            // Set the viewport height dynamically
-            var viewportheight = 0;
+                // User's name
+                username = uname;
 
-            // Append the viewport to the container
-            gridviewport.appendTo(gridcontainer);
+                // Previous-page 
+                gridprevpage = pvpg;
 
-            // Append this to the parentdiv if there is one
-            if(parentdiv) {
-                gridcontainer.appendTo(parentdiv);
+                // Next-page
+                gridnextpage = nxpg;
+
+                // Configurables
+                marginleft = cfg.marginleft ? cfg.marginleft : 25;
+    
+                // What's the right margin
+                marginright = cfg.marginright ? cfg.marginright : 25;
+    
+                // What's the top margin
+                margintop = cfg.margintop ? cfg.margintop : 10;
+    
+                // What's the bottom margin
+                marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+    
+                // What's the width of a picture
+                picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
+    
+                // What's the heigth of a picture
+                pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+    
+                // How many pictures per row
+                mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
+    
+                // How many rows per page
+                rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
+    
+                // Derived: how many meals per grid
+                mealspergrid = mealsperrow * rowsperpage;
+    
+                // Derived: how many pixels wide?
+                gridwidth = (picturewidth + marginleft + marginright) * 
+                    mealsperrow;
+    
+                // Allow 
+                nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
+    
+                // Easing function
+                grideasing = cfg.grideasing ? cfg.grideasing : 'grideasingfunc';
+    
+                // Speed to change pages
+                gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
+    
+                // Viewport width leaves a little breathing room at the edges
+                viewportwidth = gridwidth + marginleft + marginright;
+    
+                // Some fudge for stripe text
+                stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
+    
+                // Set the anchor click function
+                anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
+    
+                // New meal anchor
+                newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
+    
+                // The stripe height
+                stripeheight = pictureheight + margintop + marginbottom + 
+                    stripefudge;
+    
+                // Calculate the container grid height
+                containerheight = rowsperpage * stripeheight;
+
+                // Set the easing function in jQuery
+                if(!jQuery.easing[grideasing]) {
+                    jQuery.easing[grideasing] = function (x, t, b, c, d) {
+                        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+                    }
+                }
+    
+                // Linear find picindex 
+                function findpicidxlinear(pinfo, timestamp) {
+    
+                    // XXX abort();
+                    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+                        if(pinfo[ii].timestamp == timestamp)
+                            return ii;
+                    }
+                    return -1;
+                }
+    
+                // Set findpicidx
+                findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
+        
+                // Height will change as pictures are added
+                gridviewport = $(dc('div'))
+                    .attr('id', 'gridviewport')
+                    .attr('class', 'gridviewport')
+                    .css('position', 'relative')
+                    .css('top', '0px')
+                    .css('float', 'left')
+                    .css('height', '100%')
+                    .css('width', viewportwidth + 'px');
+    
+                // Viewport container will hide picture edges
+                gridcontainer = $(dc('div'))
+                    .attr('id', 'gridcontainer')
+                    .attr('class', 'gridcontainer')
+                    .css('height', containerheight + 'px')
+                    .css('width', gridwidth + 'px')
+                    .css('overflow', 'hidden')
+                    .css('position', 'relative');
+    
+                // Set the viewport height dynamically
+                viewportheight = 0;
+    
+                // Append the viewport to the container
+                gridviewport.appendTo(gridcontainer);
+    
+                // Append this to the parentdiv if there is one
+                if(parentdiv) {
+                    gridcontainer.appendTo(parentdiv);
+                }
             }
+
+
+
 
             // Create a new meal via an ajax request & then show it's attributes
             function newmealpopup() {
@@ -2130,15 +2256,6 @@ TODO:
                     $(newmealanchor).click(function() {
                         newmealpopup();
                     });
-                }
-
-                // Allow user to set the nextprev callback
-                // function setnextprevcallback(cb) {
-                //    nxpvcallback = cb;
-                //}
-
-                // Set this meals gridobj pointer
-                function normalizegridobj(meal) {
                 }
 
                 // Updates title displayed on the grid
@@ -2316,13 +2433,6 @@ TODO:
                 return (pictureheight + margintop) - thumbheight;
 
             }
-
-            // Sets argument's gridobj attribute to the first gridobject
-            // function setfirstgridobj(mealinfo) {
-
-            //     mealinfo.gridobj = currentgrid.firstg.editgrid;
-
-            //}
 
             // Updates the grid display picture to this timestamp
             function updatedisplaypicture(meal, picinfo) {
@@ -2933,7 +3043,7 @@ TODO:
                 var widthpx = gridwidth + 'px';
 
                 var griddiv = $(dc('div'))
-                    .attr('class', 'pictureGrid')
+                    .attr('class', 'picturegrid')
                     .css('margin-left', 'auto')
                     .css('margin-right', 'auto')
                     .css('position', 'absolute')
@@ -3080,17 +3190,19 @@ TODO:
 
             // Exposed functions
             return {
+                init                        : init,
                 displaygrid                 : displaygrid,
                 updatedisplaypicture        : updatedisplaypicture,
-                // nextprevpagelinks           : nextprevpagelinks,
-                // setnextprevcallback         : setnextprevcallback,
                 deletemealfromgrid          : deletemealfromgrid,
                 updatepicturecount          : updatepicturecount,
                 updatetitle                 : updatetitle,
                 updatemeal                  : updatemeal
             };
-        }(
-                document.getElementById('pictureGridDiv'), 
+        }(jQuery));
+
+        // Initialize grid
+        picturegrid.init(
+                document.getElementById('picturegridDiv'), 
                 "<%= user.username %>",
                 new mealpage(<%= prevts != undefined ? prevts : 0 %>), 
                 new mealpage(<%= nextts != undefined ? nextts : 0 %>),
@@ -3102,29 +3214,24 @@ TODO:
                     newmealanchor   : document.getElementById('newmealpopup'),
                     findpicidx      : findpicidx.search
                 }
-        ));
+        );
 
-        // A cleverer way to do this is to have a single 'grid' registration
-        // in the show attributes which then uses the grid object to call these
-        // directly.
-        //
-        // Set gridobjs callback
-        // showattributes.setfirstgridobjcallback(pictureGrid.setfirstgridobj);
-
+        // Another way to do this is to have a showattributes function that 
+        // takes a grid, and to have it use that grid directly.
         // Set attributes callback for deleting a picture
-        showattributes.setgriddeletecallback(pictureGrid.deletemealfromgrid);
+        showattributes.setgriddeletecallback(picturegrid.deletemealfromgrid);
 
         // Set grid-display callback in modal
-        showattributes.setgriddisplaycallback(pictureGrid.updatedisplaypicture);
+        showattributes.setgriddisplaycallback(picturegrid.updatedisplaypicture);
 
         // Set grid-update picture count
-        showattributes.setgridcountcallback(pictureGrid.updatepicturecount);
+        showattributes.setgridcountcallback(picturegrid.updatepicturecount);
 
         // Set grid-update title callback
-        showattributes.setgridtitlecallback(pictureGrid.updatetitle);
+        showattributes.setgridtitlecallback(picturegrid.updatetitle);
 
         // Set grid update meal callback
-        showattributes.setgridmealcallback(pictureGrid.updatemeal);
+        showattributes.setgridmealcallback(picturegrid.updatemeal);
 
         // Truncated meal class
         function truncMeal(username, timestamp, keytimestamp, title, meal, mealDate, picInfo) {
@@ -3153,7 +3260,10 @@ TODO:
             return this;
         }
 
-        // Fill the initial mealset
+        // Put embedded js which expands to more than one line at the end so
+        // that browser line-numbers match up with whats in the editor
+
+        // Initial mealset
         <% 
         if( mealinfo && mealinfo.length > 0 ) { 
             for(var i = 0 ; i < mealinfo.length ; i++) {
@@ -3194,6 +3304,9 @@ TODO:
             }
         }
         %>
+
+        // Display the initial grid
+        picturegrid.displaygrid(minfo, null, null, 'forwards');
 
         </script>
     </body>
