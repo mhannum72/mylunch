@@ -5,10 +5,14 @@ mylunch
 todo
 ====
 
-* Quick job: make the modal as modular as the grid
+* Store the height and the width of the 'window' in some variables.  Create a
+  'resize' handler that will adjust the layout a bit if the window width
+  changes.  You'll have to create a default 'minwidth'.  The only height change
+  would be if the new height exceeds your max-height, you should make the 
+  fade-mask larger.
 
 * Maybe while the modal is up, have the scrolling in the back be at half
-  pace.
+  pace?
 
 * The 'prevpage' variable is wrong in the deletemeals code, but correct
   if you actually click on the link.
@@ -24,12 +28,6 @@ todo
 * Tweak the delete handler: what would really be cool is if when a picture is
   deleted, all of the other pictures shift over.  This should be doable.  Will
   write more in code.
-
-* Store the height and the width of the 'window' in some variables.  Create a
-  'resize' handler that will adjust the layout a bit if the window width
-  changes.  You'll have to create a default 'minwidth'.  The only height change
-  would be if the new height exceeds your max-height, you should make the 
-  fade-mask larger.
 
 * Set pictitle, meal, and other callback functions in the grid.  I am busy
   cleaning my room.

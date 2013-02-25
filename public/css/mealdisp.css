@@ -1,5 +1,5 @@
 body {
-  background: #fff;
+  background: #779;
   color: #555;
   font-size: 18px;
   height: auto;
@@ -85,6 +85,12 @@ textarea {
     rotation: 10deg;
 }
 
+.editgridinternal {
+  background-color: #eee;
+  background-repeat: repeat-y;
+  margin-bottom: 20px;
+}
+
 .mealAttributesPopup {
     /*
     width:440px;
@@ -114,6 +120,14 @@ textarea {
 }
 
 .gridimage {
+    /*
+    box-shadow:3px 3px 5px #444;
+    -webkit-box-shadow:3px 3px 5px #444;
+    -moz-box-shadow:3px 3px 5px #444;
+    */
+}
+
+.gridoutercontainer {
     box-shadow:3px 3px 5px #444;
     -webkit-box-shadow:3px 3px 5px #444;
     -moz-box-shadow:3px 3px 5px #444;
@@ -533,6 +547,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', end
 .pictureGridDiv {
     float: center;
     position: relative;
+}
+
+.gridoutercontainer {
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    border: 1px solid;
+    background-color: #fff;
+/*    box-shadow */
+    /* background-image:url(''); */
+    /* background: url(/images/tablecloth.jpeg) repeat top left; */ 
 }
 
 a.dp-choose-date {

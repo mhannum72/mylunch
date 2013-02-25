@@ -39,6 +39,17 @@ TODO:
         // Global containing the user's name
         var username = "<%= user.username %>";
 
+        // Create element wrapper
+        var dc = function(a)
+        {
+            return document.createElement(a);
+        };
+
+        // Enable or disable debug trace
+        debuglog = function(text) {
+            console.log(text);
+        }
+
         // Functionize mealinfo
         var MEALINFO = (function() {
 
@@ -179,12 +190,14 @@ TODO:
                 binarysearch    : binarysearch,
                 search          : optimalsearch
             };
-        }( ));
+        }());
 
         // Simple mealpage class
         function mealpage(timestamp) {
+
             this.timestamp = timestamp;
             return this;
+
         }
 
         // Create string format for dates
@@ -198,18 +211,17 @@ TODO:
         $(document).ready(function() {
 
             $.ajaxSetup ({ cache: false });
-    
-            // Create element wrapper
-            var dc = function(a)
-            {
-                return document.createElement(a);
-            };
-    
-            // Enable or disable debug trace
-            debuglog = function(text) {
-                console.log(text);
+
+            var nextpage = null;
+            var mcount = picturegrid.mealcount();
+
+            if(minfo.length > mcount) {
+
+                nextpage = new mealpage(minfo[mcount].timestamp);
+
             }
     
+            picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
 
 /* Not yet */
 /*
@@ -237,9 +249,6 @@ TODO:
             );
         }
 */
-    
-            // Display the initial grid
-            // picturegrid.displaygrid(minfo, null, null, 'forwards');
         });
 
 
@@ -267,8 +276,12 @@ TODO:
             </div>
             <div class="clear"></div>
             <br><br>
+
             </div> <!-- container_12 -->
 
+            <center>
+
+                <!-- <div class='picturegridbg' id='picturegridbg'> -->
             <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'>
 
                 <div class='prevdiv' id='prevdiv' name='prevdiv'>
@@ -277,8 +290,10 @@ TODO:
                 <div class='nextdiv' id='nextdiv' name='nextdiv'>
                 </div>
     
-            </div>
+            <!-- </div> <!-- picturegridDiv -->
+            </div> <!-- picturegridbg -->
 
+            </center>
 
         </div> <!-- boxes -->
         <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
@@ -314,7 +329,10 @@ TODO:
         }
 
         // Show attributes 
-        showattributes = (function($) {
+        showattributes = (function($jq) {
+
+            // Cache jquery
+            var $ = $jq;
 
             // Keep track of the maskfade width
             var maskfadewidth;
@@ -652,7 +670,7 @@ TODO:
 
             }
 
-            // Set dimentions & display modal
+            // Set dimensions & display modal
             function positionmodal() {
 
                 // Half the width of the modal
@@ -822,7 +840,7 @@ TODO:
     
             }
 
-            // function whch creates the delete anchor
+            // function which creates the delete anchor
             function createdeleteanchor(meal) {
 
                 var deleteAnchor = $(dc('a'))
@@ -1933,16 +1951,6 @@ TODO:
                 if(griddiv) {
                     gridobj = griddiv;
                 }
-                // Otherwise hit jquery hash
-                /*
-                else {
-
-                    // Might be inevitable
-                    debuglog('show function using jquery hash-lookup for gridTimestamp' + timestamp);
-                    var gts = '#gridTimestamp' + timestamp;
-                    gridobj = $(gts)[0];
-                }
-                */
 
                 $.getJSON('/ajaxgetmealinfo',
                     {
@@ -2000,7 +2008,10 @@ TODO:
         );
 
         // The picture grid
-        var picturegrid = (function ($) {
+        var picturegrid = (function ($jq) {
+
+            // Cache jquery
+            var $ = $jq;
 
             // Previous page
             var gridprevpage;
@@ -2025,6 +2036,18 @@ TODO:
 
             // What's the bottom margin
             var marginbottom;
+
+            // Container margin top
+            var containermargintop;
+
+            // Container margin bottom
+            var containermarginbottom;
+
+            // Container margin right
+            var containermarginright;
+
+            // Container margin left
+            var containermarginleft;
 
             // What's the width of a picture
             var picturewidth;
@@ -2071,6 +2094,15 @@ TODO:
             // Calculate the container grid height
             var containerheight;
 
+            // Calculate the outer container width
+            var containerwidth;
+
+            // Calculate the outer container grid height
+            var outercontainerheight;
+
+            // Calculate the outer container grid width
+            var outercontainerwidth;
+
             // Keep track of what's currently displayed
             var currentgrid;
 
@@ -2083,8 +2115,23 @@ TODO:
             // Container for grid
             var gridcontainer;
 
+            // Outer-container for grid
+            var gridoutercontainer;
+
             // Maintain the height of viewport
             var viewportheight;
+
+            // Set to true if we're displaying
+            var displaying;
+
+            // Set to true to display picture count trace
+            var picturecounttrace;
+
+            // Set to true to display picture title
+            var titletrace;
+
+            // Set to true to animate grid pages
+            var animatenextprev;
 
             // Create element wrapper
             var dc = function(a)
@@ -2108,21 +2155,37 @@ TODO:
                 gridnextpage = nxpg;
 
                 // Configurables
-                marginleft = cfg.marginleft ? cfg.marginleft : 25;
+                marginleft = cfg.marginleft ? cfg.marginleft : 30;
     
                 // What's the right margin
-                marginright = cfg.marginright ? cfg.marginright : 25;
+                marginright = cfg.marginright ? cfg.marginright : 30;
     
                 // What's the top margin
-                margintop = cfg.margintop ? cfg.margintop : 10;
-    
+                margintop = cfg.margintop ? cfg.margintop : 30;
+
                 // What's the bottom margin
                 marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+
+                // What's the container's top margin
+                containermargintop = cfg.containermargintop ? 
+                    cfg.containermargintop : 10;
     
+                // What's the container's bottom margin
+                containermarginbottom = cfg.containermarginbottom ? 
+                    cfg.containermarginbottom : 10;
+
+                // What's the container's right margin
+                containermarginright = cfg.containermarginright ?
+                    cfg.containermarginright : 10;
+
+                // What's the container's left margin
+                containermarginleft = cfg.containermarginleft ? 
+                    cfg.containermarginleft : 10;
+
                 // What's the width of a picture
                 picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
     
-                // What's the heigth of a picture
+                // What's the max heigth of a picture
                 pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
     
                 // How many pictures per row
@@ -2166,9 +2229,31 @@ TODO:
                 // Calculate the container grid height
                 containerheight = rowsperpage * stripeheight;
 
+                // Outer container height
+                outercontainerheight = containerheight + containermargintop +
+                    containermarginbottom;
+
+                // Outer container width
+                outercontainerwidth = viewportwidth + containermarginleft +
+                    containermarginright;
+
+                // We are not running display code
+                displaying = false;
+
+                // Display 'picture count' underneath the grid
+                picturecounttrace = cfg.picturecounttrace ? 
+                    cfg.picturecounttrace : false;
+
+                // Display a picture's title underneath the grid
+                titletrace = cfg.titletrace ? cfg.titletrace : false;
+
+                // Animate next and prev page
+                animatenextprev = cfg.animatenextprev ? cfg.animatenextprev : 
+                    false;
+
                 // Set the easing function in jQuery
-                if(!jQuery.easing[grideasing]) {
-                    jQuery.easing[grideasing] = function (x, t, b, c, d) {
+                if(!$.easing[grideasing]) {
+                    $.easing[grideasing] = function (x, t, b, c, d) {
                         return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
                     }
                 }
@@ -2191,13 +2276,13 @@ TODO:
                 gridviewport = $(dc('div'))
                     .attr('id', 'gridviewport')
                     .attr('class', 'gridviewport')
-                    .css('position', 'relative')
+                    //.css('position', 'relative')
                     .css('top', '0px')
                     .css('float', 'left')
-                    .css('height', '100%')
+                    .css('height', containerheight + 'px')
                     .css('width', viewportwidth + 'px');
     
-                // Viewport container will hide picture edges
+                // Container holds viewport which will hide picture edges
                 gridcontainer = $(dc('div'))
                     .attr('id', 'gridcontainer')
                     .attr('class', 'gridcontainer')
@@ -2206,20 +2291,34 @@ TODO:
                     .css('overflow', 'hidden')
                     .css('position', 'relative');
     
+                // Outer container is background
+                gridoutercontainer = $(dc('div'))
+                    .attr('id', 'gridoutercontainer')
+                    .attr('class', 'gridoutercontainer')
+                    .css('height', outercontainerheight + 'px')
+                    .css('width', outercontainerwidth + 'px')
+                    .css('position', 'relative');
+
                 // Set the viewport height dynamically
                 viewportheight = 0;
     
                 // Append the viewport to the container
                 gridviewport.appendTo(gridcontainer);
+
+                gridcontainer.appendTo(gridoutercontainer);
     
                 // Append this to the parentdiv if there is one
                 if(parentdiv) {
-                    gridcontainer.appendTo(parentdiv);
+                    gridoutercontainer.appendTo(parentdiv);
                 }
             }
 
+            // Return the number of meals per grid
+            function mealcount() {
 
+                return mealspergrid;
 
+            }
 
             // Create a new meal via an ajax request & then show it's attributes
             function newmealpopup() {
@@ -2261,14 +2360,18 @@ TODO:
                 // Updates title displayed on the grid
                 function updatetitle(meal) {
 
-                    // Grab the gridobj
-                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+                    if(titletrace) {
 
-                    // Div object
-                    var div = $(meal.gridobj).find('div > center > .titleText'); 
+                        // Grab the gridobj
+                        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+    
+                        // Div object
+                        var div = $(meal.gridobj).find('div > center > .titleText'); 
+    
+                        // Set the html
+                        div.html(meal.title);
 
-                    // Set the html
-                    div.html(meal.title);
+                    }
                 }
 
                 // Updates hover meal text displayed on the grid
@@ -2294,18 +2397,22 @@ TODO:
                 // Updates picture count displayed on the grid
                 function updatepicturecount(meal) {
 
-                    // Grab the gridobj
-                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+                    if(picturecounttrace) {
 
-                    // Grid object
-                    var div = $(meal.gridobj).find('.picturecount'); 
-
-                    // Update string
-                    var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
-                        meal.picInfo.length + " pictures";
-
-                    // Set the html
-                    div.html(picturecountstring);
+                        // Grab the gridobj
+                        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+    
+                        // Grid object
+                        var div = $(meal.gridobj).find('.picturecount'); 
+    
+                        // Update string
+                        var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
+                            meal.picInfo.length + " pictures";
+    
+                        // Set the html
+                        div.html(picturecountstring);
+    
+                    }
                 }
 
 
@@ -2328,7 +2435,7 @@ TODO:
                             var nextpage = new mealpage(parseInt(response.nextts,10));
                             var prevpage = new mealpage(parseInt(response.prevts,10));
 
-                            displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
                         }
                     });
                     return 0;
@@ -2357,7 +2464,7 @@ TODO:
                                 var prevpage = new mealpage(
                                     parseInt(response.prevts,10)
                                 );
-                                displaygrid(response.mealinfo, nextpage, prevpage, 'forwards', callback);
+                                displaygrid(response.mealinfo, prevpage, nextpage, 'forwards', callback);
                             }
                         }
                     );
@@ -2429,9 +2536,27 @@ TODO:
             // Calculates the margintop given a picture height
             function calculatemargintop(thumbheight) {
 
-                // Container height and margin minus the thumbheight
-                return (pictureheight + margintop) - thumbheight;
+                // Container height and margin minus half thumbheight
+                //return (pictureheight + margintop) - (thumbheight/2);
+                //return pictureheight - (thumbheight/2);
+                // return (thumbheight/2);
+//                return 0;
 
+//                return margintop + (pictureheight/2) - (thumbheight/2);
+                return margintop + (pictureheight-thumbheight);
+            }
+
+            // Calculates the marginbottom given a picture height
+            function calculatemarginbottom(thumbheight) {
+
+                // Container height and margin minus half thumbheight
+                //return (pictureheight + margintop) - (thumbheight/2);
+                // return pictureheight - (thumbheight/2);
+//                return 0;
+
+                //return (pictureheight/2) - (thumbheight/2);
+                //return (pictureheight-thumbheight)/2;
+                return 0;
             }
 
             // Updates the grid display picture to this timestamp
@@ -2480,6 +2605,12 @@ TODO:
                 // Set the top margin
                 griddiv.css('margin-top', margintoppx);
 
+                // Calculate the bottom margin
+                var marginbottompx = calculatemarginbottom(thumbheight) + 'px';
+
+                // Set the bottom margin
+                griddiv.css('margin-bottom', marginbottompx);
+
                 // Update keytimestamp in meal object
                 if(picinfo) {
                     meal.keytimestamp = picinfo.timestamp;
@@ -2493,7 +2624,8 @@ TODO:
             function pdivint(meal, editgrid) {
     
                 // I can manipulate this directly in the delete code.
-                var editInternal = $(dc('div'));
+                var editInternal = $(dc('div'))
+                    .attr('class', 'editgridinternal');
                     //.css('float', 'bottom');
     
                 // Center tag
@@ -2503,7 +2635,9 @@ TODO:
                 center.appendTo(editInternal);
     
                 // Image div
-                var editImageDiv = $(dc('div'));
+                var editImageDiv = $(dc('div'))
+                    .css('background', 'white');
+                    // .css('border', '1px solid #666');
     
                 // Append to center
                 editImageDiv.appendTo(center);
@@ -2566,47 +2700,56 @@ TODO:
                 else {
                     image.appendTo(editImageDiv);
                 }
+
+                if(titletrace) {
     
-                // Div containing the meal title
-                var titletext = $(dc('div'))
-                    .attr('class', 'titleText');
-    
-                // Got meal title from backend
-                if(meal.title != undefined && meal.title.length > 0) {
-                    titletext.html(meal.title);
+                    // Div containing the meal title
+                    var titletext = $(dc('div'))
+                        .attr('class', 'titleText');
+        
+                    // Got meal title from backend
+                    if(meal.title != undefined && meal.title.length > 0) {
+                        titletext.html(meal.title);
+                    }
+                    // Default to 'untitled'
+                    else {
+                        titletext.html('untitled');
+                    }
+        
+                    // Append to center
+                    titletext.appendTo(center);
+
                 }
-                // Default to 'untitled'
-                else {
-                    titletext.html('untitled');
+
+                // Append number of pictures if this is enabled
+                if (picturecounttrace) {
+    
+                    // String containing picture count text
+                    var picturecountstring;
+        
+                    // 0 is plural in english
+                    if(!meal.picInfo || meal.picInfo.length == 0) {
+                        picturecountstring = "0 pictures";
+                    }
+                    // 1 is singular
+                    else if(meal.picInfo.length == 1) {
+                        picturecountstring = "1 picture";
+                    }
+                    // Everything else is plural
+                    else {
+                        picturecountstring = meal.picInfo.length + " pictures";
+                    }
+        
+                    // Create a picture count div
+                    var picturecount = $(dc('div')) 
+                        .attr('class', 'picturecount')
+                        .html(picturecountstring);
+        
+                    // Append to internal pic div
+                    picturecount.appendTo(center);
+        
                 }
-    
-                // Append to center
-                titletext.appendTo(center);
-    
-                // String containing picture count text
-                var picturecountstring;
-    
-                // 0 is plural in english
-                if(!meal.picInfo || meal.picInfo.length == 0) {
-                    picturecountstring = "0 pictures";
-                }
-                // 1 is singular
-                else if(meal.picInfo.length == 1) {
-                    picturecountstring = "1 picture";
-                }
-                // Everything else is plural
-                else {
-                    picturecountstring = meal.picInfo.length + " pictures";
-                }
-    
-                // Create a picture count div
-                var picturecount = $(dc('div')) 
-                    .attr('class', 'picturecount')
-                    .html(picturecountstring);
-    
-                // Append to internal pic div
-                picturecount.appendTo(center);
-    
+
                 // Return the newly created object 
                 return editInternal;
             }
@@ -2652,6 +2795,8 @@ TODO:
                 var picheight = (pictureheight + margintop + marginbottom)
                     + 'px';
                 
+                var picwidth = picturewidth + 'px';
+
                 // Create the editgrid div
                 var editgrid = $(dc('div'))
                     .css('display', 'inline')
@@ -2660,8 +2805,8 @@ TODO:
                     .css('margin-right', marginrightpx)
                     .css('margin-top', margintoppx)
                     .css('margin-bottom', marginbottompx)
-                    .css('width', picturewidth)
-                    .css('height', picheight);
+                    .css('width', picwidth);
+                    //.css('height', picheight);
                 
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
@@ -2748,7 +2893,7 @@ TODO:
                     hdiv = $(dc('div'))
                         .css('display', 'inline')
                         .css('float', 'left')
-                        .css('vertical-align', 'bottom')
+                        .css('vertical-align', 'top')
                         .css('height', heightpx);
 
                     if(griddiv.laststripe) {
@@ -2938,7 +3083,7 @@ TODO:
                         // Redraw the grid
                         if(redraw) {
 
-                            displaygrid(response.mealinfo, nextpage, prevpage, 'backwards');
+                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
 
                         }
 
@@ -3063,7 +3208,22 @@ TODO:
             }
 
             // Universal display function
-            function displaygrid(mealinfo, nextpage, prevpage, direction, callback) {
+            function displaygrid(mealinfo, prevpage, nextpage, direction, callback) {
+
+                // Short circuit if were already displaying
+                if (displaying) {
+                    debuglog("displaygrid is already displaying");
+                    return false;
+                }
+
+                // Scrub arguments
+                if (mealinfo == undefined || mealinfo.length <= 0) {
+                    debuglog("empty mealinfo");
+                    return false;
+                }
+
+                // Toggle displaying
+                displaying = true;
 
                 // Normalize nextpage
                 nextpage = (null != nextpage) ? nextpage : gridnextpage;
@@ -3079,90 +3239,93 @@ TODO:
                 // Keep count of pictures which have loaded
                 var loaded = 0;
 
-                // Test mealinfo for validity
-                if(mealinfo != undefined && mealinfo.length > 0) {
+                // Determine last picture
+                var endpic = (mealinfo.length < mealspergrid) ? 
+                    mealinfo.length : mealspergrid;
 
-                    // Determine last picture
-                    var endpic = (mealinfo.length < mealspergrid) ? 
-                        mealinfo.length : mealspergrid;
+                // Make a new picture grid
+                var newgrid = makegrid();
 
-                    // Make a new picture grid
-                    var newgrid = makegrid();
+                // The callback is fired once per meal in the array
+                fillfromarray(newgrid, mealinfo, function(showImages) {
 
-                    // The callback is fired once per meal in the array
-                    fillfromarray(newgrid, mealinfo, function(showImages) {
+                    if(++loaded == endpic) {
 
-                        if(++loaded == endpic) {
+                        // jQuery reference to currentgrid
+                        var $cg = currentgrid ? currentgrid : null;
 
-                            // jQuery reference to currentgrid
-                            var $cg = currentgrid ? currentgrid : null;
+                        // jQuery reference to newgrid
+                        var $ng = $(newgrid);
 
-                            // jQuery reference to newgrid
-                            var $ng = $(newgrid);
+                        // Direction token
+                        var direction;
 
-                            // Direction token
-                            var direction;
+                        // Last wins counter
+                        var count = 0;
 
-                            // Last wins counter
-                            var count = 0;
+                        // How we know we're finished
+                        var target = $cg ? 2 : 1;
 
-                            // How we know we're finished
-                            var target = $cg ? 2 : 1;
-
+                        // Animate if configured for it
+                        if(animatenextprev) {
+    
                             // Set the left offscreen
                             $ng.css('left', '-10000px');
-
+    
                             // Attach to viewport
                             $ng.appendTo(gridviewport);
 
                             // Position and direction token
                             if(forward) {
-
+    
                                 // Set direction
                                 direction = '-=';
-
+    
                                 // Put just out of view in front
                                 $ng.css('left', gridwidth + 'px');
-
+    
                             }
                             else {
-
+    
                                 // Set direction
                                 direction = '+=';
-
+    
                                 // Put just out of view in back
                                 $ng.css('left', -gridwidth + 'px');
-
+    
                             }
-
+    
                             // Completion function
                             function alldone() {
-
+    
                                 // Last to run wins
                                 if(++count == target) {
-
+    
                                     // Remove this entirely 
                                     if($cg) $cg.remove();
-
+    
                                     // Set up my next and previous page links
                                     nextprevpagelinks(nextpage, prevpage);
-
+    
                                     // This is the new current
                                     currentgrid = newgrid;
-
+    
                                     // Invoke callback to link first picture
                                     if(callback) {
-
+    
                                         // Normalize
                                         var gobj = currentgrid.firstg ? 
                                             currentgrid.firstg.editgrid : null;
-
+    
                                         // Set gridobj
                                         callback(gobj);
                                     }
+    
+                                    // End display mode
+                                    displaying = false;
                                 }
                             }
-
+    
                             // Animate entering grid
                             $ng.stop().animate(
                                 { left : direction + gridwidth + 'px'},
@@ -3170,10 +3333,9 @@ TODO:
                                 grideasing,
                                 alldone
                             );
-
+    
                             // Annimate leaving grid
                             if(currentgrid) {
-
                                 $cg.stop().animate(
                                     { left : direction + gridwidth + 'px'},
                                     gridspeed,
@@ -3181,17 +3343,46 @@ TODO:
                                     alldone
                                 )
                             }
-                        } // ++loaded == endpic
-                    }); // fillfromarray
+                        }
+                        else {
 
-                    return newgrid;
-                }
+                            // Remove this entirely 
+                            if($cg) $cg.remove();
+
+                            // Attach to viewport
+                            $ng.appendTo(gridviewport);
+
+                            // Position nextgrid correctly
+                            $ng.css('left', '0px');
+
+                            // This is the new current
+                            currentgrid = newgrid;
+
+                            // Set up my next and previous page links
+                            nextprevpagelinks(nextpage, prevpage);
+
+                            if(callback) {
+
+                                // Normalize
+                                var gobj = currentgrid.firstg ? 
+                                    currentgrid.firstg.editgrid : null;
+
+                                // Set gridobj
+                                callback(gobj);
+                            }
+                            // End display mode
+                            displaying = false;
+
+                        } // animatenextprev
+                    } // ++loaded == endpic
+                }); // fillfromarray
             }
 
             // Exposed functions
             return {
                 init                        : init,
                 displaygrid                 : displaygrid,
+                mealcount                   : mealcount,
                 updatedisplaypicture        : updatedisplaypicture,
                 deletemealfromgrid          : deletemealfromgrid,
                 updatepicturecount          : updatepicturecount,
@@ -3207,12 +3398,16 @@ TODO:
                 new mealpage(<%= prevts != undefined ? prevts : 0 %>), 
                 new mealpage(<%= nextts != undefined ? nextts : 0 %>),
                 { 
-                    nextdiv         : document.getElementById('nextdiv'),
-                    prevdiv         : document.getElementById('prevdiv'),
-                    nxpvcallback    : nxpvcb,
-                    anchorclickfn   : showattributes.show,
-                    newmealanchor   : document.getElementById('newmealpopup'),
-                    findpicidx      : findpicidx.search
+                    nextdiv             : document.getElementById('nextdiv'),
+                    prevdiv             : document.getElementById('prevdiv'),
+                    nxpvcallback        : nxpvcb,
+                    anchorclickfn       : showattributes.show,
+                    newmealanchor       : document.getElementById('newmealpopup'),
+                    findpicidx          : findpicidx.search,
+                    titletrace          : false,
+                    picturecounttrace   : false,
+                    animatenextprev     : true,
+                    rowsperpage         : 2
                 }
         );
 
@@ -3270,7 +3465,7 @@ TODO:
                 var meal = mealinfo[i];
 
         %>
-            var pinfo<%= i %> = [];
+        var pinfo<%= i %> = [];
         <%
 
             if(meal.picInfo && meal.picInfo.length > 0) {
@@ -3278,13 +3473,13 @@ TODO:
                     var pic = meal.picInfo[j];
         %>
 
-            pinfo<%= i %> [ <%= j %> ] = new truncPicInfo(
-                    <%= pic.timestamp %>,
-                    <%= pic.mitimestamp %>,
-                    <%= pic.width %>,
-                    <%= pic.height %>,
-                    <%= pic.thumbwidth %>,
-                    <%= pic.thumbheight %>
+        pinfo<%= i %> [ <%= j %> ] = new truncPicInfo(
+                <%= pic.timestamp %>,
+                <%= pic.mitimestamp %>,
+                <%= pic.width %>,
+                <%= pic.height %>,
+                <%= pic.thumbwidth %>,
+                <%= pic.thumbheight %>
                 );
         <%
                 }
@@ -3306,7 +3501,7 @@ TODO:
         %>
 
         // Display the initial grid
-        picturegrid.displaygrid(minfo, null, null, 'forwards');
+        // picturegrid.displaygrid(minfo, null, null, 'forwards');
 
         </script>
     </body>
