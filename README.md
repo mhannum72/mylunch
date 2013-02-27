@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Maybe the picture should be centered on a grey background - it would look
+  the way that it will be displayed in the carousel.
+
 * Store the height and the width of the 'window' in some variables.  Create a
   'resize' handler that will adjust the layout a bit if the window width
   changes.  You'll have to create a default 'minwidth'.  The only height change

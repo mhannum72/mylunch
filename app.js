@@ -41,6 +41,9 @@ var maxMealHeight = 780;
 var maxThumbWidth = 300;
 var maxThumbHeight = 300;
 
+// Maximum meals on editpage
+var maxMealsPerPage = 25;
+
 // Maximum poll time waiting for deletes
 var maxDeletePollTime = 1 * msPerSecond;
 
@@ -3682,6 +3685,7 @@ app.get('/signout', function(req, res, next) {
 // * If there is an additional record, what is your nextpage.
 //
 
+// TODO: I should always send down the maximum number of meals
 var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     var ts;
     var prevpage = 0;
@@ -3710,13 +3714,15 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     */
     
     if(isprev == false) {
-        getMealInfoFromMongoRev(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        //getMealInfoFromMongoRev(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        getMealInfoFromMongoRev(req.session.user.username, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             // Add a hex-id to each of my mealinfos
             if(mealinfo.length == 0 && timestamp != -1) {
 
                 ts = Date.now();
 
-                getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+                // getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+                getMealInfoFromMongoRev(req.session.user.username,ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
                     res.render('editmeals.ejs', {
                         user: req.session.user,
                         mealinfo: mealinfo,
@@ -3740,7 +3746,8 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
         });
     }
     else { // prevpage is true
-        getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        // getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        getMealInfoFromMongoFwd(req.session.user.username, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             res.render('editmeals.ejs', {
                 user: req.session.user,
                 mealinfo: mealinfo,

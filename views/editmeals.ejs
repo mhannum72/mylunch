@@ -30,232 +30,235 @@ TODO:
     <script src="/carousel.js"></script>
     <script type="text/javascript">
 
-        // Global minfo array holds the initial mealset
-        var minfo = [];
+    // Global minfo array holds the initial mealset
+    var minfo = [];
 
-        // Height of my nomeal picture
-        var NOMEALHEIGHT = 256;
+    // Height of my nomeal picture
+    var NOMEALHEIGHT = 256;
 
-        // Global containing the user's name
-        var username = "<%= user.username %>";
+    // Global containing the user's name
+    var username = "<%= user.username %>";
 
-        // Create element wrapper
-        var dc = function(a)
+    // Create element wrapper
+    var dc = function(a)
+    {
+        return document.createElement(a);
+    };
+
+    // Enable or disable debug trace
+    debuglog = function(text) {
+        console.log(text);
+    }
+
+    // Functionize mealinfo
+    var MEALINFO = (function() {
+
+        var NOMEAL = 0;
+        var BREAKFAST = 1;
+        var LUNCH = 2;
+        var DINNER = 3;
+        var SNACK = 4;
+        var OTHER = 5;
+        var MAXMEAL = 99;
+
+        // Return constant given a string
+        function mealToConst(meal)
         {
-            return document.createElement(a);
+            if(meal == undefined || !meal)
+            {
+                return NOMEAL;
+            }
+            if(meal == "breakfast")
+            {
+                return BREAKFAST;
+            }
+            if(meal == "lunch")
+            {
+                return LUNCH;
+            }
+            if(meal == "dinner")
+            {
+                return DINNER;
+            }
+            if(meal == "snack")
+            {
+                return SNACK;
+            }
+            if(meal == "other")
+            {
+                return OTHER;
+            }
+            throw new Error("Invalid mealConst: " + meal);
+        }
+
+        // Utility function
+		function mealDateToDate(mealdate)
+		{
+		    var year = mealdate / 1000000; mealdate %= 1000000;
+		    var month = mealdate /  10000; mealdate %=   10000;
+		    var day  = mealdate /     100;
+		    return new Date(year, month-1, day);
+		}
+
+        function dateToMealDate(date, mealconst)
+        {
+            return  (date.getFullYear()    * 1000000) +
+                    ((date.getMonth() + 1)   * 10000) +
+                    (date.getDate()            * 100) +
+                    (mealconst);
+        }
+
+        return {
+            dateToMealDate  : dateToMealDate,
+            mealDateToDate  : mealDateToDate,
+            mealToConst     : mealToConst,
+            NOMEAL          : NOMEAL,
+            BREAKFAST       : BREAKFAST,
+            LUNCH           : LUNCH,
+            DINNER          : DINNER,
+            SNACK           : SNACK,
+            OTHER           : OTHER,
+            MAXMEAL         : MAXMEAL
         };
+    }());
 
-        // Enable or disable debug trace
-        debuglog = function(text) {
-            console.log(text);
+    // Search for a specific timestamp
+    var findpicidx = (function(cfg) {
+
+        // 100 or less does better with linear search
+        var optcutoff = cfg && cfg.optcutoff ? cfg.optcutoff : 100;
+
+        // Binary search function
+        function binarysearch(pinfo, timestamp) {
+
+            var left = 0;
+            var right = pinfo.length;
+            var ii = Math.floor(left + ((right - left) / 2));
+
+            // This shouldn't happen
+            if(!pinfo || pinfo.length <= 0) {
+                debuglog('Error: findpicidx called with a null pinfo');
+            }
+
+            // Loop
+            while(true) {
+
+                // Found index
+                if(pinfo[ii].timestamp == timestamp)
+                    return ii;
+
+                // Change left endpoint
+                if(timestamp > pinfo[ii].timestamp)
+                    left = ii + 1;
+
+                // Change right endpoint
+                else if(timestamp < pinfo[ii].timestamp)
+                    right = ii;
+
+                // Didn't find it
+                if(left >= right) return -1;
+
+                // Next element
+                ii = Math.floor(left + ( (right - left) / 2));
+            }
         }
 
-        // Functionize mealinfo
-        var MEALINFO = (function() {
-
-            var NOMEAL = 0;
-            var BREAKFAST = 1;
-            var LUNCH = 2;
-            var DINNER = 3;
-            var SNACK = 4;
-            var OTHER = 5;
-            var MAXMEAL = 99;
-    
-            function mealToConst(meal)
-            {
-                if(meal == undefined || !meal)
-                {
-                    return NOMEAL;
-                }
-                if(meal == "breakfast")
-                {
-                    return BREAKFAST;
-                }
-                if(meal == "lunch")
-                {
-                    return LUNCH;
-                }
-                if(meal == "dinner")
-                {
-                    return DINNER;
-                }
-                if(meal == "snack")
-                {
-                    return SNACK;
-                }
-                if(meal == "other")
-                {
-                    return OTHER;
-                }
-                throw new Error("Invalid mealConst: " + meal);
+        // Linear search function
+        function linearsearch(pinfo, timestamp) {
+            for(var ii = 0 ; ii < pinfo.length ; ii++) {
+                if(pinfo[ii].timestamp == timestamp)
+                    return ii;
             }
+            return -1;
+        }
 
-            // Change layout on resize
-            function windowresize() {
+        // Use binary search if it pays off
+        function optimalsearch(pinfo, timestamp) {
+            if(pinfo.length < optcutoff) {
+                return linearsearch(pinfo, timestamp);
             }
-    
-            // Utility function
-    		function mealDateToDate(mealdate)
-    		{
-    		    var year = mealdate / 1000000; mealdate %= 1000000;
-    		    var month = mealdate /  10000; mealdate %=   10000;
-    		    var day  = mealdate /     100;
-    		    return new Date(year, month-1, day);
-    		}
-    
-            function dateToMealDate(date, mealconst)
-            {
-                return  (date.getFullYear()    * 1000000) +
-                        ((date.getMonth() + 1)   * 10000) +
-                        (date.getDate()            * 100) +
-                        (mealconst);
+            else {
+                return binarysearch(pinfo, timestamp);
             }
+        }
 
-            return {
-                dateToMealDate  : dateToMealDate,
-                mealDateToDate  : mealDateToDate,
-                mealToConst     : mealToConst,
-                NOMEAL          : NOMEAL,
-                BREAKFAST       : BREAKFAST,
-                LUNCH           : LUNCH,
-                DINNER          : DINNER,
-                SNACK           : SNACK,
-                OTHER           : OTHER,
-                MAXMEAL         : MAXMEAL
-            };
-        }());
+        return {
+            linearsearch    : linearsearch,
+            binarysearch    : binarysearch,
+            search          : optimalsearch
+        };
+    }( 
+        // XXX Do different browsers have different cutoffs? XXX
+        { optcutoff : 100 } 
+    ));
 
-        // Search for a specific timestamp
-        var findpicidx = (function(cfg) {
+    // Simple mealpage class
+    function mealpage(timestamp) {
 
-            // 100 or less does better with linear search
-            var optcutoff = cfg && cfg.optcutoff ? cfg.optcutoff : 100;
+        this.timestamp = timestamp;
+        return this;
 
-            // Binary search function
-            function binarysearch(pinfo, timestamp) {
-    
-                var left = 0;
-                var right = pinfo.length;
-                var ii = Math.floor(left + ( (right - left) / 2));
-    
-                // This shouldn't happen
-                if(!pinfo || pinfo.length <= 0) {
-                    debuglog('Error: findpicidx called with a null pinfo');
-                }
-    
-                // Loop
-                while(true) {
-    
-                    // Found index
-                    if(pinfo[ii].timestamp == timestamp)
-                        return ii;
-    
-                    // Change left endpoint
-                    if(timestamp > pinfo[ii].timestamp)
-                        left = ii + 1;
-    
-                    // Change right endpoint
-                    else if(timestamp < pinfo[ii].timestamp)
-                        right = ii;
-    
-                    // Didn't find it
-                    if(left >= right) return -1;
-    
-                    // Next element
-                    ii = Math.floor(left + ( (right - left) / 2));
-                }
-            }
+    }
 
-            // Linear search function
-            function linearsearch(pinfo, timestamp) {
-                for(var ii = 0 ; ii < pinfo.length ; ii++) {
-                    if(pinfo[ii].timestamp == timestamp)
-                        return ii;
-                }
-                return -1;
-            }
+    // Create string format for dates
+    Date.prototype.asMyString = function() {
+        var monthNames = [ "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December" ];
+        return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+    }
 
-            // Use binary search if it pays off
-            function optimalsearch(pinfo, timestamp) {
-                if(pinfo.length < optcutoff) {
-                    return linearsearch(pinfo, timestamp);
-                }
-                else {
-                    return binarysearch(pinfo, timestamp);
-                }
-            }
+    // jquery ready handler
+    $(document).ready(function() {
 
-            return {
-                linearsearch    : linearsearch,
-                binarysearch    : binarysearch,
-                search          : optimalsearch
-            };
-        }());
+        $.ajaxSetup ({ cache: false });
 
-        // Simple mealpage class
-        function mealpage(timestamp) {
+        var nextpage = null;
+        var mcount = picturegrid.mealcount();
 
-            this.timestamp = timestamp;
-            return this;
+        if(minfo.length > mcount) {
+
+            nextpage = new mealpage(minfo[mcount].timestamp);
 
         }
 
-        // Create string format for dates
-        Date.prototype.asMyString = function() {
-            var monthNames = [ "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December" ];
-            return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
-        }
-
-        // jquery ready handler
-        $(document).ready(function() {
-
-            $.ajaxSetup ({ cache: false });
-
-            var nextpage = null;
-            var mcount = picturegrid.mealcount();
-
-            if(minfo.length > mcount) {
-
-                nextpage = new mealpage(minfo[mcount].timestamp);
-
-            }
-    
-            picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
+        picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
 
 /* Not yet */
 /*
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    debuglog('updating position');
-                    $.ajax({
-                        url: '/updateposition',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(
-                            {
-                                username: meal.username,
-                                position: position
-                            }),
-                        dataType: 'json',
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                debuglog('updating position');
+                $.ajax({
+                    url: '/updateposition',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            position: position
+                        }),
+                    dataType: 'json',
 
-                        complete: function(resp, astat){
-                        }
-                    });
-                }, 
-                function(error) {}, 
-                { enableHighAccuracy: true }
-            );
-        }
+                    complete: function(resp, astat){
+                    }
+                });
+            }, 
+            function(error) {}, 
+            { enableHighAccuracy: true }
+        );
+    }
 */
-        });
+    });
 
 
     </script>
 
 
         <div class="boxesClass" id="boxes">
+            <!--
+        <div id="boxes_container">
+            -->
         <div class="container_12" id="boxes_container">
 
             <div class="grid_2 prefix_10">
@@ -275,7 +278,10 @@ TODO:
                 <a href="/signout">Logout</a>
             </div>
             <div class="clear"></div>
-            <br><br>
+
+        <div id='prevdiv' class='prevdiv'></div>
+        <div id='nextdiv' class='nextdiv'></div>
+
 
             </div> <!-- container_12 -->
 
@@ -284,11 +290,6 @@ TODO:
                 <!-- <div class='picturegridbg' id='picturegridbg'> -->
             <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'>
 
-                <div class='prevdiv' id='prevdiv' name='prevdiv'>
-                </div>
-    
-                <div class='nextdiv' id='nextdiv' name='nextdiv'>
-                </div>
     
             <!-- </div> <!-- picturegridDiv -->
             </div> <!-- picturegridbg -->
@@ -297,6 +298,7 @@ TODO:
 
         </div> <!-- boxes -->
         <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
+
 
         <script type="text/javascript">
 
@@ -2088,6 +2090,9 @@ TODO:
             // New meal anchor
             var newmealanchor;
 
+            // Use hover text
+            var usehovertext;
+
             // The stripe height
             var stripeheight;
 
@@ -2132,6 +2137,9 @@ TODO:
 
             // Set to true to animate grid pages
             var animatenextprev;
+
+            // Spacer width
+            var spacerwidth;
 
             // Create element wrapper
             var dc = function(a)
@@ -2197,9 +2205,12 @@ TODO:
                 // Derived: how many meals per grid
                 mealspergrid = mealsperrow * rowsperpage;
     
+                // Calculate spacer width
+                spacerwidth = cfg.spacerwidth ? cfg.spacerwidth : 20;
+
                 // Derived: how many pixels wide?
-                gridwidth = (picturewidth + marginleft + marginright) * 
-                    mealsperrow;
+                gridwidth = ((picturewidth + marginleft + marginright) * 
+                    mealsperrow) + (spacerwidth * (mealsperrow - 1));
     
                 // Allow 
                 nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
@@ -2219,6 +2230,9 @@ TODO:
                 // Set the anchor click function
                 anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
     
+                // Set the use-hover-text flag
+                usehovertext = cfg.usehovertext ? cfg.usehovertext : null;
+
                 // New meal anchor
                 newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
     
@@ -2533,6 +2547,20 @@ TODO:
                 }
             }
 
+            // Calculates the margin right given a picture width
+            function calculatemarginright(thumbwidth) {
+
+                return marginright + 10;
+
+            }
+
+            // Calculates the margin left given a picture width
+            function calculatemarginleft(thumbwidth) {
+
+                return marginleft + 10;
+
+            }
+
             // Calculates the margintop given a picture height
             function calculatemargintop(thumbheight) {
 
@@ -2543,7 +2571,9 @@ TODO:
 //                return 0;
 
 //                return margintop + (pictureheight/2) - (thumbheight/2);
-                return margintop + (pictureheight-thumbheight);
+                //return margintop + (pictureheight-thumbheight);
+                // return margintop;
+                return (pictureheight - thumbheight) / 2;
             }
 
             // Calculates the marginbottom given a picture height
@@ -2556,7 +2586,8 @@ TODO:
 
                 //return (pictureheight/2) - (thumbheight/2);
                 //return (pictureheight-thumbheight)/2;
-                return 0;
+                //return marginbottom + ((pictureheight-thumbheight)/2);
+                return marginbottom;
             }
 
             // Updates the grid display picture to this timestamp
@@ -2600,10 +2631,10 @@ TODO:
                 gridpic.attr('src', imgsrc);
 
                 // Calculate the top margin
-                var margintoppx = calculatemargintop(thumbheight) + 'px';
+                // var margintoppx = calculatemargintop(thumbheight) + 'px';
 
                 // Set the top margin
-                griddiv.css('margin-top', margintoppx);
+                griddiv.css('margin-top', margintop + 'px');
 
                 // Calculate the bottom margin
                 var marginbottompx = calculatemarginbottom(thumbheight) + 'px';
@@ -2620,12 +2651,48 @@ TODO:
                 }
             }
 
+            // Return the height of the key-pic, the first pic, or no-meal
+            function calculatethumbheight(meal) {
+
+                var thumbheight;
+
+                // Find the key pic in the picInfo array
+                if(meal.keytimestamp) {
+
+                    var idx = findpicidx(meal.picInfo, meal.keytimestamp);
+
+                    if(idx >= 0) thumbheight = meal.picInfo[idx].thumbheight;
+                }
+
+                // Otherwise use the first picture
+                else if(meal.picInfo && meal.picInfo.length > 0) {
+
+                    thumbheight = meal.picInfo[0].thumbheight;
+                }
+
+                // Height of the nomeal picture
+                else {
+                    thumbheight = NOMEALHEIGHT;
+                }
+
+                return thumbheight;
+            }
+
+
+
             // The internal grid object contains the click logic
             function pdivint(meal, editgrid) {
+
+                // Thumb height
+                var thumbheight = calculatethumbheight(meal);
+
+                // Top margin
+                var mtop = calculatemargintop(thumbheight);
     
                 // I can manipulate this directly in the delete code.
                 var editInternal = $(dc('div'))
-                    .attr('class', 'editgridinternal');
+                    .css('margin-top', mtop + 'px')
+                    // .attr('class', 'editgridinternal');
                     //.css('float', 'bottom');
     
                 // Center tag
@@ -2635,39 +2702,40 @@ TODO:
                 center.appendTo(editInternal);
     
                 // Image div
-                var editImageDiv = $(dc('div'))
-                    .css('background', 'white');
-                    // .css('border', '1px solid #666');
+                var editImageDiv = $(dc('div'));
+                     // .css('border', '1px solid #666');
+                    // .css('background', 'white');
     
                 // Append to center
                 editImageDiv.appendTo(center);
-    
-                // Append an anchor to the 
+
+                // Create an anchor with this text
+                var anchor = $(dc('a'))
+                    .attr('href', 'javascript:void(0)');
+
+                // Use a callback to set the anchor's target
                 if(anchorclickfn) {
+                    anchor.click(function() {
+                        anchorclickfn(meal.username, meal.timestamp, editgrid);
+                    });
+                }
+
+                // Add hover text if we want it 
+                if(usehovertext) {
 
                     // Uppercase first letter of the meal
                     var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-
-                    // var hoverDate = (MEALINFO.mealDateToDate(meal.mealDate)).toLocaleDateString();
-                    // var hoverTxt = mealtxt + " on " + hoverDate;
-
+    
                     // Format hover string
                     var hovertxt = mealtxt + " created on " + 
                         new Date(meal.timestamp).asMyString();
     
-                    // Create an anchor with this text
-                    var anchor = $(dc('a'))
-                        .attr('href', 'javascript:void(0)')
-                        .attr('title', hovertxt);
-    
-                    // Use a callback to set the anchor's target
-                    anchor.click(function() {
-                        anchorclickfn(meal.username, meal.timestamp, editgrid);
-                    });
-    
-                    // Append to the image div
-                    anchor.appendTo(editImageDiv);
+                    // Set the hover text
+                    anchor.attr('title', hovertxt);
                 }
+
+                // Append to the image div
+                anchor.appendTo(editImageDiv);
     
                 // Text containing the image source
                 var imgsource;
@@ -2692,14 +2760,22 @@ TODO:
                     .attr('class', 'gridimage')
                     .attr('src', imgsource);
 
-                // Append it to anchor if we made one
-                if(anchorclickfn) {
-                    image.appendTo(anchor);
-                }
-                // Otherwise append directly to the imagediv
-                else {
-                    image.appendTo(editImageDiv);
-                }
+                /*
+                var test = $(dc('div'))
+                    .css('width', '100px')
+                    .css('height', '100px')
+                    .html("hello");
+                 */
+                // test.appendTo(anchor);
+
+                // Append to my anchor
+                image.appendTo(anchor);
+                // Instead of a tag, this is an attribute of the anchor
+
+                //anchor.css('background-image', 'url:"' + imgsource + '");')
+                //    .html('.');
+                // anchor.html('test');
+                //image.appendTo(anchor);
 
                 if(titletrace) {
     
@@ -2711,9 +2787,9 @@ TODO:
                     if(meal.title != undefined && meal.title.length > 0) {
                         titletext.html(meal.title);
                     }
-                    // Default to 'untitled'
+                    // Default to 'untitled' .. or nothing
                     else {
-                        titletext.html('untitled');
+                        titletext.html('');
                     }
         
                     // Append to center
@@ -2757,56 +2833,32 @@ TODO:
             // Create an inner (attributed) pdiv object
             function pdivinner(meal) {
     
-                // Left margin string
-                var marginleftpx = marginleft + 'px';
-
-                // Right margin string
-                var marginrightpx = marginright + 'px';
-
                 // Calculate the thumb height here
-                var thumbheight;
+                var thumbheight = calculatethumbheight(meal);
 
-                // Find the key pic in the picInfo array
-                if(meal.keytimestamp) {
-
-                    var idx = findpicidx(meal.picInfo, meal.keytimestamp);
-
-                    if(idx >= 0) thumbheight = meal.picInfo[idx].thumbheight;
-                }
-
-                // Otherwise use the first picture
-                else if(meal.picInfo && meal.picInfo.length > 0) {
-
-                    thumbheight = meal.picInfo[0].thumbheight;
-                }
-
-                // Height of the nomeal picture
-                else {
-                    thumbheight = NOMEALHEIGHT;
-                }
 
                 // Top margin string
-                var margintoppx = calculatemargintop(thumbheight) + 'px';
+                // var mtop = calculatemargintop(thumbheight);
 
                 // Bottom margin string
-                var marginbottompx = marginbottom + 'px';
+                // var mbottom = calculatemarginbottom(thumbheight);
 
                 // Minimum height is height + margins
-                var picheight = (pictureheight + margintop + marginbottom)
-                    + 'px';
+                // var picheight = (pictureheight + mtop + mbottom);
                 
-                var picwidth = picturewidth + 'px';
+                var picwidth = picturewidth + marginleft + marginright;
 
                 // Create the editgrid div
                 var editgrid = $(dc('div'))
                     .css('display', 'inline')
+                    .css('background-color', '#ddd')
                     .css('float', 'left')
-                    .css('margin-left', marginleftpx)
-                    .css('margin-right', marginrightpx)
-                    .css('margin-top', margintoppx)
-                    .css('margin-bottom', marginbottompx)
-                    .css('width', picwidth);
-                    //.css('height', picheight);
+                    //.css('margin-left', marginleftpx)
+                    //.css('margin-right', marginrightpx)
+                    .css('margin-top', margintop + 'px')
+                    .css('margin-bottom', marginbottom + 'px')
+                    .css('width', picwidth + 'px')
+                    .css('height', pictureheight + 'px');
                 
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
@@ -2823,6 +2875,10 @@ TODO:
 
                 // Create an outer shell container 
                 var egcontainer = $(dc('div'))
+                    .attr('class', 'egcontainer')
+                   // .css('margin-left', '10px')
+                    //.css('margin-right', '10px')
+                    // .css('background-color', '#ddd')
                     .css('display', 'inline')[0];
 
                 // Create the grid components
@@ -2898,6 +2954,13 @@ TODO:
 
                     if(griddiv.laststripe) {
 
+                        // Clear my floats
+                        var clearf = $(dc('div'))
+                            .attr('class', 'clear');
+
+                        // Append to the last stripe
+                        clearf.appendTo(griddiv.laststripe);
+
                         // Current last's next will point to this
                         griddiv.laststripe.nextst = hdiv;
 
@@ -2926,11 +2989,35 @@ TODO:
                 // Add a pointer to the stripe
                 gridpic.stripe = hdiv;
 
+                // Append a spacer div
+                if(griddiv.count % mealsperrow != 0) {
+                    var spacer = $(dc('div'))
+                        .css('float','left')
+                        .css('display', 'inline')
+                        .css('height', '10px')
+                        .css('width', spacerwidth + 'px');
+                    spacer.appendTo(hdiv);
+
+                    // Reference the spacer in the gridpic 
+                    gridpic.spacer = spacer;
+                }
+
                 // Append this to the grid
                 $(gridpic).appendTo(hdiv);
 
                 // Increment count
                 griddiv.count++;
+
+                // Special case the final div
+                if(griddiv.count == mealspergrid) {
+
+                    // Clear my floats
+                    var clearf = $(dc('div'))
+                        .attr('class', 'clear');
+
+                    // Append to the last stripe
+                    clearf.appendTo(griddiv.laststripe);
+                }
 
                 // Invoke 'pic-is-loaded' callback
                 if(loadcb) {
@@ -3147,7 +3234,14 @@ TODO:
 
                                 // Remove the grid
                                 else {
+
+                                    // Remove the lastgrid
                                     $(lastgrid).remove();
+
+                                    // If there's a spacer, remove it 
+                                    if(lastgrid.spacer)
+                                        $(lastgrid.spacer).remove();
+
                                 }
 
                                 // Decrement count

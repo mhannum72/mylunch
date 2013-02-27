@@ -41,7 +41,7 @@ p {
 .container_12,
 .container_16,
 .container_24 {
-  background-color: #fff;
+/*  background-color: #fff; */
   background-repeat: repeat-y;
   margin-bottom: 20px;
 }
@@ -578,6 +578,10 @@ a.dp-choose-date {
 
 #dp-popup {
     z-index: 10050;
+}
+
+#egcontainer {
+    background-color:  #ddd;
 }
 
 /*
