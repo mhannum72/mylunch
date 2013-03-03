@@ -2057,6 +2057,15 @@ TODO:
             // What's the heigth of a picture
             var pictureheight;
 
+            // What's the height of the picture footer
+            var footerheight;
+
+            // What's the font size in the footer
+            var footerfontsize;
+
+            // What's the space between the picture and footer
+            var footerspace;
+
             // How many pictures per row
             var mealsperrow;
 
@@ -2092,9 +2101,6 @@ TODO:
 
             // Use hover text
             var usehovertext;
-
-            // The stripe height
-            var stripeheight;
 
             // Calculate the container grid height
             var containerheight;
@@ -2166,7 +2172,7 @@ TODO:
                 marginleft = cfg.marginleft ? cfg.marginleft : 30;
     
                 // What's the right margin
-                marginright = cfg.marginright ? cfg.marginright : 30;
+                marginright = cfg.marginright ? cfg.marginright : 10;
     
                 // What's the top margin
                 margintop = cfg.margintop ? cfg.margintop : 30;
@@ -2195,6 +2201,15 @@ TODO:
     
                 // What's the max heigth of a picture
                 pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+
+                // What's the max height of a footer
+                footerheight = cfg.footerheight ? cfg.footerheight : 50;
+
+                // What's the footer's font size
+                footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
+
+                // Space between footer and picture
+                footerspace = cfg.footerspace ? cfg.footerspace : 0;
     
                 // How many pictures per row
                 mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
@@ -2236,12 +2251,15 @@ TODO:
                 // New meal anchor
                 newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
     
+                /*
                 // The stripe height
                 stripeheight = pictureheight + margintop + marginbottom + 
                     stripefudge;
-    
+                */
+
                 // Calculate the container grid height
-                containerheight = rowsperpage * stripeheight;
+                containerheight = rowsperpage * (pictureheight + footerheight +
+                        margintop + marginbottom);
 
                 // Outer container height
                 outercontainerheight = containerheight + containermargintop +
@@ -2573,7 +2591,7 @@ TODO:
 //                return margintop + (pictureheight/2) - (thumbheight/2);
                 //return margintop + (pictureheight-thumbheight);
                 // return margintop;
-                return (pictureheight - thumbheight) / 2;
+                // return (pictureheight - thumbheight) / 2;
             }
 
             // Calculates the marginbottom given a picture height
@@ -2634,13 +2652,18 @@ TODO:
                 // var margintoppx = calculatemargintop(thumbheight) + 'px';
 
                 // Set the top margin
-                griddiv.css('margin-top', margintop + 'px');
+                //griddiv.css('margin-top', margintop + 'px');
+                // TODO: find stinks - put a reference & do a direct lookup
+                var divint = griddiv.find('.internalmargin');
+
+                divint.css('margin-top', ((pictureheight - thumbheight)/2) + 'px');
+
 
                 // Calculate the bottom margin
-                var marginbottompx = calculatemarginbottom(thumbheight) + 'px';
+                //var marginbottompx = calculatemarginbottom(thumbheight) + 'px';
 
                 // Set the bottom margin
-                griddiv.css('margin-bottom', marginbottompx);
+                //griddiv.css('margin-bottom', marginbottompx);
 
                 // Update keytimestamp in meal object
                 if(picinfo) {
@@ -2687,11 +2710,15 @@ TODO:
                 var thumbheight = calculatethumbheight(meal);
 
                 // Top margin
-                var mtop = calculatemargintop(thumbheight);
+                // var mtop = calculatemargintop(thumbheight);
     
                 // I can manipulate this directly in the delete code.
                 var editInternal = $(dc('div'))
-                    .css('margin-top', mtop + 'px')
+                    .css('class', 'internalmargin')
+                    .css('margin-top', ((pictureheight - thumbheight)) + 'px');
+                    //.css('margin-top', margintop + 'px');
+
+                    //.css('margin-top', mtop + 'px')
                     // .attr('class', 'editgridinternal');
                     //.css('float', 'bottom');
     
@@ -2760,6 +2787,9 @@ TODO:
                     .attr('class', 'gridimage')
                     .attr('src', imgsource);
 
+                // Append to my anchor
+                image.appendTo(anchor);
+
                 /*
                 var test = $(dc('div'))
                     .css('width', '100px')
@@ -2768,8 +2798,6 @@ TODO:
                  */
                 // test.appendTo(anchor);
 
-                // Append to my anchor
-                image.appendTo(anchor);
                 // Instead of a tag, this is an attribute of the anchor
 
                 //anchor.css('background-image', 'url:"' + imgsource + '");')
@@ -2846,25 +2874,70 @@ TODO:
                 // Minimum height is height + margins
                 // var picheight = (pictureheight + mtop + mbottom);
                 
-                var picwidth = picturewidth + marginleft + marginright;
+                //var picwidth = picturewidth + marginleft + marginright;
 
                 // Create the editgrid div
                 var editgrid = $(dc('div'))
-                    .css('display', 'inline')
-                    .css('background-color', '#ddd')
-                    .css('float', 'left')
+
+                    // TODO: make a gradient background function which returns 
+                    // the correct background setting for this browser
+                    // .css('background-color', '#ddd')
+                    .css('border', '1px solid')
+                    .css('border-color', '#eee') // same as the background color
+                    .css('class', 'editgridbg')
+                    .css('position', 'relative')
+                    //.css('background-color', '#fff')
+                    //.css('border', '1px solid')
+                    // .css('clear', 'both')
+                    // .css('float', 'left')
+                    //.css('display', '-moz-inline-stack')
+                    //.css('display', 'inline-block')
+                    //.css('vertical-align', 'top')
                     //.css('margin-left', marginleftpx)
                     //.css('margin-right', marginrightpx)
-                    .css('margin-top', margintop + 'px')
-                    .css('margin-bottom', marginbottom + 'px')
-                    .css('width', picwidth + 'px')
+                    //.css('margin-top', margintop + 'px')
+                    //.css('margin-bottom', marginbottom + 'px')
+                    //.css('vertical-align', 'bottom')
+                    //.css('display', '-moz-inline-stack')
+                    //.css('display', 'inline-block')
+                    .css('width', picturewidth + 'px')
                     .css('height', pictureheight + 'px');
-                
+                    //.css('height', thumbheight + 'px');
+
+                var footer = $(dc('div'))
+                    .css('background-color', '#fff')
+                    .css('class', 'editgridfooter')
+                    // .css('background-color', '#fff')
+                    //.css('display', 'inline-block')
+                    .css('position', 'absolute')
+                    .css('bottom', '-' + (footerheight + footerspace) + 'px')
+                    .css('left', '-1px')
+                    //.css('clear', 'all')
+                    .css('clear', 'both')
+                    //.css('vertical-align', 'bottom')
+                    //.css('position', 'absolute')
+                    //.css('bottom', '0')
+                    //.css('display', 'table-cell')
+                    //.css('float', 'left')
+                    //.css('display', '-moz-inline-stack')
+                    //.css('display', 'inline-block')
+                    //.css('border-color', '#ddd')
+                    .css('border', '1px solid')
+                    .css('border-color', '#ddd')
+                    .css('width', picturewidth + 'px')
+                    .css('height', footerheight)
+                    .css('font-size', footerfontsize + 'px')
+                    .css('text-align', 'left')
+                    .css('text-indent', '10px')
+                    .html('Footer');
+
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
     
                 // Append this to the edit grid
                 intn.appendTo(editgrid);
+
+                footer.appendTo(editgrid);
 
                 // Return grid
                 return editgrid;
@@ -2874,12 +2947,23 @@ TODO:
             function pdiv(meal) {
 
                 // Create an outer shell container 
-                var egcontainer = $(dc('div'))
+                var egcontainer = $(dc('li'))
                     .attr('class', 'egcontainer')
+                    .css('float', 'left')
+                    //.css('background-color', '#ddd')
+                    .css('position', 'relative')
+                    .css('width', picturewidth + 'px')
+                    .css('height', pictureheight + footerheight + 'px')
+                    .css('margin-top', margintop + 'px')
+                    .css('margin-bottom', marginbottom + 'px')
+                    .css('margin-right', marginright + 'px')
+                    // .css('margin-left', marginleft + 'px')
+                    .css('display', '-moz-inline-stack')
+                    .css('display', 'inline-block')[0];
                    // .css('margin-left', '10px')
                     //.css('margin-right', '10px')
                     // .css('background-color', '#ddd')
-                    .css('display', 'inline')[0];
+                    
 
                 // Create the grid components
                 var editgrid = pdivinner(meal);
@@ -2902,6 +2986,23 @@ TODO:
                 // Return false if we're filled up
                 if(griddiv.count >= mealspergrid) {
                     return false;
+                }
+
+                // Create the ul if this is the first
+                if(griddiv.count == 0) {
+
+                    // Create unordered list
+                    var $ul = $(dc('ul'))
+                        .css('width', gridwidth + 'px')
+                        .css('height', containerheight + 'px')
+                        .css('float', 'left');
+
+                    // Append to the grid
+                    $ul.appendTo(griddiv);
+
+                    // Keep a reference
+                    griddiv.ulist = $ul[0];
+
                 }
 
                 // Update last picture
@@ -2930,65 +3031,6 @@ TODO:
                     griddiv.firstg = gridpic;
                 }
 
-                // Create a horizontal div
-                if(griddiv.count % mealsperrow == 0) {
-
-                    // Height
-                    var heightpx = stripeheight + 'px';
-
-                    // Increment the viewport's height variable
-                    viewportheight += heightpx;
-
-                    // Apply new height to viewport
-                    gridviewport.css('height', viewportheight + 'px');
-
-                    // Apply new height to container
-                    gridcontainer.css('height', viewportheight + 'px');
-
-                    // Create a horizontal div
-                    hdiv = $(dc('div'))
-                        .css('display', 'inline')
-                        .css('float', 'left')
-                        .css('vertical-align', 'top')
-                        .css('height', heightpx);
-
-                    if(griddiv.laststripe) {
-
-                        // Clear my floats
-                        var clearf = $(dc('div'))
-                            .attr('class', 'clear');
-
-                        // Append to the last stripe
-                        clearf.appendTo(griddiv.laststripe);
-
-                        // Current last's next will point to this
-                        griddiv.laststripe.nextst = hdiv;
-
-                        // This prev will point to current last
-                        hdiv.prevst = griddiv.laststripe;
-                    }
-
-                    // This is the new last
-                    griddiv.laststripe = hdiv;
-
-                    // This might also be the first
-                    if(!griddiv.firststripe) {
-                        griddiv.firststripe = hdiv;
-                    }
-
-                    // Append to the grid
-                    hdiv.appendTo(griddiv);
-
-                }
-                // Grab the last horizontal div
-                else {
-
-                    hdiv = griddiv.laststripe;
-                }
-
-                // Add a pointer to the stripe
-                gridpic.stripe = hdiv;
-
                 // Append a spacer div
                 if(griddiv.count % mealsperrow != 0) {
                     var spacer = $(dc('div'))
@@ -3002,12 +3044,16 @@ TODO:
                     gridpic.spacer = spacer;
                 }
 
+                // Append to the ul
+                $(gridpic).appendTo(griddiv.ulist);
+
                 // Append this to the grid
-                $(gridpic).appendTo(hdiv);
+                // $(gridpic).appendTo(hdiv);
 
                 // Increment count
                 griddiv.count++;
 
+                /*
                 // Special case the final div
                 if(griddiv.count == mealspergrid) {
 
@@ -3018,6 +3064,7 @@ TODO:
                     // Append to the last stripe
                     clearf.appendTo(griddiv.laststripe);
                 }
+                */
 
                 // Invoke 'pic-is-loaded' callback
                 if(loadcb) {
@@ -3279,15 +3326,15 @@ TODO:
             function makegrid() {
 
                 // Width string
-                var widthpx = gridwidth + 'px';
+                //var widthpx = gridwidth + 'px';
 
                 var griddiv = $(dc('div'))
                     .attr('class', 'picturegrid')
-                    .css('margin-left', 'auto')
-                    .css('margin-right', 'auto')
+                    //.css('margin-left', 'auto')
+                    //.css('margin-right', 'auto')
                     .css('position', 'absolute')
                     .css('float', 'left')
-                    .css('width', widthpx );
+                    .css('width', gridwidth + 'px');
     
                 // Set first picture to null
                 griddiv.first = null;
