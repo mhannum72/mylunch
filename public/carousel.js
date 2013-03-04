@@ -131,6 +131,8 @@ var picturecarousel = (function ($) {
             // Image tag
             var img = $(dc('img'))
                 .attr('class', 'pic-div-image')
+                .css('border', '1px solid')
+                .css('border-color', '#ddd')
                 .attr('src', img_source);
     
             // TODO write picture click handler

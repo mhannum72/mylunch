@@ -2036,6 +2036,9 @@ TODO:
             // What's the top margin
             var margintop;
 
+            // What's the picture border
+            var picborder;
+
             // What's the bottom margin
             var marginbottom;
 
@@ -2177,6 +2180,9 @@ TODO:
                 // What's the top margin
                 margintop = cfg.margintop ? cfg.margintop : 30;
 
+                // What's the picture border
+                picborder = cfg.picborder ? cfg.picborder : 10;
+
                 // What's the bottom margin
                 marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
 
@@ -2203,7 +2209,7 @@ TODO:
                 pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
 
                 // What's the max height of a footer
-                footerheight = cfg.footerheight ? cfg.footerheight : 50;
+                footerheight = cfg.footerheight ? cfg.footerheight : 60;
 
                 // What's the footer's font size
                 footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
@@ -2224,8 +2230,9 @@ TODO:
                 spacerwidth = cfg.spacerwidth ? cfg.spacerwidth : 20;
 
                 // Derived: how many pixels wide?
-                gridwidth = ((picturewidth + marginleft + marginright) * 
-                    mealsperrow) + (spacerwidth * (mealsperrow - 1));
+                gridwidth = ((picturewidth + marginleft + marginright + 
+                    (2 * picborder)) * mealsperrow) + 
+                    (spacerwidth * (mealsperrow - 1));
     
                 // Allow 
                 nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
@@ -2259,7 +2266,7 @@ TODO:
 
                 // Calculate the container grid height
                 containerheight = rowsperpage * (pictureheight + footerheight +
-                        margintop + marginbottom);
+                        + (2 * picborder) + margintop + marginbottom);
 
                 // Outer container height
                 outercontainerheight = containerheight + containermargintop +
@@ -2715,7 +2722,9 @@ TODO:
                 // I can manipulate this directly in the delete code.
                 var editInternal = $(dc('div'))
                     .css('class', 'internalmargin')
-                    .css('margin-top', ((pictureheight - thumbheight)) + 'px');
+                    .css('margin-top', picborder + 'px')
+                    .css('float', 'top');
+                    // .css('margin-top', ((pictureheight - thumbheight)) + 'px');
                     //.css('margin-top', margintop + 'px');
 
                     //.css('margin-top', mtop + 'px')
@@ -2882,10 +2891,21 @@ TODO:
                     // TODO: make a gradient background function which returns 
                     // the correct background setting for this browser
                     // .css('background-color', '#ddd')
-                    .css('border', '1px solid')
-                    .css('border-color', '#eee') // same as the background color
+                    // .css('border', '1px solid')
+                    .css('border-top', '1px solid')
+                    .css('border-left', '1px solid')
+                    .css('border-right', '1px solid')
+                    .css('border-color', '#ddd') // same as the background color
+                    .css('background-color', '#fff')
                     .css('class', 'editgridbg')
                     .css('position', 'relative')
+                    .css('margin-top', (pictureheight - thumbheight) + 'px')
+                    .css('float','top')
+                    .css('box-shadow', '3px 3px 5px #444')
+                    .css('-webkit-box-shadow', '3px 3px 5px #444')
+                    .css('-moz-box-shadow', '3px 3px 5px #444')
+
+                    // .css('float', 'bottom')
                     //.css('background-color', '#fff')
                     //.css('border', '1px solid')
                     // .css('clear', 'both')
@@ -2900,15 +2920,30 @@ TODO:
                     //.css('vertical-align', 'bottom')
                     //.css('display', '-moz-inline-stack')
                     //.css('display', 'inline-block')
-                    .css('width', picturewidth + 'px')
-                    .css('height', pictureheight + 'px');
+                    .css('width', picturewidth + (2 * picborder) + 'px')
+
+                    // This works
+                    //.css('height', pictureheight + 'px');
+
+                    // This is funny looking
+                    .css('height', (thumbheight + (2 * picborder)) + 'px')
+                    // .css('margin-top', (pictureheight - (thumbheight + picborder)) + 'px');
                     //.css('height', thumbheight + 'px');
 
                 var footer = $(dc('div'))
                     .css('background-color', '#fff')
                     .css('class', 'editgridfooter')
+                    .css('box-shadow', '3px 3px 5px #444')
+                    .css('-webkit-box-shadow', '3px 3px 5px #444')
+                    .css('-moz-box-shadow', '3px 3px 5px #444')
+                    //.css('z-index', '10000')
                     // .css('background-color', '#fff')
                     //.css('display', 'inline-block')
+                    //.css('float', 'bottom')
+                    .css('border-left', '1px solid')
+                    .css('border-right', '1px solid')
+                    .css('border-bottom', '1px solid')
+                    .css('border-color', '#ddd')
                     .css('position', 'absolute')
                     .css('bottom', '-' + (footerheight + footerspace) + 'px')
                     .css('left', '-1px')
@@ -2922,9 +2957,9 @@ TODO:
                     //.css('display', '-moz-inline-stack')
                     //.css('display', 'inline-block')
                     //.css('border-color', '#ddd')
-                    .css('border', '1px solid')
-                    .css('border-color', '#ddd')
-                    .css('width', picturewidth + 'px')
+                    //.css('border', '1px solid')
+                    // .css('width', picturewidth + 'px')
+                    .css('width', picturewidth + (2 * picborder) + 'px')
                     .css('height', footerheight)
                     .css('font-size', footerfontsize + 'px')
                     .css('text-align', 'left')
@@ -2950,10 +2985,11 @@ TODO:
                 var egcontainer = $(dc('li'))
                     .attr('class', 'egcontainer')
                     .css('float', 'left')
+                    .css('float', 'bottom')
                     //.css('background-color', '#ddd')
                     .css('position', 'relative')
-                    .css('width', picturewidth + 'px')
-                    .css('height', pictureheight + footerheight + 'px')
+                    .css('width', picturewidth + (2 * picborder) + 'px')
+                    .css('height', (pictureheight + footerheight + picborder) + 'px')
                     .css('margin-top', margintop + 'px')
                     .css('margin-bottom', marginbottom + 'px')
                     .css('margin-right', marginright + 'px')
