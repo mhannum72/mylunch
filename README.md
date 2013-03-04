@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* If there's a title, center the title under the picture.  Otherwise, put the
+  name of the meal + the date it was (or maybe uploaded .. ?).  Or maybe just
+  leave it completely empty ..
+
 * Maybe the picture should be centered on a grey background - it would look
   the way that it will be displayed in the carousel.
 

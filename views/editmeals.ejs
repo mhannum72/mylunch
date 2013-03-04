@@ -2708,6 +2708,26 @@ TODO:
                 return thumbheight;
             }
 
+            // Return the picture count string
+            function pcountstring(meal) {
+
+                var picturecountstring;
+
+                // 0 is plural in english
+                if(!meal.picInfo || meal.picInfo.length == 0) {
+                    picturecountstring = "0 pictures";
+                }
+                // 1 is singular
+                else if(meal.picInfo.length == 1) {
+                    picturecountstring = "1 picture";
+                }
+                // Everything else is plural
+                else {
+                    picturecountstring = meal.picInfo.length + " pictures";
+                }
+
+                return picturecountstring;
+            }
 
 
             // The internal grid object contains the click logic
@@ -2834,24 +2854,11 @@ TODO:
 
                 }
 
-                // Append number of pictures if this is enabled
+                // This goes in the footer now
                 if (picturecounttrace) {
     
                     // String containing picture count text
-                    var picturecountstring;
-        
-                    // 0 is plural in english
-                    if(!meal.picInfo || meal.picInfo.length == 0) {
-                        picturecountstring = "0 pictures";
-                    }
-                    // 1 is singular
-                    else if(meal.picInfo.length == 1) {
-                        picturecountstring = "1 picture";
-                    }
-                    // Everything else is plural
-                    else {
-                        picturecountstring = meal.picInfo.length + " pictures";
-                    }
+                    var picturecountstring = pcountstring(meal);
         
                     // Create a picture count div
                     var picturecount = $(dc('div')) 
@@ -2930,6 +2937,9 @@ TODO:
                     // .css('margin-top', (pictureheight - (thumbheight + picborder)) + 'px');
                     //.css('height', thumbheight + 'px');
 
+                // Set the footer text: the title and number of pictures
+                var footertopline = pcountstring(meal);
+
                 var footer = $(dc('div'))
                     .css('background-color', '#fff')
                     .css('class', 'editgridfooter')
@@ -2963,8 +2973,8 @@ TODO:
                     .css('height', footerheight)
                     .css('font-size', footerfontsize + 'px')
                     .css('text-align', 'left')
-                    .css('text-indent', '10px')
-                    .html('Footer');
+                    .css('text-indent', '10px');
+//                     .html(footertopline);
 
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
