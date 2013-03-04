@@ -2066,6 +2066,9 @@ TODO:
             // What's the font size in the footer
             var footerfontsize;
 
+            // Number of pictures font size
+            var pcountfontsize;
+
             // What's the space between the picture and footer
             var footerspace;
 
@@ -2214,6 +2217,9 @@ TODO:
                 // What's the footer's font size
                 footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
 
+                // What's the size of the picture count text
+                pcountfontsize = cfg.pcountfontsize ? cfg.pcountfontsize : 14;
+
                 // Space between footer and picture
                 footerspace = cfg.footerspace ? cfg.footerspace : 0;
     
@@ -2281,7 +2287,7 @@ TODO:
 
                 // Display 'picture count' underneath the grid
                 picturecounttrace = cfg.picturecounttrace ? 
-                    cfg.picturecounttrace : false;
+                    cfg.picturecounttrace : true;
 
                 // Display a picture's title underneath the grid
                 titletrace = cfg.titletrace ? cfg.titletrace : false;
@@ -2442,14 +2448,14 @@ TODO:
                         if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
     
                         // Grid object
-                        var div = $(meal.gridobj).find('.picturecount'); 
+                        var paragraph = $(meal.gridobj).find('.pcountparagraph'); 
     
                         // Update string
-                        var picturecountstring = (meal.picInfo.length == 1) ? "1 picture" :
-                            meal.picInfo.length + " pictures";
+                        var picturecountstring = pcountstring(meal);
+                            //meal.picInfo.length + " pictures";
     
                         // Set the html
-                        div.html(picturecountstring);
+                        paragraph.html(picturecountstring);
     
                     }
                 }
@@ -2621,10 +2627,10 @@ TODO:
                 // Get the gridobj
                 if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
-                // Jqueryize
+                // Jquery-ize
                 var griddiv = $(meal.gridobj);
 
-                // Get the element
+                // Get the image element
                 var gridpic = griddiv.find('div > center > div > a > img');
 
                 // Init thumb height
@@ -2655,22 +2661,9 @@ TODO:
                 // Set image source
                 gridpic.attr('src', imgsrc);
 
-                // Calculate the top margin
-                // var margintoppx = calculatemargintop(thumbheight) + 'px';
-
-                // Set the top margin
-                //griddiv.css('margin-top', margintop + 'px');
-                // TODO: find stinks - put a reference & do a direct lookup
-                var divint = griddiv.find('.internalmargin');
-
-                divint.css('margin-top', ((pictureheight - thumbheight)/2) + 'px');
-
-
-                // Calculate the bottom margin
-                //var marginbottompx = calculatemarginbottom(thumbheight) + 'px';
-
-                // Set the bottom margin
-                //griddiv.css('margin-bottom', marginbottompx);
+                // Set correct height and margin
+                griddiv.css('height', (thumbheight + (2 * picborder)) + 'px')
+                    .css('margin-top', (pictureheight - thumbheight) + 'px');
 
                 // Update keytimestamp in meal object
                 if(picinfo) {
@@ -2729,6 +2722,22 @@ TODO:
                 return picturecountstring;
             }
 
+            // Return a paragraph object with the correct pcount string
+            function pcountparagraph(meal) {
+
+                // Grab string
+                var pcount = pcountstring(meal);
+
+                // Create paragraph with this as the html
+                var paragraph = $(dc('p'))
+                    .attr('class', 'pcountparagraph')
+                    .css('font-size', pcountfontsize + 'px')
+                    .css('border', 'none')
+                    .html(pcount);
+
+                // Return it
+                return paragraph;
+            }
 
             // The internal grid object contains the click logic
             function pdivint(meal, editgrid) {
@@ -2854,22 +2863,6 @@ TODO:
 
                 }
 
-                // This goes in the footer now
-                if (picturecounttrace) {
-    
-                    // String containing picture count text
-                    var picturecountstring = pcountstring(meal);
-        
-                    // Create a picture count div
-                    var picturecount = $(dc('div')) 
-                        .attr('class', 'picturecount')
-                        .html(picturecountstring);
-        
-                    // Append to internal pic div
-                    picturecount.appendTo(center);
-        
-                }
-
                 // Return the newly created object 
                 return editInternal;
             }
@@ -2895,6 +2888,7 @@ TODO:
                 // Create the editgrid div
                 var editgrid = $(dc('div'))
 
+                    .attr('class', 'editgridbg')
                     // TODO: make a gradient background function which returns 
                     // the correct background setting for this browser
                     // .css('background-color', '#ddd')
@@ -2904,7 +2898,6 @@ TODO:
                     .css('border-right', '1px solid')
                     .css('border-color', '#ddd') // same as the background color
                     .css('background-color', '#fff')
-                    .css('class', 'editgridbg')
                     .css('position', 'relative')
                     .css('margin-top', (pictureheight - thumbheight) + 'px')
                     .css('float','top')
@@ -2938,7 +2931,7 @@ TODO:
                     //.css('height', thumbheight + 'px');
 
                 // Set the footer text: the title and number of pictures
-                var footertopline = pcountstring(meal);
+                // var footertopline = pcountstring(meal);
 
                 var footer = $(dc('div'))
                     .css('background-color', '#fff')
@@ -2974,7 +2967,19 @@ TODO:
                     .css('font-size', footerfontsize + 'px')
                     .css('text-align', 'left')
                     .css('text-indent', '10px');
-//                     .html(footertopline);
+                    // .html(footertopline);
+                    //
+
+                // Append a picture count
+                if (picturecounttrace) {
+
+                    // Create a pcount paragraph object
+                    var pcountp = pcountparagraph(meal);
+    
+                    // Append to the footer
+                    pcountp.appendTo(footer);
+    
+                }
 
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
