@@ -2159,6 +2159,14 @@ TODO:
                 return document.createElement(a);
             }
 
+            // Return the number of meals per grid
+            function mealcount() {
+
+                return mealspergrid;
+
+            }
+
+            // Create a new meal via an ajax request & then show it's attributes
             function newmealpopup() {
                 $.getJSON(
                     '/newmeal',
@@ -2496,6 +2504,37 @@ TODO:
                 return thumbheight;
             }
 
+            // Return the title string
+            function titlestring(meal) {
+                var tstring;
+
+                if(meal.title != undefined && meal.title.length > 0) {
+                    tstring = meal.title;
+                }
+                else {
+                    tstring = "untitled";
+                }
+
+                return tstring;
+            }
+
+            // Return a paragraph object with the correct title
+            function titleparagraph(meal) {
+
+                // Grab title string
+                var tstring = titlestring(meal);
+
+                // Create paragraph with this as the html
+                var paragraph = $(dc('p'))
+                    .attr('class', 'titleparagraph')
+                    .css('font-size', footerfontsize + 'px')
+                    .css('border', 'none')
+                    .html(tstring);
+
+                // Return it
+                return paragraph;
+            }
+
             // Return the picture count string
             function pcountstring(meal) {
 
@@ -2520,12 +2559,15 @@ TODO:
             // Return a paragraph object with the correct pcount string
             function pcountparagraph(meal) {
 
-                // Grab string
+                // Grab picture count string
                 var pcount = pcountstring(meal);
 
                 // Create paragraph with this as the html
                 var paragraph = $(dc('p'))
                     .attr('class', 'pcountparagraph')
+                    .css('color', '#777')
+                    .css('text-align', 'left')
+                    .css('line-height', pcountfontsize + 'px')
                     .css('font-size', pcountfontsize + 'px')
                     .css('border', 'none')
                     .html(pcount);
@@ -2760,10 +2802,25 @@ TODO:
                     .css('width', picturewidth + (2 * picborder) + 'px')
                     .css('height', footerheight)
                     .css('font-size', footerfontsize + 'px')
+                    .css('color', '#333')
+                    .css('line-height', (footerfontsize + 10) + 'px')
                     .css('text-align', 'left')
                     .css('text-indent', '10px');
                     // .html(footertopline);
                     //
+
+                // Append a title
+                if (titletrace) {
+
+                    // Create a title paragraph object
+                    var ts = titlestring(meal);
+
+                    footer.html(ts);
+
+                    // Append to the footer
+                    // titlep.appendTo(footer);
+                }
+
 
                 // Append a picture count
                 if (picturecounttrace) {
@@ -2775,6 +2832,7 @@ TODO:
                     pcountp.appendTo(footer);
     
                 }
+
 
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
