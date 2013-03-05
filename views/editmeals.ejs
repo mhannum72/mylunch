@@ -2680,43 +2680,6 @@ TODO:
                 // Append to my anchor
                 image.appendTo(anchor);
 
-                /*
-                var test = $(dc('div'))
-                    .css('width', '100px')
-                    .css('height', '100px')
-                    .html("hello");
-                 */
-                // test.appendTo(anchor);
-
-                // Instead of a tag, this is an attribute of the anchor
-
-                //anchor.css('background-image', 'url:"' + imgsource + '");')
-                //    .html('.');
-                // anchor.html('test');
-                //image.appendTo(anchor);
-
-                /*
-                if(titletrace) {
-    
-                    // Div containing the meal title
-                    var titletext = $(dc('div'))
-                        .attr('class', 'gridtitletext');
-        
-                    // Got meal title from backend
-                    if(meal.title != undefined && meal.title.length > 0) {
-                        titletext.html(meal.title);
-                    }
-                    // Default to 'untitled' .. or nothing
-                    else {
-                        titletext.html('');
-                    }
-        
-                    // Append to center
-                    titletext.appendTo(center);
-
-                }
-                */
-
                 // Return the newly created object 
                 return editInternal;
             }
@@ -2727,26 +2690,9 @@ TODO:
                 // Calculate the thumb height here
                 var thumbheight = calculatethumbheight(meal);
 
-
-                // Top margin string
-                // var mtop = calculatemargintop(thumbheight);
-
-                // Bottom margin string
-                // var mbottom = calculatemarginbottom(thumbheight);
-
-                // Minimum height is height + margins
-                // var picheight = (pictureheight + mtop + mbottom);
-                
-                //var picwidth = picturewidth + marginleft + marginright;
-
                 // Create the editgrid div
                 var editgrid = $(dc('div'))
-
                     .attr('class', 'editgridbg')
-                    // TODO: make a gradient background function which returns 
-                    // the correct background setting for this browser
-                    // .css('background-color', '#ddd')
-                    // .css('border', '1px solid')
                     .css('border-top', '1px solid')
                     .css('border-left', '1px solid')
                     .css('border-right', '1px solid')
@@ -2758,45 +2704,16 @@ TODO:
                     .css('box-shadow', '3px 3px 5px #444')
                     .css('-webkit-box-shadow', '3px 3px 5px #444')
                     .css('-moz-box-shadow', '3px 3px 5px #444')
-
-                    // .css('float', 'bottom')
-                    //.css('background-color', '#fff')
-                    //.css('border', '1px solid')
-                    // .css('clear', 'both')
-                    // .css('float', 'left')
-                    //.css('display', '-moz-inline-stack')
-                    //.css('display', 'inline-block')
-                    //.css('vertical-align', 'top')
-                    //.css('margin-left', marginleftpx)
-                    //.css('margin-right', marginrightpx)
-                    //.css('margin-top', margintop + 'px')
-                    //.css('margin-bottom', marginbottom + 'px')
-                    //.css('vertical-align', 'bottom')
-                    //.css('display', '-moz-inline-stack')
-                    //.css('display', 'inline-block')
                     .css('width', picturewidth + (2 * picborder) + 'px')
+                    .css('height', (thumbheight + (2 * picborder)) + 'px');
 
-                    // This works
-                    //.css('height', pictureheight + 'px');
-
-                    // This is funny looking
-                    .css('height', (thumbheight + (2 * picborder)) + 'px')
-                    // .css('margin-top', (pictureheight - (thumbheight + picborder)) + 'px');
-                    //.css('height', thumbheight + 'px');
-
-                // Set the footer text: the title and number of pictures
-                // var footertopline = pcountstring(meal);
-
+                // Create the footer
                 var footer = $(dc('div'))
                     .attr('class', 'editgridfooter')
                     .css('background-color', '#fff')
                     .css('box-shadow', '3px 3px 5px #444')
                     .css('-webkit-box-shadow', '3px 3px 5px #444')
                     .css('-moz-box-shadow', '3px 3px 5px #444')
-                    //.css('z-index', '10000')
-                    // .css('background-color', '#fff')
-                    //.css('display', 'inline-block')
-                    //.css('float', 'bottom')
                     .css('border-left', '1px solid')
                     .css('border-right', '1px solid')
                     .css('border-bottom', '1px solid')
@@ -2804,18 +2721,7 @@ TODO:
                     .css('position', 'absolute')
                     .css('bottom', '-' + (footerheight + footerspace) + 'px')
                     .css('left', '-1px')
-                    //.css('clear', 'all')
                     .css('clear', 'both')
-                    //.css('vertical-align', 'bottom')
-                    //.css('position', 'absolute')
-                    //.css('bottom', '0')
-                    //.css('display', 'table-cell')
-                    //.css('float', 'left')
-                    //.css('display', '-moz-inline-stack')
-                    //.css('display', 'inline-block')
-                    //.css('border-color', '#ddd')
-                    //.css('border', '1px solid')
-                    // .css('width', picturewidth + 'px')
                     .css('width', picturewidth + (2 * picborder) + 'px')
                     .css('height', footerheight)
                     .css('font-size', footerfontsize + 'px')
@@ -2823,8 +2729,6 @@ TODO:
                     .css('line-height', (footerfontsize + 10) + 'px')
                     .css('text-align', footeralign)
                     .css('text-indent', '10px');
-                    // .html(footertopline);
-                    //
 
                 // Append a title
                 if (titletrace) {
@@ -2837,7 +2741,6 @@ TODO:
 
                 }
 
-
                 // Append a picture count
                 if (picturecounttrace) {
 
@@ -2849,13 +2752,13 @@ TODO:
     
                 }
 
-
                 // I can switch the internal div in the delete code
                 var intn = pdivint(meal, editgrid);
     
                 // Append this to the edit grid
                 intn.appendTo(editgrid);
 
+                // Append the footer
                 footer.appendTo(editgrid);
 
                 // Return grid
@@ -2870,20 +2773,14 @@ TODO:
                     .attr('class', 'egcontainer')
                     .css('float', 'left')
                     .css('float', 'bottom')
-                    //.css('background-color', '#ddd')
                     .css('position', 'relative')
                     .css('width', picturewidth + (2 * picborder) + 'px')
                     .css('height', (pictureheight + footerheight + picborder) + 'px')
                     .css('margin-top', margintop + 'px')
                     .css('margin-bottom', marginbottom + 'px')
                     .css('margin-right', marginright + 'px')
-                    // .css('margin-left', marginleft + 'px')
                     .css('display', '-moz-inline-stack')
                     .css('display', 'inline-block')[0];
-                   // .css('margin-left', '10px')
-                    //.css('margin-right', '10px')
-                    // .css('background-color', '#ddd')
-                    
 
                 // Create the grid components
                 var editgrid = pdivinner(meal);
@@ -2973,19 +2870,6 @@ TODO:
                 // Increment count
                 griddiv.count++;
 
-                /*
-                // Special case the final div
-                if(griddiv.count == mealspergrid) {
-
-                    // Clear my floats
-                    var clearf = $(dc('div'))
-                        .attr('class', 'clear');
-
-                    // Append to the last stripe
-                    clearf.appendTo(griddiv.laststripe);
-                }
-                */
-
                 // Invoke 'pic-is-loaded' callback
                 if(loadcb) {
                     var image = $(gridpic).find('.gridimage');
@@ -3016,9 +2900,11 @@ TODO:
             // The effect there seems cooler than what I've got here - and it
             // would probably be simpler code - but I'd expect this to behave
             // better over a network.
+            //
+            // I think I will do this one first
 
             // Delete a meal from the grid
-            function deletemealfromgrid(meal, callback) {
+            function dmealreplace(meal, callback) {
 
                 var editgrid;
 
@@ -3225,6 +3111,10 @@ TODO:
 
                     }
                 );  // getJSON
+            }
+
+            function deletemealfromgrid(meal, callback) {
+                dmealreplace(meal,callback);
             }
 
             // Fill a picture grid from an array
