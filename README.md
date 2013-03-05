@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* I'm going to try adding the date to the footer
+
 * Store the height and the width of the 'window' in some variables.  Create a
   'resize' handler that will adjust the layout a bit if the window width
   changes.  You'll have to create a default 'minwidth'.  The only height change
