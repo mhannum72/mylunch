@@ -2159,213 +2159,6 @@ TODO:
                 return document.createElement(a);
             }
 
-            // Must be called before anything else
-            function init(indiv, uname, pvpg, nxpg, cfg) {
-
-                // Where this will appear on the page
-                parentdiv = indiv;
-
-                // User's name
-                username = uname;
-
-                // Previous-page 
-                gridprevpage = pvpg;
-
-                // Next-page
-                gridnextpage = nxpg;
-
-                // Configurables
-                marginleft = cfg.marginleft ? cfg.marginleft : 30;
-    
-                // What's the right margin
-                marginright = cfg.marginright ? cfg.marginright : 10;
-    
-                // What's the top margin
-                margintop = cfg.margintop ? cfg.margintop : 30;
-
-                // What's the picture border
-                picborder = cfg.picborder ? cfg.picborder : 10;
-
-                // What's the bottom margin
-                marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
-
-                // What's the container's top margin
-                containermargintop = cfg.containermargintop ? 
-                    cfg.containermargintop : 10;
-    
-                // What's the container's bottom margin
-                containermarginbottom = cfg.containermarginbottom ? 
-                    cfg.containermarginbottom : 10;
-
-                // What's the container's right margin
-                containermarginright = cfg.containermarginright ?
-                    cfg.containermarginright : 10;
-
-                // What's the container's left margin
-                containermarginleft = cfg.containermarginleft ? 
-                    cfg.containermarginleft : 10;
-
-                // What's the width of a picture
-                picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
-    
-                // What's the max heigth of a picture
-                pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
-
-                // What's the max height of a footer
-                footerheight = cfg.footerheight ? cfg.footerheight : 60;
-
-                // What's the footer's font size
-                footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
-
-                // What's the size of the picture count text
-                pcountfontsize = cfg.pcountfontsize ? cfg.pcountfontsize : 14;
-
-                // Space between footer and picture
-                footerspace = cfg.footerspace ? cfg.footerspace : 0;
-    
-                // How many pictures per row
-                mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
-    
-                // How many rows per page
-                rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
-    
-                // Derived: how many meals per grid
-                mealspergrid = mealsperrow * rowsperpage;
-    
-                // Calculate spacer width
-                spacerwidth = cfg.spacerwidth ? cfg.spacerwidth : 20;
-
-                // Derived: how many pixels wide?
-                gridwidth = ((picturewidth + marginleft + marginright + 
-                    (2 * picborder)) * mealsperrow) + 
-                    (spacerwidth * (mealsperrow - 1));
-    
-                // Allow 
-                nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
-    
-                // Easing function
-                grideasing = cfg.grideasing ? cfg.grideasing : 'grideasingfunc';
-    
-                // Speed to change pages
-                gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
-    
-                // Viewport width leaves a little breathing room at the edges
-                viewportwidth = gridwidth + marginleft + marginright;
-    
-                // Some fudge for stripe text
-                stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
-    
-                // Set the anchor click function
-                anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
-    
-                // Set the use-hover-text flag
-                usehovertext = cfg.usehovertext ? cfg.usehovertext : null;
-
-                // New meal anchor
-                newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
-    
-                /*
-                // The stripe height
-                stripeheight = pictureheight + margintop + marginbottom + 
-                    stripefudge;
-                */
-
-                // Calculate the container grid height
-                containerheight = rowsperpage * (pictureheight + footerheight +
-                        + (2 * picborder) + margintop + marginbottom);
-
-                // Outer container height
-                outercontainerheight = containerheight + containermargintop +
-                    containermarginbottom;
-
-                // Outer container width
-                outercontainerwidth = viewportwidth + containermarginleft +
-                    containermarginright;
-
-                // We are not running display code
-                displaying = false;
-
-                // Display 'picture count' underneath the grid
-                picturecounttrace = cfg.picturecounttrace ? 
-                    cfg.picturecounttrace : true;
-
-                // Display a picture's title underneath the grid
-                titletrace = cfg.titletrace ? cfg.titletrace : false;
-
-                // Animate next and prev page
-                animatenextprev = cfg.animatenextprev ? cfg.animatenextprev : 
-                    false;
-
-                // Set the easing function in jQuery
-                if(!$.easing[grideasing]) {
-                    $.easing[grideasing] = function (x, t, b, c, d) {
-                        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-                    }
-                }
-    
-                // Linear find picindex 
-                function findpicidxlinear(pinfo, timestamp) {
-    
-                    // XXX abort();
-                    for(var ii = 0 ; ii < pinfo.length ; ii++) {
-                        if(pinfo[ii].timestamp == timestamp)
-                            return ii;
-                    }
-                    return -1;
-                }
-    
-                // Set findpicidx
-                findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
-        
-                // Height will change as pictures are added
-                gridviewport = $(dc('div'))
-                    .attr('id', 'gridviewport')
-                    .attr('class', 'gridviewport')
-                    //.css('position', 'relative')
-                    .css('top', '0px')
-                    .css('float', 'left')
-                    .css('height', containerheight + 'px')
-                    .css('width', viewportwidth + 'px');
-    
-                // Container holds viewport which will hide picture edges
-                gridcontainer = $(dc('div'))
-                    .attr('id', 'gridcontainer')
-                    .attr('class', 'gridcontainer')
-                    .css('height', containerheight + 'px')
-                    .css('width', gridwidth + 'px')
-                    .css('overflow', 'hidden')
-                    .css('position', 'relative');
-    
-                // Outer container is background
-                gridoutercontainer = $(dc('div'))
-                    .attr('id', 'gridoutercontainer')
-                    .attr('class', 'gridoutercontainer')
-                    .css('height', outercontainerheight + 'px')
-                    .css('width', outercontainerwidth + 'px')
-                    .css('position', 'relative');
-
-                // Set the viewport height dynamically
-                viewportheight = 0;
-    
-                // Append the viewport to the container
-                gridviewport.appendTo(gridcontainer);
-
-                gridcontainer.appendTo(gridoutercontainer);
-    
-                // Append this to the parentdiv if there is one
-                if(parentdiv) {
-                    gridoutercontainer.appendTo(parentdiv);
-                }
-            }
-
-            // Return the number of meals per grid
-            function mealcount() {
-
-                return mealspergrid;
-
-            }
-
-            // Create a new meal via an ajax request & then show it's attributes
             function newmealpopup() {
                 $.getJSON(
                     '/newmeal',
@@ -2395,12 +2188,14 @@ TODO:
                     });
                 }
 
-                // If a newmeal anchor is specified set its click handler
-                if(newmealanchor) {
-                    $(newmealanchor).click(function() {
-                        newmealpopup();
-                    });
-                }
+
+
+            // Return the number of meals per grid
+            function mealcount() {
+
+                return mealspergrid;
+
+            }
 
                 // Updates title displayed on the grid
                 function updatetitle(meal) {
@@ -3569,6 +3364,209 @@ TODO:
                     } // ++loaded == endpic
                 }); // fillfromarray
             }
+
+            // Must be called before anything else
+            function init(indiv, uname, pvpg, nxpg, cfg) {
+
+                // Where this will appear on the page
+                parentdiv = indiv;
+
+                // User's name
+                username = uname;
+
+                // Previous-page 
+                gridprevpage = pvpg;
+
+                // Next-page
+                gridnextpage = nxpg;
+
+                // Configurables
+                marginleft = cfg.marginleft ? cfg.marginleft : 30;
+    
+                // What's the right margin
+                marginright = cfg.marginright ? cfg.marginright : 10;
+    
+                // What's the top margin
+                margintop = cfg.margintop ? cfg.margintop : 30;
+
+                // What's the picture border
+                picborder = cfg.picborder ? cfg.picborder : 10;
+
+                // What's the bottom margin
+                marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+
+                // What's the container's top margin
+                containermargintop = cfg.containermargintop ? 
+                    cfg.containermargintop : 10;
+    
+                // What's the container's bottom margin
+                containermarginbottom = cfg.containermarginbottom ? 
+                    cfg.containermarginbottom : 10;
+
+                // What's the container's right margin
+                containermarginright = cfg.containermarginright ?
+                    cfg.containermarginright : 10;
+
+                // What's the container's left margin
+                containermarginleft = cfg.containermarginleft ? 
+                    cfg.containermarginleft : 10;
+
+                // What's the width of a picture
+                picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
+    
+                // What's the max heigth of a picture
+                pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+
+                // What's the max height of a footer
+                footerheight = cfg.footerheight ? cfg.footerheight : 60;
+
+                // What's the footer's font size
+                footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
+
+                // What's the size of the picture count text
+                pcountfontsize = cfg.pcountfontsize ? cfg.pcountfontsize : 14;
+
+                // Space between footer and picture
+                footerspace = cfg.footerspace ? cfg.footerspace : 0;
+    
+                // How many pictures per row
+                mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
+    
+                // How many rows per page
+                rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
+    
+                // Derived: how many meals per grid
+                mealspergrid = mealsperrow * rowsperpage;
+    
+                // Calculate spacer width
+                spacerwidth = cfg.spacerwidth ? cfg.spacerwidth : 20;
+
+                // Derived: how many pixels wide?
+                gridwidth = ((picturewidth + marginleft + marginright + 
+                    (2 * picborder)) * mealsperrow) + 
+                    (spacerwidth * (mealsperrow - 1));
+    
+                // Allow 
+                nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
+    
+                // Easing function
+                grideasing = cfg.grideasing ? cfg.grideasing : 'grideasingfunc';
+    
+                // Speed to change pages
+                gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
+    
+                // Viewport width leaves a little breathing room at the edges
+                viewportwidth = gridwidth + marginleft + marginright;
+    
+                // Some fudge for stripe text
+                stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
+    
+                // Set the anchor click function
+                anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
+    
+                // Set the use-hover-text flag
+                usehovertext = cfg.usehovertext ? cfg.usehovertext : null;
+
+                // New meal anchor
+                newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
+    
+                // If a newmeal anchor is specified set its click handler
+                if(newmealanchor) {
+                    $(newmealanchor).click(function() {
+                        newmealpopup();
+                    });
+                }
+
+                // Calculate the container grid height
+                containerheight = rowsperpage * (pictureheight + footerheight +
+                        + (2 * picborder) + margintop + marginbottom);
+
+                // Outer container height
+                outercontainerheight = containerheight + containermargintop +
+                    containermarginbottom;
+
+                // Outer container width
+                outercontainerwidth = viewportwidth + containermarginleft +
+                    containermarginright;
+
+                // We are not running display code
+                displaying = false;
+
+                // Display 'picture count' underneath the grid
+                picturecounttrace = cfg.picturecounttrace ? 
+                    cfg.picturecounttrace : true;
+
+                // Display a picture's title underneath the grid
+                titletrace = cfg.titletrace ? cfg.titletrace : false;
+
+                // Animate next and prev page
+                animatenextprev = cfg.animatenextprev ? cfg.animatenextprev : 
+                    false;
+
+                // Set the easing function in jQuery
+                if(!$.easing[grideasing]) {
+                    $.easing[grideasing] = function (x, t, b, c, d) {
+                        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+                    }
+                }
+    
+                // Linear find picindex 
+                function findpicidxlinear(pinfo, timestamp) {
+    
+                    // XXX abort();
+                    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+                        if(pinfo[ii].timestamp == timestamp)
+                            return ii;
+                    }
+                    return -1;
+                }
+    
+                // Set findpicidx
+                findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
+        
+                // Height will change as pictures are added
+                gridviewport = $(dc('div'))
+                    .attr('id', 'gridviewport')
+                    .attr('class', 'gridviewport')
+                    //.css('position', 'relative')
+                    .css('top', '0px')
+                    .css('float', 'left')
+                    .css('height', containerheight + 'px')
+                    .css('width', viewportwidth + 'px');
+    
+                // Container holds viewport which will hide picture edges
+                gridcontainer = $(dc('div'))
+                    .attr('id', 'gridcontainer')
+                    .attr('class', 'gridcontainer')
+                    .css('height', containerheight + 'px')
+                    .css('width', gridwidth + 'px')
+                    .css('overflow', 'hidden')
+                    .css('position', 'relative');
+    
+                // Outer container is background
+                gridoutercontainer = $(dc('div'))
+                    .attr('id', 'gridoutercontainer')
+                    .attr('class', 'gridoutercontainer')
+                    .css('height', outercontainerheight + 'px')
+                    .css('width', outercontainerwidth + 'px')
+                    .css('position', 'relative');
+
+                // Set the viewport height dynamically
+                viewportheight = 0;
+    
+                // Append the viewport to the container
+                gridviewport.appendTo(gridcontainer);
+
+                gridcontainer.appendTo(gridoutercontainer);
+    
+                // Append this to the parentdiv if there is one
+                if(parentdiv) {
+                    gridoutercontainer.appendTo(parentdiv);
+                }
+            }
+
+
+
 
             // Exposed functions
             return {
