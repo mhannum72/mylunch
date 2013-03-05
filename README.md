@@ -5,13 +5,6 @@ mylunch
 todo
 ====
 
-* If there's a title, center the title under the picture.  Otherwise, put the
-  name of the meal + the date it was (or maybe uploaded .. ?).  Or maybe just
-  leave it completely empty ..
-
-* Maybe the picture should be centered on a grey background - it would look
-  the way that it will be displayed in the carousel.
-
 * Store the height and the width of the 'window' in some variables.  Create a
   'resize' handler that will adjust the layout a bit if the window width
   changes.  You'll have to create a default 'minwidth'.  The only height change

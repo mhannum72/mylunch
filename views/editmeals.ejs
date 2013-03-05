@@ -126,7 +126,7 @@ TODO:
     var findpicidx = (function(cfg) {
 
         // 100 or less does better with linear search
-        var optcutoff = cfg && cfg.optcutoff ? cfg.optcutoff : 100;
+        var optcutoff = (cfg && cfg.optcutoff) ? cfg.optcutoff : 100;
 
         // Binary search function
         function binarysearch(pinfo, timestamp) {
@@ -206,6 +206,14 @@ TODO:
             "July", "August", "September", "October", "November", "December" ];
         return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
     }
+
+    // Shorten hasOwnProperty
+    /*
+    Object.prototype.hprop = function(prop) {
+        return this.prototype.hasOwnProperty(prop);
+    }
+    */
+
 
     // jquery ready handler
     $(document).ready(function() {
@@ -402,6 +410,9 @@ TODO:
             // Must init before using
             function init(findp, makecarousel, cfg) {
 
+                // Shorten function name
+                cfg.hp = cfg.hasOwnProperty;
+
                 // Set search function
                 findpicidx = findp;
 
@@ -409,40 +420,40 @@ TODO:
                 createcarousel = makecarousel;
 
                 // Minimum mask width
-                minmaskfadewidth = cfg.minmaskfadewidth ? cfg.minmaskfadewidth : 1024;
+                minmaskfadewidth = cfg.hp("minmaskfadewidth") ? cfg.minmaskfadewidth : 1024;
     
                 // Mask height
-                maskfadeheight = cfg.maskfadeheight ? cfg.maskfadeheight : 2000;
+                maskfadeheight = cfg.hp("maskfadeheight") ? cfg.maskfadeheight : 2000;
     
                 // Opacity
-                maskfadeopacity = cfg.maskfadeopacity ? cfg.maskfadeopacity : 0.6;
+                maskfadeopacity = cfg.hp("maskfadeopacity") ? cfg.maskfadeopacity : 0.6;
     
                 // Where to append the 
-                appendpop = cfg.appendpop ? cfg.appendpop : null;
+                appendpop = cfg.hp("appendpop") ? cfg.appendpop : null;
     
                 // Width of modal
-                modalwidth = cfg.modalwidth ? cfg.modalwidth : 800;
+                modalwidth = cfg.hp("modalwidth") ? cfg.modalwidth : 800;
     
                 // Hidden frame
-                hiddenframe = cfg.hiddenframe ? cfg.hiddenframe : $('#hiddenElements')[0];
+                hiddenframe = cfg.hp("hiddenframe") ? cfg.hiddenframe : $('#hiddenElements')[0];
     
                 // Grid delete function
-                griddelete = cfg.griddelete ? cfg.griddelete : null;
+                griddelete = cfg.hp("griddelete") ? cfg.griddelete : null;
     
                 // Set the display picture
-                setgriddisplay = cfg.setgriddisplay ? cfg.setgriddisplay : null;
+                setgriddisplay = cfg.hp("setgriddisplay") ? cfg.setgriddisplay : null;
     
                 // Set the grid title
-                setgridtitle = cfg.setgridtitle ? cfg.setgridtitle : null;
+                setgridtitle = cfg.hp("setgridtitle") ? cfg.setgridtitle : null;
     
                 // Set the update count function
-                setgridcount = cfg.setgridcount ? cfg.setgridcount : null;
+                setgridcount = cfg.hp("setgridcount") ? cfg.setgridcount : null;
     
                 // Set the meal on the grid
-                setgridmeal = cfg.setgridmeal ? cfg.setgridmeal : null;
+                setgridmeal = cfg.hp("setgridmeal") ? cfg.setgridmeal : null;
     
                 // Element creator
-                dc = cfg.createelm ? cfg.createelm : function(a) {
+                dc = cfg.hp("createelm") ? cfg.createelm : function(a) {
                     return document.createElement(a);
                 }
     
@@ -2144,6 +2155,9 @@ TODO:
             // Set to true to display picture count trace
             var picturecounttrace;
 
+            // Set to the footer alignment
+            var footeralign;
+
             // Set to true to display picture title
             var titletrace;
 
@@ -2197,14 +2211,13 @@ TODO:
                 }
 
 
-
-            // Return the number of meals per grid
-            function mealcount() {
-
-                return mealspergrid;
-
-            }
-
+                // Return the number of meals per grid
+                function mealcount() {
+    
+                    return mealspergrid;
+    
+                }
+    
                 // Updates title displayed on the grid
                 function updatetitle(meal) {
 
@@ -2213,12 +2226,14 @@ TODO:
                         // Grab the gridobj
                         if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
     
-                        // Div object
-                        var div = $(meal.gridobj).find('div > center > .titleText'); 
+                        // Paragraph object
+                        var titlesp = $(meal.gridobj).find('.titlespan'); 
+
+                        // Format title string
+                        var title = titlestring(meal);
     
                         // Set the html
-                        div.html(meal.title);
-
+                        titlesp.html(title);
                     }
                 }
 
@@ -2519,20 +2534,20 @@ TODO:
             }
 
             // Return a paragraph object with the correct title
-            function titleparagraph(meal) {
+            function titlespan(meal) {
 
                 // Grab title string
                 var tstring = titlestring(meal);
 
                 // Create paragraph with this as the html
-                var paragraph = $(dc('p'))
-                    .attr('class', 'titleparagraph')
+                var span = $(dc('span'))
+                    .attr('class', 'titlespan')
                     .css('font-size', footerfontsize + 'px')
                     .css('border', 'none')
                     .html(tstring);
 
                 // Return it
-                return paragraph;
+                return span;
             }
 
             // Return the picture count string
@@ -2566,7 +2581,7 @@ TODO:
                 var paragraph = $(dc('p'))
                     .attr('class', 'pcountparagraph')
                     .css('color', '#777')
-                    .css('text-align', 'left')
+                    .css('text-align', footeralign)
                     .css('line-height', pcountfontsize + 'px')
                     .css('font-size', pcountfontsize + 'px')
                     .css('border', 'none')
@@ -2680,11 +2695,12 @@ TODO:
                 // anchor.html('test');
                 //image.appendTo(anchor);
 
+                /*
                 if(titletrace) {
     
                     // Div containing the meal title
                     var titletext = $(dc('div'))
-                        .attr('class', 'titleText');
+                        .attr('class', 'gridtitletext');
         
                     // Got meal title from backend
                     if(meal.title != undefined && meal.title.length > 0) {
@@ -2699,6 +2715,7 @@ TODO:
                     titletext.appendTo(center);
 
                 }
+                */
 
                 // Return the newly created object 
                 return editInternal;
@@ -2771,8 +2788,8 @@ TODO:
                 // var footertopline = pcountstring(meal);
 
                 var footer = $(dc('div'))
+                    .attr('class', 'editgridfooter')
                     .css('background-color', '#fff')
-                    .css('class', 'editgridfooter')
                     .css('box-shadow', '3px 3px 5px #444')
                     .css('-webkit-box-shadow', '3px 3px 5px #444')
                     .css('-moz-box-shadow', '3px 3px 5px #444')
@@ -2804,7 +2821,7 @@ TODO:
                     .css('font-size', footerfontsize + 'px')
                     .css('color', '#333')
                     .css('line-height', (footerfontsize + 10) + 'px')
-                    .css('text-align', 'left')
+                    .css('text-align', footeralign)
                     .css('text-indent', '10px');
                     // .html(footertopline);
                     //
@@ -2813,12 +2830,11 @@ TODO:
                 if (titletrace) {
 
                     // Create a title paragraph object
-                    var ts = titlestring(meal);
-
-                    footer.html(ts);
+                    var titlesp = titlespan(meal);
 
                     // Append to the footer
-                    // titlep.appendTo(footer);
+                    titlesp.appendTo(footer);
+
                 }
 
 
@@ -3426,6 +3442,9 @@ TODO:
             // Must be called before anything else
             function init(indiv, uname, pvpg, nxpg, cfg) {
 
+                // Shorten function name
+                cfg.hp = cfg.hasOwnProperty;
+
                 // Where this will appear on the page
                 parentdiv = indiv;
 
@@ -3439,65 +3458,65 @@ TODO:
                 gridnextpage = nxpg;
 
                 // Configurables
-                marginleft = cfg.marginleft ? cfg.marginleft : 30;
+                marginleft = cfg.hp("marginleft") ? cfg.marginleft : 30;
     
                 // What's the right margin
-                marginright = cfg.marginright ? cfg.marginright : 10;
+                marginright = cfg.hp("marginright") ? cfg.marginright : 10;
     
                 // What's the top margin
-                margintop = cfg.margintop ? cfg.margintop : 30;
+                margintop = cfg.hp("margintop") ? cfg.margintop : 30;
 
                 // What's the picture border
-                picborder = cfg.picborder ? cfg.picborder : 10;
+                picborder = cfg.hp("picborder") ? cfg.picborder : 10;
 
                 // What's the bottom margin
-                marginbottom = cfg.marginbottom ? cfg.marginbottom : 10;
+                marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 10;
 
                 // What's the container's top margin
-                containermargintop = cfg.containermargintop ? 
+                containermargintop = cfg.hp("containermargintop") ? 
                     cfg.containermargintop : 10;
     
                 // What's the container's bottom margin
-                containermarginbottom = cfg.containermarginbottom ? 
+                containermarginbottom = cfg.hp("containermarginbottom") ? 
                     cfg.containermarginbottom : 10;
 
                 // What's the container's right margin
-                containermarginright = cfg.containermarginright ?
+                containermarginright = cfg.hp("containermarginright") ?
                     cfg.containermarginright : 10;
 
                 // What's the container's left margin
-                containermarginleft = cfg.containermarginleft ? 
+                containermarginleft = cfg.hp("containermarginleft") ? 
                     cfg.containermarginleft : 10;
 
                 // What's the width of a picture
-                picturewidth = cfg.picturewidth ? cfg.picturewidth : 300;
+                picturewidth = cfg.hp("picturewidth") ? cfg.picturewidth : 300;
     
                 // What's the max heigth of a picture
-                pictureheight = cfg.pictureheight ? cfg.pictureheight : 300;
+                pictureheight = cfg.hp("pictureheight") ? cfg.pictureheight : 300;
 
                 // What's the max height of a footer
-                footerheight = cfg.footerheight ? cfg.footerheight : 60;
+                footerheight = cfg.hp("footerheight") ? cfg.footerheight : 60;
 
                 // What's the footer's font size
-                footerfontsize = cfg.footerfontsize ? cfg.footerfontsize : 18;
+                footerfontsize = cfg.hp("footerfontsize") ? cfg.footerfontsize : 18;
 
                 // What's the size of the picture count text
-                pcountfontsize = cfg.pcountfontsize ? cfg.pcountfontsize : 14;
+                pcountfontsize = cfg.hp("pcountfontsize") ? cfg.pcountfontsize : 14;
 
                 // Space between footer and picture
-                footerspace = cfg.footerspace ? cfg.footerspace : 0;
+                footerspace = cfg.hp("footerspace") ? cfg.footerspace : 0;
     
                 // How many pictures per row
-                mealsperrow = cfg.mealsperrow ? cfg.mealsperrow : 3;
+                mealsperrow = cfg.hp("mealsperrow") ? cfg.mealsperrow : 3;
     
                 // How many rows per page
-                rowsperpage = cfg.rowsperpage ? cfg.rowsperpage : 3;
+                rowsperpage = cfg.hp("rowsperpage") ? cfg.rowsperpage : 3;
     
                 // Derived: how many meals per grid
                 mealspergrid = mealsperrow * rowsperpage;
     
                 // Calculate spacer width
-                spacerwidth = cfg.spacerwidth ? cfg.spacerwidth : 20;
+                spacerwidth = cfg.hp("spacerwidth") ? cfg.spacerwidth : 20;
 
                 // Derived: how many pixels wide?
                 gridwidth = ((picturewidth + marginleft + marginright + 
@@ -3505,28 +3524,28 @@ TODO:
                     (spacerwidth * (mealsperrow - 1));
     
                 // Allow 
-                nxpvcallback = cfg.nxpvcallback ? cfg.nxpvcallback : null;
+                nxpvcallback = cfg.hp("nxpvcallback") ? cfg.nxpvcallback : null;
     
                 // Easing function
-                grideasing = cfg.grideasing ? cfg.grideasing : 'grideasingfunc';
+                grideasing = cfg.hp("grideasing") ? cfg.grideasing : 'grideasingfunc';
     
                 // Speed to change pages
-                gridspeed = cfg.gridspeed ? cfg.gridspeed : 1000;
+                gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 1000;
     
                 // Viewport width leaves a little breathing room at the edges
                 viewportwidth = gridwidth + marginleft + marginright;
     
                 // Some fudge for stripe text
-                stripefudge = cfg.stripefudge ? cfg.stripefudge : 60;
+                stripefudge = cfg.hp("stripefudge") ? cfg.stripefudge : 60;
     
                 // Set the anchor click function
-                anchorclickfn = cfg.anchorclickfn ? cfg.anchorclickfn : null;
+                anchorclickfn = cfg.hp("anchorclickfn") ? cfg.anchorclickfn : null;
     
                 // Set the use-hover-text flag
-                usehovertext = cfg.usehovertext ? cfg.usehovertext : null;
+                usehovertext = cfg.hp("usehovertext") ? cfg.usehovertext : null;
 
                 // New meal anchor
-                newmealanchor = cfg.newmealanchor ? cfg.newmealanchor : null;
+                newmealanchor = cfg.hp("newmealanchor") ? cfg.newmealanchor : null;
     
                 // If a newmeal anchor is specified set its click handler
                 if(newmealanchor) {
@@ -3551,14 +3570,17 @@ TODO:
                 displaying = false;
 
                 // Display 'picture count' underneath the grid
-                picturecounttrace = cfg.picturecounttrace ? 
+                picturecounttrace = cfg.hp("picturecounttrace") ? 
                     cfg.picturecounttrace : true;
 
+                // Configure alignment of the footer text
+                footeralign = cfg.hp("footeralign") ? cfg.footeralign : 'center';
+
                 // Display a picture's title underneath the grid
-                titletrace = cfg.titletrace ? cfg.titletrace : false;
+                titletrace = cfg.hp("titletrace") ? cfg.titletrace : true;
 
                 // Animate next and prev page
-                animatenextprev = cfg.animatenextprev ? cfg.animatenextprev : 
+                animatenextprev = cfg.hp("animatenextprev") ? cfg.animatenextprev : 
                     false;
 
                 // Set the easing function in jQuery
@@ -3580,7 +3602,7 @@ TODO:
                 }
     
                 // Set findpicidx
-                findpicidx = cfg.findpicidx ? cfg.findpicidx : findpicidxlinear;
+                findpicidx = cfg.hp("findpicidx") ? cfg.findpicidx : findpicidxlinear;
         
                 // Height will change as pictures are added
                 gridviewport = $(dc('div'))
@@ -3623,9 +3645,6 @@ TODO:
                 }
             }
 
-
-
-
             // Exposed functions
             return {
                 init                        : init,
@@ -3652,8 +3671,8 @@ TODO:
                     anchorclickfn       : showattributes.show,
                     newmealanchor       : document.getElementById('newmealpopup'),
                     findpicidx          : findpicidx.search,
-                    titletrace          : false,
-                    picturecounttrace   : false,
+                    titletrace          : true,
+                    picturecounttrace   : true,
                     animatenextprev     : true,
                     rowsperpage         : 2
                 }

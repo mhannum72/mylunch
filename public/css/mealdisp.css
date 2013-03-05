@@ -610,4 +610,6 @@ a.dp-choose-date.dp-disabled {
     cursor: default;
 }
 */
-
+.gridtitletext {
+    style: bold;
+}
