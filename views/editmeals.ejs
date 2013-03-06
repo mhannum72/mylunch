@@ -207,6 +207,12 @@ TODO:
         return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
     }
 
+    // Create string format for griddates
+    Date.prototype.asGridString = function() {
+        return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
+    }
+
+
     // Shorten hasOwnProperty
     /*
     Object.prototype.hprop = function(prop) {
@@ -1146,8 +1152,21 @@ TODO:
 
                             meal.title = titleEditInput.val();
 
-                            // Change modal title
-                            $(hovertitle).html(meal.title);
+                            // If this is empty
+                            if(undefined == meal.title || meal.title.length <= 0) {
+
+                                // Change modal title
+                                $(hovertitle).html("untitled");
+
+                            }
+                            else {
+
+                                // Change modal title
+                                $(hovertitle).html(meal.title);
+
+                            }
+
+
 
                             // Change grid title
                             if(setgridtitle) {
@@ -2078,7 +2097,7 @@ TODO:
             var footerfontsize;
 
             // Number of pictures font size
-            var pcountfontsize;
+            var subfooterfontsize;
 
             // What's the space between the picture and footer
             var footerspace;
@@ -2155,11 +2174,17 @@ TODO:
             // Set to true to display picture count trace
             var picturecounttrace;
 
+            // Set to true to display time trace
+            var picturetimetrace;
+
             // Set to the footer alignment
             var footeralign;
 
             // Set to true to display picture title
             var titletrace;
+
+            // Font color of the title
+            var titlefontcolor;
 
             // Set to true to animate grid pages
             var animatenextprev;
@@ -2207,131 +2232,140 @@ TODO:
 
                         // Display a popup
                         showattributes.show(username, response.timestamp);
-                    });
-                }
-
-
-                // Return the number of meals per grid
-                function mealcount() {
-    
-                    return mealspergrid;
-    
-                }
-    
-                // Updates title displayed on the grid
-                function updatetitle(meal) {
-
-                    if(titletrace) {
-
-                        // Grab the gridobj
-                        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
-    
-                        // Paragraph object
-                        var titlesp = $(meal.gridobj).find('.titlespan'); 
-
-                        // Format title string
-                        var title = titlestring(meal);
-    
-                        // Set the html
-                        titlesp.html(title);
+                    
                     }
-                }
+                );
+            }
 
-                // Updates hover meal text displayed on the grid
-                function updatemeal(meal) {
+            // Return the number of meals per grid
+            function mealcount() {
+
+                return mealspergrid;
+
+            }
+
+            // Updates title displayed on the grid
+            function updatetitle(meal) {
+
+                if(titletrace) {
 
                     // Grab the gridobj
                     if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
-                    
-                    // Capitalize
-                    var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
 
-                    // Complete text
-                    var hovertxt = mealtxt + " created on " + 
-                        new Date(meal.timestamp).asMyString();
+                    // Paragraph object
+                    var titlesp = $(meal.gridobj).find('.titlespan'); 
 
-                    // Div object
-                    var div = $(meal.gridobj).find('div > center > div > a');
+                    // Format title string
+                    var title = titlestring(meal);
 
-                    // Set the title
-                    if(div) div.attr('title', hovertxt);
-                }
-
-                // Updates picture count displayed on the grid
-                function updatepicturecount(meal) {
-
-                    if(picturecounttrace) {
-
-                        // Grab the gridobj
-                        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+                    // Special case no-title
+                    if (title.length <= 0) {
     
-                        // Grid object
-                        var paragraph = $(meal.gridobj).find('.pcountparagraph'); 
-    
-                        // Update string
-                        var picturecountstring = pcountstring(meal);
-                            //meal.picInfo.length + " pictures";
-    
-                        // Set the html
-                        paragraph.html(picturecountstring);
-    
+                        titlesp.css('color', '#fff');
+                        title = ".";
                     }
+                    else {
+                        titlesp.css('color', titlefontcolor);
+                    }
+    
+                    // Set the html
+                    titlesp.html(title);
                 }
+            }
 
+            // Updates hover meal text displayed on the grid
+            function updatemeal(meal) {
 
-                // Request previous pages meals from the server
-                function drawprevmeals(prevpage) {
+                // Grab the gridobj
+                if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+                
+                // Capitalize
+                var mealtxt = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
 
-                    $.getJSON('/editpageprev',
+                // Complete text
+                var hovertxt = mealtxt + " created on " + 
+                    new Date(meal.timestamp).asMyString();
+
+                // Div object
+                var div = $(meal.gridobj).find('div > center > div > a');
+
+                // Set the title
+                if(div) div.attr('title', hovertxt);
+            }
+
+            // Updates picture count displayed on the grid
+            function updatepicturecount(meal) {
+
+                if(picturecounttrace) {
+
+                    // Grab the gridobj
+                    if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+
+                    // Grid object
+                    var paragraph = $(meal.gridobj).find('.pcountspan'); 
+
+                    // Update string
+                    var picturecountstring = pcountstring(meal);
+                        //meal.picInfo.length + " pictures";
+
+                    // Set the html
+                    paragraph.html(picturecountstring);
+
+                }
+            }
+
+            // Request previous pages meals from the server
+            function drawprevmeals(prevpage) {
+
+                $.getJSON('/editpageprev',
+                {
+                    username: username,
+                    prevts: prevpage.timestamp,
+                    count: mealspergrid
+                },
+                function(response) {
+                    if(response.errStr != undefined && response.errStr.length > 0) {
+
+                        // Send this error to a space at the top..
+                        debuglog('editpageprev error: ' + response.errStr);
+                    }
+                    else {
+                        var nextpage = new mealpage(parseInt(response.nextts,10));
+                        var prevpage = new mealpage(parseInt(response.prevts,10));
+
+                        displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                    }
+                });
+                return 0;
+            }
+
+            // Request the next page of meals
+            function drawnextmeals(nextpage, callback) {
+    
+                // Make this an ajax request that will return enough information
+                $.getJSON('/editpagenext',
                     {
                         username: username,
-                        prevts: prevpage.timestamp,
+                        nextts: nextpage.timestamp,
                         count: mealspergrid
                     },
                     function(response) {
                         if(response.errStr != undefined && response.errStr.length > 0) {
-
                             // Send this error to a space at the top..
-                            debuglog('editpageprev error: ' + response.errStr);
+                            debuglog('editpagenext error: ' + response.errStr);
                         }
                         else {
-                            var nextpage = new mealpage(parseInt(response.nextts,10));
-                            var prevpage = new mealpage(parseInt(response.prevts,10));
-
-                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                            var nextpage = new mealpage(
+                                parseInt(response.nextts,10) 
+                            );
+                            var prevpage = new mealpage(
+                                parseInt(response.prevts,10)
+                            );
+                            displaygrid(response.mealinfo, prevpage, nextpage, 'forwards', callback);
                         }
-                    });
-                    return 0;
-                }
-
-
-                // Request the next page of meals
-                function drawnextmeals(nextpage, callback) {
-    
-                    // Make this an ajax request that will return enough information
-                    $.getJSON('/editpagenext',
-                        {
-                            username: username,
-                            nextts: nextpage.timestamp,
-                            count: mealspergrid
-                        },
-                        function(response) {
-                            if(response.errStr != undefined && response.errStr.length > 0) {
-                                // Send this error to a space at the top..
-                                debuglog('editpagenext error: ' + response.errStr);
-                            }
-                            else {
-                                var nextpage = new mealpage(
-                                    parseInt(response.nextts,10) 
-                                );
-                                var prevpage = new mealpage(
-                                    parseInt(response.prevts,10)
-                                );
-                                displaygrid(response.mealinfo, prevpage, nextpage, 'forwards', callback);
-                            }
-                        }
-                    );
-                    return 0;
+                    }
+                );
+                return 0;
             }
     
             // Create div & link for a next or prev page
@@ -2396,50 +2430,7 @@ TODO:
                 }
             }
 
-            // Calculates the margin right given a picture width
-            function calculatemarginright(thumbwidth) {
-
-                return marginright + 10;
-
-            }
-
-            // Calculates the margin left given a picture width
-            function calculatemarginleft(thumbwidth) {
-
-                return marginleft + 10;
-
-            }
-
-            // Calculates the margintop given a picture height
-            function calculatemargintop(thumbheight) {
-
-                // Container height and margin minus half thumbheight
-                //return (pictureheight + margintop) - (thumbheight/2);
-                //return pictureheight - (thumbheight/2);
-                // return (thumbheight/2);
-//                return 0;
-
-//                return margintop + (pictureheight/2) - (thumbheight/2);
-                //return margintop + (pictureheight-thumbheight);
-                // return margintop;
-                // return (pictureheight - thumbheight) / 2;
-            }
-
-            // Calculates the marginbottom given a picture height
-            function calculatemarginbottom(thumbheight) {
-
-                // Container height and margin minus half thumbheight
-                //return (pictureheight + margintop) - (thumbheight/2);
-                // return pictureheight - (thumbheight/2);
-//                return 0;
-
-                //return (pictureheight/2) - (thumbheight/2);
-                //return (pictureheight-thumbheight)/2;
-                //return marginbottom + ((pictureheight-thumbheight)/2);
-                return marginbottom;
-            }
-
-            // Updates the grid display picture to this timestamp
+           // Updates the grid display picture to this timestamp
             function updatedisplaypicture(meal, picinfo) {
 
                 // Get the gridobj
@@ -2527,7 +2518,7 @@ TODO:
                     tstring = meal.title;
                 }
                 else {
-                    tstring = "untitled";
+                    tstring = "";
                 }
 
                 return tstring;
@@ -2541,10 +2532,72 @@ TODO:
 
                 // Create paragraph with this as the html
                 var span = $(dc('span'))
-                    .attr('class', 'titlespan')
-                    .css('font-size', footerfontsize + 'px')
+                        .attr('class', 'titlespan')
+                        .css('font-size', footerfontsize + 'px')
+                        .css('border', 'none');
+
+                // Special case no-title
+                if (tstring.length <= 0) {
+
+                    span.css('color', '#fff');
+                    tstring = ".";
+                }
+                else {
+                    span.css('color', titlefontcolor);
+                }
+
+                // Set the title string
+                span.html(tstring);
+
+                // Return it
+                return span;
+            }
+
+
+            // Return a sub-footer paragraph object
+            function subfooterp(meal) {
+                var par = $(dc('p'))
+                    .attr('class', 'subfooterp')
+                    .css('text-align', footeralign)
+                    .css('line-height', subfooterfontsize + 'px')
+                    .css('font-size', subfooterfontsize + 'px')
+                    .css('border', 'none');
+
+                // Return it
+                return par;
+            }
+
+            // Return the picture time string
+            function ptimestring(meal, both) {
+
+                // Dateify the meal timestamp
+                //var datest = new Date(meal.timestamp).asGridString();
+                var datest = new Date(meal.timestamp).asMyString();
+
+                // Add a comma if more is on this line
+                // if (both) datest += ', ';
+
+                // Return it
+                return datest;
+
+            }
+
+            // Return a span object with the picture timestamp
+            function ptimespan(meal, both) {
+
+                // Grab picture time string
+                var ptime = ptimestring(meal, both);
+
+                // Create span with this as the html
+                var span = $(dc('span'))
+                    .attr('class', 'ptimespan')
+                    //.css('float', 'left')
+                    .css('color', '#777')
+                    .css('text-align', footeralign)
+                    .css('line-height', subfooterfontsize + 'px')
+                    .css('font-size', subfooterfontsize + 'px')
                     .css('border', 'none')
-                    .html(tstring);
+                    .html(ptime);
 
                 // Return it
                 return span;
@@ -2571,24 +2624,25 @@ TODO:
                 return picturecountstring;
             }
 
-            // Return a paragraph object with the correct pcount string
-            function pcountparagraph(meal) {
+            // Return a span object with the correct pcount string
+            function pcountspan(meal) {
 
                 // Grab picture count string
                 var pcount = pcountstring(meal);
 
-                // Create paragraph with this as the html
-                var paragraph = $(dc('p'))
-                    .attr('class', 'pcountparagraph')
+                // Create span with this as the html
+                var span = $(dc('span'))
+                    .attr('class', 'pcountspan')
+                    //.css('float', 'right')
                     .css('color', '#777')
                     .css('text-align', footeralign)
-                    .css('line-height', pcountfontsize + 'px')
-                    .css('font-size', pcountfontsize + 'px')
+                    .css('line-height', subfooterfontsize + 'px')
+                    .css('font-size', subfooterfontsize + 'px')
                     .css('border', 'none')
                     .html(pcount);
 
                 // Return it
-                return paragraph;
+                return span;
             }
 
             // The internal grid object contains the click logic
@@ -2597,20 +2651,11 @@ TODO:
                 // Thumb height
                 var thumbheight = calculatethumbheight(meal);
 
-                // Top margin
-                // var mtop = calculatemargintop(thumbheight);
-    
                 // I can manipulate this directly in the delete code.
                 var editInternal = $(dc('div'))
                     .css('class', 'internalmargin')
                     .css('margin-top', picborder + 'px')
                     .css('float', 'top');
-                    // .css('margin-top', ((pictureheight - thumbheight)) + 'px');
-                    //.css('margin-top', margintop + 'px');
-
-                    //.css('margin-top', mtop + 'px')
-                    // .attr('class', 'editgridinternal');
-                    //.css('float', 'bottom');
     
                 // Center tag
                 var center = $(dc('center'));
@@ -2620,8 +2665,6 @@ TODO:
     
                 // Image div
                 var editImageDiv = $(dc('div'));
-                     // .css('border', '1px solid #666');
-                    // .css('background', 'white');
     
                 // Append to center
                 editImageDiv.appendTo(center);
@@ -2741,14 +2784,39 @@ TODO:
 
                 }
 
+                // Variable to hold subfooter paragraph if we need one
+                var sfoot = null;
+
+                // Create a paragraph for either or both of these
+                if (picturecounttrace || picturetimetrace) {
+
+                    // Create a sub-footer paragraph
+                    sfoot = subfooterp(meal);
+
+                    // Append it to the footer
+                    sfoot.appendTo(footer);
+
+                }
+
+                // Append a time
+                if (picturetimetrace) {
+
+                    // Create a time-trace span
+                    var ptimesp = ptimespan(meal, picturecounttrace);
+
+                    // Append to the footer
+                    ptimesp.appendTo(sfoot);
+
+                }
+
                 // Append a picture count
                 if (picturecounttrace) {
 
                     // Create a pcount paragraph object
-                    var pcountp = pcountparagraph(meal);
+                    var pcountsp = pcountspan(meal);
     
                     // Append to the footer
-                    pcountp.appendTo(footer);
+                    pcountsp.appendTo(sfoot);
     
                 }
 
@@ -3391,7 +3459,7 @@ TODO:
                 footerfontsize = cfg.hp("footerfontsize") ? cfg.footerfontsize : 18;
 
                 // What's the size of the picture count text
-                pcountfontsize = cfg.hp("pcountfontsize") ? cfg.pcountfontsize : 14;
+                subfooterfontsize = cfg.hp("subfooterfontsize") ? cfg.subfooterfontsize : 14;
 
                 // Space between footer and picture
                 footerspace = cfg.hp("footerspace") ? cfg.footerspace : 0;
@@ -3463,11 +3531,18 @@ TODO:
                 picturecounttrace = cfg.hp("picturecounttrace") ? 
                     cfg.picturecounttrace : true;
 
+                // Display 'picture time' underneath the grid
+                picturetimetrace = cfg.hp("picturetimetrace") ?
+                    cfg.picturetimetrace : true;
+
                 // Configure alignment of the footer text
                 footeralign = cfg.hp("footeralign") ? cfg.footeralign : 'center';
 
                 // Display a picture's title underneath the grid
                 titletrace = cfg.hp("titletrace") ? cfg.titletrace : true;
+
+                // Grid pic title's font color
+                titlefontcolor = cfg.hp("titlefontcolor") ? cfg.titlefontcolor : "#555";
 
                 // Animate next and prev page
                 animatenextprev = cfg.hp("animatenextprev") ? cfg.animatenextprev : 
@@ -3483,7 +3558,6 @@ TODO:
                 // Linear find picindex 
                 function findpicidxlinear(pinfo, timestamp) {
     
-                    // XXX abort();
                     for(var ii = 0 ; ii < pinfo.length ; ii++) {
                         if(pinfo[ii].timestamp == timestamp)
                             return ii;
@@ -3562,7 +3636,7 @@ TODO:
                     newmealanchor       : document.getElementById('newmealpopup'),
                     findpicidx          : findpicidx.search,
                     titletrace          : true,
-                    picturecounttrace   : true,
+                    picturecounttrace   : false,
                     animatenextprev     : true,
                     rowsperpage         : 2
                 }

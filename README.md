@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* So far the date is wrong .. maybe if i had only the date?
+
 * I'm going to try adding the date to the footer
 
 * Store the height and the width of the 'window' in some variables.  Create a
