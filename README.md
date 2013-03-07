@@ -5,6 +5,14 @@ mylunch
 todo
 ====
 
+* The server side slowed DOWN with the upload pictures code.  I can't have this
+  actually.  Optimize the HELL out of this code.  Do every dirty trick you can 
+  think of to make it fast.  Do I HAVE to wait until the server gets it?
+  Is there a way that I can just start displaying it without the network round-
+  robbin?  Maybe that's a little too out-of-the-box ..
+
+  For now, focus on the image-magick stuff .. I think I used to return quicker
+
 * Navigation bar on the grid page should display not only a 'next page', and a 
   'prev page', but should have dots, or ranged numbers.  We could know 
   perfectly what these are.  MAYBE this can be implemented by sending down the

@@ -3944,10 +3944,14 @@ function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thum
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
+
+        // TODO: return this after setting the picture rather than the thumb
+        /*
         var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + " " + picinfo.thumbheight;
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.write(successResp);
         res.end();
+        */
     });
 }
 
@@ -4013,6 +4017,11 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
         updateMealInfoPicInfoInMongo(mealinfo, function(merror, object) {
 
             if(merror) throw(merror);
+
+            var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + " " + picinfo.thumbheight;
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(successResp);
+            res.end();
 
             if(mealinfo.width <= maxThumbWidth && mealinfo.height <= maxThumbHeight) {
                 edit_upload_internal_2(req, res, next, picinfo, image, picinfo.width, picinfo.height );
@@ -4153,6 +4162,7 @@ function editMealsUploadPost(req, res, mealinfo, next) {
             return;
         }
 
+        // Ideal case: there's no resizing to do
         if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
             fs.readFile(req.files.inputupload.path, "binary", function(error, image) {
                 var picinfo = new picInfo(
