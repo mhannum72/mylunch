@@ -208,7 +208,7 @@ TODO:
     }
 
     // Create string format for griddates
-    Date.prototype.asGridString = function() {
+    Date.prototype.asSlashString = function() {
         return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
     }
 
@@ -2177,6 +2177,9 @@ TODO:
             // Set to true to display time trace
             var picturetimetrace;
 
+            // Set to true to display slashed date format
+            var slasheddate;
+
             // Set to the footer alignment
             var footeralign;
 
@@ -2572,7 +2575,17 @@ TODO:
 
                 // Dateify the meal timestamp
                 //var datest = new Date(meal.timestamp).asGridString();
-                var datest = new Date(meal.timestamp).asMyString();
+                var datest;
+                
+                // Use slashdate format
+                if(slasheddate) {
+                    datest = new Date(meal.timestamp).asSlashString();
+                }
+
+                // Use normal format
+                else {
+                    datest = new Date(meal.timestamp).asMyString();
+                }
 
                 // Add a comma if more is on this line
                 // if (both) datest += ', ';
@@ -3534,6 +3547,10 @@ TODO:
                 // Display 'picture time' underneath the grid
                 picturetimetrace = cfg.hp("picturetimetrace") ?
                     cfg.picturetimetrace : true;
+
+                // Display date in slashed (MM/DD/YYYY) format.
+                slasheddate = cfg.hp("slasheddate") ? 
+                    cfg.slasheddate : false;
 
                 // Configure alignment of the footer text
                 footeralign = cfg.hp("footeralign") ? cfg.footeralign : 'center';

@@ -5,7 +5,27 @@ mylunch
 todo
 ====
 
-* So far the date is wrong .. maybe if i had only the date?
+* Navigation bar on the grid page should display not only a 'next page', and a 
+  'prev page', but should have dots, or ranged numbers.  We could know 
+  perfectly what these are.  MAYBE this can be implemented by sending down the
+  ENTIRE mealinfo array - but just a pared-down version of it that contains
+  only the timestamps.  This is semi-nice in that I wouldn't have to re-request
+  this when I create or delete a meal.  The downside is that there's probably
+  some performance issues if this is incredibly large array.  So .. maybe 
+  these are placed in a tree.. yes .. that will probaly work .. sending this is 
+  NOTHING compared to a jpeg, movie, etc .. trees are tough though - you have
+  to rebalance them ..
+
+  Better idea - bound the number of meals to something reasonable -- maybe 10 
+  pages - have an arrow that will change the meaning of this in the navigation
+  bar.
+
+  Or .. maybe these are just dots above or below .. 
+
+  Next big part of this page: "The Navigation Bar".
+
+* So far the date is wrong .. maybe if i had only the date?  Maybe the calendar
+  in the popup is wrong .. 
 
 * I'm going to try adding the date to the footer
 
