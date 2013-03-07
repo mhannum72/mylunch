@@ -2562,7 +2562,7 @@ TODO:
                 var par = $(dc('p'))
                     .attr('class', 'subfooterp')
                     .css('text-align', footeralign)
-                    .css('line-height', subfooterfontsize + 'px')
+                    .css('line-height', (subfooterfontsize - 10) + 'px')
                     .css('font-size', subfooterfontsize + 'px')
                     .css('border', 'none');
 
@@ -2602,12 +2602,12 @@ TODO:
                 var ptime = ptimestring(meal, both);
 
                 // Create span with this as the html
-                var span = $(dc('span'))
+                //var span = $(dc('span'))
+                var span = $(dc('p'))
                     .attr('class', 'ptimespan')
-                    //.css('float', 'left')
                     .css('color', '#777')
                     .css('text-align', footeralign)
-                    .css('line-height', subfooterfontsize + 'px')
+                    .css('line-height', (subfooterfontsize - 10) + 'px')
                     .css('font-size', subfooterfontsize + 'px')
                     .css('border', 'none')
                     .html(ptime);
@@ -2644,12 +2644,11 @@ TODO:
                 var pcount = pcountstring(meal);
 
                 // Create span with this as the html
-                var span = $(dc('span'))
+                var span = $(dc('p'))
                     .attr('class', 'pcountspan')
-                    //.css('float', 'right')
                     .css('color', '#777')
                     .css('text-align', footeralign)
-                    .css('line-height', subfooterfontsize + 'px')
+                    .css('line-height', 0 + 'px')
                     .css('font-size', subfooterfontsize + 'px')
                     .css('border', 'none')
                     .html(pcount);
@@ -2782,7 +2781,7 @@ TODO:
                     .css('height', footerheight)
                     .css('font-size', footerfontsize + 'px')
                     .css('color', '#333')
-                    .css('line-height', (footerfontsize + 10) + 'px')
+                    .css('line-height', (footerfontsize + 15) + 'px')
                     .css('text-align', footeralign)
                     .css('text-indent', '10px');
 
@@ -2801,6 +2800,7 @@ TODO:
                 var sfoot = null;
 
                 // Create a paragraph for either or both of these
+                /*
                 if (picturecounttrace || picturetimetrace) {
 
                     // Create a sub-footer paragraph
@@ -2810,6 +2810,7 @@ TODO:
                     sfoot.appendTo(footer);
 
                 }
+                */
 
                 // Append a time
                 if (picturetimetrace) {
@@ -2818,7 +2819,8 @@ TODO:
                     var ptimesp = ptimespan(meal, picturecounttrace);
 
                     // Append to the footer
-                    ptimesp.appendTo(sfoot);
+                    // ptimesp.appendTo(sfoot);
+                    ptimesp.appendTo(footer);
 
                 }
 
@@ -2829,7 +2831,8 @@ TODO:
                     var pcountsp = pcountspan(meal);
     
                     // Append to the footer
-                    pcountsp.appendTo(sfoot);
+                    //pcountsp.appendTo(sfoot);
+                    pcountsp.appendTo(footer);
     
                 }
 
@@ -3435,13 +3438,13 @@ TODO:
                 marginright = cfg.hp("marginright") ? cfg.marginright : 10;
     
                 // What's the top margin
-                margintop = cfg.hp("margintop") ? cfg.margintop : 30;
+                margintop = cfg.hp("margintop") ? cfg.margintop : 20;
 
                 // What's the picture border
                 picborder = cfg.hp("picborder") ? cfg.picborder : 10;
 
                 // What's the bottom margin
-                marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 10;
+                marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 60;
 
                 // What's the container's top margin
                 containermargintop = cfg.hp("containermargintop") ? 
@@ -3469,10 +3472,10 @@ TODO:
                 footerheight = cfg.hp("footerheight") ? cfg.footerheight : 60;
 
                 // What's the footer's font size
-                footerfontsize = cfg.hp("footerfontsize") ? cfg.footerfontsize : 18;
+                footerfontsize = cfg.hp("footerfontsize") ? cfg.footerfontsize : 16;
 
                 // What's the size of the picture count text
-                subfooterfontsize = cfg.hp("subfooterfontsize") ? cfg.subfooterfontsize : 14;
+                subfooterfontsize = cfg.hp("subfooterfontsize") ? cfg.subfooterfontsize : 13;
 
                 // Space between footer and picture
                 footerspace = cfg.hp("footerspace") ? cfg.footerspace : 0;
@@ -3653,7 +3656,7 @@ TODO:
                     newmealanchor       : document.getElementById('newmealpopup'),
                     findpicidx          : findpicidx.search,
                     titletrace          : true,
-                    picturecounttrace   : false,
+                    picturecounttrace   : true,
                     animatenextprev     : true,
                     rowsperpage         : 2
                 }
