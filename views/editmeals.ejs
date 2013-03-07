@@ -1168,8 +1168,6 @@ showattributes = (function($jq) {
 
                     }
 
-
-
                     // Change grid title
                     if(setgridtitle) {
                         setgridtitle(meal);
@@ -2044,6 +2042,9 @@ showattributes.init(
 // Grid navigation bar - should maintain nextpage, prevpage, fast-scan,
 // and the 'new-meal'
 var gridnav = (function ($jq) {
+
+    // Cache jQuery
+    var $ = $jq;
 
     // Where this will appear on the page
     var parentdiv;
