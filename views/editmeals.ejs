@@ -232,7 +232,14 @@ TODO:
 
         }
 
-        picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
+        // Display the navigation bar
+        if(undefined != gridnav)
+            gridnav.displaynav();
+
+        // Display the picture grid
+        if(undefined != picturegrid)
+            picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
+
 
         /* Not yet - I have grand plans here.  Eventually I might allow
          * the user to enter in the restaurant for a given meal.  This would
@@ -294,20 +301,18 @@ TODO:
             </div>
             <div class="clear"></div>
 
+            <!--
         <div id='prevdiv' class='prevdiv'></div>
         <div id='nextdiv' class='nextdiv'></div>
+        -->
 
 
             </div> <!-- container_12 -->
 
             <center>
 
-                <!-- <div class='picturegridbg' id='picturegridbg'> -->
-            <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'>
-
-    
-            <!-- </div> <!-- picturegridDiv -->
-            </div> <!-- picturegridbg -->
+            <div class='gridNavDiv' id='gridNavDiv'></div>
+            <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'></div> 
 
             </center>
 
@@ -2053,40 +2058,332 @@ var gridnav = (function ($jq) {
     // Who is running this
     var username;
 
+    // Left margin
+    var marginleft;
+
+    // Right margin
+    var marginright;
+
+    // Top margin
+    var margintop;
+
+    // Bottom margin
+    var marginbottom;
+    
     // The nav div
     var navcontainer;
+
+    // The inner div
+    var navinner;
 
     // The container width
     var gridnavwidth;
 
+    // Derived bar width
+    var gridinnerwidth;
+
     // The container height
     var gridnavheight;
+
+    // The next page div
+    var nextpagediv;
+
+    // Prev page div
+    var prevpagediv;
+
+    // New meal div
+    var newmealdiv;
+
+    // Date nav div
+    var datenavdiv;
+
+    // Set to true when gridnav is being displayed
+    var isdisplayed = false;
+
+    // Reference to the unordered list
+    var ulist;
+
+    // Count of the list elements
+    var licount;
+
+    // Width of each width element
+    var liwidth;
+
+    // Set to 1 if we want a next
+    var hasnextpage;
+
+    // Set 1 if we want to display the prevdiv
+    var hasprevpage;
+
+    // Set 1 if we want a newmeal icon
+    var hasnewmeal;
+
+    // Set 1 if we want the date navigator
+    var hasdatenav;
 
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
     }
 
+    // Get / create the nextpagediv
+    function getnextpagediv() {
+
+        if(!nextpagediv) {
+            nextpagediv = $(dc('div'))
+                .attr('class', 'nextpagediv')
+                .attr('id', 'nextpagediv')
+                .css('float', 'left')
+                .html('next');
+
+        }
+        return nextpagediv;
+    }
+
+    // Get / create the datenav div
+    function getdatenavdiv() {
+
+        if(!datenavdiv) {
+            datenavdiv = $(dc('div'))
+                .attr('class', 'datenavdiv')
+                .attr('id', 'datenavdiv')
+                .css('float', 'left')
+                .html('Date Navigator');
+        }
+        return datenavdiv;
+    }
+
+    // Get / create the newmealdiv
+    function getnewmealdiv() {
+
+        if(!newmealdiv) {
+            newmealdiv = $(dc('div'))
+                .attr('class', 'newmealdiv')
+                .attr('id', 'newmealdiv')
+                .css('float', 'left')
+                .html('New Meal');
+        }
+        return newmealdiv;
+    }
+
+    // Get / create the prevpagediv
+    function getprevpagediv() {
+
+        if(!prevpagediv) {
+            prevpagediv = $(dc('div'))
+                .attr('class', 'prevpagediv')
+                .attr('id', 'prevpagediv')
+                .css('float', 'left')
+                .html('prev');
+        }
+        return prevpagediv;
+    }
+
     // Create the navigation container
     function makecontainer() {
 
         // Create the navcontainer
-        var container = $(dc('div'))
+        navcontainer = $(dc('div'))
+            .attr('id', 'navcontainer')
             .attr('class', 'navcontainer')
             .css('width', gridnavwidth + 'px')
             .css('height', gridnavheight + 'px')
+            .css('box-shadow', '3px 3px 5px #444')
+            .css('-webkit-box-shadow', '3px 3px 5px #444')
+            .css('-moz-box-shadow', '3px 3px 5px #444')
+            .css('-moz-border-radius', '15px')
             .css('border-radius', '15px')
-            .css('background-color', '#fff');
+            .css('border', '1px solid')
+            .css('background-color', '#eee')
+            .css('position', 'relative');
 
-        return container;
+        // Make the inner div
+        navinner = $(dc('div'))
+            .attr('id', 'navinner')
+            .attr('class', 'navinner')
+            .css('position', 'absolute');
+
+        // Append this to the navcontainer
+        navinner.appendTo(navcontainer);
+
+        return navcontainer;
+
+    }
+
+    // Return the next-page div
+    function nextpage() {
+        return (getnextpagediv())[0];
+    }
+
+    // Return the prev-page link
+    function prevpage() {
+        return (getprevpagediv())[0];
+    }
+
+    // Create a li
+    function navli(name, cls) {
+
+        var nli = $(dc('li'))
+            .attr('id', name)
+            .attr('class', cls)
+            .css('float', 'left')
+            // .css('float', 'bottom')
+            .css('position', 'relative')
+            // .css('display', '-moz-inline-stack')
+            // .css('display', 'inline-block')
+            .css('margin-top', '20px')
+            .css('margin-bottom', '20px')
+            .css('display', 'inline')
+            .css('height', gridnavheight + 'px')
+            .css('width', liwidth + 'px');
+
+        return nli;
+    }
+
+    // Create the newmeal list element
+    function newmealli() {
+
+        // Create the newmeal li
+        var newmli = navli('newmeal', 'newmeal');
+
+        // Get the newmealli div
+        var newmdiv = getnewmealdiv();
+
+        // Append to the newmealli
+        newmdiv.appendTo(newmli);
+
+        // Return it
+        return newmli;
+    }
+
+    // Create the previous list element
+    function prevpageli() {
+
+        // Create the prev li
+        var prevli = navli('prevpage', 'prevpage');
+
+        // Get the prevpage div
+        var prevdiv = getprevpagediv();
+
+        // Append it to the prevli
+        prevdiv.appendTo(prevli);
+
+        // Return it
+        return prevli;
+    }
+
+    // Create the nextpage list element
+    function nextpageli() {
+
+        // Create the prev li
+        var nextli = navli('nextpage', 'nextpage');
+
+        // Get the prevpage div
+        var nextdiv = getnextpagediv();
+
+        // Append it to the prevli
+        nextdiv.appendTo(nextli);
+
+        // Return it
+        return nextli;
+
+    }
+
+    // Create the datenav list element
+    function datenavli() {
+
+        // Create the date nav li
+        var dateli = navli('datenav', 'datenav');
+
+        // Get the datenav div
+        var datediv = getdatenavdiv();
+
+        // Append it to the dateli
+        datediv.appendTo(dateli);
+
+        // Return it
+        return dateli;
 
     }
 
     // Create and draw the nav object
-    function drawnav() {
+    function displaynav() {
 
-        // Create the nav
-        navdiv = $(dc('div'));
+        // Don't redraw
+        if(isdisplayed) {
+            return false;
+        }
+
+        // We'll be displaying soon
+        isdisplayed = true;
+
+        // Create the container
+        makecontainer();
+
+
+        // Attach this to the parent div
+        if(parentdiv) {
+            navcontainer.appendTo(parentdiv);
+        }
+
+        // Create an unordered list
+        ulist = $(dc('ul'))
+            .attr('id', 'gridnavid')
+            .attr('class', 'gridnavul')
+            .css('float', 'left')
+            .css('margin-left',  '0px')
+            .css('margin-right', '0px')
+            .css('margin-top', '0px')
+            .css('margin-bottom', '0px')
+            .css('height', gridnavheight + 'px')
+            .css('width', gridnavwidth + 'px');
+
+        // Append to the container
+        ulist.appendTo(navinner);
+
+        // Maybe newmeal comes first
+        if(hasnewmeal) {
+
+            // Create the newmeal li element
+            var newmli = newmealli();
+
+            // Append newmealli to the ul
+            newmli.appendTo(ulist);
+
+        }
+
+        // Add prevpage if that was requested
+        if(hasprevpage) {
+
+            // Create prev list element
+            var prevli = prevpageli();
+    
+            // Append prevli to the ul
+            prevli.appendTo(ulist);
+
+        }
+
+        // Add datenav if that was requested
+        if(hasdatenav) {
+
+            // Create the date nav element
+            var datenv = datenavli();
+
+            // Append it to the ul
+            datenv.appendTo(ulist);
+
+        }
+
+        // Add nextpage if that was requested
+        if(hasnextpage) {
+
+            // Create next list element
+            var nextli = nextpageli();
+
+            // Append nextli to the ul
+            nextli.appendTo(ulist);
+
+        }
 
     }
 
@@ -2102,17 +2399,55 @@ var gridnav = (function ($jq) {
         // Current user
         username = uname;
 
+        // Left margin
+        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 30;
+
+        // Right margin
+        marginright = cfg.hp("marginright") ? cfg.marginright : 30;
+
+        // Top margin
+        margintop = cfg.hp("margintop") ? cfg.margintop : 10;
+
+        // Bottom margin
+        marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 10;
+
         // Width
         gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
 
         // Height
-        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 300;
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 100;
+
+        // Set to 1 if has next div
+        hasnextpage = cfg.hp("hasnextpage") ? (cfg.hasnextpage ? 1 : 0 ) : 1;
+
+        // Set to 1 if has prev div
+        hasprevpage = cfg.hp("hasprevpage") ? (cfg.hasnextpage ? 1 : 0 ) : 1;
+
+        // Set to 1 if we have a newmeal icon
+        hasnewmeal = cfg.hp("hasnewmeal") ? (cfg.hasnewmeal ? 1 : 0 ) : 1;
+
+        // Set to 1 if we have a date navigator
+        hasdatenav = cfg.hp("hasdatenav") ? (cfg.hasdatenav ? 1 : 0 ) : 0;
+
+        // Set the licount
+        licount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
+
+        // Get the inner width
+        gridinnerwidth = gridnavwidth - (marginleft + marginright);
+
+        // Set the liwidth
+        //liwidth = Math.floor( (gridinnerwidth - 
+        //            (licount * (marginright))) / licount);
+        liwidth = Math.floor( (gridinnerwidth - 29) / licount );
 
     }
 
     // Exposed functions
     return {
-        init                        : init
+        init                        : init,
+        displaynav                  : displaynav,
+        nextpage                    : nextpage,
+        prevpage                    : prevpage
     };
 
 }(jQuery));
@@ -3602,9 +3937,6 @@ var picturegrid = (function ($jq) {
         // Viewport width leaves a little breathing room at the edges
         viewportwidth = gridwidth + marginleft + marginright;
     
-        // Some fudge for stripe text
-        stripefudge = cfg.hp("stripefudge") ? cfg.stripefudge : 60;
-    
         // Set the anchor click function
         anchorclickfn = cfg.hp("anchorclickfn") ? cfg.anchorclickfn : null;
     
@@ -3747,8 +4079,8 @@ picturegrid.init(
         new mealpage(<%= prevts != undefined ? prevts : 0 %>), 
         new mealpage(<%= nextts != undefined ? nextts : 0 %>),
         { 
-            nextdiv             : document.getElementById('nextdiv'),
-            prevdiv             : document.getElementById('prevdiv'),
+            nextdiv             : gridnav.nextpage,
+            prevdiv             : gridnav.prevpage,
             nxpvcallback        : nxpvcb,
             anchorclickfn       : showattributes.show,
             newmealanchor       : document.getElementById('newmealpopup'),
