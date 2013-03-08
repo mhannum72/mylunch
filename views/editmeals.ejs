@@ -2041,6 +2041,7 @@ showattributes.init(
 
 // Grid navigation bar - should maintain nextpage, prevpage, fast-scan,
 // and the 'new-meal'
+//
 var gridnav = (function ($jq) {
 
     // Cache jQuery
@@ -2052,6 +2053,44 @@ var gridnav = (function ($jq) {
     // Who is running this
     var username;
 
+    // The nav div
+    var navcontainer;
+
+    // The container width
+    var gridnavwidth;
+
+    // The container height
+    var gridnavheight;
+
+    // Create element wrapper
+    var dc = function(a) {
+        return document.createElement(a);
+    }
+
+    // Create the navigation container
+    function makecontainer() {
+
+        // Create the navcontainer
+        var container = $(dc('div'))
+            .attr('class', 'navcontainer')
+            .css('width', gridnavwidth + 'px')
+            .css('height', gridnavheight + 'px')
+            .css('border-radius', '15px')
+            .css('background-color', '#fff');
+
+        return container;
+
+    }
+
+    // Create and draw the nav object
+    function drawnav() {
+
+        // Create the nav
+        navdiv = $(dc('div'));
+
+    }
+
+    // Initialize the gridnav object
     function init(indiv, uname, cfg) {
 
         // Shorten function name
@@ -2062,6 +2101,12 @@ var gridnav = (function ($jq) {
 
         // Current user
         username = uname;
+
+        // Width
+        gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
+
+        // Height
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 300;
 
     }
 
@@ -2074,7 +2119,10 @@ var gridnav = (function ($jq) {
 
 // Initialize the gridnav object
 gridnav.init(
-        document.getElementById('gridNavDiv')
+        document.getElementById('gridNavDiv'),
+        "<% user.username %>",
+        {
+        }
 );
 
 // The picture grid
@@ -3451,6 +3499,13 @@ var picturegrid = (function ($jq) {
         }); // fillfromarray
     }
 
+    // Return the container width
+    function containerwidth() {
+
+        return outercontainerwidth;
+
+    }
+
     // Must be called before anything else
     function init(indiv, uname, pvpg, nxpg, cfg) {
 
@@ -3651,6 +3706,10 @@ var picturegrid = (function ($jq) {
             .attr('class', 'gridoutercontainer')
             .css('height', outercontainerheight + 'px')
             .css('width', outercontainerwidth + 'px')
+            .css('-moz-border-radius', '15px')
+            .css('border-radius', '15px')
+            .css('border', '1px solid')
+            .css('background-color', '#eee')
             .css('position', 'relative');
 
         // Set the viewport height dynamically
@@ -3676,7 +3735,8 @@ var picturegrid = (function ($jq) {
         deletemealfromgrid          : deletemealfromgrid,
         updatepicturecount          : updatepicturecount,
         updatetitle                 : updatetitle,
-        updatemeal                  : updatemeal
+        updatemeal                  : updatemeal,
+        containerwidth              : containerwidth
     };
 }(jQuery));
 
