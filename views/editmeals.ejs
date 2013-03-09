@@ -2130,11 +2130,15 @@ var gridnav = (function ($jq) {
     function getnextpagediv() {
 
         if(!nextpagediv) {
+
+            nextpagediv = navdiv('nextpagediv', 'nextpagediv').html('Next Page');
+            /*
             nextpagediv = $(dc('div'))
                 .attr('class', 'nextpagediv')
                 .attr('id', 'nextpagediv')
                 .css('float', 'left')
                 .html('next');
+                */
 
         }
         return nextpagediv;
@@ -2143,12 +2147,18 @@ var gridnav = (function ($jq) {
     // Get / create the datenav div
     function getdatenavdiv() {
 
+        //prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
         if(!datenavdiv) {
+
+            datenavdiv = navdiv('datenavdiv', 'datenavdiv').html('Date Navigator');
+
+            /*
             datenavdiv = $(dc('div'))
                 .attr('class', 'datenavdiv')
                 .attr('id', 'datenavdiv')
                 .css('float', 'left')
                 .html('Date Navigator');
+                */
         }
         return datenavdiv;
     }
@@ -2157,11 +2167,9 @@ var gridnav = (function ($jq) {
     function getnewmealdiv() {
 
         if(!newmealdiv) {
-            newmealdiv = $(dc('div'))
-                .attr('class', 'newmealdiv')
-                .attr('id', 'newmealdiv')
-                .css('float', 'left')
-                .html('New Meal');
+
+            newmealdiv = navdiv('newmealdiv', 'newmealdiv').html('New Meal');
+
         }
         return newmealdiv;
     }
@@ -2170,11 +2178,16 @@ var gridnav = (function ($jq) {
     function getprevpagediv() {
 
         if(!prevpagediv) {
+
+            prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
+
+            /*
             prevpagediv = $(dc('div'))
                 .attr('class', 'prevpagediv')
                 .attr('id', 'prevpagediv')
                 .css('float', 'left')
                 .html('prev');
+                */
         }
         return prevpagediv;
     }
@@ -2201,6 +2214,9 @@ var gridnav = (function ($jq) {
         navinner = $(dc('div'))
             .attr('id', 'navinner')
             .attr('class', 'navinner')
+            .css('margin-left', marginleft + 'px')
+            .css('margin-right', marginright + 'px')
+            .css('width', gridnavwidth - (marginleft + marginright) + 'px')
             .css('position', 'absolute');
 
         // Append this to the navcontainer
@@ -2220,6 +2236,21 @@ var gridnav = (function ($jq) {
         return (getprevpagediv())[0];
     }
 
+    // Get a standard nav-div
+    function navdiv(name, cls) {
+
+        var ndiv = $(dc('div'))
+            .attr('id', name)
+            .attr('class', cls)
+            .css('background-color', '#fff')
+            .css('width', liwidth + 'px')
+            .css('height', gridnavheight + 'px')
+            .css('float', 'left')
+            .css('text-align', 'center');
+
+        return ndiv;
+    }
+
     // Create a li
     function navli(name, cls) {
 
@@ -2227,15 +2258,17 @@ var gridnav = (function ($jq) {
             .attr('id', name)
             .attr('class', cls)
             .css('float', 'left')
+            .css('padding', '0px')
             // .css('float', 'bottom')
+            .css('text-align', 'center')
             .css('position', 'relative')
-            // .css('display', '-moz-inline-stack')
-            // .css('display', 'inline-block')
-            .css('margin-top', '20px')
-            .css('margin-bottom', '20px')
-            .css('display', 'inline')
+            //.css('margin-top', '20px')
+            //.css('margin-bottom', '20px')
+            .css('display', 'block')
             .css('height', gridnavheight + 'px')
-            .css('width', liwidth + 'px');
+            .css('width', liwidth + 'px')
+            .css('display', 'inline-block');
+            //.css('display', '-moz-inline-stack')
 
         return nli;
     }
@@ -2330,11 +2363,19 @@ var gridnav = (function ($jq) {
         ulist = $(dc('ul'))
             .attr('id', 'gridnavid')
             .attr('class', 'gridnavul')
+            .css('position', 'relative')
+            // .css('display', 'inline-block')
+            .css('clear', 'both')
+            .css('overflow', 'hidden')
+            .css('list-style-type', 'none')
+            .css('padding', '0px')
             .css('float', 'left')
-            .css('margin-left',  '0px')
-            .css('margin-right', '0px')
-            .css('margin-top', '0px')
-            .css('margin-bottom', '0px')
+            .css('margin', 'auto')
+            .css('text-align', 'center')
+            //.css('margin-left',  '0px')
+            //.css('margin-right', '0px')
+            //.css('margin-top', '0px')
+            //.css('margin-bottom', '0px')
             .css('height', gridnavheight + 'px')
             .css('width', gridnavwidth + 'px');
 
