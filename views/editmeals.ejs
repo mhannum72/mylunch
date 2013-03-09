@@ -2046,7 +2046,6 @@ showattributes.init(
 
 // Grid navigation bar - should maintain nextpage, prevpage, fast-scan,
 // and the 'new-meal'
-//
 var gridnav = (function ($jq) {
 
     // Cache jQuery
@@ -2104,10 +2103,34 @@ var gridnav = (function ($jq) {
     var ulist;
 
     // Count of the list elements
-    var licount;
+    var menucount;
 
     // Width of each width element
-    var liwidth;
+    var menuelementwidth;
+ 
+    // Outer margin left
+    var outermarginleft;
+
+    // Outer margin right
+    var outermarginright;
+
+    // Outer margin top
+    var outermargintop;
+
+    // Outer margin bottom
+    var outermarginbottom;
+
+    // Top menu margin
+    var menumargintop;
+
+    // Bottom menu margin
+    var menumarginbottom;
+
+    // Right menu margin
+    var menumarginright;
+
+    // Left menu margin
+    var menumarginleft;
 
     // Set to 1 if we want a next
     var hasnextpage;
@@ -2214,9 +2237,9 @@ var gridnav = (function ($jq) {
         navinner = $(dc('div'))
             .attr('id', 'navinner')
             .attr('class', 'navinner')
-            .css('margin-left', marginleft + 'px')
-            .css('margin-right', marginright + 'px')
-            .css('width', gridnavwidth - (marginleft + marginright) + 'px')
+            .css('margin-left', outermarginleft + 'px')
+            .css('margin-right', outermarginright + 'px')
+            .css('width', gridinnerwidth + 'px')
             .css('position', 'absolute');
 
         // Append this to the navcontainer
@@ -2243,8 +2266,12 @@ var gridnav = (function ($jq) {
             .attr('id', name)
             .attr('class', cls)
             .css('background-color', '#fff')
-            .css('width', liwidth + 'px')
+            .css('width', menuelementwidth + 'px')
             .css('height', gridnavheight + 'px')
+            .css('margin-top', menumargintop + 'px')
+            .css('margin-bottom', menumarginbottom + 'px')
+            .css('margin-left', menumarginleft + 'px')
+            .css('margin-right', menumarginright + 'px')
             .css('float', 'left')
             .css('text-align', 'center');
 
@@ -2266,7 +2293,7 @@ var gridnav = (function ($jq) {
             //.css('margin-bottom', '20px')
             .css('display', 'block')
             .css('height', gridnavheight + 'px')
-            .css('width', liwidth + 'px')
+            .css('width', menuelementwidth + 'px')
             .css('display', 'inline-block');
             //.css('display', '-moz-inline-stack')
 
@@ -2458,6 +2485,30 @@ var gridnav = (function ($jq) {
         // Height
         gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 100;
 
+        // Top outer margin
+        outermargintop = cfg.hp("outermargintop") ? cfg.outermargintop : 10;
+
+        // Bottom outer margin
+        outermarginbottom = cfg.hp("outermarginbottom") ? cfg.outermarginbottom : 10;
+
+        // Left outer margin
+        outermarginleft = cfg.hp("outermarginleft") ? cfg.outermarginleft : 10;
+
+        // Right outer margin
+        outermarginright = cfg.hp("outermarginrigh") ? cfg.outermarginright : 10;
+
+        // Top menu margin
+        menumargintop = cfg.hp("menumargintop") ? cfg.menumargintop : 10;
+
+        // Bottom menu margin
+        menumarginbottom = cfg.hp("menumarginbottom") ? cfg.menumarginbottom : 10;
+
+        // Right menu margin
+        menumarginright = cfg.hp("menumarginright") ? cfg.menumarginright : 10;
+
+        // Left menu margin
+        menumarginleft = cfg.hp("menumarginleft") ? cfg.menumarginleft : 10;
+
         // Set to 1 if has next div
         hasnextpage = cfg.hp("hasnextpage") ? (cfg.hasnextpage ? 1 : 0 ) : 1;
 
@@ -2470,16 +2521,21 @@ var gridnav = (function ($jq) {
         // Set to 1 if we have a date navigator
         hasdatenav = cfg.hp("hasdatenav") ? (cfg.hasdatenav ? 1 : 0 ) : 0;
 
-        // Set the licount
-        licount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
+        // Set the menucount
+        menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
 
         // Get the inner width
         gridinnerwidth = gridnavwidth - (marginleft + marginright);
 
-        // Set the liwidth
-        //liwidth = Math.floor( (gridinnerwidth - 
-        //            (licount * (marginright))) / licount);
-        liwidth = Math.floor( (gridinnerwidth - 29) / licount );
+        // Calculate the width of a single menu element:
+
+        // Set the menuelementwidth
+        //menuelementwidth = Math.floor( (gridinnerwidth - 
+        //            (menucount * (marginright))) / menucount);
+        menuelementwidth = Math.floor( (gridinnerwidth) / menucount );
+
+        // Subtract the margins
+        menuelementwidth -= (menucount * (menumarginleft + menumarginright));
 
     }
 
