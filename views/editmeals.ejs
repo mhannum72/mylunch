@@ -278,33 +278,14 @@ TODO:
 
 
         <div class="boxesClass" id="boxes">
-            <!--
-        <div id="boxes_container">
-            -->
         <div class="container_12" id="boxes_container">
 
+            <!--
             <div class="grid_2 prefix_10">
-                <!-- maybe a menu here.. ? -->
                 <a id='newmealpopup' href='javascript:void(0)'>New Meal</a>
             </div>
             <div class="clear"></div>
-
-            <div class="grid_2 prefix_10">
-                <div id='deleteModeDiv'> </div>
-                <!-- Not sure about 'deletemode' yet -->
-            </div>
-            <div class="clear"></div>
-
-            <div class="grid_2 prefix_10">
-                <!-- maybe a menu here.. ? -->
-                <a href="/signout">Logout</a>
-            </div>
-            <div class="clear"></div>
-
-            <!--
-        <div id='prevdiv' class='prevdiv'></div>
-        <div id='nextdiv' class='nextdiv'></div>
-        -->
+            -->
 
 
             </div> <!-- container_12 -->
@@ -2155,13 +2136,6 @@ var gridnav = (function ($jq) {
         if(!nextpagediv) {
 
             nextpagediv = navdiv('nextpagediv', 'nextpagediv').html('Next Page');
-            /*
-            nextpagediv = $(dc('div'))
-                .attr('class', 'nextpagediv')
-                .attr('id', 'nextpagediv')
-                .css('float', 'left')
-                .html('next');
-                */
 
         }
         return nextpagediv;
@@ -2170,18 +2144,10 @@ var gridnav = (function ($jq) {
     // Get / create the datenav div
     function getdatenavdiv() {
 
-        //prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
         if(!datenavdiv) {
 
             datenavdiv = navdiv('datenavdiv', 'datenavdiv').html('Date Navigator');
 
-            /*
-            datenavdiv = $(dc('div'))
-                .attr('class', 'datenavdiv')
-                .attr('id', 'datenavdiv')
-                .css('float', 'left')
-                .html('Date Navigator');
-                */
         }
         return datenavdiv;
     }
@@ -2204,13 +2170,7 @@ var gridnav = (function ($jq) {
 
             prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
 
-            /*
-            prevpagediv = $(dc('div'))
-                .attr('class', 'prevpagediv')
-                .attr('id', 'prevpagediv')
-                .css('float', 'left')
-                .html('prev');
-                */
+
         }
         return prevpagediv;
     }
@@ -2266,8 +2226,11 @@ var gridnav = (function ($jq) {
             .attr('id', name)
             .attr('class', cls)
             .css('background-color', '#fff')
-            .css('width', menuelementwidth + 'px')
-            .css('height', gridnavheight + 'px')
+            .css('width', (menuelementwidth - (menumarginleft + menumarginright)) + 'px')
+            .css('height', (gridnavheight - (menumargintop + menumarginbottom)) + 'px')
+            .css('box-shadow', '3px 3px 5px #444')
+            .css('-webkit-box-shadow', '3px 3px 5px #444')
+            .css('-moz-box-shadow', '3px 3px 5px #444')
             .css('margin-top', menumargintop + 'px')
             .css('margin-bottom', menumarginbottom + 'px')
             .css('margin-left', menumarginleft + 'px')
@@ -2286,17 +2249,16 @@ var gridnav = (function ($jq) {
             .attr('class', cls)
             .css('float', 'left')
             .css('padding', '0px')
-            // .css('float', 'bottom')
             .css('text-align', 'center')
             .css('position', 'relative')
-            //.css('margin-top', '20px')
-            //.css('margin-bottom', '20px')
             .css('margin-left', '0px')
+            .css('margin-right', '0px')
+            .css('margin-top', '0px')
+            .css('margin-bottom', '0px')
             .css('display', 'inline-block')
             .css('height', gridnavheight + 'px')
             .css('width', menuelementwidth + 'px')
             .css('display', 'inline-block');
-            //.css('display', '-moz-inline-stack')
 
         return nli;
     }
@@ -2381,7 +2343,6 @@ var gridnav = (function ($jq) {
         // Create the container
         makecontainer();
 
-
         // Attach this to the parent div
         if(parentdiv) {
             navcontainer.appendTo(parentdiv);
@@ -2392,7 +2353,6 @@ var gridnav = (function ($jq) {
             .attr('id', 'gridnavid')
             .attr('class', 'gridnavul')
             .css('position', 'static')
-            // .css('display', 'inline-block')
             .css('clear', 'both')
             .css('overflow', 'hidden')
             .css('list-style-type', 'none')
@@ -2400,26 +2360,11 @@ var gridnav = (function ($jq) {
             .css('float', 'left')
             .css('margin', '0px')
             .css('text-align', 'center')
-            //.css('margin-left',  '0px')
-            //.css('margin-right', '0px')
-            //.css('margin-top', '0px')
-            //.css('margin-bottom', '0px')
             .css('height', gridnavheight + 'px')
             .css('width', gridinnerwidth + 'px');
 
         // Append to the container
         ulist.appendTo(navinner);
-
-        // Maybe newmeal comes first
-        if(hasnewmeal) {
-
-            // Create the newmeal li element
-            var newmli = newmealli();
-
-            // Append newmealli to the ul
-            newmli.appendTo(ulist);
-
-        }
 
         // Add prevpage if that was requested
         if(hasprevpage) {
@@ -2429,6 +2374,17 @@ var gridnav = (function ($jq) {
     
             // Append prevli to the ul
             prevli.appendTo(ulist);
+
+        }
+
+        // Maybe newmeal comes first
+        if(hasnewmeal) {
+
+            // Create the newmeal li element
+            var newmli = newmealli();
+
+            // Append newmealli to the ul
+            newmli.appendTo(ulist);
 
         }
 
@@ -2453,7 +2409,6 @@ var gridnav = (function ($jq) {
             nextli.appendTo(ulist);
 
         }
-
     }
 
     // Initialize the gridnav object
@@ -2467,14 +2422,6 @@ var gridnav = (function ($jq) {
 
         // Current user
         username = uname;
-
-        /*
-        // Left margin
-        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 30;
-
-        // Right margin
-        marginright = cfg.hp("marginright") ? cfg.marginright : 30;
-        */
 
         // Top margin
         margintop = cfg.hp("margintop") ? cfg.margintop : 10;
@@ -2507,10 +2454,10 @@ var gridnav = (function ($jq) {
         menumarginbottom = cfg.hp("menumarginbottom") ? cfg.menumarginbottom : 10;
 
         // Right menu margin
-        menumarginright = cfg.hp("menumarginright") ? cfg.menumarginright : 10;
+        menumarginright = cfg.hp("menumarginright") ? cfg.menumarginright : 20;
 
         // Left menu margin
-        menumarginleft = cfg.hp("menumarginleft") ? cfg.menumarginleft : 10;
+        menumarginleft = cfg.hp("menumarginleft") ? cfg.menumarginleft : 20;
 
         // Set to 1 if has next div
         hasnextpage = cfg.hp("hasnextpage") ? (cfg.hasnextpage ? 1 : 0 ) : 1;
@@ -2530,15 +2477,8 @@ var gridnav = (function ($jq) {
         // Get the inner width
         gridinnerwidth = gridnavwidth - (outermarginleft + outermarginright);
 
-        // Calculate the width of a single menu element:
-
-        // Set the menuelementwidth
-        //menuelementwidth = Math.floor( (gridinnerwidth - 
-        //            (menucount * (marginright))) / menucount);
+        // Calculate the width of a single menu element
         menuelementwidth = Math.floor( (gridinnerwidth) / menucount );
-
-        // Subtract the margins
-        //menuelementwidth -= (menucount * (menumarginleft + menumarginright));
 
     }
 
@@ -3383,6 +3323,7 @@ var picturegrid = (function ($jq) {
             .css('height', (pictureheight + footerheight + picborder) + 'px')
             .css('margin-top', margintop + 'px')
             .css('margin-bottom', marginbottom + 'px')
+            .css('margin-left', marginleft + 'px')
             .css('margin-right', marginright + 'px')
             .css('display', '-moz-inline-stack')
             .css('display', 'inline-block')[0];
@@ -3960,10 +3901,10 @@ var picturegrid = (function ($jq) {
         gridnextpage = nxpg;
 
         // Configurables
-        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 30;
+        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 36;
     
         // What's the right margin
-        marginright = cfg.hp("marginright") ? cfg.marginright : 10;
+        marginright = cfg.hp("marginright") ? cfg.marginright : 4;
     
         // What's the top margin
         margintop = cfg.hp("margintop") ? cfg.margintop : 20;
