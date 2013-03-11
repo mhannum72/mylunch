@@ -304,6 +304,8 @@ TODO:
         <script type="text/javascript">
 
 // XXX THIS IS GOING TO CHANGE XXX
+//
+// DEAD CODE
 var nxpvcb = function(pvpage, nxpage, pvanchor, nxanchor) {
 
     var pvdiv = $('#prevdiv');
@@ -2071,6 +2073,12 @@ var gridnav = (function ($jq) {
     // Prev page div
     var prevpagediv;
 
+    // The next page li
+    var nextli;
+
+    // The prev page li
+    var prevli;
+
     // New meal div
     var newmealdiv;
 
@@ -2125,6 +2133,15 @@ var gridnav = (function ($jq) {
     // Set 1 if we want the date navigator
     var hasdatenav;
 
+    // Holds the 'prev-page' div
+    var prevdiv;
+
+    // Holds the 'next-page' div
+    var nextdiv;
+
+    // Holds the newmeal anchor
+    var newmealanchor;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -2157,7 +2174,19 @@ var gridnav = (function ($jq) {
 
         if(!newmealdiv) {
 
-            newmealdiv = navdiv('newmealdiv', 'newmealdiv').html('New Meal');
+            newmealdiv = navdiv('newmealdiv', 'newmealdiv');
+
+            // Create new meal anchor
+            var nma = $(dc('a'))
+                .attr('id', 'newmealpopup')
+                .attr('href', 'javascript:void(0)')
+                .html('New Meal');
+
+            // Append to the navdiv
+            nma.appendTo(newmealdiv);
+
+            // Get non-jquery version
+            newmealanchor = nma[0];
 
         }
         return newmealdiv;
@@ -2170,9 +2199,18 @@ var gridnav = (function ($jq) {
 
             prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
 
-
         }
         return prevpagediv;
+    }
+
+    // Return the newmealanchor
+    function getnewmealanchor() {
+
+        if(!newmealanchor) {
+            getnewmealdiv();
+        }
+
+        return newmealanchor;
     }
 
     // Create the navigation container
@@ -2285,7 +2323,7 @@ var gridnav = (function ($jq) {
         // Create the prev li
         var prevli = navli('prevpage', 'prevpage');
 
-        // Get the prevpage div
+        // Get prevpage div
         var prevdiv = getprevpagediv();
 
         // Append it to the prevli
@@ -2301,7 +2339,7 @@ var gridnav = (function ($jq) {
         // Create the prev li
         var nextli = navli('nextpage', 'nextpage');
 
-        // Get the prevpage div
+        // Next page div
         var nextdiv = getnextpagediv();
 
         // Append it to the prevli
@@ -2327,6 +2365,66 @@ var gridnav = (function ($jq) {
         // Return it
         return dateli;
 
+    }
+
+    // Callback for the grid object
+    // TODO HERE TODO XXX
+    function nextprevcallback( pvpage, nxpage, pvanchor, nxanchor ) {
+
+        if(pvpage) {
+
+            // Detach prevpagediv from whatever
+            prevpagediv.detach();
+
+            // Clear out pvanchor if its there
+            prevli.empty();
+
+            // Append new prevanchor 
+            pvanchor.appendTo(prevli);
+
+            // Append prevpagediv to prevanchor
+            prevpagediv.appendTo(pvanchor);
+
+        }
+        else {
+
+            // Detach prevpagediv from whatever
+            prevpagediv.detach();
+
+            // Clear prevli - zap prevanchor
+            prevli.empty();
+
+            // Append
+            prevpagediv.appendTo(prevli);
+
+            // TODO : shadow this out somehow?
+        }
+
+        if(nxpage) {
+
+            // Detach nextpagediv
+            nextpagediv.detach();
+
+            // Clear out nxanchor if its there
+            nextli.empty();
+
+            // Append new nxanchor
+            nxanchor.appendTo(nextli);
+
+            // Append nextpagediv to nxanchor
+            nextpagediv.appendTo(nxanchor);
+        }
+        else {
+
+            // Detach nextpagediv
+            nextpagediv.detach();
+
+            // Clear nextli - zap nextanchor
+            nextli.empty();
+
+            // Append
+            nextpagediv.appendTo(nextli);
+        }
     }
 
     // Create and draw the nav object
@@ -2370,7 +2468,7 @@ var gridnav = (function ($jq) {
         if(hasprevpage) {
 
             // Create prev list element
-            var prevli = prevpageli();
+            prevli = prevpageli();
     
             // Append prevli to the ul
             prevli.appendTo(ulist);
@@ -2403,7 +2501,7 @@ var gridnav = (function ($jq) {
         if(hasnextpage) {
 
             // Create next list element
-            var nextli = nextpageli();
+            nextli = nextpageli();
 
             // Append nextli to the ul
             nextli.appendTo(ulist);
@@ -2486,19 +2584,13 @@ var gridnav = (function ($jq) {
     return {
         init                        : init,
         displaynav                  : displaynav,
+        nextprevcallback            : nextprevcallback,
+        getnewmealanchor            : getnewmealanchor,
         nextpage                    : nextpage,
         prevpage                    : prevpage
     };
 
 }(jQuery));
-
-// Initialize the gridnav object
-gridnav.init(
-        document.getElementById('gridNavDiv'),
-        "<% user.username %>",
-        {
-        }
-);
 
 // The picture grid
 var picturegrid = (function ($jq) {
@@ -2594,7 +2686,7 @@ var picturegrid = (function ($jq) {
     var anchorclickfn;
 
     // New meal anchor
-    var newmealanchor;
+    //var newmealanchor;
 
     // Use hover text
     var usehovertext;
@@ -2603,7 +2695,7 @@ var picturegrid = (function ($jq) {
     var containerheight;
 
     // Calculate the outer container width
-    var containerwidth;
+    //var containerwidth;
 
     // Calculate the outer container grid height
     var outercontainerheight;
@@ -2654,7 +2746,7 @@ var picturegrid = (function ($jq) {
     var animatenextprev;
 
     // Spacer width
-    var spacerwidth;
+    //var spacerwidth;
 
     // Create element wrapper
     var dc = function(a)
@@ -2705,6 +2797,18 @@ var picturegrid = (function ($jq) {
     function mealcount() {
 
         return mealspergrid;
+
+    }
+
+    // Set the newmeal anchor
+    function setnewmealanchor(anchor) {
+
+        //newmealanchor = anchor;
+
+        // Invoke the popup handler if it's clicked
+        $(anchor).click(function() {
+            newmealpopup();
+        });
 
     }
 
@@ -3394,24 +3498,8 @@ var picturegrid = (function ($jq) {
             griddiv.firstg = gridpic;
         }
 
-        // Append a spacer div
-        if(griddiv.count % mealsperrow != 0) {
-            var spacer = $(dc('div'))
-                .css('float','left')
-                .css('display', 'inline')
-                .css('height', '10px')
-                .css('width', spacerwidth + 'px');
-            spacer.appendTo(hdiv);
-
-            // Reference the spacer in the gridpic 
-            gridpic.spacer = spacer;
-        }
-
         // Append to the ul
         $(gridpic).appendTo(griddiv.ulist);
-
-        // Append this to the grid
-        // $(gridpic).appendTo(hdiv);
 
         // Increment count
         griddiv.count++;
@@ -3901,19 +3989,21 @@ var picturegrid = (function ($jq) {
         gridnextpage = nxpg;
 
         // Configurables
-        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 36;
-    
+        //marginleft = cfg.hp("marginleft") ? cfg.marginleft : 36;
+        marginleft = cfg.hp("marginleft") ? cfg.marginleft : 10;
+
         // What's the right margin
-        marginright = cfg.hp("marginright") ? cfg.marginright : 4;
+        //marginright = cfg.hp("marginright") ? cfg.marginright : 4;
+        marginright = cfg.hp("marginright") ? cfg.marginright : 10;
     
         // What's the top margin
         margintop = cfg.hp("margintop") ? cfg.margintop : 20;
 
-        // What's the picture border
-        picborder = cfg.hp("picborder") ? cfg.picborder : 10;
-
         // What's the bottom margin
         marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 60;
+
+        // What's the picture border
+        picborder = cfg.hp("picborder") ? cfg.picborder : 10;
 
         // What's the container's top margin
         containermargintop = cfg.hp("containermargintop") ? 
@@ -3959,12 +4049,11 @@ var picturegrid = (function ($jq) {
         mealspergrid = mealsperrow * rowsperpage;
     
         // Calculate spacer width
-        spacerwidth = cfg.hp("spacerwidth") ? cfg.spacerwidth : 20;
+        //spacerwidth = cfg.hp("spacerwidth") ? cfg.spacerwidth : 20;
 
         // Derived: how many pixels wide?
         gridwidth = ((picturewidth + marginleft + marginright + 
-            (2 * picborder)) * mealsperrow) + 
-            (spacerwidth * (mealsperrow - 1));
+            (2 * picborder)) * mealsperrow);
     
         // Allow 
         nxpvcallback = cfg.hp("nxpvcallback") ? cfg.nxpvcallback : null;
@@ -3976,7 +4065,8 @@ var picturegrid = (function ($jq) {
         gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 1000;
     
         // Viewport width leaves a little breathing room at the edges
-        viewportwidth = gridwidth + marginleft + marginright;
+        // viewportwidth = gridwidth + marginleft + marginright;
+        viewportwidth = gridwidth;
     
         // Set the anchor click function
         anchorclickfn = cfg.hp("anchorclickfn") ? cfg.anchorclickfn : null;
@@ -3984,6 +4074,7 @@ var picturegrid = (function ($jq) {
         // Set the use-hover-text flag
         usehovertext = cfg.hp("usehovertext") ? cfg.usehovertext : null;
 
+        /*
         // New meal anchor
         newmealanchor = cfg.hp("newmealanchor") ? cfg.newmealanchor : null;
     
@@ -3993,6 +4084,7 @@ var picturegrid = (function ($jq) {
                 newmealpopup();
             });
         }
+        */
 
         // Calculate the container grid height
         containerheight = rowsperpage * (pictureheight + footerheight +
@@ -4109,6 +4201,7 @@ var picturegrid = (function ($jq) {
         updatepicturecount          : updatepicturecount,
         updatetitle                 : updatetitle,
         updatemeal                  : updatemeal,
+        setnewmealanchor            : setnewmealanchor,
         containerwidth              : containerwidth
     };
 }(jQuery));
@@ -4122,9 +4215,10 @@ picturegrid.init(
         { 
             nextdiv             : gridnav.nextpage,
             prevdiv             : gridnav.prevpage,
-            nxpvcallback        : nxpvcb,
+            //nxpvcallback        : nxpvcb,
+            nxpvcallback        : gridnav.nextprevcallback,
             anchorclickfn       : showattributes.show,
-            newmealanchor       : document.getElementById('newmealpopup'),
+            //newmealanchor       : document.getElementById('newmealpopup'),
             findpicidx          : findpicidx.search,
             titletrace          : true,
             picturecounttrace   : true,
@@ -4133,8 +4227,21 @@ picturegrid.init(
         }
 );
 
+// Initialize the gridnav object
+gridnav.init(
+        document.getElementById('gridNavDiv'),
+        "<% user.username %>",
+        {
+            gridnavwidth        : picturegrid.containerwidth()
+        }
+);
+
 // Another way to do this is to have a showattributes function that 
 // takes a grid, and to have it use that grid directly.
+
+// Set the newmeal anchor
+picturegrid.setnewmealanchor(gridnav.getnewmealanchor());
+
 // Set attributes callback for deleting a picture
 showattributes.setgriddeletecallback(picturegrid.deletemealfromgrid);
 
