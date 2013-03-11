@@ -2291,7 +2291,8 @@ var gridnav = (function ($jq) {
             .css('position', 'relative')
             //.css('margin-top', '20px')
             //.css('margin-bottom', '20px')
-            .css('display', 'block')
+            .css('margin-left', '0px')
+            .css('display', 'inline-block')
             .css('height', gridnavheight + 'px')
             .css('width', menuelementwidth + 'px')
             .css('display', 'inline-block');
@@ -2390,21 +2391,21 @@ var gridnav = (function ($jq) {
         ulist = $(dc('ul'))
             .attr('id', 'gridnavid')
             .attr('class', 'gridnavul')
-            .css('position', 'relative')
+            .css('position', 'static')
             // .css('display', 'inline-block')
             .css('clear', 'both')
             .css('overflow', 'hidden')
             .css('list-style-type', 'none')
             .css('padding', '0px')
             .css('float', 'left')
-            .css('margin', 'auto')
+            .css('margin', '0px')
             .css('text-align', 'center')
             //.css('margin-left',  '0px')
             //.css('margin-right', '0px')
             //.css('margin-top', '0px')
             //.css('margin-bottom', '0px')
             .css('height', gridnavheight + 'px')
-            .css('width', gridnavwidth + 'px');
+            .css('width', gridinnerwidth + 'px');
 
         // Append to the container
         ulist.appendTo(navinner);
@@ -2467,11 +2468,13 @@ var gridnav = (function ($jq) {
         // Current user
         username = uname;
 
+        /*
         // Left margin
         marginleft = cfg.hp("marginleft") ? cfg.marginleft : 30;
 
         // Right margin
         marginright = cfg.hp("marginright") ? cfg.marginright : 30;
+        */
 
         // Top margin
         margintop = cfg.hp("margintop") ? cfg.margintop : 10;
@@ -2525,7 +2528,7 @@ var gridnav = (function ($jq) {
         menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
 
         // Get the inner width
-        gridinnerwidth = gridnavwidth - (marginleft + marginright);
+        gridinnerwidth = gridnavwidth - (outermarginleft + outermarginright);
 
         // Calculate the width of a single menu element:
 
@@ -2535,7 +2538,7 @@ var gridnav = (function ($jq) {
         menuelementwidth = Math.floor( (gridinnerwidth) / menucount );
 
         // Subtract the margins
-        menuelementwidth -= (menucount * (menumarginleft + menumarginright));
+        //menuelementwidth -= (menucount * (menumarginleft + menumarginright));
 
     }
 
