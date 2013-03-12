@@ -292,8 +292,8 @@ TODO:
 
             <center>
 
-            <div class='gridNavDiv' id='gridNavDiv'></div>
             <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'></div> 
+            <div class='gridNavDiv' id='gridNavDiv'></div>
 
             </center>
 
@@ -402,6 +402,9 @@ showattributes = (function($jq) {
     // Create a carousel
     var createcarousel;
 
+    // Whether to show the calendar
+    var showdate;
+
     // Must init before using
     function init(findp, makecarousel, cfg) {
 
@@ -446,7 +449,10 @@ showattributes = (function($jq) {
     
         // Set the meal on the grid
         setgridmeal = cfg.hp("setgridmeal") ? cfg.setgridmeal : null;
-    
+
+        // Set the show calendar 
+        showdate = cfg.hp("showdate") ? cfg.showdate : false;
+
         // Element creator
         dc = cfg.hp("createelm") ? cfg.createelm : function(a) {
             return document.createElement(a);
@@ -641,8 +647,9 @@ showattributes = (function($jq) {
 
     }
 
+
     // Tear down
-    function destroymodal() {
+    function destroymodal(faded) {
 
         // Destroy carousel
         elm.destroy();
@@ -650,11 +657,15 @@ showattributes = (function($jq) {
         // Nullify
         elm = null;
 
-        // Fade out popup
-        popup.fadeOut(0);
+        // See if 
+        if(!faded) {
 
-        // Remove background
-        maskfade.css({'display':'none'});
+            // Fade out popup
+            popup.fadeOut(0);
+
+            // Remove background
+            maskfade.css({'display':'none'});
+        }
 
         // Remove popup
         popup.remove();
@@ -665,6 +676,32 @@ showattributes = (function($jq) {
         // nullify gridobj
         gridobj = null;
 
+    }
+
+    // Fade then tear down
+    function fadedestroymodal() {
+
+        var count=0;
+
+        // Fade out the popup
+        popup.fadeOut(
+            { duration: 500 },
+            function() { 
+                if(2 == ++count) {
+                    destroymodal(true); 
+                }
+            }
+        );
+
+        // Fade out the background
+        maskfade.fadeOut(
+            {duration: 500 },
+            function() { 
+                if(2 == ++count) {
+                    destroymodal(true); 
+                }
+            }
+        );
     }
 
     // Update sizes
@@ -1098,7 +1135,7 @@ showattributes = (function($jq) {
             .attr('class', 'grid_3')
             .html('Title');
     
-        var title = "untitled";
+        var title = "<i>Click to edit title</i>";
     
         if(undefined != meal.title && meal.title.length > 0) {
             title = meal.title;
@@ -1146,7 +1183,7 @@ showattributes = (function($jq) {
                     if(undefined == meal.title || meal.title.length <= 0) {
 
                         // Change modal title
-                        $(hovertitle).html("untitled");
+                        $(hovertitle).html("<i>Click to edit title</i>");
 
                     }
                     else {
@@ -1222,68 +1259,72 @@ showattributes = (function($jq) {
         grid_title.appendTo(class8);
         grid_title_clear.appendTo(class8);
     
-        var grid_date_pre = $(dc('div'))
-            .attr('class', 'grid_3')
-            .html('Date');
+        if(showdate) {
+    
+            var grid_date_pre = $(dc('div'))
+                .attr('class', 'grid_3')
+                .html('Date');
+            
+            var grid_date = $(dc('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_date');
         
-        var grid_date = $(dc('div'))
-            .attr('class', 'grid_5')
-            .attr('id', 'pop_date');
+            var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
+        
+            var grid_date_anchor = $(dc('a'))
+                .attr('id', 'pop_date_anchor')
+                .attr('class', 'pop_date_anchor')
+                .attr('title', 'click to edit')
+                .css({'display':'inline-block'});
+        
+            var grid_date_text = $(dc('div'))
+                .attr('id', 'pop_date_text')
+                .attr('class', 'pop_date_text')
+                .html(new Date(mealDate).asMyString());
+        
+            grid_date_text.appendTo(grid_date_anchor);
+        
+            var grid_date_input = $(dc('input'))
+                .attr('type', 'text')
+                .attr('class', 'pop_date_input')
+                .attr('id', 'pop_date_input')
+                .attr('name', 'pop_date_input')
+                .val(new Date(mealDate).asString());
+        
+            // This append *must* occur before the call to datePicker.
+            grid_date_input.appendTo(grid_date);
+        
+            grid_date_anchor.appendTo(grid_date);
+        
+            grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
+        
+            grid_date_input.css({'display':'none'});
+        
+            grid_date_text.click(function() {
+                grid_date_input.dpDisplay(grid_date);
+            });
+        
+            grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
+                // Set the pop-up date
+                $('#pop_date_text').html(sdate.asMyString());
+        
+                // Calculate the mealdate
+                var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
+        
+                // Update server side
+                updateMealDateAjax(meal, md);
+        
+                return false;
+            });
+        
+            var grid_date_clear = $(dc('div'))
+                .attr('class', 'clear');
+        
+            grid_date_pre.appendTo(class8);
+            grid_date.appendTo(class8);
+            grid_date_clear.appendTo(class8);
     
-        var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
-    
-        var grid_date_anchor = $(dc('a'))
-            .attr('id', 'pop_date_anchor')
-            .attr('class', 'pop_date_anchor')
-            .attr('title', 'click to edit')
-            .css({'display':'inline-block'});
-    
-        var grid_date_text = $(dc('div'))
-            .attr('id', 'pop_date_text')
-            .attr('class', 'pop_date_text')
-            .html(new Date(mealDate).asMyString());
-    
-        grid_date_text.appendTo(grid_date_anchor);
-    
-        var grid_date_input = $(dc('input'))
-            .attr('type', 'text')
-            .attr('class', 'pop_date_input')
-            .attr('id', 'pop_date_input')
-            .attr('name', 'pop_date_input')
-            .val(new Date(mealDate).asString());
-    
-        // This append *must* occur before the call to datePicker.
-        grid_date_input.appendTo(grid_date);
-    
-        grid_date_anchor.appendTo(grid_date);
-    
-        grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
-    
-        grid_date_input.css({'display':'none'});
-    
-        grid_date_text.click(function() {
-            grid_date_input.dpDisplay(grid_date);
-        });
-    
-        grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
-            // Set the pop-up date
-            $('#pop_date_text').html(sdate.asMyString());
-    
-            // Calculate the mealdate
-            var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
-    
-            // Update server side
-            updateMealDateAjax(meal, md);
-    
-            return false;
-        });
-    
-        var grid_date_clear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        grid_date_pre.appendTo(class8);
-        grid_date.appendTo(class8);
-        grid_date_clear.appendTo(class8);
+        }
     
         var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
     
@@ -1822,7 +1863,7 @@ showattributes = (function($jq) {
             .attr('class', 'grid_3')
             .html('Review');
     
-        var review = "(not reviewed)";
+        var review = "(click to edit review)";
     
         var grid_review = $(dc('div'))
             .attr('class', 'grid_5')
@@ -1873,7 +1914,7 @@ showattributes = (function($jq) {
             var tmpText = $('#review_text_int').val();
             updateReviewAjax(meal, tmpText);
             if(tmpText == undefined || tmpText.length <= 0) {
-                $('#review_text_int').html('(not reviewed)');
+                $('#review_text_int').html('(click to edit review)');
             }
             meal.review = tmpText;
     
@@ -1919,7 +1960,7 @@ showattributes = (function($jq) {
 
             if(griddelete) {
 
-                griddelete(meal, destroymodal);
+                griddelete(meal, fadedestroymodal);
             }
 
         });
@@ -2703,6 +2744,18 @@ var picturegrid = (function ($jq) {
     // Calculate the outer container grid width
     var outercontainerwidth;
 
+    // Calculate the outercontainer margin top
+    var outercontainermargintop;
+
+    // Calculate the outercontainer margin bottom
+    var outercontainermarginbottom;
+
+    // Calculate the outercontainer margin left
+    var outercontainermarginleft;
+
+    // Calculate the outercontainer margin right
+    var outercontainermarginright;
+
     // Keep track of what's currently displayed
     var currentgrid;
 
@@ -2744,6 +2797,9 @@ var picturegrid = (function ($jq) {
 
     // Set to true to animate grid pages
     var animatenextprev;
+
+    // I can either delete a meal in place or redraw the grid
+    var deletebehavior;
 
     // Spacer width
     //var spacerwidth;
@@ -3516,26 +3572,65 @@ var picturegrid = (function ($jq) {
         return true;
     }
 
-    // TODO:
-    // Tweak the delete handler: what would really be cool is if when a 
-    // picture is deleted, all of the other pictures shift over.  Here 
-    // are a few steps to make this happen:
-    //
-    // 1 Remove the picture which is being deleted from the linked list
-    // 2 Grab the nextmeal from the server
-    // 3 After it loads set the visibility on the current meal to 0
-    // 4 For this row, and every row after it, put a copy of the first 
-    //   picture of the next row as a hidden element at the end of the 
-    //   horizontal stripe
-    // 5 Move everything over to the left
-    //
-    // TODO
-    // Another posibility is to make this like the 'New Meal' request. 
-    // The effect there seems cooler than what I've got here - and it
-    // would probably be simpler code - but I'd expect this to behave
-    // better over a network.
-    //
-    // I think I will do this one first
+    // Redraw the grid when I delete a meal
+    function dmealredraw(meal, callback) {
+
+        var editgrid;
+
+        var nmealtime = 0;
+
+        var pmealtime = 0;
+
+        // Get the gridobj
+        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+
+        // Grab gridobj directly - i think this can only be gridobj
+        editgrid = $(meal.gridobj).parent()[0];
+
+        // If there's a next page..
+        if(gridnextpage) {
+            // ..ask for a single meal
+            nmealtime = gridnextpage.timestamp;
+        }
+
+        if(gridprevpage) {
+            pmealtime = gridprevpage.timestamp;
+        }
+
+        // Ask server to delete the meal
+        $.getJSON('/deletemeal',
+            {
+                username: meal.username,
+                timestamp: meal.timestamp,
+                nextts: nmealtime,
+                prevts: pmealtime,
+                count: mealspergrid
+            },
+            function(response) {
+                if(response.errStr != undefined && response.errStr.length > 0) {
+                    if(response.errStr == "signin") {
+                        window.location.replace("/signin");
+                    }
+                    else {
+                        debuglog("getJSON response error is ", response.errStr);
+                        window.location.replace("/");
+                    }
+                    return;
+                }
+
+                // Create a new prevpage
+                var prevpage = new mealpage(parseInt(response.prevts,10));
+
+                // Create a new nextpage
+                var nextpage = new mealpage(parseInt(response.nextts,10));
+
+                // Redraw the grid
+                displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+
+                if(callback) callback();
+            }
+        );
+    }
 
     // Delete a meal from the grid
     function dmealreplace(meal, callback) {
@@ -3748,7 +3843,24 @@ var picturegrid = (function ($jq) {
     }
 
     function deletemealfromgrid(meal, callback) {
-        dmealreplace(meal,callback);
+
+        if(deletebehavior == "shiftmeals") {
+
+            dmealreplace(meal, callback);
+
+        }
+        else if(deletebehavior == "redrawgrid") {
+
+            dmealredraw(meal, callback);
+
+        }
+        else {
+
+            debuglog("Error in deletemealfromgrid: behavior not specified");
+            // Fail big
+            // dmealreplace(meal, callback);
+
+        }
     }
 
     // Fill a picture grid from an array
@@ -4074,17 +4186,21 @@ var picturegrid = (function ($jq) {
         // Set the use-hover-text flag
         usehovertext = cfg.hp("usehovertext") ? cfg.usehovertext : null;
 
-        /*
-        // New meal anchor
-        newmealanchor = cfg.hp("newmealanchor") ? cfg.newmealanchor : null;
-    
-        // If a newmeal anchor is specified set its click handler
-        if(newmealanchor) {
-            $(newmealanchor).click(function() {
-                newmealpopup();
-            });
-        }
-        */
+        // Set the top margin for the outer container
+        outercontainermargintop = cfg.hp("outercontainermargintop") ? 
+            cfg.outercontainermargintop : 10;
+
+        // Set the top margin for the outer container
+        outercontainermarginbottom = cfg.hp("outercontainermarginbottom") ? 
+            cfg.outercontainermarginbottom : 10;
+
+        // Set the left margin for the outer container
+        outercontainermarginleft = cfg.hp("outercontainermarginleft") ? 
+            cfg.outercontainermarginleft : 0;
+
+        // Set the left margin for the outer container
+        outercontainermarginright = cfg.hp("outercontainermarginright") ? 
+            cfg.outercontainermarginright : 0;
 
         // Calculate the container grid height
         containerheight = rowsperpage * (pictureheight + footerheight +
@@ -4125,6 +4241,21 @@ var picturegrid = (function ($jq) {
         // Animate next and prev page
         animatenextprev = cfg.hp("animatenextprev") ? cfg.animatenextprev : 
             false;
+
+        // Default to 'shiftmeals' because it's already written
+        deletebehavior = "redrawgrid";
+
+        // Set the delete meal behavior
+        if(cfg.hp("deletebehavior")) {
+
+            // I can either delete in place or redraw the grid
+            if(cfg.deletebehavior == "shiftmeals")
+                deletebehavior = "shiftmeals";
+
+            if(cfg.deletebehavior == "redrawgrid")
+                deletebehavior = "redrawgrid";
+        }
+        
 
         // Set the easing function in jQuery
         if(!$.easing[grideasing]) {
@@ -4171,6 +4302,10 @@ var picturegrid = (function ($jq) {
             .attr('class', 'gridoutercontainer')
             .css('height', outercontainerheight + 'px')
             .css('width', outercontainerwidth + 'px')
+            .css('margin-top', outercontainermargintop + 'px')
+            .css('margin-bottom', outercontainermarginbottom + 'px')
+            .css('margin-left', outercontainermarginleft + 'px')
+            .css('margin-right', outercontainermarginright + 'px')
             .css('-moz-border-radius', '15px')
             .css('border-radius', '15px')
             .css('border', '1px solid')
@@ -4215,10 +4350,8 @@ picturegrid.init(
         { 
             nextdiv             : gridnav.nextpage,
             prevdiv             : gridnav.prevpage,
-            //nxpvcallback        : nxpvcb,
             nxpvcallback        : gridnav.nextprevcallback,
             anchorclickfn       : showattributes.show,
-            //newmealanchor       : document.getElementById('newmealpopup'),
             findpicidx          : findpicidx.search,
             titletrace          : true,
             picturecounttrace   : true,
