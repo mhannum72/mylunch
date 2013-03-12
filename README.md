@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* Clean up the menu bar.
+
 * The server side slowed DOWN with the upload pictures code.  I can't have this
   actually.  Optimize the HELL out of this code.  Do every dirty trick you can 
   think of to make it fast.  Do I HAVE to wait until the server gets it?
