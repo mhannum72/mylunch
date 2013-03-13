@@ -3648,13 +3648,16 @@ var picturegrid = (function ($jq) {
                     return;
                 }
 
-                // Create a new prevpage
-                var prevpage = new mealpage(parseInt(response.prevts,10));
-
                 // Create a new nextpage
                 var nextpage = new mealpage(parseInt(response.nextts,10));
 
                 if(newgrid) {
+
+                    // Create a new prevpage
+                    var prevpage = new mealpage(parseInt(response.prevts,10));
+
+
+
                     // Redraw the grid
                     displaygrid(response.mealinfo, prevpage, nextpage, 'forwards');
                 }
@@ -3678,7 +3681,7 @@ var picturegrid = (function ($jq) {
                         }
 
                         // Display
-                        displaygrid(lastmealinfo, prevpage, nextpage, 'backwards');
+                        displaygrid(lastmealinfo, gridprevpage, nextpage, 'backwards');
                     }
 
                 }
