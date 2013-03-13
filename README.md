@@ -5,6 +5,15 @@ mylunch
 todo
 ====
 
+* I can create a 'share-slideshow' mechanism (or page) where you can provide 
+  a list of email addresses, and the slideshow will be shared.  EVEN BETTER,
+  I can make sure that the link that each of them follow is unique, and then
+  the user could KNOW whether that person has looked at the slideshow or not.
+  This might be an interesting page to add, actually: a 'has-viewed' page.
+  I'm not sure about this: some folks might be turned off by the idea that 
+  their friends know whether or not they saw something.  Also, it's tricky:
+  each user would have to get a unique id.
+
 * Some considerations:  at this point I have a very nice slideshow creator and
   viewer.  The next step is to create a way for people to 'share-a-meal'.
 
