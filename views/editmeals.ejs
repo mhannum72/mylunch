@@ -671,10 +671,9 @@ showattributes = (function($jq) {
 
         // Fade out the popup
         popup.fadeOut(
-            { duration: 500 },
+            500,
             function() { 
-                ++fadecnt;
-                debuglog("I am being called 1");
+                ++fadedcnt;
                 if(2 == fadedcnt) {
                     destroymodal(true); 
                 }
@@ -683,10 +682,9 @@ showattributes = (function($jq) {
 
         // Fade out the background
         maskfade.fadeOut(
-            {duration: 500 },
+            500,
             function() { 
-                ++fadecnt;
-                debuglog("I am being called 2");
+                ++fadedcnt;
                 if(2 == fadedcnt) {
                     destroymodal(true); 
                 }
