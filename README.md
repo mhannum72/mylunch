@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* iconize menu maybe?
+
 * Clean up the menu bar.  Maybe move to the bottom..
 
 * The server side slowed DOWN with the upload pictures code.  I can't have this
