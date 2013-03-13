@@ -5,6 +5,20 @@ mylunch
 todo
 ====
 
+* Some considerations:  at this point I have a very nice slideshow creator and
+  viewer.  The next step is to create a way for people to 'share-a-meal'.
+
+  YES!  'share this meal' with a friend - allows you to send a link which will
+  pull up a slideshow with this meal in it.
+
+  Another possibility is to follow someone's meals .. this was the facebook /
+  twitter insight: people attempt to accrue followers - it becomes a sort of
+  competition.  This is a magic bullet if I can make it work.
+
+* Possibly scale the picturegrid according to the largest picture on the page
+  rather than the largest possible picture .. this means that there could be
+  a resizing if the user adds a picture..
+
 * iconize menu maybe?
 
 * Clean up the menu bar.  Maybe move to the bottom..
