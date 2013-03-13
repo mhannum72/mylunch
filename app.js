@@ -405,12 +405,12 @@ updatePasswordInMongo = function(username, newpassword, callback) {
 // verified-by-admin
 
 // Get a single mealInfo from Mongo
-getOneMealInfoFromMongoInternal = function(username, timestamp, getreview, callback) {
+getOneMealInfoFromMongoInternal = function(username, timestamp, getextra, callback) {
 
     var projection; 
     
-    if(getreview) {
-        projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'review' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+    if(getextra) {
+        projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'rating' : 1, 'review' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
     }
     else {
         projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };

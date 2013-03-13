@@ -378,6 +378,18 @@ showattributes = (function($jq) {
     // Whether to show the calendar
     var showdate;
 
+    // Whether to show the rating
+    var showrating;
+
+    // Whether to show whichmeal
+    var showwhichmeal;
+
+    // Whether to show the review
+    var showreview;
+
+    // Whether to show the delete link
+    var showdelete;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -940,556 +952,16 @@ showattributes = (function($jq) {
 
         return uploadAnchor;
     }
-    
-    // Meal attributes / edit modal
-    function showattributesmealinfo(username, meal, restaurant, restaurantId) {
-    
-        var username = meal.username;
-        var timestamp = meal.timestamp;
-    
-        // Create the popup div
-        popup = $(dc('div'))
-            .attr('id', 'mealAttributes')
-            .attr('class', 'mealAttributesPopup')
-            .css('z-index', '9999')
-            .css('padding', '20px');
-    
-        // Center things on this popup.  
-        var centr = $(dc('center'));
-    
-        // Carousel div
-        var carouselDivContainer = $(dc('div'))
-            .attr('id', 'mealCarouselContainer')
-            .attr('class', 'mealCarouselContainer');
-    
-        // Create a carousel
-        elm = createcarousel(username, 'pics', 
-                meal.picInfo, findpicidx, meal.keytimestamp);
-    
-        // Append it to the div
-        elm.appendTo(carouselDivContainer);
-    
-        // Append carousel to popup
-        carouselDivContainer.appendTo(centr);
-    
-        // Create a container for the dismiss box
-        var closexContainer = $(dc('div'))
-            .attr('id', 'mealAttributesCloseContainer')
-            .attr('class', 'mealAttributesCloseContainer');
-    
-        // Create an anchor for the dismiss box
-        var closex = $(dc('a'))
-            .attr('id', 'mealAttributesCloseButton')
-            .attr('class', 'mealAttributesCloseButton')
-            .html('x');
-    
-        // Click handler for dismiss box
-        closex.click(function(){
-            destroymodal();
-        });
-    
-        // Append to popup
-        closex.appendTo(closexContainer);
-        closexContainer.appendTo(popup);
-    
-        // Append center to popup
-        centr.appendTo(popup);
-    
-        // Create a class_8 container
-        var class8 = $(dc('div'))
-            .attr('id', 'mealAttributesClass8')
-            .attr('class', 'container_8');
-    
-        // Hold objects directly beneath the carousel
-        var subcarousel = $(dc('div'))
-            .attr('id', 'subcarousel')
-            .attr('class', 'carousel_caption');
-    
-        // Create my upload anchor
-        var uploadAnchor = createuploadanchor(meal);
-    
-        // Retrieve a delete anchor
-        var makeKeyAnchor = createkeyanchor(meal);
-    
-        // Create delete picture anchor
-        var deleteAnchor = createdeleteanchor(meal);
-    
-        // Add to the carousel fadeobjs
-        elm.addfadeobj(makeKeyAnchor.get(0));
-    
-        // Add to the carousel fade objects
-        elm.addfadeobj(deleteAnchor.get(0));
-    
-        // Clear 
-        var carouselClear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        // Attach to popup
-        uploadAnchor.appendTo(subcarousel);
-        makeKeyAnchor.appendTo(subcarousel);
-        deleteAnchor.appendTo(subcarousel);
-        subcarousel.appendTo(class8);
-        carouselClear.appendTo(class8);
-    
-        // Lets skip a line
-        var skipLine = $(dc('div'))
-            .attr('class', 'grid_8 skipline')
-            .html('.');
-        var skipClear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        skipLine.appendTo(class8);
-        skipClear.appendTo(class8);
-    
-        // Create a grid to hold the title
-        var grid_title_pre = $(dc('div'))
-            .attr('class', 'grid_3')
-            .html('Title');
-    
-        var title = "<i>Click to edit title</i>";
-    
-        if(undefined != meal.title && meal.title.length > 0) {
-            title = meal.title;
-        }
-    
-        var hovertitle = $(dc('a'))
-            .attr('id', 'titleEdit')
-            .attr('class', 'titleEdit')
-            .attr('title', 'click to edit')
-            .html(title);
-    
-        // Title grid
-        var grid_title = $(dc('div'))
-            .attr('class', 'grid_5')
-            .attr('id', 'pop_title');
-    
-        hovertitle.appendTo(grid_title);
-    
-        hovertitle.click(function(){
-    
-            var titleEditInput = $(dc('input'))
-                .attr('type', 'text')
-                .attr('class', 'titleEditInput')
-                .attr('name', 'titleEditInput')
-                .attr('maxlength', '29')
-                .attr('size', '29')
-                .val(meal.title);
-    
-            titleEditInput.appendTo(grid_title);
-            $('#titleEdit').css({'display':'none'});
-    
-            titleEditInput.focus();
-    
-            // Disable carosel arrow behavior
-            elm.disablekeydown();
-    
-            function blurTitleInput(meal, titleEditInput, keepcurrent) {
-                if(titleEditInput.val() != meal.title && keepcurrent == 0) {
-    
-                    var titleEdit; 
 
-                    meal.title = titleEditInput.val();
+    // Create the rating object
+    function makepoprating(meal) {
 
-                    // If this is empty
-                    if(undefined == meal.title || meal.title.length <= 0) {
-
-                        // Change modal title
-                        $(hovertitle).html("<i>Click to edit title</i>");
-
-                    }
-                    else {
-
-                        // Change modal title
-                        $(hovertitle).html(meal.title);
-
-                    }
-
-                    // Change grid title
-                    if(setgridtitle) {
-                        setgridtitle(meal);
-                    }
-    
-                    $.ajax({
-                        url: '/savetitle',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(
-                            {
-                                username: meal.username,
-                                timestamp: meal.timestamp,
-                                title: titleEditInput.val()
-                            }),
-                        dataType: 'json',
-                        complete: function(resp, astat) {
-                        }
-                    });
-                }
-
-                // Change grid title css
-                $(hovertitle).css({'display':'inline-block'});
-
-                // Remove input box
-                titleEditInput.remove();
-
-                // Allow keyboard carousel control
-                elm.enablekeydown();
-            }
-    
-    
-            // I want certain keys (return or tab) to force a blur
-            titleEditInput.keydown(function(e){
-                var code = (e.keyCode ? e.keyCode : e.which);
-                switch(code) {
-                    // XXX 
-                    case 39:
-                    case 37:
-                        return true;
-                        break;
-                    case 13:
-                    case 9:
-                        titleEditInput.blur();
-                        return false;
-                        break;
-                    case 27:
-                        blurTitleInput(meal, titleEditInput, 1);
-                        return false;
-                        break;
-                }
-            });
-    
-            titleEditInput.blur(function() {
-                    blurTitleInput(meal, titleEditInput, 0);
-            });
-        });
-    
-        var grid_title_clear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        // Append title
-        grid_title_pre.appendTo(class8);
-        grid_title.appendTo(class8);
-        grid_title_clear.appendTo(class8);
-    
-        if(showdate) {
-    
-            var grid_date_pre = $(dc('div'))
-                .attr('class', 'grid_3')
-                .html('Date');
-            
-            var grid_date = $(dc('div'))
-                .attr('class', 'grid_5')
-                .attr('id', 'pop_date');
-        
-            var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
-        
-            var grid_date_anchor = $(dc('a'))
-                .attr('id', 'pop_date_anchor')
-                .attr('class', 'pop_date_anchor')
-                .attr('title', 'click to edit')
-                .css({'display':'inline-block'});
-        
-            var grid_date_text = $(dc('div'))
-                .attr('id', 'pop_date_text')
-                .attr('class', 'pop_date_text')
-                .html(new Date(mealDate).asMyString());
-        
-            grid_date_text.appendTo(grid_date_anchor);
-        
-            var grid_date_input = $(dc('input'))
-                .attr('type', 'text')
-                .attr('class', 'pop_date_input')
-                .attr('id', 'pop_date_input')
-                .attr('name', 'pop_date_input')
-                .val(new Date(mealDate).asString());
-        
-            // This append *must* occur before the call to datePicker.
-            grid_date_input.appendTo(grid_date);
-        
-            grid_date_anchor.appendTo(grid_date);
-        
-            grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
-        
-            grid_date_input.css({'display':'none'});
-        
-            grid_date_text.click(function() {
-                grid_date_input.dpDisplay(grid_date);
-            });
-        
-            grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
-                // Set the pop-up date
-                $('#pop_date_text').html(sdate.asMyString());
-        
-                // Calculate the mealdate
-                var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
-        
-                // Update server side
-                updateMealDateAjax(meal, md);
-        
-                return false;
-            });
-        
-            var grid_date_clear = $(dc('div'))
-                .attr('class', 'clear');
-        
-            grid_date_pre.appendTo(class8);
-            grid_date.appendTo(class8);
-            grid_date_clear.appendTo(class8);
-    
-        }
-    
-        var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-    
-        // Which meal
-        var grid_meal_pre = $(dc('div'))
-            .attr('class', 'grid_3')
-            .html('Meal');
-    
-        var grid_meal = $(dc('div'))
-            .attr('class', 'grid_5')
-            .attr('id', 'pop_meal');
-    
-        // Create the which-meal selection menu
-        var grid_meal_select_div = $(dc('div'))
-            .attr('class', 'meal_select_menu_div')
-            .attr('id', 'meal_select_menu_div')
-            .css({'display': 'block'});
-    
-        var grid_meal_select = $(dc('ul'))
-            .attr('class', 'meal_select_menu')
-            .attr('id', 'meal_select_menu')
-            .attr('name', 'meal_select_menu');
-    
-        // BREAKFAST
-        var grid_meal_select_meal_breakfast = $(dc('li'))
-            .attr('class', 'meal_select_menu_selection')
-            .attr('name', 'meal_select_menu_breakfast')
-            .attr('id', 'meal_select_menu_breakfast');
-    
-        var grid_meal_select_meal_breakfast_anchor = $(dc('a'))
-            .attr('id', 'meal_select_breakfast_anchor')
-            .attr('class', 'meal_select_anchor')
-            .html('Breakfast');
-    
-        if(meal.meal == "breakfast") {
-            grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
-        }
-        
-        grid_meal_select_meal_breakfast_anchor.click(function() {
-            if(meal.meal == "breakfast") {
-                return;
-            }
-            if(meal.meal == "lunch" ) {
-                grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "dinner" ) {
-                grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "snack" ) {
-                grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "other" ) {
-                grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-            }
-            grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
-            meal.meal = "breakfast";
-            whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            grid_meal.html(whichmeal);
-            updateMealAjax(meal, "breakfast");
-            if(setgridmeal) setgridmeal(meal);
-        });
-    
-        grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
-    
-        // LUNCH
-        var grid_meal_select_meal_lunch = $(dc('li'))
-            .attr('class', 'meal_select_menu_selection')
-            .attr('name', 'meal_select_menu_lunch')
-            .attr('id', 'meal_select_menu_lunch');
-    
-        var grid_meal_select_meal_lunch_anchor = $(dc('a'))
-            .attr('id', 'meal_select_lunch_anchor')
-            .attr('class', 'meal_select_anchor')
-            .html('Lunch');
-        if(meal.meal == "lunch") {
-            grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
-        }
-        grid_meal_select_meal_lunch_anchor.click(function() {
-            if(meal.meal == "lunch") {
-                return;
-            }
-            if(meal.meal == "breakfast" ) {
-                grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "dinner" ) {
-                grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "snack" ) {
-                grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "other" ) {
-                grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-            }
-            grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
-            meal.meal = "lunch";
-            whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            grid_meal.html(whichmeal);
-            updateMealAjax(meal, "lunch");
-            if(setgridmeal) setgridmeal(meal);
-        });
-        grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
-    
-        // DINNER
-        var grid_meal_select_meal_dinner = $(dc('li'))
-            .attr('class', 'meal_select_menu_selection')
-            .attr('name', 'meal_select_menu_dinner')
-            .attr('id', 'meal_select_menu_dinner');
-        var grid_meal_select_meal_dinner_anchor = $(dc('a'))
-            .attr('id', 'meal_select_dinner_anchor')
-            .attr('class', 'meal_select_anchor')
-            .html('Dinner');
-        if(meal.meal == "dinner") {
-            grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
-        }
-        grid_meal_select_meal_dinner_anchor.click(function() {
-            if(meal.meal == "dinner") {
-                return;
-            }
-            if(meal.meal == "breakfast" ) {
-                grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "lunch" ) {
-                grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "snack" ) {
-                grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "other" ) {
-                grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-            }
-            grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
-            meal.meal = "dinner";
-            whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            grid_meal.html(whichmeal);
-            updateMealAjax(meal, "dinner");
-            if(setgridmeal) setgridmeal(meal);
-        });
-        grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
-    
-        // SNACK
-        var grid_meal_select_meal_snack = $(dc('li'))
-            .attr('class', 'meal_select_menu_selection')
-            .attr('name', 'meal_select_menu_snack')
-            .attr('id', 'meal_select_menu_snack');
-        var grid_meal_select_meal_snack_anchor = $(dc('a'))
-            .attr('id', 'meal_select_snack_anchor')
-            .attr('class', 'meal_select_anchor')
-            .html('Snack');
-        if(meal.meal == "snack") {
-            grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
-        }
-        grid_meal_select_meal_snack_anchor.click(function() {
-            if(meal.meal == "snack") {
-                return;
-            }
-            if(meal.meal == "breakfast" ) {
-                grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "lunch" ) {
-                grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "dinner" ) {
-                grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "other" ) {
-                grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
-            }
-            grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
-            meal.meal = "snack";
-            whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            grid_meal.html(whichmeal);
-            updateMealAjax(meal, "snack");
-            if(setgridmeal) setgridmeal(meal);
-        });
-        grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
-    
-        var grid_meal_select_meal_other = $(dc('li'))
-            .attr('class', 'meal_select_menu_selection')
-            .attr('name', 'meal_select_menu_other')
-            .attr('id', 'meal_select_menu_other');
-        var grid_meal_select_meal_other_anchor = $(dc('a'))
-            .attr('id', 'meal_select_other_anchor')
-            .attr('class', 'meal_select_anchor')
-            .html('Other');
-        if(meal.meal == "other") {
-            grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
-        }
-        grid_meal_select_meal_other_anchor.click(function() {
-            if(meal.meal == "other") {
-                return;
-            }
-            if(meal.meal == "breakfast" ) {
-                grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "lunch" ) {
-                grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "dinner" ) {
-                grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
-            }
-            if(meal.meal == "snack" ) {
-                grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
-            }
-            grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
-            meal.meal = "other";
-            whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
-            grid_meal.html(whichmeal);
-            updateMealAjax(meal, "other");
-            if(setgridmeal) setgridmeal(meal); });
-        grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
-    
-        // build menu
-        grid_meal_select_meal_breakfast.appendTo(grid_meal_select);
-        grid_meal_select_meal_lunch.appendTo(grid_meal_select);
-        grid_meal_select_meal_dinner.appendTo(grid_meal_select);
-        grid_meal_select_meal_snack.appendTo(grid_meal_select);
-        grid_meal_select_meal_other.appendTo(grid_meal_select);
-        grid_meal_select.appendTo(grid_meal_select_div);
-    
-        // Define hover behaviors
-        /*
-        grid_meal.mouseenter(
-            function(){
-                $('#meal_select_menu_div').css({ 'display': 'block' });
-            }
-        );
-    
-        grid_meal_select_div.mouseleave(
-            function(){
-                $('#meal_select_menu_div').css({ 'display': 'none' });
-            }
-        );
-        */
-    
-        var grid_meal_clear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        // Append meal
-        grid_meal_pre.appendTo(class8);
-        grid_meal.appendTo(class8);
-        grid_meal_select_div.appendTo(class8);
-        grid_meal_clear.appendTo(class8);
-    
-        // How many stars
-        var grid_stars_pre = $(dc('div'))
-            .attr('class', 'grid_3')
-            .html('Rating');
-    
         // Rating selector container
         var grid_stars = $(dc('div'))
             .attr('class', 'grid_5')
             .attr('id', 'pop_rating')
             .attr('name', 'name_rating');
-    
+
         // Create a sub-div that will contain the star-elements
         var grid_stars_select_div = $(dc('div'))
             .attr('class', 'stars_select_menu_div')
@@ -1757,131 +1229,679 @@ showattributes = (function($jq) {
         // Append this to grid_stars..
         grid_stars_select_div.appendTo(grid_stars);
         
-        var grid_stars_clear = $(dc('div'))
+        // Return this
+        return grid_stars;
+    }
+
+    // Create the grid-date object
+    function makepopdate(meal) {
+
+        var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
+    
+        var grid_date = $(dc('div'))
+            .attr('class', 'grid_5')
+            .attr('id', 'pop_date');
+
+        var grid_date_anchor = $(dc('a'))
+            .attr('id', 'pop_date_anchor')
+            .attr('class', 'pop_date_anchor')
+            .attr('title', 'click to edit')
+            .css({'display':'inline-block'});
+    
+        var grid_date_text = $(dc('div'))
+            .attr('id', 'pop_date_text')
+            .attr('class', 'pop_date_text')
+            .html(new Date(mealDate).asMyString());
+    
+        grid_date_text.appendTo(grid_date_anchor);
+    
+        var grid_date_input = $(dc('input'))
+            .attr('type', 'text')
+            .attr('class', 'pop_date_input')
+            .attr('id', 'pop_date_input')
+            .attr('name', 'pop_date_input')
+            .val(new Date(mealDate).asString());
+
+        // This append *must* occur before the call to datePicker.
+        grid_date_input.appendTo(grid_date);
+        grid_date_anchor.appendTo(grid_date);
+        grid_date_input.datePicker( { createButton: false, startDate: new Date(1990, 0, 1) } );
+        grid_date_input.css({'display':'none'});
+        grid_date_text.click(function() {
+            grid_date_input.dpDisplay(grid_date);
+        });
+    
+        grid_date_input.on('dateSelected', function(e, sdate, td, selected) {
+            // Set the pop-up date
+            $('#pop_date_text').html(sdate.asMyString());
+    
+            // Calculate the mealdate
+            var md = MEALINFO.dateToMealDate(sdate, MEALINFO.mealToConst(meal.meal));
+    
+            // Update server side
+            updateMealDateAjax(meal, md);
+    
+            return false;
+        });
+
+        return grid_date;
+    }
+    
+    // Meal attributes / edit modal
+    function showattributesmealinfo(username, meal, restaurant, restaurantId) {
+    
+        var username = meal.username;
+        var timestamp = meal.timestamp;
+    
+        // Create the popup div
+        popup = $(dc('div'))
+            .attr('id', 'mealAttributes')
+            .attr('class', 'mealAttributesPopup')
+            .css('z-index', '9999')
+            .css('padding', '20px');
+    
+        // Center things on this popup.  
+        var centr = $(dc('center'));
+    
+        // Carousel div
+        var carouselDivContainer = $(dc('div'))
+            .attr('id', 'mealCarouselContainer')
+            .attr('class', 'mealCarouselContainer');
+    
+        // Create a carousel
+        elm = createcarousel(username, 'pics', 
+                meal.picInfo, findpicidx, meal.keytimestamp);
+    
+        // Append it to the div
+        elm.appendTo(carouselDivContainer);
+    
+        // Append carousel to popup
+        carouselDivContainer.appendTo(centr);
+    
+        // Create a container for the dismiss box
+        var closexContainer = $(dc('div'))
+            .attr('id', 'mealAttributesCloseContainer')
+            .attr('class', 'mealAttributesCloseContainer');
+    
+        // Create an anchor for the dismiss box
+        var closex = $(dc('a'))
+            .attr('id', 'mealAttributesCloseButton')
+            .attr('class', 'mealAttributesCloseButton')
+            .html('x');
+    
+        // Click handler for dismiss box
+        closex.click(function(){
+            destroymodal();
+        });
+    
+        // Append to popup
+        closex.appendTo(closexContainer);
+        closexContainer.appendTo(popup);
+    
+        // Append center to popup
+        centr.appendTo(popup);
+    
+        // Create a class_8 container
+        var class8 = $(dc('div'))
+            .attr('id', 'mealAttributesClass8')
+            .attr('class', 'container_8');
+    
+        // Hold objects directly beneath the carousel
+        var subcarousel = $(dc('div'))
+            .attr('id', 'subcarousel')
+            .attr('class', 'carousel_caption');
+    
+        // Create my upload anchor
+        var uploadAnchor = createuploadanchor(meal);
+    
+        // Retrieve a delete anchor
+        var makeKeyAnchor = createkeyanchor(meal);
+    
+        // Create delete picture anchor
+        var deleteAnchor = createdeleteanchor(meal);
+    
+        // Add to the carousel fadeobjs
+        elm.addfadeobj(makeKeyAnchor.get(0));
+    
+        // Add to the carousel fade objects
+        elm.addfadeobj(deleteAnchor.get(0));
+    
+        // Clear 
+        var carouselClear = $(dc('div'))
             .attr('class', 'clear');
     
-        // Append rating
-        grid_stars_pre.appendTo(class8);
-        grid_stars.appendTo(class8);
-        grid_stars_clear.appendTo(class8);
+        // Attach to popup
+        uploadAnchor.appendTo(subcarousel);
+        makeKeyAnchor.appendTo(subcarousel);
+        deleteAnchor.appendTo(subcarousel);
+        subcarousel.appendTo(class8);
+        carouselClear.appendTo(class8);
+    
+        // Lets skip a line
+        var skipLine = $(dc('div'))
+            .attr('class', 'grid_8 skipline')
+            .html('.');
+        var skipClear = $(dc('div'))
+            .attr('class', 'clear');
+    
+        skipLine.appendTo(class8);
+        skipClear.appendTo(class8);
+    
+        // Create a grid to hold the title
+        var grid_title_pre = $(dc('div'))
+            .attr('class', 'grid_3')
+            .html('Title');
+    
+        var title = "<i>Click to edit title</i>";
+    
+        if(undefined != meal.title && meal.title.length > 0) {
+            title = meal.title;
+        }
+    
+        var hovertitle = $(dc('a'))
+            .attr('id', 'titleEdit')
+            .attr('class', 'titleEdit')
+            .attr('title', 'click to edit')
+            .html(title);
+    
+        // Title grid
+        var grid_title = $(dc('div'))
+            .attr('class', 'grid_5')
+            .attr('id', 'pop_title');
+    
+        hovertitle.appendTo(grid_title);
+    
+        hovertitle.click(function(){
+    
+            var titleEditInput = $(dc('input'))
+                .attr('type', 'text')
+                .attr('class', 'titleEditInput')
+                .attr('name', 'titleEditInput')
+                .attr('maxlength', '29')
+                .attr('size', '29')
+                .val(meal.title);
+    
+            titleEditInput.appendTo(grid_title);
+            $('#titleEdit').css({'display':'none'});
+    
+            titleEditInput.focus();
+    
+            // Disable carosel arrow behavior
+            elm.disablekeydown();
+    
+            function blurTitleInput(meal, titleEditInput, keepcurrent) {
+                if(titleEditInput.val() != meal.title && keepcurrent == 0) {
+    
+                    var titleEdit; 
+
+                    meal.title = titleEditInput.val();
+
+                    // If this is empty
+                    if(undefined == meal.title || meal.title.length <= 0) {
+
+                        // Change modal title
+                        $(hovertitle).html("<i>Click to edit title</i>");
+
+                    }
+                    else {
+
+                        // Change modal title
+                        $(hovertitle).html(meal.title);
+
+                    }
+
+                    // Change grid title
+                    if(setgridtitle) {
+                        setgridtitle(meal);
+                    }
+    
+                    $.ajax({
+                        url: '/savetitle',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(
+                            {
+                                username: meal.username,
+                                timestamp: meal.timestamp,
+                                title: titleEditInput.val()
+                            }),
+                        dataType: 'json',
+                        complete: function(resp, astat) {
+                        }
+                    });
+                }
+
+                // Change grid title css
+                $(hovertitle).css({'display':'inline-block'});
+
+                // Remove input box
+                titleEditInput.remove();
+
+                // Allow keyboard carousel control
+                elm.enablekeydown();
+            }
+    
+    
+            // I want certain keys (return or tab) to force a blur
+            titleEditInput.keydown(function(e){
+                var code = (e.keyCode ? e.keyCode : e.which);
+                switch(code) {
+                    // XXX 
+                    case 39:
+                    case 37:
+                        return true;
+                        break;
+                    case 13:
+                    case 9:
+                        titleEditInput.blur();
+                        return false;
+                        break;
+                    case 27:
+                        blurTitleInput(meal, titleEditInput, 1);
+                        return false;
+                        break;
+                }
+            });
+    
+            titleEditInput.blur(function() {
+                    blurTitleInput(meal, titleEditInput, 0);
+            });
+        });
+    
+        var grid_title_clear = $(dc('div'))
+            .attr('class', 'clear');
+    
+        // Append title
+        grid_title_pre.appendTo(class8);
+        grid_title.appendTo(class8);
+        grid_title_clear.appendTo(class8);
+    
+        if(showdate) {
+    
+            // Create label column
+            var grid_date_pre = $(dc('div'))
+                .attr('class', 'grid_3')
+                .html('Date');
+
+            // Create grid-date
+            var grid_date = makepopdate(meal);
+
+            // Create clear-column
+            var grid_date_clear = $(dc('div'))
+                .attr('class', 'clear');
+
+            grid_date_pre.appendTo(class8);
+            grid_date.appendTo(class8);
+            grid_date_clear.appendTo(class8);
+    
+        }
+
+        if(showwhichmeal) {
+        
+            var whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+        
+            // Which meal
+            var grid_meal_pre = $(dc('div'))
+                .attr('class', 'grid_3')
+                .html('Meal');
+        
+            var grid_meal = $(dc('div'))
+                .attr('class', 'grid_5')
+                .attr('id', 'pop_meal');
+        
+            // Create the which-meal selection menu
+            var grid_meal_select_div = $(dc('div'))
+                .attr('class', 'meal_select_menu_div')
+                .attr('id', 'meal_select_menu_div')
+                .css({'display': 'block'});
+        
+            var grid_meal_select = $(dc('ul'))
+                .attr('class', 'meal_select_menu')
+                .attr('id', 'meal_select_menu')
+                .attr('name', 'meal_select_menu');
+        
+            // BREAKFAST
+            var grid_meal_select_meal_breakfast = $(dc('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_breakfast')
+                .attr('id', 'meal_select_menu_breakfast');
+        
+            var grid_meal_select_meal_breakfast_anchor = $(dc('a'))
+                .attr('id', 'meal_select_breakfast_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Breakfast');
+        
+            if(meal.meal == "breakfast") {
+                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+            }
+            
+            grid_meal_select_meal_breakfast_anchor.click(function() {
+                if(meal.meal == "breakfast") {
+                    return;
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_breakfast_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "breakfast";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "breakfast");
+                if(setgridmeal) setgridmeal(meal);
+            });
+        
+            grid_meal_select_meal_breakfast_anchor.appendTo(grid_meal_select_meal_breakfast);
+        
+            // LUNCH
+            var grid_meal_select_meal_lunch = $(dc('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_lunch')
+                .attr('id', 'meal_select_menu_lunch');
+        
+            var grid_meal_select_meal_lunch_anchor = $(dc('a'))
+                .attr('id', 'meal_select_lunch_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Lunch');
+            if(meal.meal == "lunch") {
+                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_lunch_anchor.click(function() {
+                if(meal.meal == "lunch") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_lunch_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "lunch";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "lunch");
+                if(setgridmeal) setgridmeal(meal);
+            });
+            grid_meal_select_meal_lunch_anchor.appendTo(grid_meal_select_meal_lunch);
+        
+            // DINNER
+            var grid_meal_select_meal_dinner = $(dc('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_dinner')
+                .attr('id', 'meal_select_menu_dinner');
+            var grid_meal_select_meal_dinner_anchor = $(dc('a'))
+                .attr('id', 'meal_select_dinner_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Dinner');
+            if(meal.meal == "dinner") {
+                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_dinner_anchor.click(function() {
+                if(meal.meal == "dinner") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_dinner_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "dinner";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "dinner");
+                if(setgridmeal) setgridmeal(meal);
+            });
+            grid_meal_select_meal_dinner_anchor.appendTo(grid_meal_select_meal_dinner);
+        
+            // SNACK
+            var grid_meal_select_meal_snack = $(dc('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_snack')
+                .attr('id', 'meal_select_menu_snack');
+            var grid_meal_select_meal_snack_anchor = $(dc('a'))
+                .attr('id', 'meal_select_snack_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Snack');
+            if(meal.meal == "snack") {
+                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_snack_anchor.click(function() {
+                if(meal.meal == "snack") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "other" ) {
+                    grid_meal_select_meal_other_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_snack_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "snack";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "snack");
+                if(setgridmeal) setgridmeal(meal);
+            });
+            grid_meal_select_meal_snack_anchor.appendTo(grid_meal_select_meal_snack);
+        
+            var grid_meal_select_meal_other = $(dc('li'))
+                .attr('class', 'meal_select_menu_selection')
+                .attr('name', 'meal_select_menu_other')
+                .attr('id', 'meal_select_menu_other');
+            var grid_meal_select_meal_other_anchor = $(dc('a'))
+                .attr('id', 'meal_select_other_anchor')
+                .attr('class', 'meal_select_anchor')
+                .html('Other');
+            if(meal.meal == "other") {
+                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+            }
+            grid_meal_select_meal_other_anchor.click(function() {
+                if(meal.meal == "other") {
+                    return;
+                }
+                if(meal.meal == "breakfast" ) {
+                    grid_meal_select_meal_breakfast_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "lunch" ) {
+                    grid_meal_select_meal_lunch_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "dinner" ) {
+                    grid_meal_select_meal_dinner_anchor.removeClass('grid_meal_selected');
+                }
+                if(meal.meal == "snack" ) {
+                    grid_meal_select_meal_snack_anchor.removeClass('grid_meal_selected');
+                }
+                grid_meal_select_meal_other_anchor.attr('class', 'grid_meal_selected');
+                meal.meal = "other";
+                whichmeal = meal.meal.charAt(0).toUpperCase() + meal.meal.slice(1);
+                grid_meal.html(whichmeal);
+                updateMealAjax(meal, "other");
+                if(setgridmeal) setgridmeal(meal); });
+            grid_meal_select_meal_other_anchor.appendTo(grid_meal_select_meal_other);
+        
+            // build menu
+            grid_meal_select_meal_breakfast.appendTo(grid_meal_select);
+            grid_meal_select_meal_lunch.appendTo(grid_meal_select);
+            grid_meal_select_meal_dinner.appendTo(grid_meal_select);
+            grid_meal_select_meal_snack.appendTo(grid_meal_select);
+            grid_meal_select_meal_other.appendTo(grid_meal_select);
+            grid_meal_select.appendTo(grid_meal_select_div);
+
+            var grid_meal_clear = $(dc('div'))
+                .attr('class', 'clear');
+        
+            // Append meal
+            grid_meal_pre.appendTo(class8);
+            grid_meal.appendTo(class8);
+            grid_meal_select_div.appendTo(class8);
+            grid_meal_clear.appendTo(class8);
+        }
+
+        // XXX BEGIN RATING
+        if(showrating) {
+    
+            // How many stars
+            var grid_stars_pre = $(dc('div'))
+                .attr('class', 'grid_3')
+                .html('Rating');
+    
+            var grid_stars = makepoprating(meal);
+        
+            var grid_stars_clear = $(dc('div'))
+                .attr('class', 'clear');
+        
+            // Append rating
+            grid_stars_pre.appendTo(class8);
+            grid_stars.appendTo(class8);
+            grid_stars_clear.appendTo(class8);
+
+        }
     
         // If there's a restaurant associated with this meal, link to it
         if(restaurantId > 0 && restaurant != undefined) {
         }
     
-        // If there's already a review, display it now
-        var grid_review_pre = $(dc('div'))
-            .attr('class', 'grid_3')
-            .html('Review');
+        if(showreview) {
     
-        var review = "(click to edit review)";
-    
-        var grid_review = $(dc('div'))
-            .attr('class', 'grid_5')
-            .attr('class', 'grid_review')
-            .attr('id', 'pop_review')
-            .attr('name', 'pop_review');
-    
-    
-        if (meal.review != undefined && meal.review.length > 0) {
-            review = meal.review;
+            // If there's already a review, display it now
+            var grid_review_pre = $(dc('div'))
+                .attr('class', 'grid_3')
+                .html('Review/Blog');
+        
+            var review = "(click to edit review)";
+        
+            var grid_review = $(dc('div'))
+                .attr('class', 'grid_5')
+                .attr('class', 'grid_review')
+                .attr('id', 'pop_review')
+                .attr('name', 'pop_review');
+        
+        
+            if (meal.review != undefined && meal.review.length > 0) {
+                review = meal.review;
+            }
+        
+            var grid_review_textarea = $(dc('textarea'))
+                .attr('class', 'review_noedit')
+                .attr('class', 'review_text_area')
+                .attr('id', 'review_text_int')
+                .attr('cols', textareawidth)
+                .attr('rows', 20)
+                .attr('readonly',  true)
+                .html(review);
+        
+            grid_review_textarea.click(function() {
+        
+                elm.disablekeydown();
+        
+                $('#review_text_int').removeClass('review_noedit');
+                $('#review_text_int').addClass('review_edit');
+                $('#review_text_int').attr('readonly', false);
+        
+                // Zap the not-reviewed placeholder
+                if(meal.review == undefined || meal.review.length <= 0) {
+                    //grid_review_textarea.html('');
+                    $('#review_text_int').html('');
+                }
+            });
+        
+            grid_review_textarea.keydown(function(e){
+                var code = (e.keyCode ? e.keyCode : e.which);
+                switch(code) {
+                    case 27:
+                    case 9:
+                        $('#review_text_int').blur();
+                        return false;
+                }
+            });
+        
+            grid_review_textarea.blur(function() {
+                var tmpText = $('#review_text_int').val();
+                updateReviewAjax(meal, tmpText);
+                if(tmpText == undefined || tmpText.length <= 0) {
+                    $('#review_text_int').html('(click to edit review)');
+                }
+                meal.review = tmpText;
+        
+                $('#review_text_int').addClass('review_noedit');
+                $('#review_text_int').removeClass('review_edit');
+                $('#review_text_int').attr('readonly', true);
+        
+                elm.enablekeydown();
+            });
+            
+            grid_review_textarea.appendTo(grid_review);
+        
+            var grid_review_clear = $(dc('div'))
+                .attr('class', 'clear');
+        
+            grid_review_pre.appendTo(class8);
+            grid_review.appendTo(class8);
+            grid_review_clear.appendTo(class8);
         }
     
-        var grid_review_textarea = $(dc('textarea'))
-            .attr('class', 'review_noedit')
-            .attr('class', 'review_text_area')
-            .attr('id', 'review_text_int')
-            .attr('cols', textareawidth)
-            .attr('rows', 20)
-            .attr('readonly',  true)
-            .html(review);
-    
-        grid_review_textarea.click(function() {
-    
-            elm.disablekeydown();
-    
-            $('#review_text_int').removeClass('review_noedit');
-            $('#review_text_int').addClass('review_edit');
-            $('#review_text_int').attr('readonly', false);
-    
-            // Zap the not-reviewed placeholder
-            if(meal.review == undefined || meal.review.length <= 0) {
-                //grid_review_textarea.html('');
-                $('#review_text_int').html('');
-            }
-        });
-    
-        grid_review_textarea.keydown(function(e){
-            var code = (e.keyCode ? e.keyCode : e.which);
-            switch(code) {
-                case 27:
-                case 9:
-                    $('#review_text_int').blur();
-                    return false;
-            }
-        });
-    
-        grid_review_textarea.blur(function() {
-            var tmpText = $('#review_text_int').val();
-            updateReviewAjax(meal, tmpText);
-            if(tmpText == undefined || tmpText.length <= 0) {
-                $('#review_text_int').html('(click to edit review)');
-            }
-            meal.review = tmpText;
-    
-            $('#review_text_int').addClass('review_noedit');
-            $('#review_text_int').removeClass('review_edit');
-            $('#review_text_int').attr('readonly', true);
-    
-            elm.enablekeydown();
-        });
+        if(showdelete) {
+
+            var deleteLink = $(dc('div'))
+                .attr('class', 'grid_8 delete_link')
+                .attr('id', 'delete_link');
         
-        grid_review_textarea.appendTo(grid_review);
+            var deleteMealAnchor = $(dc('a'))
+                .attr('class', 'delete_link_anchor')
+                .attr('id', 'delete_link_anchor')
+                .attr('href', 'javascript:void(0)')
+                .attr('title', 'Delete')
+                .html('<i>Click to Delete</i>');
+        
+            var deleteClear = $(dc('div'))
+                .attr('class', 'clear');
+        
+            deleteMealAnchor.click(function() {
     
-        var grid_review_clear = $(dc('div'))
-            .attr('class', 'clear');
+                if(griddelete) {
     
-        grid_review_pre.appendTo(class8);
-        grid_review.appendTo(class8);
-        grid_review_clear.appendTo(class8);
+                    griddelete(meal, fadedestroymodal);
+                }
     
-        // Delete this picture logic here. 
-        /*
-        var deletePre = $(dc('div'))
-            .attr('class', 'grid_3 delete_pre')
-            .attr('id', 'delete_pre')
-            .html('Delete');
-        */
-    
-        var deleteLink = $(dc('div'))
-            .attr('class', 'grid_8 delete_link')
-            .attr('id', 'delete_link');
-    
-        var deleteMealAnchor = $(dc('a'))
-            .attr('class', 'delete_link_anchor')
-            .attr('id', 'delete_link_anchor')
-            .attr('href', 'javascript:void(0)')
-            .attr('title', 'Delete this Meal')
-            .html('Delete this Meal');
-    
-        var deleteClear = $(dc('div'))
-            .attr('class', 'clear');
-    
-        deleteMealAnchor.click(function() {
+            });
+        
+            deleteMealAnchor.appendTo(deleteLink);
+        
+            // Append to modal
+            // deletePre.appendTo(class8);
+            deleteLink.appendTo(class8);
+            deleteClear.appendTo(class8);
 
-            if(griddelete) {
-
-                griddelete(meal, fadedestroymodal);
-            }
-
-        });
-    
-        deleteMealAnchor.appendTo(deleteLink);
-    
-        // Append to modal
-        // deletePre.appendTo(class8);
-        deleteLink.appendTo(class8);
-        deleteClear.appendTo(class8);
+        }
     
         class8.appendTo(popup);
 
@@ -2009,6 +2029,18 @@ showattributes = (function($jq) {
         // Set the show calendar 
         showdate = cfg.hp("showdate") ? cfg.showdate : false;
 
+        // Set the rating
+        showrating = cfg.hp("showrating") ? cfg.showrating : false;
+
+        // Set showwhichmeal
+        showwhichmeal = cfg.hp("showwhichmeal") ? cfg.showwhichmeal : false;
+
+        // Set the showreview
+        showreview = cfg.hp("showreview") ? cfg.showreview : true;
+
+        // Set the showdelete
+        showdelete = cfg.hp("showdelete") ? cfg.showdelete : true;
+        
         // We are not showing
         isshowing = false;
 
