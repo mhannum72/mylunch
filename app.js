@@ -405,9 +405,16 @@ updatePasswordInMongo = function(username, newpassword, callback) {
 // verified-by-admin
 
 // Get a single mealInfo from Mongo
-getOneMealInfoFromMongo = function(username, timestamp, callback) {
+getOneMealInfoFromMongoInternal = function(username, timestamp, getreview, callback) {
 
-    var projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+    var projection; 
+    
+    if(getreview) {
+        projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'review' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+    }
+    else {
+        projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+    }
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
         
@@ -425,6 +432,14 @@ getOneMealInfoFromMongo = function(username, timestamp, callback) {
             }
         });
     });
+}
+
+getOneMealInfoFromMongoReview = function(username, timestamp, callback) {
+    return getOneMealInfoFromMongoInternal(username, timestamp, true, callback);
+}
+
+getOneMealInfoFromMongo = function(username, timestamp, callback) {
+    return getOneMealInfoFromMongoInternal(username, timestamp, false, callback);
 }
 
 // To delete, I just set the deleted flag - later I have a task which deletes the older deletes nightly
@@ -2714,7 +2729,7 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
     }
 
     // Either admin or normal case, lookup mealinfo 
-    getOneMealInfoFromMongo(username, timestamp, function(err, mealInfo) {
+    getOneMealInfoFromMongoReview(username, timestamp, function(err, mealInfo) {
         if(err) throw(err);
         if(undefined == mealInfo) {
             res.writeHead(200, { 'Content-Type': 'application/json' });

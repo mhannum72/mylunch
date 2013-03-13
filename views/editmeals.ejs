@@ -378,83 +378,6 @@ showattributes = (function($jq) {
     // Whether to show the calendar
     var showdate;
 
-    // Must init before using
-    function init(findp, makecarousel, cfg) {
-
-        // Shorten function name
-        cfg.hp = cfg.hasOwnProperty;
-
-        // Set search function
-        findpicidx = findp;
-
-        // Set the create carousel function
-        createcarousel = makecarousel;
-
-        // Minimum mask width
-        minmaskfadewidth = cfg.hp("minmaskfadewidth") ? cfg.minmaskfadewidth : 1024;
-    
-        // Mask height
-        maskfadeheight = cfg.hp("maskfadeheight") ? cfg.maskfadeheight : 2000;
-    
-        // Opacity
-        maskfadeopacity = cfg.hp("maskfadeopacity") ? cfg.maskfadeopacity : 0.6;
-    
-        // Where to append the 
-        appendpop = cfg.hp("appendpop") ? cfg.appendpop : null;
-    
-        // Width of modal
-        modalwidth = cfg.hp("modalwidth") ? cfg.modalwidth : 800;
-    
-        // Hidden frame
-        hiddenframe = cfg.hp("hiddenframe") ? cfg.hiddenframe : $('#hiddenElements')[0];
-    
-        // Grid delete function
-        griddelete = cfg.hp("griddelete") ? cfg.griddelete : null;
-    
-        // Set the display picture
-        setgriddisplay = cfg.hp("setgriddisplay") ? cfg.setgriddisplay : null;
-    
-        // Set the grid title
-        setgridtitle = cfg.hp("setgridtitle") ? cfg.setgridtitle : null;
-    
-        // Set the update count function
-        setgridcount = cfg.hp("setgridcount") ? cfg.setgridcount : null;
-    
-        // Set the meal on the grid
-        setgridmeal = cfg.hp("setgridmeal") ? cfg.setgridmeal : null;
-
-        // Set the show calendar 
-        showdate = cfg.hp("showdate") ? cfg.showdate : false;
-
-        // We are not showing
-        isshowing = false;
-
-        // Element creator
-        dc = cfg.hp("createelm") ? cfg.createelm : function(a) {
-            return document.createElement(a);
-        }
-    
-        // Keep track of the window's width
-        windowwidth = $(window).width();
-    
-        // Keep track of the window's height
-        windowheight = $(window).height();
-
-        // Create the background for this
-        maskfade = $(dc('div'))
-            .attr('id', 'maskfade')
-            .attr('class', 'maskclass')
-            .css({'display':'none'})
-            .appendTo('body');
-    
-        // Click handler for background
-        maskfade.click(function() {
-    
-            destroymodal();
-    
-        });
-    }
-
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -2038,6 +1961,85 @@ showattributes = (function($jq) {
         );
     }
 
+    // Must init before using
+    function init(findp, makecarousel, cfg) {
+
+        // Shorten function name
+        cfg.hp = cfg.hasOwnProperty;
+
+        // Set search function
+        findpicidx = findp;
+
+        // Set the create carousel function
+        createcarousel = makecarousel;
+
+        // Minimum mask width
+        minmaskfadewidth = cfg.hp("minmaskfadewidth") ? cfg.minmaskfadewidth : 1024;
+    
+        // Mask height
+        maskfadeheight = cfg.hp("maskfadeheight") ? cfg.maskfadeheight : 2000;
+    
+        // Opacity
+        maskfadeopacity = cfg.hp("maskfadeopacity") ? cfg.maskfadeopacity : 0.6;
+    
+        // Where to append the 
+        appendpop = cfg.hp("appendpop") ? cfg.appendpop : null;
+    
+        // Width of modal
+        modalwidth = cfg.hp("modalwidth") ? cfg.modalwidth : 800;
+    
+        // Hidden frame
+        hiddenframe = cfg.hp("hiddenframe") ? cfg.hiddenframe : $('#hiddenElements')[0];
+    
+        // Grid delete function
+        griddelete = cfg.hp("griddelete") ? cfg.griddelete : null;
+    
+        // Set the display picture
+        setgriddisplay = cfg.hp("setgriddisplay") ? cfg.setgriddisplay : null;
+    
+        // Set the grid title
+        setgridtitle = cfg.hp("setgridtitle") ? cfg.setgridtitle : null;
+    
+        // Set the update count function
+        setgridcount = cfg.hp("setgridcount") ? cfg.setgridcount : null;
+    
+        // Set the meal on the grid
+        setgridmeal = cfg.hp("setgridmeal") ? cfg.setgridmeal : null;
+
+        // Set the show calendar 
+        showdate = cfg.hp("showdate") ? cfg.showdate : false;
+
+        // We are not showing
+        isshowing = false;
+
+        // Element creator
+        dc = cfg.hp("createelm") ? cfg.createelm : function(a) {
+            return document.createElement(a);
+        }
+    
+        // Keep track of the window's width
+        windowwidth = $(window).width();
+    
+        // Keep track of the window's height
+        windowheight = $(window).height();
+
+        // Create the background for this
+        maskfade = $(dc('div'))
+            .attr('id', 'maskfade')
+            .attr('class', 'maskclass')
+            .css({'display':'none'})
+            .appendTo('body');
+    
+        // Click handler for background
+        maskfade.click(function() {
+    
+            destroymodal();
+    
+        });
+    }
+
+
+
     return {
         init                        : init,
         show                        : show,
@@ -2567,7 +2569,7 @@ var gridnav = (function ($jq) {
         gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
 
         // Height
-        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 100;
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 56;
 
         // Top outer margin
         outermargintop = cfg.hp("outermargintop") ? cfg.outermargintop : 10;
