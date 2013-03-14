@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* I want to create a 'header' and 'footer' section to add to pretty much 
+  every page to make this look professional.
+
 * I can create a 'share-slideshow' mechanism (or page) where you can provide 
   a list of email addresses, and the slideshow will be shared.  EVEN BETTER,
   I can make sure that the link that each of them follow is unique, and then
