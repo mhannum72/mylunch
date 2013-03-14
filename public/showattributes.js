@@ -1032,7 +1032,7 @@ showattributes = (function($jq) {
     
         // Create a carousel
         elm = createcarousel(username, 'pics', 
-                meal.picInfo, findpicidx, meal.keytimestamp);
+                meal.picInfo, findpicidx, meal.keytimestamp, adjustfademask);
     
         // Append it to the div
         elm.appendTo(carouselDivContainer);

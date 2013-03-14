@@ -4,13 +4,7 @@ var picturecarousel = (function ($jq) {
     // Cache jquery
     var $ = $jq;
 
-    function maxheight() {
-
-        return this.elm.maxheight;
-
-    }
-
-    function create(username, sourcedir, picinfo, findpicix, keytimestamp) {
+    function create(username, sourcedir, picinfo, findpicix, keytimestamp, adjustfadecb) {
         // Create element wrapper
         var dc = function(a)
         {
@@ -358,6 +352,7 @@ var picturecarousel = (function ($jq) {
                     if(this.pinfo.height > elm.maxheight) { 
                         elm.maxheight = this.pinfo.height; 
                         elm.maxheightcnt = 1; 
+                        adjustfadecb();
                     }
                     else if(this.pinfo.height == elm.maxheight) { 
                         elm.maxheightcnt++;
@@ -1372,8 +1367,7 @@ var picturecarousel = (function ($jq) {
     
     // 
     return {
-        create                      : create,
-        maxheight                   : maxheight
+        create                      : create
     };
     
 }(jQuery));
