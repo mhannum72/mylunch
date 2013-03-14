@@ -4,6 +4,12 @@ var picturecarousel = (function ($jq) {
     // Cache jquery
     var $ = $jq;
 
+    function maxheight() {
+
+        return this.elm.maxheight;
+
+    }
+
     function create(username, sourcedir, picinfo, findpicix, keytimestamp) {
         // Create element wrapper
         var dc = function(a)
@@ -1366,7 +1372,8 @@ var picturecarousel = (function ($jq) {
     
     // 
     return {
-        create                      : create
+        create                      : create,
+        maxheight                   : maxheight
     };
     
 }(jQuery));

@@ -15,6 +15,7 @@
             <div class='gridNavDiv' id='gridNavDiv'></div>
             <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
         </center>
+        <div id='enddiv'></div>
     <script src="/jquery.js"></script>
     <script src="/date.js"></script>
     <script src="/jquery.datePicker.js"></script>
@@ -191,7 +192,8 @@ showattributes.init(
         findpicidx.search, 
         picturecarousel.create,
         { 
-            hiddenframe     : $('#hiddenElements')[0]
+            fadeheightelement   : $('#enddiv')[0],
+            hiddenframe         : $('#hiddenElements')[0],
         }
 );
 
@@ -211,7 +213,7 @@ picturegrid.init(
             titletrace          : true,
             picturecounttrace   : true,
             animatenextprev     : true,
-            rowsperpage         : 2
+            rowsperpage         : 5
         
         }
 );

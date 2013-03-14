@@ -25,6 +25,9 @@ showattributes = (function($jq) {
     // Minimum mask width
     var minmaskfadewidth;
 
+    // The maximum picture height
+    var maxpicheight;
+
     // Mask height
     var maskfadeheight;
 
@@ -353,12 +356,35 @@ showattributes = (function($jq) {
     }
 
     // TODO: resize handler function
+    function adjustmaskfade() {
+
+        // Get window width
+        var wid = windowwidth;
+
+        // Get the current document height
+        maskfadeheight = $(document).height();
+
+        // Set css
+        maskfade.css(
+            {
+                'width':wid + 'px', 
+                'height': maskfadeheight + 'px', 
+                'display':'block'
+            }
+    }
 
     // Set dimensions & display background
     function showmaskfade() {
 
         // Get window width
         var wid = windowwidth;
+
+        // Get the current document height
+        maskfadeheight = $(document).height();
+
+        // Make sure to add the height of the difference between the current 
+        // maximum picture and the actual max picture size.
+        // maskfadeheight += 780;
 
         // Set sane minimum
         if(wid < minmaskfadewidth) 
@@ -1692,9 +1718,9 @@ showattributes = (function($jq) {
         // Minimum mask width
         minmaskfadewidth = cfg.hp("minmaskfadewidth") ? cfg.minmaskfadewidth : 1024;
     
-        // Mask height
-        maskfadeheight = cfg.hp("maskfadeheight") ? cfg.maskfadeheight : 2000;
-    
+        // Maximum picture height
+        maxpicheight = cfg.hp("maxpicheight") ? cfg.maxpicheight : 780;
+
         // Opacity
         maskfadeopacity = cfg.hp("maskfadeopacity") ? cfg.maskfadeopacity : 0.6;
     

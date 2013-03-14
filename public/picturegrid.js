@@ -103,6 +103,9 @@ var picturegrid = (function ($jq) {
     // Calculate the container grid height
     var containerheight;
 
+    // Margin fudge
+    var containermarginfudge;
+
     // Calculate the outer container grid height
     var outercontainerheight;
 
@@ -1529,7 +1532,7 @@ var picturegrid = (function ($jq) {
     
         // What's the container's bottom margin
         containermarginbottom = cfg.hp("containermarginbottom") ? 
-            cfg.containermarginbottom : 10;
+            cfg.containermarginbottom : 0;
 
         // What's the container's right margin
         containermarginright = cfg.hp("containermarginright") ?
@@ -1607,9 +1610,19 @@ var picturegrid = (function ($jq) {
         outercontainermarginright = cfg.hp("outercontainermarginright") ? 
             cfg.outercontainermarginright : 0;
 
+        // Margin-bottom fudge: i dont understand and its not worth figuring 
+        // containermarginfudge = cfg.hp("containermarginfudge") ? 
+        //    cfg.containermarginfudge : 60;
+
         // Calculate the container grid height
         containerheight = rowsperpage * (pictureheight + footerheight +
-                + (2 * picborder) + margintop + marginbottom);
+                + (2 * picborder) + margintop + marginbottom) ;
+
+        // Fudge that makes this work
+        fudge = 20 + ((rowsperpage - 1) * 10);
+
+        // Add some fudge
+        containerheight -= fudge;
 
         // Outer container height
         outercontainerheight = containerheight + containermargintop +
