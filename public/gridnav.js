@@ -339,7 +339,6 @@ var gridnav = (function ($jq) {
     }
 
     // Callback for the grid object
-    // TODO HERE TODO XXX
     function nextprevcallback( pvpage, nxpage, pvanchor, nxanchor ) {
 
         if(pvpage) {

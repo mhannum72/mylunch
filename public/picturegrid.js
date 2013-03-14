@@ -103,9 +103,6 @@ var picturegrid = (function ($jq) {
     // Calculate the container grid height
     var containerheight;
 
-    // Calculate the outer container width
-    //var containerwidth;
-
     // Calculate the outer container grid height
     var outercontainerheight;
 
@@ -171,9 +168,6 @@ var picturegrid = (function ($jq) {
 
     // A callback that returns true if the modal is up, false otherwise
     var modalisup;
-
-    // Spacer width
-    //var spacerwidth;
 
     // Create element wrapper
     var dc = function(a)
@@ -471,10 +465,10 @@ var picturegrid = (function ($jq) {
         }
 
         // Error checking
-        if(thumbheight <= 0) {
+        //if(thumbheight <= 0) {
             //console.log("ERROR!  Thumbheight is an invalid value: " + 
             //        thumbheight);
-        }
+        //}
 
         // Set image source
         gridpic.attr('src', imgsrc);
@@ -580,7 +574,6 @@ var picturegrid = (function ($jq) {
     function ptimestring(meal, both) {
 
         // Dateify the meal timestamp
-        //var datest = new Date(meal.timestamp).asGridString();
         var datest;
         
         // Use slashdate format
@@ -593,24 +586,20 @@ var picturegrid = (function ($jq) {
             datest = new Date(meal.timestamp).asMyString();
         }
 
-        // Add a comma if more is on this line
-        // if (both) datest += ', ';
-
         // Return it
         return datest;
 
     }
 
     // Return a span object with the picture timestamp
-    function ptimespan(meal, both) {
+    function ptimep(meal, both) {
 
         // Grab picture time string
         var ptime = ptimestring(meal, both);
 
         // Create span with this as the html
-        //var span = $(dc('span'))
-        var span = $(dc('p'))
-            .attr('class', 'ptimespan')
+        var par = $(dc('p'))
+            .attr('class', 'ptimep')
             .css('color', '#777')
             .css('text-align', footeralign)
             .css('line-height', (subfooterfontsize - 10) + 'px')
@@ -619,7 +608,7 @@ var picturegrid = (function ($jq) {
             .html(ptime);
 
         // Return it
-        return span;
+        return par;
     }
 
     // Return the picture count string
@@ -644,14 +633,14 @@ var picturegrid = (function ($jq) {
     }
 
     // Return a span object with the correct pcount string
-    function pcountspan(meal) {
+    function pcountp(meal) {
 
         // Grab picture count string
         var pcount = pcountstring(meal);
 
         // Create span with this as the html
-        var span = $(dc('p'))
-            .attr('class', 'pcountspan')
+        var par = $(dc('p'))
+            .attr('class', 'pcountp')
             .css('color', '#777')
             .css('text-align', footeralign)
             .css('line-height', 0 + 'px')
@@ -660,7 +649,7 @@ var picturegrid = (function ($jq) {
             .html(pcount);
 
         // Return it
-        return span;
+        return par;
     }
 
     // The internal grid object contains the click logic
@@ -805,27 +794,13 @@ var picturegrid = (function ($jq) {
         // Variable to hold subfooter paragraph if we need one
         var sfoot = null;
 
-        // Create a paragraph for either or both of these
-        /*
-        if (picturecounttrace || picturetimetrace) {
-
-            // Create a sub-footer paragraph
-            sfoot = subfooterp(meal);
-
-            // Append it to the footer
-            sfoot.appendTo(footer);
-
-        }
-        */
-
         // Append a time
         if (picturetimetrace) {
 
             // Create a time-trace span
-            var ptimesp = ptimespan(meal, picturecounttrace);
+            var ptimesp = ptimep(meal, picturecounttrace);
 
             // Append to the footer
-            // ptimesp.appendTo(sfoot);
             ptimesp.appendTo(footer);
 
         }
@@ -834,10 +809,9 @@ var picturegrid = (function ($jq) {
         if (picturecounttrace) {
 
             // Create a pcount paragraph object
-            var pcountsp = pcountspan(meal);
+            var pcountsp = pcountp(meal);
     
             // Append to the footer
-            //pcountsp.appendTo(sfoot);
             pcountsp.appendTo(footer);
     
         }
@@ -1608,8 +1582,7 @@ var picturegrid = (function ($jq) {
         // Speed to change pages
         gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 1000;
     
-        // Viewport width leaves a little breathing room at the edges
-        // viewportwidth = gridwidth + marginleft + marginright;
+        // Viewport width 
         viewportwidth = gridwidth;
     
         // Set the anchor click function
