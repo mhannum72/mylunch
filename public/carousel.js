@@ -1,5 +1,8 @@
 // Depends on jquery
-var picturecarousel = (function ($) {
+var picturecarousel = (function ($jq) {
+
+    // Cache jquery
+    var $ = $jq;
 
     function create(username, sourcedir, picinfo, findpicix, keytimestamp) {
         // Create element wrapper
@@ -135,7 +138,7 @@ var picturecarousel = (function ($) {
                 .css('border-color', '#ddd')
                 .attr('src', img_source);
     
-            // TODO write picture click handler
+            // TODO picture click handler?
             /* 
             anchor.click(function(){
     
