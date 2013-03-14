@@ -341,9 +341,9 @@ var picturecarousel = (function ($jq) {
             // Iterate to find maxes
             $dv.each(function(i) {
     
-                if(this.pinfo == undefined) {
-                    debuglog('pinfo is undefined?');
-                }
+                //if(this.pinfo == undefined) {
+                    //console.log('pinfo is undefined?');
+                //}
     
                 // Ignore the picture that's being removed
                 if(this.pinfo.timestamp != ignorets) {
@@ -363,9 +363,9 @@ var picturecarousel = (function ($jq) {
             });
     
             // 'Assert'
-            if(elm.numpics > 0 && counter != elm.numpics) {
-                debuglog('Error: numpics mismatch!');
-            }
+            //if(elm.numpics > 0 && counter != elm.numpics) {
+                //console.log('Error: numpics mismatch!');
+            //}
         }
     
         // Creates key picture icon
@@ -531,7 +531,7 @@ var picturecarousel = (function ($jq) {
             // Check addremove flag
             if(elm.addremove) {
     
-                debuglog('Removepicture returning because we are add removing.');
+                //console.log('Removepicture returning because we are add removing.');
                 if(callback) callback(false);
                 return false;
     
@@ -583,7 +583,7 @@ var picturecarousel = (function ($jq) {
                 // Append this to my viewport
                 $nomeal.appendTo(elm.viewport);
     
-                debuglog('check nomeal here');
+                //console.log('check nomeal here');
             }
             else if($target.hasClass('pic-lastts')) {
     
@@ -638,7 +638,7 @@ var picturecarousel = (function ($jq) {
             // Check addremove flag
             if(elm.addremove) {
     
-                debuglog('Addpicture returning because we are add removing.');
+                //console.log('Addpicture returning because we are add removing.');
                 if(callback) callback(false);
                 return false;
     
@@ -790,7 +790,7 @@ var picturecarousel = (function ($jq) {
                         function(didr) {
     
                             if(!didr) { 
-                                debuglog('did not rotate?');
+                                //console.log('did not rotate?');
                             }
                             else { 
                                 rotatetopicture(timestamp); 
@@ -844,7 +844,7 @@ var picturecarousel = (function ($jq) {
     
                 // Print an error message
                 if(lastkey && lastkey.length > 0) {
-                    debuglog('Severe error: multiple key-pictures!');
+                    //console.log('Severe error: multiple key-pictures!');
                     lastkey.removeClass('key-picture');
                 }
                 
@@ -1263,7 +1263,7 @@ var picturecarousel = (function ($jq) {
     
             // Return immediately if we're already rotating
             if(elm.rotating == true) {
-                debuglog("carousel is already rotating.");
+                //console.log("carousel is already rotating.");
                 return;
             }
     

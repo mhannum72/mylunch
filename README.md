@@ -5,6 +5,17 @@ mylunch
 todo
 ====
 
+* Get rid of debuglog trace
+
+* Make gridnav nicer looking. 
+
+* Gotta have a navigation menu .. everyone else does ..
+
+* Abstract the 'nomeal' part of this.  Maybe it should be registered separately
+  with each object rather than exposed as a dumb global.
+
+* Get rid of stylesheet stuff (maybe)
+
 * I want to create a 'header' and 'footer' section to add to pretty much 
   every page to make this look professional.
 

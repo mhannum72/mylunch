@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<!-- 
-
-TODO:
-* Make the upper left-hand corner menu nicer
-* Make the 'next' and 'previous' page commands SLIDE new pictures on rather than
-  load an entirely new page.
-* Upload should be a pop-up on this page rather than a full-fledged page.  If 
-  you upload via a pop-up, the pictures could shift so that the newly uploaded 
-  picture is shown first.
-
--->
 
 <html lang="en">
     <head>
@@ -38,22 +27,8 @@ TODO:
     // Global minfo array holds the initial mealset
     var minfo = [];
 
-    // Height of my nomeal picture
+    // Height of my nomeal picture.  This is dumb.
     var NOMEALHEIGHT = 256;
-
-    // Global containing the user's name
-    var username = "<%= user.username %>";
-
-    // Create element wrapper
-    var dc = function(a)
-    {
-        return document.createElement(a);
-    };
-
-    // Enable or disable debug trace
-    debuglog = function(text) {
-        console.log(text);
-    }
 
     // Functionize mealinfo
     var MEALINFO = (function() {
@@ -142,7 +117,7 @@ TODO:
 
             // This shouldn't happen
             if(!pinfo || pinfo.length <= 0) {
-                debuglog('Error: findpicidx called with a null pinfo');
+                console.log('Error: findpicidx called with a null pinfo');
             }
 
             // Loop
@@ -255,7 +230,7 @@ TODO:
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    debuglog('updating position');
+                    console.log('updating position');
                     $.ajax({
                         url: '/updateposition',
                         type: 'POST',
@@ -312,7 +287,7 @@ picturegrid.init(
 // Initialize the gridnav object
 gridnav.init(
         document.getElementById('gridNavDiv'),
-        "<% user.username %>",
+        "<%= user.username %>",
         {
             gridnavwidth        : picturegrid.containerwidth()
         }
@@ -350,7 +325,7 @@ function truncMeal(username, timestamp, keytimestamp, title, meal,
     this.meal = meal;
     this.mealDate = mealDate;
     if(!picInfo) {
-        debuglog('picinfo is null??');
+        console.log('picinfo is null??');
     }
     this.picInfo = picInfo;
     return this;

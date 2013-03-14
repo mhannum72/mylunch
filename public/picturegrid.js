@@ -215,7 +215,7 @@ var picturegrid = (function ($jq) {
                         window.location.replace("/signin");
                     }
                     else {
-                        debuglog("Response error is ", response.message);
+                        //console.log("Response error is ", response.message);
                         window.location.replace("/");
                     }
                     return;
@@ -336,7 +336,7 @@ var picturegrid = (function ($jq) {
             if(response.errStr != undefined && response.errStr.length > 0) {
 
                 // Send this error to a space at the top..
-                debuglog('editpageprev error: ' + response.errStr);
+                //console.log('editpageprev error: ' + response.errStr);
             }
             else {
                 var nextpage = new mealpage(parseInt(response.nextts,10));
@@ -361,7 +361,7 @@ var picturegrid = (function ($jq) {
             function(response) {
                 if(response.errStr != undefined && response.errStr.length > 0) {
                     // Send this error to a space at the top..
-                    debuglog('editpagenext error: ' + response.errStr);
+                    //console.log('editpagenext error: ' + response.errStr);
                 }
                 else {
                     var nextpage = new mealpage(
@@ -472,8 +472,8 @@ var picturegrid = (function ($jq) {
 
         // Error checking
         if(thumbheight <= 0) {
-            debuglog("ERROR!  Thumbheight is an invalid value: " + 
-                    thumbheight);
+            //console.log("ERROR!  Thumbheight is an invalid value: " + 
+            //        thumbheight);
         }
 
         // Set image source
@@ -1012,7 +1012,7 @@ var picturegrid = (function ($jq) {
                         window.location.replace("/signin");
                     }
                     else {
-                        debuglog("getJSON response error is ", response.errStr);
+                        //console.log("getJSON response error is ", response.errStr);
                         window.location.replace("/");
                     }
                     return;
@@ -1038,7 +1038,7 @@ var picturegrid = (function ($jq) {
                     var idx = findpicidx(lastmealinfo, meal.timestamp);
 
                     if(idx < 0) {
-                        debuglog("Error - deleted picture is not in lastmealinfo.");
+                        //console.log("Error - deleted picture is not in lastmealinfo.");
                     }
                     else {
                         // Remove this picture
@@ -1166,7 +1166,7 @@ var picturegrid = (function ($jq) {
                         window.location.replace("/signin");
                     }
                     else {
-                        debuglog("getJSON response error is ", response.errStr);
+                        //console.log("getJSON response error is ", response.errStr);
                         window.location.replace("/");
                     }
                     return;
@@ -1285,7 +1285,7 @@ var picturegrid = (function ($jq) {
         }
         else {
 
-            debuglog("Error in deletemealfromgrid: behavior not specified");
+            //console.log("Error in deletemealfromgrid: behavior not specified");
             // Fail big
             // dmealreplace(meal, callback);
 
@@ -1338,13 +1338,13 @@ var picturegrid = (function ($jq) {
 
         // Short circuit if were already displaying
         if (displaying) {
-            debuglog("displaygrid is already displaying");
+            //console.log("displaygrid is already displaying");
             return false;
         }
 
         // Scrub arguments
         if (mealinfo == undefined || mealinfo.length <= 0) {
-            debuglog("empty mealinfo");
+            //console.log("empty mealinfo");
             return false;
         }
 

@@ -99,7 +99,6 @@ showattributes = (function($jq) {
                 }),
             dataType: 'json',
             complete: function(resp, astat) {
-                //debuglog('put a breakpoint here');
             }
         });
     }
@@ -445,7 +444,7 @@ showattributes = (function($jq) {
             // print an error message.
             if(null == bodytext || bodytext == "") {
 
-                debuglog('checkuploaded bodytext is null - resetting timeout, cnt is ' + cnt++);
+                //console.log('checkuploaded bodytext is null - resetting timeout, cnt is ' + cnt++);
                 setTimeout(checkuploaded, 500);
                 return;
 
@@ -470,9 +469,11 @@ showattributes = (function($jq) {
                 var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
     
                 // Debug messages
-                debuglog('checkuploaded timestamp is ' + picts);
-                debuglog('checkuploaded height is ' + height);
-                debuglog('cnt is ' + cnt++);
+                /*
+                //console.log('checkuploaded timestamp is ' + picts);
+                //console.log('checkuploaded height is ' + height);
+                //console.log('cnt is ' + cnt++);
+                */
     
                 // Add to the picture-mobile
                 callback(null, pinfo);
@@ -481,7 +482,7 @@ showattributes = (function($jq) {
             else {
 
                 // Redirect to the homepage on error
-                debuglog('Error from server: ' + bodytext);
+                //console.log('Error from server: ' + bodytext);
                 window.location.replace("/");
             }
         }
@@ -628,7 +629,7 @@ showattributes = (function($jq) {
                             setgriddisplay(meal, pinfo);
                         }
     
-                        debuglog('pushing ' + pinfo.timestamp + ' ts is ' + ts);
+                        // console.log('pushing ' + pinfo.timestamp + ' ts is ' + ts);
     
                         // Push this picture onto the meal.picInfo array
                         meal.picInfo.push(pinfo);
