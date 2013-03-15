@@ -5,6 +5,14 @@ mylunch
 todo
 ====
 
+* Next/Prev icons at the bottom are dumb - move these to the grid page itself,
+  and use the same shape that I used for the carousel.  Make sure to keep it 
+  abstract to keep things interesting.
+
+* The grid-nav bar is not required .. I will need something to hold the 
+  'range-navigator' .. maybe this will become the ranged navigator.
+
+
 * Change the carousel and the picturegrid to take an icon-image for the nomeal
   case. 
 

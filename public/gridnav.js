@@ -138,11 +138,26 @@ var gridnav = (function ($jq) {
 
     // Create an icon image object
     function createiconimg(iconinfo) {
-        var img = $(dc('img'))
-            .attr('width', iconinfo.width + 'px')
-            .attr('height', iconinfo.height + 'px')
-            .attr('src', iconinfo.name);
-        return img;
+
+        var backgroundstring = 'transparent url(' + iconinfo.name + ') no-repeat';
+
+        if(iconinfo.position) {
+            backgroundstring += ' ' + iconinfo.position;
+        }
+        else {
+            backgroundstring += ' top left';
+        }
+
+        var dv = $(dc('div'))
+            .css('width', iconinfo.width + 'px')
+            .css('height', iconinfo.height + 'px')
+            .css('background', 'transparent')
+            .css('text-indent', '-9000px')
+            .css('background', backgroundstring)
+            .css('margin', '0 auto')
+            .html('.');
+
+        return dv;
     }
 
     // Get / create a prev-page image icon
@@ -296,12 +311,14 @@ var gridnav = (function ($jq) {
         var ndiv = $(dc('div'))
             .attr('id', name)
             .attr('class', cls)
-            .css('background-color', '#fff')
+            //.css('background-color', '#fff')
             .css('width', navdivwidth + 'px')
             .css('height', navdivheight + 'px')
+            /*
             .css('box-shadow', '3px 3px 5px #444')
             .css('-webkit-box-shadow', '3px 3px 5px #444')
             .css('-moz-box-shadow', '3px 3px 5px #444')
+            */
             .css('margin-top', menumargintop + 'px')
             .css('margin-bottom', menumarginbottom + 'px')
             .css('margin-left', menumarginleft + 'px')
@@ -417,6 +434,7 @@ var gridnav = (function ($jq) {
             // Append prevpagediv to prevanchor
             prevpagediv.appendTo(pvanchor);
 
+            //prevpagediv.attr('disabled', 'false');
         }
         else {
 
@@ -427,9 +445,10 @@ var gridnav = (function ($jq) {
             prevli.empty();
 
             // Append
-            prevpagediv.appendTo(prevli);
+            //prevpagediv.appendTo(prevli);
 
             // TODO : shadow this out somehow?
+            //prevpagediv.attr('disabled', 'true');
         }
 
         if(nxpage) {
@@ -455,7 +474,7 @@ var gridnav = (function ($jq) {
             nextli.empty();
 
             // Append
-            nextpagediv.appendTo(nextli);
+            //nextpagediv.appendTo(nextli);
         }
     }
 

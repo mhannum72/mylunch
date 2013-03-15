@@ -1603,7 +1603,7 @@ showattributes = (function($jq) {
                 .attr('id', 'delete_link_anchor')
                 .attr('href', 'javascript:void(0)')
                 .attr('title', 'Delete')
-                .html('<i>Click to Delete</i>');
+                .html('<i>Click to Delete Meal</i>');
         
             var deleteClear = $(dc('div'))
                 .attr('class', 'clear');

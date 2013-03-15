@@ -220,10 +220,16 @@ picturegrid.init(
 );
 
 // Simple picture icon class
-function iconinfo(name, width, height) {
+function iconinfo(name, width, height, position) {
     this.name = name;
     this.width = width;
     this.height = height;
+    if(position) {
+        this.position = position;
+    }
+    else {
+        this.position = null;
+    }
     return this;
 }
 
@@ -233,8 +239,10 @@ gridnav.init(
         "<%= user.username %>",
         {
             gridnavwidth        : picturegrid.containerwidth(),
-            nextpageicon        : new iconinfo("images/nextpage.png", 128, 128),
-            prevpageicon        : new iconinfo("images/prevpage.png", 128, 128)
+            //nextpageicon        : new iconinfo("images/arrows.png", 25, 39, 'top right'),
+            //prevpageicon        : new iconinfo("images/arrows.png", 25, 39, 'top left')
+            //nextpageicon        : new iconinfo("images/nextpage.png", 128, 128),
+            //prevpageicon        : new iconinfo("images/prevpage.png", 128, 128)
         }
 );
 
