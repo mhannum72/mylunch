@@ -371,6 +371,7 @@ showattributes = (function($jq) {
                 'height': maskfadeheight + 'px', 
                 'display':'block'
             }
+        );
     }
 
     // Set dimensions & display background
@@ -1032,7 +1033,7 @@ showattributes = (function($jq) {
     
         // Create a carousel
         elm = createcarousel(username, 'pics', 
-                meal.picInfo, findpicidx, meal.keytimestamp, adjustfademask);
+                meal.picInfo, findpicidx, meal.keytimestamp, adjustmaskfade);
     
         // Append it to the div
         elm.appendTo(carouselDivContainer);

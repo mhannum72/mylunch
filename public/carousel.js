@@ -352,7 +352,9 @@ var picturecarousel = (function ($jq) {
                     if(this.pinfo.height > elm.maxheight) { 
                         elm.maxheight = this.pinfo.height; 
                         elm.maxheightcnt = 1; 
-                        adjustfadecb();
+                        if(adjustfadecb) {
+                            adjustfadecb();
+                        }
                     }
                     else if(this.pinfo.height == elm.maxheight) { 
                         elm.maxheightcnt++;

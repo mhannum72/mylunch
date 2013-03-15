@@ -1616,7 +1616,7 @@ var picturegrid = (function ($jq) {
 
         // Calculate the container grid height
         containerheight = rowsperpage * (pictureheight + footerheight +
-                + (2 * picborder) + margintop + marginbottom) ;
+                + (2 * picborder) + margintop + marginbottom);
 
         // Fudge that makes this work
         fudge = 20 + ((rowsperpage - 1) * 10);
