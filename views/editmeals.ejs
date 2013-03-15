@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+        
 
 <html lang="en">
     <head>
@@ -26,55 +27,55 @@
     <script src="/carousel.js"></script>
     <script type="text/javascript">
 
-    // Global minfo array holds the initial mealset
-    var minfo = [];
+// Global minfo array holds the initial mealset
+var minfo = [];
 
-    // Height of my nomeal picture.  This is dumb.
-    var NOMEALHEIGHT = 256;
+// Height of my nomeal picture.  This is dumb.
+var NOMEALHEIGHT = 256;
 
-    // TODO - clean this up
-    // Functionize mealinfo
-    var MEALINFO = (function() {
+// TODO - clean this up
+// Functionize mealinfo
+var MEALINFO = (function() {
 
-        var NOMEAL = 0;
-        var BREAKFAST = 1;
-        var LUNCH = 2;
-        var DINNER = 3;
-        var SNACK = 4;
-        var OTHER = 5;
-        var MAXMEAL = 99;
+    var NOMEAL = 0;
+    var BREAKFAST = 1;
+    var LUNCH = 2;
+    var DINNER = 3;
+    var SNACK = 4;
+    var OTHER = 5;
+    var MAXMEAL = 99;
 
-        // Return constant given a string
-        function mealToConst(meal)
+    // Return constant given a string
+    function mealToConst(meal)
+    {
+        if(meal == undefined || !meal)
         {
-            if(meal == undefined || !meal)
-            {
-                return NOMEAL;
-            }
-            if(meal == "breakfast")
-            {
-                return BREAKFAST;
-            }
-            if(meal == "lunch")
-            {
-                return LUNCH;
-            }
-            if(meal == "dinner")
-            {
-                return DINNER;
-            }
-            if(meal == "snack")
-            {
-                return SNACK;
-            }
-            if(meal == "other")
-            {
-                return OTHER;
-            }
-            throw new Error("Invalid mealConst: " + meal);
+            return NOMEAL;
         }
+        if(meal == "breakfast")
+        {
+            return BREAKFAST;
+        }
+        if(meal == "lunch")
+        {
+            return LUNCH;
+        }
+        if(meal == "dinner")
+        {
+            return DINNER;
+        }
+        if(meal == "snack")
+        {
+            return SNACK;
+        }
+        if(meal == "other")
+        {
+            return OTHER;
+        }
+        throw new Error("Invalid mealConst: " + meal);
+    }
 
-        // Utility function
+    // Utility function
 		function mealDateToDate(mealdate)
 		{
 		    var year = mealdate / 1000000; mealdate %= 1000000;
@@ -83,109 +84,110 @@
 		    return new Date(year, month-1, day);
 		}
 
-        function dateToMealDate(date, mealconst)
-        {
-            return  (date.getFullYear()    * 1000000) +
-                    ((date.getMonth() + 1)   * 10000) +
-                    (date.getDate()            * 100) +
-                    (mealconst);
-        }
+    function dateToMealDate(date, mealconst)
+    {
+        return  (date.getFullYear()    * 1000000) +
+                ((date.getMonth() + 1)   * 10000) +
+                (date.getDate()            * 100) +
+                (mealconst);
+    }
 
-        return {
-            dateToMealDate  : dateToMealDate,
-            mealDateToDate  : mealDateToDate,
-            mealToConst     : mealToConst,
-            NOMEAL          : NOMEAL,
-            BREAKFAST       : BREAKFAST,
-            LUNCH           : LUNCH,
-            DINNER          : DINNER,
-            SNACK           : SNACK,
-            OTHER           : OTHER,
-            MAXMEAL         : MAXMEAL
-        };
-    }());
+    return {
+        dateToMealDate  : dateToMealDate,
+        mealDateToDate  : mealDateToDate,
+        mealToConst     : mealToConst,
+        NOMEAL          : NOMEAL,
+        BREAKFAST       : BREAKFAST,
+        LUNCH           : LUNCH,
+        DINNER          : DINNER,
+        SNACK           : SNACK,
+        OTHER           : OTHER,
+        MAXMEAL         : MAXMEAL
+    };
+}());
 
-    // Simple mealpage class
-    function mealpage(timestamp) {
+// Simple mealpage class
+function mealpage(timestamp) {
 
-        this.timestamp = timestamp;
-        return this;
+    this.timestamp = timestamp;
+    return this;
+
+}
+
+
+
+// Create string format for dates
+Date.prototype.asMyString = function() {
+    var monthNames = [ "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December" ];
+    return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+}
+
+// Create string format for griddates
+Date.prototype.asSlashString = function() {
+    return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
+}
+
+// jquery ready handler
+$(document).ready(function() {
+
+    $.ajaxSetup ({ cache: false });
+
+    // This might eventually configure itself according to the initial
+    // size of the user's screen.  The server side can't possibly know what
+    // that is, so I have the server send enough information to draw the 
+    // maximum screen.  This code sets the nextpage variable to the correct 
+    // timestamp based on the number of meals drawn.
+    var nextpage = null;
+
+    var mcount = picturegrid.mealcount();
+
+    if(minfo.length > mcount) {
+
+        nextpage = new mealpage(minfo[mcount].timestamp);
 
     }
 
-    // Create string format for dates
-    Date.prototype.asMyString = function() {
-        var monthNames = [ "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December" ];
-        return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+    // Display the navigation bar
+    if(undefined != gridnav)
+        gridnav.displaynav();
+
+    // Display the picture grid
+    if(undefined != picturegrid)
+        picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
+
+
+    /* Not yet - I have grand plans here.  Eventually I might allow
+     * the user to enter in the restaurant for a given meal.  This would
+     * be an autocomplete toolbar which takes the user's current location
+     * into account. */
+
+    /*
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                console.log('updating position');
+                $.ajax({
+                    url: '/updateposition',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            username: meal.username,
+                            position: position
+                        }),
+                    dataType: 'json',
+
+                    complete: function(resp, astat){
+                    }
+                });
+            }, 
+            function(error) {}, 
+            { enableHighAccuracy: true }
+        );
     }
-
-    // Create string format for griddates
-    Date.prototype.asSlashString = function() {
-        return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
-    }
-
-    // jquery ready handler
-    $(document).ready(function() {
-
-        $.ajaxSetup ({ cache: false });
-
-        // This might eventually configure itself according to the initial
-        // size of the user's screen.  The server side can't possibly know what
-        // that is, so I have the server send enough information to draw the 
-        // maximum screen.  This code sets the nextpage variable to the correct 
-        // timestamp based on the number of meals drawn.
-        var nextpage = null;
-
-        var mcount = picturegrid.mealcount();
-
-        if(minfo.length > mcount) {
-
-            nextpage = new mealpage(minfo[mcount].timestamp);
-
-        }
-
-        // Display the navigation bar
-        if(undefined != gridnav)
-            gridnav.displaynav();
-
-        // Display the picture grid
-        if(undefined != picturegrid)
-            picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
-
-
-        /* Not yet - I have grand plans here.  Eventually I might allow
-         * the user to enter in the restaurant for a given meal.  This would
-         * be an autocomplete toolbar which takes the user's current location
-         * into account. */
-
-        /*
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    console.log('updating position');
-                    $.ajax({
-                        url: '/updateposition',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(
-                            {
-                                username: meal.username,
-                                position: position
-                            }),
-                        dataType: 'json',
-    
-                        complete: function(resp, astat){
-                        }
-                    });
-                }, 
-                function(error) {}, 
-                { enableHighAccuracy: true }
-            );
-        }
-        */
-    });
-
+    */
+});
 
 // Initialize showattributes object
 showattributes.init(
@@ -213,17 +215,26 @@ picturegrid.init(
             titletrace          : true,
             picturecounttrace   : true,
             animatenextprev     : true,
-            rowsperpage         : 5
-        
+            rowsperpage         : 2
         }
 );
+
+// Simple picture icon class
+function iconinfo(name, width, height) {
+    this.name = name;
+    this.width = width;
+    this.height = height;
+    return this;
+}
 
 // Initialize the gridnav object
 gridnav.init(
         document.getElementById('gridNavDiv'),
         "<%= user.username %>",
         {
-            gridnavwidth        : picturegrid.containerwidth()
+            gridnavwidth        : picturegrid.containerwidth(),
+            nextpageicon        : new iconinfo("images/nextpage.png", 128, 128),
+            prevpageicon        : new iconinfo("images/prevpage.png", 128, 128)
         }
 );
 

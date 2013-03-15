@@ -38,6 +38,12 @@ var gridnav = (function ($jq) {
     // The container height
     var gridnavheight;
 
+    // The height of a navdiv
+    var navdivheight;
+
+    // The width of a navdiv
+    var navdivwidth;
+
     // The next page div
     var nextpagediv;
 
@@ -113,20 +119,46 @@ var gridnav = (function ($jq) {
     // Holds the newmeal anchor
     var newmealanchor;
 
+    // Holds previous page icon's pinfo 
+    var prevpageicon;
+
+    // Holds img for prevpage icon
+    var prevpageiconimg;
+
+    // Holds next page icon's pinfo
+    var nextpageicon;
+
+    // Holds img for nextpage icon
+    var nextpageiconimg;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
     }
 
-    // Get / create the nextpagediv
-    function getnextpagediv() {
+    // Create an icon image object
+    function createiconimg(iconinfo) {
+        var img = $(dc('img'))
+            .attr('width', iconinfo.width + 'px')
+            .attr('height', iconinfo.height + 'px')
+            .attr('src', iconinfo.name);
+        return img;
+    }
 
-        if(!nextpagediv) {
-
-            nextpagediv = navdiv('nextpagediv', 'nextpagediv').html('Next Page');
-
+    // Get / create a prev-page image icon
+    function getprevpageiconimg(iconinfo) {
+        if(!prevpageiconimg) {
+            prevpageiconimg = createiconimg(iconinfo);
         }
-        return nextpagediv;
+        return prevpageiconimg;
+    }
+
+    // Get / create a prev-page image icon
+    function getnextpageiconimg(iconinfo) {
+        if(!nextpageiconimg) {
+            nextpageiconimg = createiconimg(iconinfo);
+        }
+        return nextpageiconimg;
     }
 
     // Get / create the datenav div
@@ -163,13 +195,43 @@ var gridnav = (function ($jq) {
         return newmealdiv;
     }
 
+    // Get / create the nextpagediv
+    function getnextpagediv() {
+
+        if(!nextpagediv) {
+
+            nextpagediv = navdiv('nextpagediv', 'nextpagediv');
+
+            // Append the nextpage anchor - use an img
+            if(nextpageicon && nextpageicon.width <= navdivwidth && 
+                    nextpageicon.height <= navdivheight) {
+                var nexticon = getnextpageiconimg(nextpageicon);
+                nexticon.appendTo(nextpagediv);
+            }
+            else {
+                nextpagediv.html('Next Page');
+            }
+
+        }
+        return nextpagediv;
+    }
+
     // Get / create the prevpagediv
     function getprevpagediv() {
 
         if(!prevpagediv) {
 
-            prevpagediv = navdiv('prevpage', 'prevpage').html('Previous Page');
+            prevpagediv = navdiv('prevpagediv', 'prevpagediv');
 
+            // Append the prevpage anchor - use an img
+            if(prevpageicon && prevpageicon.width <= navdivwidth &&
+                    prevpageicon.height <= navdivheight) {
+                var previcon = getprevpageiconimg(prevpageicon);
+                previcon.appendTo(prevpagediv);
+            }
+            else {
+                prevpagediv.html('Previous Page');
+            }
         }
         return prevpagediv;
     }
@@ -235,8 +297,8 @@ var gridnav = (function ($jq) {
             .attr('id', name)
             .attr('class', cls)
             .css('background-color', '#fff')
-            .css('width', (menuelementwidth - (menumarginleft + menumarginright)) + 'px')
-            .css('height', (gridnavheight - (menumargintop + menumarginbottom)) + 'px')
+            .css('width', navdivwidth + 'px')
+            .css('height', navdivheight + 'px')
             .css('box-shadow', '3px 3px 5px #444')
             .css('-webkit-box-shadow', '3px 3px 5px #444')
             .css('-moz-box-shadow', '3px 3px 5px #444')
@@ -501,7 +563,7 @@ var gridnav = (function ($jq) {
         gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
 
         // Height
-        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 56;
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 150;
 
         // Top outer margin
         outermargintop = cfg.hp("outermargintop") ? cfg.outermargintop : 10;
@@ -539,6 +601,12 @@ var gridnav = (function ($jq) {
         // Set to 1 if we have a date navigator
         hasdatenav = cfg.hp("hasdatenav") ? (cfg.hasdatenav ? 1 : 0 ) : 0;
 
+        // Set to the prev-page icon's pinfo
+        prevpageicon = cfg.hp("prevpageicon") ? cfg.prevpageicon : null;
+
+        // Set to the next-page icon's pinfo
+        nextpageicon = cfg.hp("nextpageicon") ? cfg.nextpageicon : null;
+
         // Set the menucount
         menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
 
@@ -547,6 +615,12 @@ var gridnav = (function ($jq) {
 
         // Calculate the width of a single menu element
         menuelementwidth = Math.floor( (gridinnerwidth) / menucount );
+
+        // Calculate navdiv height
+        navdivheight = gridnavheight - (menumargintop + menumarginbottom);
+
+        // Calculate navdiv width
+        navdivwidth = menuelementwidth - (menumarginleft + menumarginright);
 
     }
 

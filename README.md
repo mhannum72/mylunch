@@ -5,7 +5,11 @@ mylunch
 todo
 ====
 
-* Get rid of debuglog trace
+* Change the carousel and the picturegrid to take an icon-image for the nomeal
+  case. 
+
+* The showattributes popup is larger than a two row picturegrid.  dont worry
+  about it.  its going to change when i have a header & footer.
 
 * Make gridnav nicer looking. 
 
