@@ -308,7 +308,7 @@ var picturegrid = (function ($jq) {
             if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
 
             // Grid object
-            var paragraph = $(meal.gridobj).find('.pcountspan'); 
+            var paragraph = $(meal.gridobj).find('.pcountp'); 
 
             // Update string
             var picturecountstring = pcountstring(meal);
