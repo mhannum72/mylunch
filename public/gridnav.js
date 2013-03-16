@@ -123,13 +123,13 @@ var gridnav = (function ($jq) {
     var prevpageicon;
 
     // Holds img for prevpage icon
-    var prevpageiconimg;
+    var prevpageicondiv;
 
     // Holds next page icon's pinfo
     var nextpageicon;
 
     // Holds img for nextpage icon
-    var nextpageiconimg;
+    var nextpageicondiv;
 
     // Create element wrapper
     var dc = function(a) {
@@ -137,7 +137,7 @@ var gridnav = (function ($jq) {
     }
 
     // Create an icon image object
-    function createiconimg(iconinfo) {
+    function createicondiv(iconinfo) {
 
         var backgroundstring = 'transparent url(' + iconinfo.name + ') no-repeat';
 
@@ -162,18 +162,22 @@ var gridnav = (function ($jq) {
 
     // Get / create a prev-page image icon
     function getprevpageiconimg(iconinfo) {
-        if(!prevpageiconimg) {
-            prevpageiconimg = createiconimg(iconinfo);
+        if(!prevpageicondiv) {
+            prevpageicondiv = createicondiv(iconinfo);
+            prevpageicondiv.css('float', 'left')
+                .attr('title', 'Previous Meals');
         }
-        return prevpageiconimg;
+        return prevpageicondiv;
     }
 
     // Get / create a prev-page image icon
     function getnextpageiconimg(iconinfo) {
-        if(!nextpageiconimg) {
-            nextpageiconimg = createiconimg(iconinfo);
+        if(!nextpageicondiv) {
+            nextpageicondiv = createicondiv(iconinfo);
+            nextpageicondiv.css('float', 'right')
+                .attr('title', 'Next Meals');
         }
-        return nextpageiconimg;
+        return nextpageicondiv;
     }
 
     // Get / create the datenav div
@@ -582,7 +586,7 @@ var gridnav = (function ($jq) {
         gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
 
         // Height
-        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 150;
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 120;
 
         // Top outer margin
         outermargintop = cfg.hp("outermargintop") ? cfg.outermargintop : 10;
