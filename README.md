@@ -5,8 +5,6 @@ mylunch
 todo
 ====
 
-* The number of pictures is not being updated!  This is a BUG BUG BUG!
-
 * Make the arrow-keys push the grid-nav buttons..
 
 * Next/Prev icons at the bottom are dumb - move these to the grid page itself,
