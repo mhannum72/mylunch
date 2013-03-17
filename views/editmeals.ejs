@@ -220,16 +220,12 @@ picturegrid.init(
 );
 
 // Simple picture icon class
-function iconinfo(name, width, height, position) {
+function iconinfo(name, width, height, attr) {
     this.name = name;
     this.width = width;
     this.height = height;
-    if(position) {
-        this.position = position;
-    }
-    else {
-        this.position = null;
-    }
+    this.position = attr && attr.hasOwnProperty("position") ? attr.position : null;
+    this.imgfloat = attr && attr.hasOwnProperty("imgfloat") ? attr.imgfloat : null;
     return this;
 }
 
@@ -239,8 +235,9 @@ gridnav.init(
         "<%= user.username %>",
         {
             gridnavwidth        : picturegrid.containerwidth(),
-            nextpageicon        : new iconinfo("images/rightarrow.png", 63, 100),
-            prevpageicon        : new iconinfo("images/leftarrow.png", 63, 100)
+            nextpageicon        : new iconinfo("images/rightarrow.png",     63, 100, { position : 'right', imgfloat : 'right' }),
+            prevpageicon        : new iconinfo("images/leftarrow.png",      63, 100, { position : 'left', imgfloat : 'left' }),
+            newmealicon         : new iconinfo("images/hamburger4.png",    100, 70)
             //nextpageicon        : new iconinfo("images/arrows.png", 25, 39, 'top right'),
             //prevpageicon        : new iconinfo("images/arrows.png", 25, 39, 'top left')
             //nextpageicon        : new iconinfo("images/nextpage.png", 128, 128),

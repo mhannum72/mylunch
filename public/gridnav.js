@@ -131,6 +131,12 @@ var gridnav = (function ($jq) {
     // Holds img for nextpage icon
     var nextpageicondiv;
 
+    // Holds newmeal icon's pinfo
+    var newmealicon;
+
+    // Holds img for newmeal icon
+    var newmealicondiv;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -154,8 +160,16 @@ var gridnav = (function ($jq) {
             .css('background', 'transparent')
             .css('text-indent', '-9000px')
             .css('background', backgroundstring)
-            .css('margin', '0 auto')
+            .css('margin-top', ((navdivheight - iconinfo.height) / 2) + 'px')
             .html('.');
+
+        // If this isn't floating center it
+        if(!iconinfo.imgfloat) {
+            dv.css('margin-left', ((navdivwidth - iconinfo.width) / 2) + 'px');
+        }
+
+            //.css('margin-left', ((navdivwidth - iconinfo.width) / 2) + 'px')
+            //.css('margin', '0 auto')
 
         return dv;
     }
@@ -164,18 +178,34 @@ var gridnav = (function ($jq) {
     function getprevpageiconimg(iconinfo) {
         if(!prevpageicondiv) {
             prevpageicondiv = createicondiv(iconinfo);
-            prevpageicondiv.css('float', 'left')
-                .attr('title', 'Previous Meals');
+            if(iconinfo.imgfloat) {
+                prevpageicondiv.css('float', iconinfo.imgfloat);
+            }
+            //prevpageicondiv.css('float', 'left')
+            //    .attr('title', 'Previous Meals');
+            prevpageicondiv.attr('title', 'Previous Meals')
         }
         return prevpageicondiv;
+    }
+
+    function getnewmealiconimg(iconinfo) {
+        if(!newmealicondiv) {
+            newmealicondiv = createicondiv(iconinfo);
+            newmealicondiv.attr('title', 'New Meal');
+        }
+        return newmealicondiv;
     }
 
     // Get / create a prev-page image icon
     function getnextpageiconimg(iconinfo) {
         if(!nextpageicondiv) {
             nextpageicondiv = createicondiv(iconinfo);
-            nextpageicondiv.css('float', 'right')
-                .attr('title', 'Next Meals');
+            if(iconinfo.imgfloat) {
+                nextpageicondiv.css('float', iconinfo.imgfloat);
+            }
+            //nextpageicondiv.css('float', 'right')
+            //    .attr('title', 'Next Meals');
+            nextpageicondiv.css('title', 'Next Meals')
         }
         return nextpageicondiv;
     }
@@ -201,8 +231,17 @@ var gridnav = (function ($jq) {
             // Create new meal anchor
             var nma = $(dc('a'))
                 .attr('id', 'newmealpopup')
-                .attr('href', 'javascript:void(0)')
-                .html('New Meal');
+                .attr('href', 'javascript:void(0)');
+
+            if(newmealicon && newmealicon.width <= navdivwidth &&
+                    newmealicon.height <= navdivheight) {
+                newmealicon = getnewmealiconimg(newmealicon);
+                newmealicon.appendTo(nma);
+
+            }
+            else {
+                nma.html('New Meal');
+            }
 
             // Append to the navdiv
             nma.appendTo(newmealdiv);
@@ -629,6 +668,9 @@ var gridnav = (function ($jq) {
 
         // Set to the next-page icon's pinfo
         nextpageicon = cfg.hp("nextpageicon") ? cfg.nextpageicon : null;
+
+        // Set to the new-meal icon's pinfo
+        newmealicon = cfg.hp("newmealicon") ? cfg.newmealicon : null;
 
         // Set the menucount
         menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
