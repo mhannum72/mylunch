@@ -137,6 +137,12 @@ var gridnav = (function ($jq) {
     // Holds img for newmeal icon
     var newmealicondiv;
 
+    // To true when prevpage icon is showing
+    var showingprevicon = false;
+
+    // To true when nextpage icon is showing
+    var showingnexticon = false;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -484,6 +490,14 @@ var gridnav = (function ($jq) {
 
     }
 
+    // Enable forward and next keys 
+    function disablenextprevkeys() {
+    }
+
+    // Disable forward and next keys 
+    function enablenextprevkeys() {
+    }
+
     // Callback for the grid object
     function nextprevcallback( pvpage, nxpage, pvanchor, nxanchor ) {
 
@@ -501,7 +515,8 @@ var gridnav = (function ($jq) {
             // Append prevpagediv to prevanchor
             prevpagediv.appendTo(pvanchor);
 
-            //prevpagediv.attr('disabled', 'false');
+            // Toggle previcon
+            showingprevicon = true;
         }
         else {
 
@@ -511,11 +526,8 @@ var gridnav = (function ($jq) {
             // Clear prevli - zap prevanchor
             prevli.empty();
 
-            // Append
-            //prevpagediv.appendTo(prevli);
-
-            // TODO : shadow this out somehow?
-            //prevpagediv.attr('disabled', 'true');
+            // Toggle previcon
+            showingprevicon = false;
         }
 
         if(nxpage) {
@@ -531,6 +543,9 @@ var gridnav = (function ($jq) {
 
             // Append nextpagediv to nxanchor
             nextpagediv.appendTo(nxanchor);
+
+            // Toggle nexticon
+            showingnexticon = true;
         }
         else {
 
@@ -540,8 +555,8 @@ var gridnav = (function ($jq) {
             // Clear nextli - zap nextanchor
             nextli.empty();
 
-            // Append
-            //nextpagediv.appendTo(nextli);
+            // Toggle nexticon
+            showingnexticon = false;
         }
     }
 
@@ -720,7 +735,9 @@ var gridnav = (function ($jq) {
         nextprevcallback            : nextprevcallback,
         getnewmealanchor            : getnewmealanchor,
         nextpage                    : nextpage,
-        prevpage                    : prevpage
+        prevpage                    : prevpage,
+        disablenextprevkeys         : disablenextprevkeys,
+        enablenextprevkeys          : enablenextprevkeys,
     };
 
 }(jQuery));
