@@ -5,6 +5,11 @@ mylunch
 todo
 ====
 
+* What would be cool: the hover behavior for the hamburger could be to display
+  (nicely) some 'new meal' text.  The 'title' business isn't that great.  
+  Another possibility: I could just make it smaller, and have 'new meal' 
+  written under it.
+
 * Make the arrow-keys push the grid-nav buttons..
 
 * Next/Prev icons at the bottom are dumb - move these to the grid page itself,

@@ -260,17 +260,35 @@ var gridnav = (function ($jq) {
             var nma = $(dc('a'))
                 .attr('id', 'newmealpopup')
                 .attr('color', '#bbb')
-                .attr('href', 'javascript:void(0)');
+                .attr('href', 'javascript:void(0)')
+                .css('text-indent', '-9000px')
+                .css('color', '#555');
+//                .html('New Meal');
+
 
             if(newmealicon && newmealicon.width <= navdivwidth &&
                     newmealicon.height <= navdivheight) {
                 newmealicon = getnewmealiconimg(newmealicon);
                 newmealicon.appendTo(nma);
 
+                // TODO: define mouseenter behavior
+                /*
+                nma.mouseenter(function() {
+                    nma.css('color', '#555')
+                    .css('text-ident', '0px')
+                    .html('New Meal');
+                });
+
+                // Define mouseexit behavior
+
+                nma.mouseleave(function() {
+                    nma.css('color', '#555')
+                    .css('text-indent', '-9000px');
+                    //.html('');
+                });
+                */
             }
             else {
-                nma.css('color', '#555')
-                    .html('New Meal');
             }
 
             // Append to the navdiv
