@@ -210,6 +210,34 @@ var gridnav = (function ($jq) {
         return nextpageicondiv;
     }
 
+    // Get a standard nav-div
+    function navdiv(name, cls) {
+
+        var ndiv = $(dc('div'))
+            .attr('id', name)
+            .attr('class', cls)
+            //.css('background-color', '#fff')
+            .css('width', navdivwidth + 'px')
+            .css('height', navdivheight + 'px')
+            //.css('color', '#bbb')
+            /*
+            .css('box-shadow', '3px 3px 5px #444')
+            .css('-webkit-box-shadow', '3px 3px 5px #444')
+            .css('-moz-box-shadow', '3px 3px 5px #444')
+            */
+            .css('margin-top', menumargintop + 'px')
+            .css('margin-bottom', menumarginbottom + 'px')
+            .css('margin-left', menumarginleft + 'px')
+            .css('margin-right', menumarginright + 'px')
+            .css('float', 'left')
+            .css('text-align', 'center');
+
+        return ndiv;
+    }
+
+
+
+
     // Get / create the datenav div
     function getdatenavdiv() {
 
@@ -231,6 +259,7 @@ var gridnav = (function ($jq) {
             // Create new meal anchor
             var nma = $(dc('a'))
                 .attr('id', 'newmealpopup')
+                .attr('color', '#bbb')
                 .attr('href', 'javascript:void(0)');
 
             if(newmealicon && newmealicon.width <= navdivwidth &&
@@ -240,7 +269,8 @@ var gridnav = (function ($jq) {
 
             }
             else {
-                nma.html('New Meal');
+                nma.css('color', '#555')
+                    .html('New Meal');
             }
 
             // Append to the navdiv
@@ -348,31 +378,7 @@ var gridnav = (function ($jq) {
         return (getprevpagediv())[0];
     }
 
-    // Get a standard nav-div
-    function navdiv(name, cls) {
-
-        var ndiv = $(dc('div'))
-            .attr('id', name)
-            .attr('class', cls)
-            //.css('background-color', '#fff')
-            .css('width', navdivwidth + 'px')
-            .css('height', navdivheight + 'px')
-            /*
-            .css('box-shadow', '3px 3px 5px #444')
-            .css('-webkit-box-shadow', '3px 3px 5px #444')
-            .css('-moz-box-shadow', '3px 3px 5px #444')
-            */
-            .css('margin-top', menumargintop + 'px')
-            .css('margin-bottom', menumarginbottom + 'px')
-            .css('margin-left', menumarginleft + 'px')
-            .css('margin-right', menumarginright + 'px')
-            .css('float', 'left')
-            .css('text-align', 'center');
-
-        return ndiv;
-    }
-
-    // Create a li
+        // Create a li
     function navli(name, cls) {
 
         var nli = $(dc('li'))
