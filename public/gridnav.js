@@ -157,18 +157,22 @@ var gridnav = (function ($jq) {
             backgroundstring += ' top left';
         }
 
+        var topmargin = Math.floor((navdivheight - iconinfo.height) / 2);
+
         var dv = $(dc('div'))
             .css('width', iconinfo.width + 'px')
             .css('height', iconinfo.height + 'px')
             .css('background', 'transparent')
             .css('text-indent', '-9000px')
             .css('background', backgroundstring)
-            .css('margin-top', ((navdivheight - iconinfo.height) / 2) + 'px')
+            .css('margin-top', topmargin + 'px')
             .html('.');
+
+        var leftmargin = Math.floor((navdivwidth - iconinfo.width) / 2);
 
         // If this isn't floating center it
         if(!iconinfo.imgfloat) {
-            dv.css('margin-left', ((navdivwidth - iconinfo.width) / 2) + 'px');
+            dv.css('margin-left', leftmargin + 'px');
         }
 
             //.css('margin-left', ((navdivwidth - iconinfo.width) / 2) + 'px')

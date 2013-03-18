@@ -780,8 +780,7 @@ var picturegrid = (function ($jq) {
             .css('font-size', footerfontsize + 'px')
             .css('color', '#333')
             .css('line-height', (footerfontsize + 15) + 'px')
-            .css('text-align', footeralign)
-            .css('text-indent', '10px');
+            .css('text-align', footeralign);
 
         // Append a title
         if (titletrace) {
