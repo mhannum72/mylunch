@@ -1806,7 +1806,7 @@ showattributes = (function($jq) {
         setgridcountcallback        : setgridcountcallback,
         setgridtitlecallback        : setgridtitlecallback,
         setgridmealcallback         : setgridmealcallback,
-        modalisshowing              : modalisshowing
+        modalisshowing              : modalisshowing,
     };
 
 }(jQuery));

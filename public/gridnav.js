@@ -10,18 +10,6 @@ var gridnav = (function ($jq) {
 
     // Who is running this
     var username;
-
-    // Left margin
-    var marginleft;
-
-    // Right margin
-    var marginright;
-
-    // Top margin
-    var margintop;
-
-    // Bottom margin
-    var marginbottom;
     
     // The nav div
     var navcontainer;
@@ -142,6 +130,15 @@ var gridnav = (function ($jq) {
 
     // To true when nextpage icon is showing
     var showingnexticon = false;
+
+    // Cache the prev-anchor
+    var cacheprevanchor;
+
+    // Cache the next-anchor
+    var cachenextanchor;
+
+    // Callback to see if the modal is up
+    var modalisupcb;
 
     // Create element wrapper
     var dc = function(a) {
@@ -490,13 +487,79 @@ var gridnav = (function ($jq) {
 
     }
 
-    // Enable forward and next keys 
-    function disablenextprevkeys() {
+    // Prev page on left arrow press
+    function bindprevanchor(pvanchor) {
+
+        // Bind forward key
+        $(document).on("keydown.gridnavprev", function(e) {
+
+            // Only take action if the modal is not up
+            if(!modalisupcb || !modalisupcb()) {
+                var code = (e.keyCode ? e.keyCode : e.which);
+                switch(code) {
+                    case 37:
+                        pvanchor.click();
+                        return false;
+                        break;
+                }
+            }
+        });
+    }
+
+    // Next page on right arrow press
+    function bindnextanchor(nxanchor) {
+
+        $(document).on("keydown.gridnavnext", function(e) {
+            // Only take action if the modal is not up
+            if(!modalisupcb || !modalisupcb()) {
+                var code = (e.keyCode ? e.keyCode : e.which);
+                switch(code) {
+                    case 39:
+                        nxanchor.click();
+                        return false;
+                        break;
+                }
+            }
+        });
     }
 
     // Disable forward and next keys 
     function enablenextprevkeys() {
+
+        if(showingprevicon) {
+
+            bindprevanchor(cacheprevanchor);
+
+
+        }
+
+        if(showingnexticon) {
+
+            bindnextanchor(cachenextanchor);
+
+        }
     }
+
+    // Enable forward and next keys 
+    function disablenextprevkeys() {
+
+        if(showingprevicon) {
+
+            // Unbind prev key
+            $(document).off("keydown.gridnavprev");
+
+        }
+
+        if(showingnexticon) {
+
+            // Unbind key
+            $(document).off("keydown.gridnavnext");
+
+        }
+
+    }
+
+
 
     // Callback for the grid object
     function nextprevcallback( pvpage, nxpage, pvanchor, nxanchor ) {
@@ -517,6 +580,13 @@ var gridnav = (function ($jq) {
 
             // Toggle previcon
             showingprevicon = true;
+
+            // Cache the prev anchor
+            cacheprevanchor = pvanchor;
+            
+            // Bind key
+            bindprevanchor(pvanchor);
+
         }
         else {
 
@@ -528,6 +598,12 @@ var gridnav = (function ($jq) {
 
             // Toggle previcon
             showingprevicon = false;
+
+            // Empty local variable to prevanchor
+            cacheprevanchor = null;
+
+            // Unbind foward key
+            $(document).off("keydown.gridnavprev");
         }
 
         if(nxpage) {
@@ -546,6 +622,13 @@ var gridnav = (function ($jq) {
 
             // Toggle nexticon
             showingnexticon = true;
+
+            // Cache the next anchor
+            cachenextanchor = nxanchor;
+
+            // Bind the next anchor key
+            bindnextanchor(nxanchor);
+
         }
         else {
 
@@ -557,6 +640,12 @@ var gridnav = (function ($jq) {
 
             // Toggle nexticon
             showingnexticon = false;
+
+            // Empty local variable to next anchor
+            cachenextanchor = null;
+
+            // Unbind key
+            $(document).off("keydown.gridnavnext");
         }
     }
 
@@ -654,12 +743,6 @@ var gridnav = (function ($jq) {
         // Current user
         username = uname;
 
-        // Top margin
-        margintop = cfg.hp("margintop") ? cfg.margintop : 10;
-
-        // Bottom margin
-        marginbottom = cfg.hp("marginbottom") ? cfg.marginbottom : 10;
-
         // Width
         gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
 
@@ -711,6 +794,9 @@ var gridnav = (function ($jq) {
         // Set to the new-meal icon's pinfo
         newmealicon = cfg.hp("newmealicon") ? cfg.newmealicon : null;
 
+        // Set to the callback which tells if the modal is up
+        modalisupcb = cfg.hp("modalisup") ? cfg.modalisup : null;
+
         // Set the menucount
         menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);
 
@@ -735,9 +821,9 @@ var gridnav = (function ($jq) {
         nextprevcallback            : nextprevcallback,
         getnewmealanchor            : getnewmealanchor,
         nextpage                    : nextpage,
-        prevpage                    : prevpage,
-        disablenextprevkeys         : disablenextprevkeys,
-        enablenextprevkeys          : enablenextprevkeys,
+        prevpage                    : prevpage
+        //disablenextprevkeys         : disablenextprevkeys,
+        //enablenextprevkeys          : enablenextprevkeys,
     };
 
 }(jQuery));
