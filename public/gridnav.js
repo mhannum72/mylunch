@@ -113,17 +113,23 @@ var gridnav = (function ($jq) {
     // Holds img for prevpage icon
     var prevpageicondiv;
 
-    // Holds next page icon's pinfo
+    // Holds next page icon's info
     var nextpageicon;
 
     // Holds img for nextpage icon
     var nextpageicondiv;
 
-    // Holds newmeal icon's pinfo
+    // Holds newmeal icon's info
     var newmealicon;
 
     // Holds img for newmeal icon
     var newmealicondiv;
+
+    // Holds datenav icon's info
+    var datenavicon;
+
+    // Holds img for datenav icon
+    var datenavicondiv;
 
     // To true when prevpage icon is showing
     var showingprevicon = false;
@@ -203,6 +209,14 @@ var gridnav = (function ($jq) {
         return newmealicondiv;
     }
 
+    function getdatenaviconimg(iconinfo) {
+        if(!datenavicondiv) {
+            datenavicondiv = createicondiv(iconinfo);
+            datenavicondiv.attr('title', 'Date Navigator');
+        }
+        return datenavicondiv;
+    }
+
     // Get / create a prev-page image icon
     function getnextpageiconimg(iconinfo) {
         if(!nextpageicondiv) {
@@ -254,6 +268,23 @@ var gridnav = (function ($jq) {
 
         }
         return datenavdiv;
+    }
+
+    function getdatenavdiv() {
+        if(!datenavdiv) {
+
+            datenavdiv = navdiv('datenavdiv', 'datenavdiv');
+
+            // Create date nav anchor
+            // XXX TODO 
+            //
+            if(datenavicon && datenavicon.width <= navdivwidth &&
+                    datenavicon.height <= navdivheight) {
+                datenavicon = getdatenaviconimg(datenavicon);
+
+            }
+
+        }
     }
 
     // Get / create the newmealdiv
@@ -787,16 +818,19 @@ var gridnav = (function ($jq) {
         hasnewmeal = cfg.hp("hasnewmeal") ? (cfg.hasnewmeal ? 1 : 0 ) : 1;
 
         // Set to 1 if we have a date navigator
-        hasdatenav = cfg.hp("hasdatenav") ? (cfg.hasdatenav ? 1 : 0 ) : 0;
+        hasdatenav = cfg.hp("hasdatenav") ? (cfg.hasdatenav ? 1 : 0 ) : 1;
 
-        // Set to the prev-page icon's pinfo
+        // Set to the prev-page icon's info
         prevpageicon = cfg.hp("prevpageicon") ? cfg.prevpageicon : null;
 
-        // Set to the next-page icon's pinfo
+        // Set to the next-page icon's info
         nextpageicon = cfg.hp("nextpageicon") ? cfg.nextpageicon : null;
 
-        // Set to the new-meal icon's pinfo
+        // Set to the new-meal icon's info
         newmealicon = cfg.hp("newmealicon") ? cfg.newmealicon : null;
+
+        // Set to the date nav icon's info
+        datenavicon = cfg.hp("datenavicon") ? cfg.datenavicon : null;
 
         // Set to the callback which tells if the modal is up
         modalisupcb = cfg.hp("modalisup") ? cfg.modalisup : null;
