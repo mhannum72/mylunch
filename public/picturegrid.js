@@ -1027,7 +1027,7 @@ var picturegrid = (function ($jq) {
                         }
 
                         // Display
-                        displaygrid(lastmealinfo, gridprevpage, nextpage, 'backwards');
+                        displaygrid(lastmealinfo, gridprevpage, nextpage, 'forwards');
                     }
 
                 }

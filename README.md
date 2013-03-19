@@ -5,6 +5,20 @@ mylunch
 todo
 ====
 
+* Cap the number of meals that a user can have at maybe 1000.  Cap the
+  number of pictures that a user can have to maybe 3000.  Each of these can 
+  be increased by charging folks a fee .. maybe that's too nickle & dimey.
+
+* An easier solution: I could allow the user to select a date via a popup
+  calendar.
+
+* Maybe extend the arrow paradigm, and make each range selection a 'tick' on
+  the arrow?  As the user goes to the 'next' page of pictures, the ticks will
+  flow from the right side of the page to the left side of the page, or from
+  the left side of the page to the right side of the page if they do a 'prev'
+  selection.  One possible issue: a user might require more ticks than will 
+  fit on a page.  The 'last' tick could be in the shape of an arrow.
+
 * The grid-nav bar is not required .. I will need something to hold the 
   'range-navigator' .. maybe this will become the ranged navigator.
 
