@@ -107,6 +107,9 @@ var gridnav = (function ($jq) {
     // Holds the newmeal anchor
     var newmealanchor;
 
+    // Holds the datenav anchor
+    var datenavanchor;
+
     // Holds previous page icon's pinfo 
     var prevpageicon;
 
@@ -271,20 +274,37 @@ var gridnav = (function ($jq) {
     }
 
     function getdatenavdiv() {
+
         if(!datenavdiv) {
 
             datenavdiv = navdiv('datenavdiv', 'datenavdiv');
+
+            var dna = $(dc('a'))
+                .attr('id', 'datenavpopup')
+                .attr('color', '#bbb')
+                .attr('href', 'javascript:void(0)')
+                .css('text-indent', '-9000px')
+                .css('color', '#555');
 
             // Create date nav anchor
             // XXX TODO 
             //
             if(datenavicon && datenavicon.width <= navdivwidth &&
                     datenavicon.height <= navdivheight) {
+
                 datenavicon = getdatenaviconimg(datenavicon);
+                datenavicon.appendTo(dna);
 
             }
 
+            // Append to the navdiv
+            dna.appendTo(datenavdiv);
+
+            // Cache the no-jquery verion of the datenav icon
+            datenavanchor = dna[0];
+
         }
+        return datenavdiv;
     }
 
     // Get / create the newmealdiv
@@ -297,15 +317,18 @@ var gridnav = (function ($jq) {
             // Create new meal anchor
             var nma = $(dc('a'))
                 .attr('id', 'newmealpopup')
-                .attr('color', '#bbb')
+                //.attr('color', '#bbb')
                 .attr('href', 'javascript:void(0)')
                 .css('text-indent', '-9000px')
                 .css('color', '#555');
 //                .html('New Meal');
 
 
+            // Check icon width and height
             if(newmealicon && newmealicon.width <= navdivwidth &&
                     newmealicon.height <= navdivheight) {
+
+                // Append 
                 newmealicon = getnewmealiconimg(newmealicon);
                 newmealicon.appendTo(nma);
 

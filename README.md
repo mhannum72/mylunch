@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* Work on the page header and footer .. this is a 'do-once, apply everywhere'
+  sort of deal: it will probably look the same on all of my pages (at first, 
+  anyway).
+
 * Cap the number of meals that a user can have at maybe 1000.  Cap the
   number of pictures that a user can have to maybe 3000.  Each of these can 
   be increased by charging folks a fee .. maybe that's too nickle & dimey.
