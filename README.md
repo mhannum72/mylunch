@@ -5,6 +5,22 @@ mylunch
 todo
 ====
 
+* General menu items: 
+  'Contact Us'
+  'Sign Out'
+  'Share a Meal' - allow users to send this to other folks.  I will have to
+  think about how to make this work.  This would probably belong on the 
+  showattributes popup.
+
+* So .. picturegrid, gridnav, showattributes, and carousel are very closely 
+  related.  Even though I've taken care to make them 'separate', they need
+  each other to make editpage.js to work correctly.  This will be different
+  from my other pages.
+
+* I could actually implement pretty much EVERYTHING as a popup.  I could
+  implement a 'sign-up' popup (which would be very, very simple).  If I do 
+  this correctly, then I could drop it into other pages .. etc.
+
 * Next step: header.  Methodology: look at the headers of other pages.  Write
   down exactly what you want the menu options to be.  Then start coding 
   (probably this will be header.js).  You'll have to make the header completely
