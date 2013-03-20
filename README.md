@@ -5,6 +5,11 @@ mylunch
 todo
 ====
 
+* Next step: header.  Methodology: look at the headers of other pages.  Write
+  down exactly what you want the menu options to be.  Then start coding 
+  (probably this will be header.js).  You'll have to make the header completely
+  separate from the rest.
+
 * Work on the page header and footer .. this is a 'do-once, apply everywhere'
   sort of deal: it will probably look the same on all of my pages (at first, 
   anyway).
