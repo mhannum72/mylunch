@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* I had to stop myself from thinking about how to implement menus last night
+  so that I could actually go to sleep..  I will create a menu-class, and a 
+  title-bar class which is populated with menus from the menu class.
+
 * General menu items: 
   'Contact Us'
   'Sign Out'
