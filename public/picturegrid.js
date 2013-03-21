@@ -751,6 +751,7 @@ var picturegrid = (function ($jq) {
             .css('border-right', '1px solid')
             .css('border-color', '#ddd') // same as the background color
             .css('background-color', '#fff')
+            //.css('position', 'relative')
             .css('position', 'relative')
             .css('margin-top', (pictureheight - thumbheight) + 'px')
             .css('float','top')
@@ -834,12 +835,15 @@ var picturegrid = (function ($jq) {
     // Create a pdiv
     function pdiv(meal) {
 
+        // The deletescheme changes how we define this
+        //var pos = deletebehavior == "shiftpic" ? 
+
         // Create an outer shell container 
         var egcontainer = $(dc('li'))
             .attr('class', 'egcontainer')
             .css('float', 'left')
             .css('float', 'bottom')
-            .css('position', 'relative')
+            //.css('position', 'relative')
             .css('width', picturewidth + (2 * picborder) + 'px')
             .css('height', (pictureheight + footerheight + picborder) + 'px')
             .css('margin-top', margintop + 'px')
@@ -847,19 +851,31 @@ var picturegrid = (function ($jq) {
             .css('margin-left', marginleft + 'px')
             .css('margin-right', marginright + 'px')
             .css('display', '-moz-inline-stack')
-            .css('display', 'inline-block')[0];
+            .css('display', 'inline-block');
+
+        // If the redraw behavior is shiftpic
+        if(deletebehavior == "shiftpic") {
+
+            egcontainer.css('position', 'absolute');
+
+        }
+        else {
+
+            egcontainer.css('position', 'relative');
+
+        }
 
         // Create the grid components
         var editgrid = pdivinner(meal);
 
         // Append my editgrid (with size info) to the container
-        editgrid.appendTo(egcontainer);
+        editgrid.appendTo(egcontainer[0]);
 
         // Direct lookup for editgrid
-        egcontainer.editgrid = editgrid[0];
+        egcontainer[0].editgrid = editgrid[0];
     
         // Return the top-level object
-        return egcontainer;
+        return egcontainer[0];
     }
 
     // Append picture to the end of the grid
@@ -921,6 +937,27 @@ var picturegrid = (function ($jq) {
         // Increment count
         griddiv.count++;
 
+        // Adjust the absolute position
+        if(deletebehavior == "shiftpic") {
+
+            // Find the horizontal index
+            var hidx = (griddiv.count - 1) % mealsperrow;
+
+            // Find the vertical index
+            var vidx = Math.floor( (griddiv.count - 1) / mealsperrow );
+
+            // Calculate gridpic left 
+            //var lft = (hidx * (picturewidth + (2 * picborder) + marginleft + marginright) - (mealsperrow - 1));
+            var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
+
+            // Calculate gridpic top
+            var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
+
+            // Set css
+            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
+        }
+
+
         // Invoke 'pic-is-loaded' callback
         if(loadcb) {
             var image = $(gridpic).find('.gridimage');
@@ -931,6 +968,10 @@ var picturegrid = (function ($jq) {
         }
 
         return true;
+    }
+
+    // Shift the pictures down
+    function dmealshiftpic(meal, callback) {
     }
 
     // Redraw the grid when I delete a meal
@@ -1001,8 +1042,6 @@ var picturegrid = (function ($jq) {
 
                     // Create a new prevpage
                     var prevpage = new mealpage(parseInt(response.prevts,10));
-
-
 
                     // Redraw the grid
                     displaygrid(response.mealinfo, prevpage, nextpage, 'forwards');
@@ -1257,6 +1296,11 @@ var picturegrid = (function ($jq) {
         else if(deletebehavior == "redrawgrid") {
 
             dmealredraw(meal, callback);
+
+        }
+        else if(deletebehavior == "shiftpic") {
+
+            dmealshiftpic(meal, callback);
 
         }
         else {
@@ -1674,6 +1718,9 @@ var picturegrid = (function ($jq) {
 
             if(cfg.deletebehavior == "redrawgrid")
                 deletebehavior = "redrawgrid";
+
+            if(cfg.deletebehavior == "shiftpic")
+                deletebehavior = "shiftpic";
         }
         
 

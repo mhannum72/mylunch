@@ -5,6 +5,17 @@ mylunch
 todo
 ====
 
+
+* Each of these can be placed absolutely within the grid, so that changing the 
+  data-structures don't affect their position.  This might be the way to go: 
+  it's probably easy to calculate an absolute-ish position for things.
+
+* How do you do that?
+
+* Akshat pointed out that what's happening in the background when you delete
+  a meal isn't all too clear.  It might be better to bite the buttet, and
+  animate the meal shifting.
+
 * I had to stop myself from thinking about how to implement menus last night
   so that I could actually go to sleep..  I will create a menu-class, and a 
   title-bar class which is populated with menus from the menu class.
