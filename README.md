@@ -11,6 +11,12 @@ todo
   'Share a Meal' - allow users to send this to other folks.  I will have to
   think about how to make this work.  This would probably belong on the 
   showattributes popup.
+  'Donate a Meal' - I'm going to share a portion of my profits with 'City Meals 
+  on Wheels', and other feed-the-hungry organizations.  
+  'Meals on Wheels' - Best public slideshows?  Not sure .. I want
+  'Fast Food' - recipes?
+  'Lunchbox' ?
+
 
 * So .. picturegrid, gridnav, showattributes, and carousel are very closely 
   related.  Even though I've taken care to make them 'separate', they need
