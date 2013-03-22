@@ -835,9 +835,6 @@ var picturegrid = (function ($jq) {
     // Create a pdiv
     function pdiv(meal) {
 
-        // The deletescheme changes how we define this
-        //var pos = deletebehavior == "shiftpic" ? 
-
         // Create an outer shell container 
         var egcontainer = $(dc('li'))
             .attr('class', 'egcontainer')
@@ -883,8 +880,12 @@ var picturegrid = (function ($jq) {
 
         var hdiv = null;
 
+        // Shift-pic adds an extra meal at the end temporarily 
+        var maxmeals = (deletebehavior == "shiftpic") ? mealspergrid + 1 :
+            mealspergrid;
+
         // Return false if we're filled up
-        if(griddiv.count >= mealspergrid) {
+        if(griddiv.count >= maxmeals) {
             return false;
         }
 
@@ -935,28 +936,51 @@ var picturegrid = (function ($jq) {
         $(gridpic).appendTo(griddiv.ulist);
 
         // Increment count
-        griddiv.count++;
+        gridpic.gcount = griddiv.count++;
 
         // Adjust the absolute position
         if(deletebehavior == "shiftpic") {
 
-            // Find the horizontal index
-            var hidx = (griddiv.count - 1) % mealsperrow;
+            // Special case the 'extra' picture 
+            if(griddiv.count == (mealspergrid + 1)) {
 
-            // Find the vertical index
-            var vidx = Math.floor( (griddiv.count - 1) / mealsperrow );
+                // Find the horizontal index
+                var hidx = mealsperrow;
 
-            // Calculate gridpic left 
-            //var lft = (hidx * (picturewidth + (2 * picborder) + marginleft + marginright) - (mealsperrow - 1));
-            var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
+                // Find the vertical index
+                var vidx = rowsperpage - 1;
 
-            // Calculate gridpic top
-            var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
+                // Calculate gridpic left 
+                var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
+    
+                // Calculate gridpic top
+                var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
+    
+                // Set css
+                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
 
-            // Set css
-            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
+            }
+
+            else {
+
+                // Find the horizontal index
+                var hidx = gridpic.gcount % mealsperrow;
+    
+                // Find the vertical index
+                var vidx = Math.floor( gridpic.gcount / mealsperrow );
+    
+                // Calculate gridpic left 
+                var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
+    
+                // Calculate gridpic top
+                var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
+    
+                // Set css
+                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
+
+            }
+
         }
-
 
         // Invoke 'pic-is-loaded' callback
         if(loadcb) {
@@ -972,6 +996,153 @@ var picturegrid = (function ($jq) {
 
     // Shift the pictures down
     function dmealshiftpic(meal, callback) {
+
+        var editgrid;
+
+        var newmealinfo = false;
+
+        var nmealtime = 0;
+
+        var pmealtime = 0;
+
+        var reqcount = 1;
+
+        var newgrid = false;
+
+        // Get the gridobj
+        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
+
+        // Grab gridobj directly.  This can only be gridobj.
+        editgrid = $(meal.gridobj).parent()[0];
+
+        // If there's a next page..
+        if(gridnextpage) {
+            // ..ask for a single meal
+            nmealtime = gridnextpage.timestamp;
+        }
+
+        // If this is the last picture and there is a previous picture
+        if(currentgrid.firstg == currentgrid.lastg && gridprevpage) {
+
+            // Send the previous page timestamp
+            pmealtime = gridprevpage.timestamp;
+
+            // Request this many 
+            reqcount = mealspergrid;
+
+            // This is a newgrid request
+            newgrid = true;
+        }
+
+        // Ask server to delete the meal
+        $.getJSON('/deletemeal',
+            {
+                username: meal.username,
+                timestamp: meal.timestamp,
+                nextts: nmealtime,
+                prevts: pmealtime,
+                count: reqcount
+            },
+            function(response) {
+                if(response.errStr != undefined && response.errStr.length > 0) {
+                    if(response.errStr == "signin") {
+                        window.location.replace("/signin");
+                    }
+                    else {
+                        //console.log("getJSON response error is ", response.errStr);
+                        window.location.replace("/");
+                    }
+                    return;
+                }
+
+                // Create a new nextpage
+                var nextpage = new mealpage(parseInt(response.nextts,10));
+
+                if(newgrid) {
+
+                    // Create a new prevpage
+                    var prevpage = new mealpage(parseInt(response.prevts,10));
+
+                    // Redraw the grid
+                    displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                }
+
+                else {
+
+                    // Update nextpage with the server response
+                    gridnextpage = nextpage;
+
+                    // Have to deal with both 'shift a new meal' and 'no new meal'
+                    function shrinkandshift(gd) {
+
+                        // Shrink deleted meal
+                        var $gobj = $(meal.gridobj);
+
+                        var counter = 0;
+
+                        // editgrid counts are 1 based, while gcounts are 0 based, 
+                        // so I have to subtract one to get an accurate target.
+                        var target = (editgrid.count - meal.gridobj.gcount) - 1;
+
+                        // What do do after the shrink
+                        function shiftmeals() {
+                        }
+
+                        $gobj.stop().animate(
+                            {
+                                height: '0px',
+                                width: '0px'
+                                top: '+=' + (pictureheight / 2) + 'px'
+                            },
+                            gridspeed,
+                            grideasing,
+                            shiftmeals
+                        );
+
+                    }
+
+                    // Found a new last meal
+                    if(response.mealinfo && response.mealinfo.length >= 1) {
+
+
+                        // Create an egcontainer
+                        var egcontainer = pdiv(response.mealinfo[0]);
+
+                        // Add the meal to the grid
+                        if(!addmealtogrid(editgrid, egcontainer, shrinkandshift) {
+                        }
+
+                    }
+                    /*
+
+
+                    // Find the index of the deleted picture
+                    var idx = findpicidx(lastmealinfo, meal.timestamp);
+
+                    if(idx < 0) {
+                        //console.log("Error - deleted picture is not in lastmealinfo.");
+                    }
+                    else {
+                        // Remove this picture
+                        lastmealinfo.splice(idx, 1);
+
+                        if(response.mealinfo.length >= 1) {
+
+                            lastmealinfo.push(response.mealinfo[0]);
+
+                        }
+
+                        // Display
+                        displaygrid(lastmealinfo, gridprevpage, nextpage, 'forwards');
+                    }
+                    */
+
+                }
+
+                if(callback) callback();
+            }
+        );
+
     }
 
     // Redraw the grid when I delete a meal
