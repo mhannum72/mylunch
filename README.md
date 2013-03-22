@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* Also create a shift-mode for adding a meal if you happen to be looking at
+  the first page.
 
 * Each of these can be placed absolutely within the grid, so that changing the 
   data-structures don't affect their position.  This might be the way to go: 
