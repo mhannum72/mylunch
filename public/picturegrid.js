@@ -1091,7 +1091,7 @@ var picturegrid = (function ($jq) {
                         $gobj.stop().animate(
                             {
                                 height: '0px',
-                                width: '0px'
+                                width: '0px',
                                 top: '+=' + (pictureheight / 2) + 'px'
                             },
                             gridspeed,
@@ -1109,7 +1109,7 @@ var picturegrid = (function ($jq) {
                         var egcontainer = pdiv(response.mealinfo[0]);
 
                         // Add the meal to the grid
-                        if(!addmealtogrid(editgrid, egcontainer, shrinkandshift) {
+                        if(!addmealtogrid(editgrid, egcontainer, shrinkandshift)) {
                         }
 
                     }
