@@ -303,7 +303,7 @@ showattributes = (function($jq) {
 
         // Fade out the popup
         popup.fadeOut(
-            500,
+            100,
             function() { 
                 ++fadedcnt;
                 if(2 == fadedcnt) {
@@ -314,7 +314,7 @@ showattributes = (function($jq) {
 
         // Fade out the background
         maskfade.fadeOut(
-            500,
+            100,
             function() { 
                 ++fadedcnt;
                 if(2 == fadedcnt) {
@@ -1609,10 +1609,12 @@ showattributes = (function($jq) {
                 .attr('class', 'clear');
         
             deleteMealAnchor.click(function() {
-    
+
+                destroymodal(false);
+
                 if(griddelete) {
     
-                    griddelete(meal, fadedestroymodal);
+                    griddelete(meal);
                 }
     
             });

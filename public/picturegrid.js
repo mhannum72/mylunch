@@ -875,14 +875,53 @@ var picturegrid = (function ($jq) {
         return egcontainer[0];
     }
 
+    // Find the absolute top offset given an index
+    function findtopoffset(idx) {
+
+        if(idx >= (mealspergrid + 1) ) {
+
+            return (rowsperpage - 1) * (pictureheight + footerheight + picborder + margintop + marginbottom);
+
+        }
+
+        else {
+            // Find the vertical index
+            var vidx = Math.floor( idx / mealsperrow );
+
+            // Calculate gridpic top
+            return vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
+        }
+
+
+    }
+
+    // Find the absolute left offset given an index
+    function findleftoffset(idx) {
+
+        if(idx >= (mealspergrid + 1) ) {
+
+            return mealsperrow * (picturewidth + (2 * picborder) + marginleft + marginright);
+
+        }
+
+        else {
+
+            // Find the horizontal index
+            var hidx = idx % mealsperrow;
+
+            // Calculate gridpic left 
+            return hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
+
+        }
+    }
+
     // Append picture to the end of the grid
-    function addmealtogrid(griddiv, gridpic, loadcb) {
+    function addmealtogrid(griddiv, gridpic, loadcb, delshift) {
 
         var hdiv = null;
 
         // Shift-pic adds an extra meal at the end temporarily 
-        var maxmeals = (deletebehavior == "shiftpic") ? mealspergrid + 1 :
-            mealspergrid;
+        var maxmeals = delshift ? mealspergrid + 1 : mealspergrid;
 
         // Return false if we're filled up
         if(griddiv.count >= maxmeals) {
@@ -941,45 +980,14 @@ var picturegrid = (function ($jq) {
         // Adjust the absolute position
         if(deletebehavior == "shiftpic") {
 
-            // Special case the 'extra' picture 
-            if(griddiv.count == (mealspergrid + 1)) {
+            // Calculate left offset
+            var lft = findleftoffset(gridpic.gcount);
 
-                // Find the horizontal index
-                var hidx = mealsperrow;
+            // Calculate top offset
+            var tp = findtopoffset(gridpic.gcount);
 
-                // Find the vertical index
-                var vidx = rowsperpage - 1;
-
-                // Calculate gridpic left 
-                var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
-    
-                // Calculate gridpic top
-                var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
-    
-                // Set css
-                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
-
-            }
-
-            else {
-
-                // Find the horizontal index
-                var hidx = gridpic.gcount % mealsperrow;
-    
-                // Find the vertical index
-                var vidx = Math.floor( gridpic.gcount / mealsperrow );
-    
-                // Calculate gridpic left 
-                var lft = hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
-    
-                // Calculate gridpic top
-                var tp = vidx * (pictureheight + footerheight + picborder + margintop + marginbottom);
-    
-                // Set css
-                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
-
-            }
-
+            // Set css
+            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
         }
 
         // Invoke 'pic-is-loaded' callback
@@ -1075,24 +1083,91 @@ var picturegrid = (function ($jq) {
                     // Have to deal with both 'shift a new meal' and 'no new meal'
                     function shrinkandshift(gd) {
 
-                        // Shrink deleted meal
-                        var $gobj = $(meal.gridobj);
+                        // Decrement the count of meals in this grid
+                        currentgrid.count--;
 
+                        // Counter 
                         var counter = 0;
 
                         // editgrid counts are 1 based, while gcounts are 0 based, 
                         // so I have to subtract one to get an accurate target.
-                        var target = (editgrid.count - meal.gridobj.gcount) - 1;
+                        var target = (mealspergrid - editgrid.gcount);
+
+                        // If there's a next, set it to my prev
+                        if(editgrid.nextg) {
+                            editgrid.nextg.prevg = editgrid.prevg;
+                        }
+
+                        // If there's a prev, set it to my next
+                        if(editgrid.prevg) {
+                            editgrid.prevg.nextg = editgrid.nextg;
+                        }
+
+                        // Increment counter
+                        function shiftdone() {
+
+                            if(++counter >= target) {
+
+                                // Invoke the callback
+                                if(callback) callback();
+
+                            }
+                        }
 
                         // What do do after the shrink
                         function shiftmeals() {
+
+                            // Get pointer to the next
+                            var next = editgrid.nextg;
+
+                            // Detach from the ul
+                            $(editgrid).detach();
+
+                            // Invoke callback if no next 
+                            if(!next) {
+
+                                if(callback) callback();
+                                return;
+
+                            }
+
+                            // Adjust the offsets of each 
+                            while(next) {
+
+                                var lft, tp;
+
+                                // Decrement the counter 
+                                --next.gcount;
+
+                                // Find the left offset
+                                lft = findleftoffset(next.gcount);
+
+                                // Find the top offset
+                                tp = findtopoffset(next.gcount);
+
+                                // Adjust the position
+                                $(next).stop().animate(
+                                    {
+                                        top: tp + 'px',
+                                        left: lft + 'px'
+                                    },
+                                    gridspeed,
+                                    grideasing,
+                                    shiftdone
+                                );
+
+                                // Go to next element
+                                next=next.nextg;
+                            }
                         }
 
-                        $gobj.stop().animate(
+                        // Shrink the deleted meal
+                        $(editgrid).stop().animate(
                             {
                                 height: '0px',
                                 width: '0px',
-                                top: '+=' + (pictureheight / 2) + 'px'
+                                top: '+=' + (pictureheight / 2) + 'px',
+                                left: '+=' + (picturewidth / 2) + 'px'
                             },
                             gridspeed,
                             grideasing,
@@ -1104,15 +1179,18 @@ var picturegrid = (function ($jq) {
                     // Found a new last meal
                     if(response.mealinfo && response.mealinfo.length >= 1) {
 
-
                         // Create an egcontainer
                         var egcontainer = pdiv(response.mealinfo[0]);
 
                         // Add the meal to the grid
-                        if(!addmealtogrid(editgrid, egcontainer, shrinkandshift)) {
+                        if(!addmealtogrid(currentgrid, egcontainer, shrinkandshift, true)) {
+                            console.log("Error adding meal to grid");
                         }
-
                     }
+                    else {
+                        shrinkandshift();
+                    }
+
                     /*
 
 
@@ -1138,8 +1216,6 @@ var picturegrid = (function ($jq) {
                     */
 
                 }
-
-                if(callback) callback();
             }
         );
 
