@@ -897,6 +897,8 @@ var picturegrid = (function ($jq) {
         }
 
         else {
+            if(idx < 0) idx = 0;
+
             // Find the vertical index
             var vidx = Math.floor( idx / mealsperrow );
 
@@ -919,7 +921,11 @@ var picturegrid = (function ($jq) {
         else {
 
             // Find the horizontal index
-            var hidx = idx % mealsperrow;
+            var hidx;
+
+            if(hidx >= 0) {
+                hidx = idx % mealsperrow;
+            }
 
             // Calculate gridpic left 
             return hidx * (picturewidth + (2 * picborder) + marginleft + marginright);
@@ -960,27 +966,57 @@ var picturegrid = (function ($jq) {
         // Add to the front of the grid
         if(addfront) {
 
+            // Update first picture
             if(griddiv.firstg) {
 
+                // Current first's prev will become this
                 griddiv.firstg.prevg = gridpic;
 
+                // This next will become the first
                 gridpic.nextg = griddiv.firstg;
 
             }
             else {
-                gridpic.prevg = null;
+                gridpic.nextg = null;
             }
 
+            // Nothing before
             gridpic.prevg = null;
 
+            // This is the new first 
             griddiv.firstg = gridpic;
 
+            // Also the new last if there is none
             if(!griddiv.lastg) {
+
                 griddiv.lastg = gridpic;
+
             }
+
+            // Prepend to the front of the list
+            // Make this index -1, and 
+            $(griddiv.ulist).prepend(gridpic);
+
+            // This is index -1
+            gridpic.gcount = -1;
+
+            // Find left offset
+            var lft = findleftoffset(gridpic.gcount);
+
+            // Find left offset
+            var top = findtopoffset(gridpic.gcount);
+
+            // Set css
+            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
+
+
+            // Traverse the list adjusting the count and position
+            var next=gridpic.nextg;
+
 
         }
         else {
+
             // Update last picture
             if(griddiv.lastg) {
     
@@ -1006,11 +1042,6 @@ var picturegrid = (function ($jq) {
                 // Make this the first picture
                 griddiv.firstg = gridpic;
             }
-        }
-
-
-        /* XXX WRITE FIRST PIC BEHAVIOR XXX */
-        else {
 
             // Append to the ul
             $(gridpic).appendTo(griddiv.ulist);
@@ -1018,28 +1049,27 @@ var picturegrid = (function ($jq) {
             // Increment count
             gridpic.gcount = griddiv.count++;
 
-        }
+            // Adjust the absolute position
+            if(deletebehavior == "shiftpic") {
+    
+                // Calculate left offset
+                var lft = findleftoffset(gridpic.gcount);
+    
+                // Calculate top offset
+                var tp = findtopoffset(gridpic.gcount);
+    
+                // Set css
+                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
+            }
 
-        // Adjust the absolute position
-        if(deletebehavior == "shiftpic") {
-
-            // Calculate left offset
-            var lft = findleftoffset(gridpic.gcount);
-
-            // Calculate top offset
-            var tp = findtopoffset(gridpic.gcount);
-
-            // Set css
-            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
-        }
-
-        // Invoke 'pic-is-loaded' callback
-        if(loadcb) {
-            var image = $(gridpic).find('.gridimage');
-            image.on('load.picdivinternal', function() {
-                image.off('load.picdivinternal');
-                loadcb(griddiv);
-            });
+            // Invoke 'pic-is-loaded' callback
+            if(loadcb) {
+                var image = $(gridpic).find('.gridimage');
+                image.on('load.picdivinternal', function() {
+                    image.off('load.picdivinternal');
+                    loadcb(griddiv);
+                });
+            }
         }
 
         return true;
