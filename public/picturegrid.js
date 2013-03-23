@@ -993,8 +993,10 @@ var picturegrid = (function ($jq) {
 
             }
 
+            // TODO - maybe this should shift, and then increase in 
+            // size to be visible
+
             // Prepend to the front of the list
-            // Make this index -1, and 
             $(griddiv.ulist).prepend(gridpic);
 
             // This is index -1
@@ -1006,9 +1008,10 @@ var picturegrid = (function ($jq) {
             // Find left offset
             var top = findtopoffset(gridpic.gcount);
 
-            // Set css
+            // Set initial css
             $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
 
+            // Walk the list
 
             // Traverse the list adjusting the count and position
             var next=gridpic.nextg;
