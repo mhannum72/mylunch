@@ -928,7 +928,7 @@ var picturegrid = (function ($jq) {
     }
 
     // Append picture to the end of the grid
-    function addmealtogrid(griddiv, gridpic, loadcb, delshift) {
+    function addmealtogrid(griddiv, gridpic, loadcb, delshift, addfront) {
 
         var hdiv = null;
 
@@ -957,37 +957,68 @@ var picturegrid = (function ($jq) {
 
         }
 
-        // Update last picture
-        if(griddiv.lastg) {
+        // Add to the front of the grid
+        if(addfront) {
 
-            // Current last's 'next' will point to this
-            griddiv.lastg.nextg = gridpic;
+            if(griddiv.firstg) {
 
-            // This prev will be the current last
-            gridpic.prevg = griddiv.lastg;
+                griddiv.firstg.prevg = gridpic;
+
+                gridpic.nextg = griddiv.firstg;
+
+            }
+            else {
+                gridpic.prevg = null;
+            }
+
+            gridpic.prevg = null;
+
+            griddiv.firstg = gridpic;
+
+            if(!griddiv.lastg) {
+                griddiv.lastg = gridpic;
+            }
+
         }
         else {
-            gridpic.prevg = null;
+            // Update last picture
+            if(griddiv.lastg) {
+    
+                // Current last's 'next' will point to this
+                griddiv.lastg.nextg = gridpic;
+    
+                // This prev will be the current last
+                gridpic.prevg = griddiv.lastg;
+            }
+            else {
+                gridpic.prevg = null;
+            }
+    
+            // Nothing after
+            gridpic.nextg = null;
+    
+            // This is the new last
+            griddiv.lastg = gridpic;
+    
+            // It's also the first if there is none
+            if(!griddiv.firstg) {
+    
+                // Make this the first picture
+                griddiv.firstg = gridpic;
+            }
         }
 
-        // Nothing after
-        gridpic.nextg = null;
 
-        // This is the new last
-        griddiv.lastg = gridpic;
+        /* XXX WRITE FIRST PIC BEHAVIOR XXX */
+        else {
 
-        // It's also the first if there is none
-        if(!griddiv.firstg) {
+            // Append to the ul
+            $(gridpic).appendTo(griddiv.ulist);
 
-            // Make this the first picture
-            griddiv.firstg = gridpic;
+            // Increment count
+            gridpic.gcount = griddiv.count++;
+
         }
-
-        // Append to the ul
-        $(gridpic).appendTo(griddiv.ulist);
-
-        // Increment count
-        gridpic.gcount = griddiv.count++;
 
         // Adjust the absolute position
         if(deletebehavior == "shiftpic") {
