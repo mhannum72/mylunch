@@ -82,6 +82,18 @@ var picturegrid = (function ($jq) {
     // Speed to change pages
     var gridspeed;
 
+    // Easing to delete
+    var deleteeasing;
+
+    // Easing to shift on delete
+    var deleteshifteasing;
+
+    // Speed to delete pages
+    var deletespeed;
+
+    // Speed to shift meals on delete
+    var deleteshiftspeed;
+
     // Viewport width leaves a little breathing room at the edges
     var viewportwidth;
 
@@ -878,7 +890,7 @@ var picturegrid = (function ($jq) {
     // Find the absolute top offset given an index
     function findtopoffset(idx) {
 
-        if(idx >= (mealspergrid + 1) ) {
+        if(idx >= mealspergrid) {
 
             return (rowsperpage - 1) * (pictureheight + footerheight + picborder + margintop + marginbottom);
 
@@ -898,7 +910,7 @@ var picturegrid = (function ($jq) {
     // Find the absolute left offset given an index
     function findleftoffset(idx) {
 
-        if(idx >= (mealspergrid + 1) ) {
+        if(idx >= mealspergrid) {
 
             return mealsperrow * (picturewidth + (2 * picborder) + marginleft + marginright);
 
@@ -1071,8 +1083,27 @@ var picturegrid = (function ($jq) {
                     // Create a new prevpage
                     var prevpage = new mealpage(parseInt(response.prevts,10));
 
-                    // Redraw the grid
-                    displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                    // Shrink and display new grid
+                    $(editgrid).stop().animate(
+                        {
+                            height: '0px',
+                            width: '0px',
+                            top: '+=' + (pictureheight / 2) + 'px',
+                            left: '+=' + (picturewidth / 2) + 'px'
+                        },
+                        deletespeed,
+                        deleteeasing,
+                        function() {
+
+                            // Detach from the ul
+                            $(editgrid).detach();
+
+                            // Redraw the grid
+                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                        }
+                    );
+
+
                 }
 
                 else {
@@ -1097,10 +1128,16 @@ var picturegrid = (function ($jq) {
                         if(editgrid.nextg) {
                             editgrid.nextg.prevg = editgrid.prevg;
                         }
+                        else {
+                            currentgrid.lastg = editgrid.prevg;
+                        }
 
                         // If there's a prev, set it to my next
                         if(editgrid.prevg) {
                             editgrid.prevg.nextg = editgrid.nextg;
+                        }
+                        else {
+                            currentgrid.firstg = editgrid.nextg;
                         }
 
                         // Increment counter
@@ -1151,8 +1188,8 @@ var picturegrid = (function ($jq) {
                                         top: tp + 'px',
                                         left: lft + 'px'
                                     },
-                                    gridspeed,
-                                    grideasing,
+                                    deleteshiftspeed,
+                                    deleteshifteasing,
                                     shiftdone
                                 );
 
@@ -1169,8 +1206,8 @@ var picturegrid = (function ($jq) {
                                 top: '+=' + (pictureheight / 2) + 'px',
                                 left: '+=' + (picturewidth / 2) + 'px'
                             },
-                            gridspeed,
-                            grideasing,
+                            deletespeed,
+                            deleteeasing,
                             shiftmeals
                         );
 
@@ -1871,9 +1908,21 @@ var picturegrid = (function ($jq) {
     
         // Easing function
         grideasing = cfg.hp("grideasing") ? cfg.grideasing : 'grideasingfunc';
-    
+
         // Speed to change pages
         gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 1000;
+
+        // Easing function
+        deleteeasing = cfg.hp("deleteeasing") ? cfg.deleteeasing : 'grideasingfunc';
+
+        // Shift easing function
+        deleteshifteasing = cfg.hp("deleteshifteasing") ? cfg.deleteshifteasing : 'grideasingfunc';
+
+        // Speed to delete 
+        deletespeed = cfg.hp("deletespeed") ? cfg.deletespeed : 1000;
+
+        // Speed to shift
+        deleteshiftspeed = cfg.hp("deleteshiftspeed") ? cfg.deleteshiftspeed : 1000;
     
         // Viewport width 
         viewportwidth = gridwidth;
