@@ -88,11 +88,17 @@ var picturegrid = (function ($jq) {
     // Easing to shift on delete
     var deleteshifteasing;
 
+    // Easing to add
+    var addshifteasing;
+
     // Speed to delete pages
     var deletespeed;
 
     // Speed to shift meals on delete
     var deleteshiftspeed;
+
+    // Speed to shift meals on add
+    var addshiftspeed;
 
     // Viewport width leaves a little breathing room at the edges
     var viewportwidth;
@@ -229,12 +235,20 @@ var picturegrid = (function ($jq) {
                     }
                     return;
                 }
-    
+
                 // Create a new grid
                 drawnextmeals( 
                     new mealpage(parseInt(response.timestamp,10)),
                     showattributes.setgridobj
                 );
+
+                /*
+                // Create a new grid
+                drawnewmeals( 
+                    new mealpage(parseInt(response.timestamp,10)),
+                    showattributes.setgridobj
+                );
+                */
 
                 // Display a popup
                 showattributes.show(username, response.timestamp);
@@ -355,6 +369,34 @@ var picturegrid = (function ($jq) {
             }
         });
         return 0;
+    }
+
+    // XXX TODO
+    function drawnewmeals(nextpage, callback) {
+
+        /* If this is not the first page, shift to the first page */
+        if(gridprevpage && gridprevpage.timestamp > 0) {
+
+            // Make this an ajax request that will return enough information
+            $.getJSON('/editpagenext',
+                {
+                    username: username,
+                    nextts: nextpage.timestamp,
+                    count: mealspergrid + 1
+                },
+                function(response) {
+
+                    // TODO
+                    // 1) Splice out the first meal
+                    // 2) Draw the grid
+                    // 3) Add the first meal to the beginning & animate
+                }
+            );
+        }
+        else {
+            // 1) Add the first meal to the beginning & animate
+        }
+
     }
 
     // Request the next page of meals
@@ -897,6 +939,8 @@ var picturegrid = (function ($jq) {
         }
 
         else {
+
+            // Normalize
             if(idx < 0) idx = 0;
 
             // Find the vertical index
@@ -923,8 +967,11 @@ var picturegrid = (function ($jq) {
             // Find the horizontal index
             var hidx;
 
-            if(hidx >= 0) {
+            if(idx >= 0) {
                 hidx = idx % mealsperrow;
+            }
+            else {
+                hidx = idx;
             }
 
             // Calculate gridpic left 
@@ -1011,12 +1058,70 @@ var picturegrid = (function ($jq) {
             // Set initial css
             $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
 
-            // Walk the list
+            // Initialize a counter
+            var counter = 0;
 
-            // Traverse the list adjusting the count and position
-            var next=gridpic.nextg;
+            // Wait for this many to finish animating
+            var target = (griddiv.count + 1);
 
+            // Walk the list animating the elements
+            var cur = gridpic;
 
+            // While there's still an element
+            while(cur) {
+
+                // Increment counter
+                cur.gcount++;
+
+                // Find left offset
+                lft = findleftoffset(cur.gcount);
+
+                // Find top offset
+                tp = findtopoffset(cur.gcount);
+
+                // Animate position change
+                $(cur).stop().animate(
+                    {
+                        top: tp + 'px',
+                        left: lft + 'px'
+                    },
+                    addshiftspeed,
+                    addshifteasing,
+                    function() {
+                        if(++counter >= target) {
+
+                            // Increment the number of pictures
+                            if(griddiv.count >= maxpicspergrid) {
+
+                                // Detach the last
+                                $(griddiv.lastg).detach();
+
+                                // Set prev's next 
+                                griddiv.lastg.prevg.nextg = null;
+
+                                // Set new lastg
+                                griddiv.lastg = griddiv.lastg.prevg;
+
+                            }
+                            else {
+                                griddiv.count++;
+                            }
+
+                            // If there's a callback, invoke it now
+                            if(loadcb) {
+                                var image = $(gridpic).find('.gridimage');
+                                image.on('load.picdivinternal', function() {
+                                    image.off('load.picdivinternal');
+                                    loadcb(griddiv);
+                                });
+                            }
+                        }
+                    }
+                );
+
+                // Go to next element
+                cur=cur.nextg;
+            }
         }
         else {
 
@@ -1982,11 +2087,17 @@ var picturegrid = (function ($jq) {
         // Shift easing function
         deleteshifteasing = cfg.hp("deleteshifteasing") ? cfg.deleteshifteasing : 'grideasingfunc';
 
+        // Add shift easing function
+        addshifteasing = cfg.hp("addshifteasing") ? cfg.addshifteasing : 'grideasingfunc';
+
         // Speed to delete 
         deletespeed = cfg.hp("deletespeed") ? cfg.deletespeed : 1000;
 
-        // Speed to shift
+        // Speed to shift on delete
         deleteshiftspeed = cfg.hp("deleteshiftspeed") ? cfg.deleteshiftspeed : 1000;
+
+        // Speed to shift on add
+        addshiftspeed = cfg.hp("addshiftspeed") ? cfg.addshiftspeed : 1000;
     
         // Viewport width 
         viewportwidth = gridwidth;
