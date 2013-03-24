@@ -187,6 +187,9 @@ var picturegrid = (function ($jq) {
     // I can either delete a meal in place or redraw the grid
     var deletebehavior;
 
+    // I can either always redraw the entire grid or shift in the first element
+    var addbehavior;
+
     // A callback that returns true if the modal is up, false otherwise
     var modalisup;
 
@@ -236,23 +239,28 @@ var picturegrid = (function ($jq) {
                     return;
                 }
 
-                // Create a new grid
-                drawnextmeals( 
-                    new mealpage(parseInt(response.timestamp,10)),
-                    showattributes.setgridobj
-                );
+                // If addbehavior is shift, call drawnewmeals
+                if(addbehavior == "shiftmeals") {
+                    drawnewmeals( 
+                        new mealpage(parseInt(response.timestamp,10)),
+                        showattributes.setgridobj
+                    );
 
-                /*
-                // Create a new grid
-                drawnewmeals( 
-                    new mealpage(parseInt(response.timestamp,10)),
-                    showattributes.setgridobj
-                );
-                */
+                    // Display a popup
+                    showattributes.show(username, response.timestamp);
+                }
 
-                // Display a popup
-                showattributes.show(username, response.timestamp);
-            
+                else if (addbehavior == "redrawgrid") {
+
+                    // Create a new grid
+                    drawnextmeals( 
+                        new mealpage(parseInt(response.timestamp,10)),
+                        showattributes.setgridobj
+                    );
+    
+                    // Display a popup
+                    showattributes.show(username, response.timestamp);
+                }
             }
         );
     }
@@ -904,8 +912,8 @@ var picturegrid = (function ($jq) {
             .css('display', '-moz-inline-stack')
             .css('display', 'inline-block');
 
-        // If the redraw behavior is shiftpic
-        if(deletebehavior == "shiftpic") {
+        // If the redraw behavior is shiftmeals
+        if(deletebehavior == "shiftmeals") {
 
             egcontainer.css('position', 'absolute');
 
@@ -1158,7 +1166,7 @@ var picturegrid = (function ($jq) {
             gridpic.gcount = griddiv.count++;
 
             // Adjust the absolute position
-            if(deletebehavior == "shiftpic") {
+            if(deletebehavior == "shiftmeals") {
     
                 // Calculate left offset
                 var lft = findleftoffset(gridpic.gcount);
@@ -1184,7 +1192,7 @@ var picturegrid = (function ($jq) {
     }
 
     // Shift the pictures down
-    function dmealshiftpic(meal, callback) {
+    function dmealshiftmeals(meal, callback) {
 
         var editgrid;
 
@@ -1741,7 +1749,7 @@ var picturegrid = (function ($jq) {
 
     function deletemealfromgrid(meal, callback) {
 
-        if(deletebehavior == "shiftmeals") {
+        if(deletebehavior == "replacemeals") {
 
             dmealreplace(meal, callback);
 
@@ -1751,9 +1759,9 @@ var picturegrid = (function ($jq) {
             dmealredraw(meal, callback);
 
         }
-        else if(deletebehavior == "shiftpic") {
+        else if(deletebehavior == "shiftmeals") {
 
-            dmealshiftpic(meal, callback);
+            dmealshiftmeals(meal, callback);
 
         }
         else {
@@ -2177,8 +2185,8 @@ var picturegrid = (function ($jq) {
         // Set the modalisup callback
         modalisup = cfg.hp("modalisup") ? cfg.modalisup : null;
 
-        // Default to 'shiftmeals' because it's already written
-        deletebehavior = "redrawgrid";
+        // Default to shiftmeals
+        deletebehavior = "shiftmeals";
 
         // Set the delete meal behavior
         if(cfg.hp("deletebehavior")) {
@@ -2190,8 +2198,19 @@ var picturegrid = (function ($jq) {
             if(cfg.deletebehavior == "redrawgrid")
                 deletebehavior = "redrawgrid";
 
-            if(cfg.deletebehavior == "shiftpic")
-                deletebehavior = "shiftpic";
+            if(cfg.deletebehavior == "shiftmeals")
+                deletebehavior = "shiftmeals";
+        }
+
+        // Default to 'redrawgrid' for addbehavior 
+        addbehavior = "redrawgrid";
+
+        if(cfg.hp("addbehavior")) {
+
+            if(cfg.addbehavior == "shiftmeals")
+                addbehavior = "shiftmeals";
+            if(cfg.addbehavior == "redrawgrid")
+                addbehavior = "redrawgrid";
         }
         
 

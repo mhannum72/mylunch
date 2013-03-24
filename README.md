@@ -5,6 +5,12 @@ mylunch
 todo
 ====
 
+* There's a bug if you try to delete a meal that you have just created ..
+  You gotta fix this
+
+* If you keep deleting stuff, you can make it so that there's something
+  behind the thing being deleted.  You gotta fix this.
+
 * Also create a shift-mode for adding a meal if you happen to be looking at
   the first page.
 
