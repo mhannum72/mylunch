@@ -97,6 +97,12 @@ var picturegrid = (function ($jq) {
     // Speed to shift meals on delete
     var deleteshiftspeed;
 
+    // Speed to add 
+    var addspeed;
+
+    // Easing for add
+    var addeasing;
+
     // Speed to shift meals on add
     var addshiftspeed;
 
@@ -1191,6 +1197,41 @@ var picturegrid = (function ($jq) {
         return true;
     }
 
+    // Shrink the egcontainer
+    function shrinkegcontainer(editgrid, deladd, callback) {
+
+        var anispeed;
+        var anieasing;
+
+        if(deladd == "delete") {
+            anispeed = deletespeed;
+            anieasing = deleteeasing;
+        }
+        else if (deladd == "add"){
+            anispeed = addspeed;
+            anieasing = addeasing;
+        }
+        else {
+            console.log("Internal error: shrinkegcontainer context not specified.");
+            anispeed = deletespeed;
+            anieasing = deleteeasing;
+        }
+
+
+        $(editgrid).stop().animate(
+            {
+                height: '0px',
+                width: '0px',
+                top: '+=' + (pictureheight / 2) + 'px',
+                left: '+=' + (picturewidth / 2) + 'px'
+            }, 
+            anispeed,
+            anieasing,
+            callback
+        );
+
+    }
+
     // Shift the pictures down
     function dmealshiftmeals(meal, callback) {
 
@@ -1261,6 +1302,18 @@ var picturegrid = (function ($jq) {
                     // Create a new prevpage
                     var prevpage = new mealpage(parseInt(response.prevts,10));
 
+                    shrinkegcontainer(editgrid, "delete", function() {
+
+                            // Detach from the ul
+                            $(editgrid).detach();
+
+                            // Redraw the grid
+                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
+                        }
+                    );
+
+
+                    /*
                     // Shrink and display new grid
                     $(editgrid).stop().animate(
                         {
@@ -1281,6 +1334,7 @@ var picturegrid = (function ($jq) {
                         }
                     );
 
+                    */
 
                 }
 
@@ -1383,6 +1437,9 @@ var picturegrid = (function ($jq) {
                             }
                         }
 
+
+                        shrinkegcontainer(editgrid, "delete", shiftmeals);
+                        /*
                         // Shrink the deleted meal
                         $(editgrid).stop().animate(
                             {
@@ -1395,6 +1452,7 @@ var picturegrid = (function ($jq) {
                             deleteeasing,
                             shiftmeals
                         );
+                        */
 
                     }
 
@@ -2100,6 +2158,9 @@ var picturegrid = (function ($jq) {
         // Easing function
         deleteeasing = cfg.hp("deleteeasing") ? cfg.deleteeasing : 'grideasingfunc';
 
+        // Easing function for add
+        addeasing = cfg.hp("addeasing") ? cfg.addeasing : 'grideasingfunc';
+
         // Shift easing function
         deleteshifteasing = cfg.hp("deleteshifteasing") ? cfg.deleteshifteasing : 'grideasingfunc';
 
@@ -2108,6 +2169,9 @@ var picturegrid = (function ($jq) {
 
         // Speed to delete 
         deletespeed = cfg.hp("deletespeed") ? cfg.deletespeed : 1000;
+
+        // Speed to add
+        addspeed = cfg.hp("addspeed") ? cfg.addspeed : 1000;
 
         // Speed to shift on delete
         deleteshiftspeed = cfg.hp("deleteshiftspeed") ? cfg.deleteshiftspeed : 1000;
