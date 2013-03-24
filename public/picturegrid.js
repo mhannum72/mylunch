@@ -202,6 +202,21 @@ var picturegrid = (function ($jq) {
     // Height of our nomeal object
     var nomealheight;
 
+    // Set the shrink speed
+    var shrinkspeed;
+
+    // Set the shrink easing
+    var shrinkeasing;
+
+    // Enable shrink image effect
+    var shrinkimgenable;
+
+    // Enable shink fade effect
+    var shrinkfadeenable;
+
+    // Enable shrink box
+    var shrinkboxenable;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -734,7 +749,7 @@ var picturegrid = (function ($jq) {
 
         // I can manipulate this directly in the delete code.
         var editInternal = $(dc('div'))
-            .css('class', 'internalmargin')
+            .attr('class', 'internalmargin')
             .css('margin-top', picborder + 'px')
             .css('float', 'top');
     
@@ -745,7 +760,8 @@ var picturegrid = (function ($jq) {
         center.appendTo(editInternal);
     
         // Image div
-        var editImageDiv = $(dc('div'));
+        var editImageDiv = $(dc('div'))
+            .attr('class', 'imgdiv');
     
         // Append to center
         editImageDiv.appendTo(center);
@@ -1203,93 +1219,193 @@ var picturegrid = (function ($jq) {
     // Shrink the egcontainer
     function shrinkegcontainer(editgrid, deladd, callback) {
 
-        var anispeed;
-        var anieasing;
-
-        // Resolve correct speed and easing for delete
-        if(deladd == "delete") { 
-            anispeed = deletespeed;
-            anieasing = deleteeasing;
-        }
-
-        // Resolve correct speed and easing for add
-        else if (deladd == "add"){
-            anispeed = addspeed;
-            anieasing = addeasing;
-        }
-
-        // Shouldn't happen
-        else {
-            console.log("Internal error: shrinkegcontainer context not specified.");
-            anispeed = deletespeed;
-            anieasing = deleteeasing;
-        }
-
-        // Find the picture
-        var image = $(editgrid).find('img');
-
+        // Counter
         var count=0;
-        var target = 1;
+
+        // I am finished target
+        var target = 0;
+
+        // Callback wrapper
+        function cbwrap() {
+            if(++count == target && callback) {
+                callback();
+            }
+        }
+
+        // Display shrink box effect if enabled
+        if(shrinkboxenable) {
+
+            // Will shrink egcontainer and adjust the margins on the inner
+
+            /*
+            // Increment target
+            target++;
+
+            // Nuke it
+            var mt = $(editgrid).find();
+
+            $(mt).stop().animate(
+                {
+                //    height: '0px',
+                //    width: '0px',
+                //    top: '+=' + (pictureheight / 2) + 'px'
+                //    left: '-=' + (picturewidth / 2) + 'px'
+                //    left: '+=' + (picturewidth / 2) + 'px'
+                    marginTop: '0px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
+            */
+
+            /*
+            // Increment target
+            target++;
+
+            // Animate margin top reduction
+            $(editgrid).stop().animate(
+                {
+                //    height: '0px',
+                //    width: '0px',
+                //    top: '+=' + (pictureheight / 2) + 'px'
+                //    left: '-=' + (picturewidth / 2) + 'px'
+                //    left: '+=' + (picturewidth / 2) + 'px'
+                    marginTop: '0px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
+            */
+
+            // Increment target
+            target++;
+
+            // Find the internal margin
+            var intm = $(editgrid).find('.internalmargin');
+
+            // Animate shrink
+            $(intm).stop().animate(
+                {
+//                    height: '0px',
+//                    width: '0px',
+                    marginTop: '0px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
 
 
-        /*
-        var editg = $(editgrid).find('.editgridbg');
+            // Increment target
+            target++;
+
+            // Shrink the internal margin
+            var imdv = $(editgrid).find('.imgdiv');
+
+            // Animate
+            $(imdv).stop().animate(
+                {
+                    height: '0px',
+                    width: '0px',
+                    //marginTop: '0px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
 
 
-        $(editg).stop().animate(
-            {
+
+            // Increment target
+            target++;
+
+            // Find the box
+            var box = $(editgrid).find('.editgridbg');
+
+            // Animate
+            $(box).stop().animate(
+                {
+                    height: '0px',
+                    width: '0px',
+                    top: '+=' + (pictureheight / 2) + 'px',
+                    marginTop: '0px'
+                    //left: '+=' + (picturewidth / 2) + 'px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
+        }
+
+        // Display shrink effect if enabled
+        if(shrinkimgenable) {
+            
+            // Increment target
+            target++;
+
+            // Find the picture
+            var image = $(editgrid).find('img');
+            
+            // This animation changes if shrinkbox is enabled
+            var anip = { 
                 height: '0px',
                 width: '0px',
                 top: '+=' + (pictureheight / 2) + 'px',
-                left: '+=' + (picturewidth / 2) + 'px'
-            }, 
-            anispeed,
-            anieasing,
-            function() {
-                if(++count == target && callback) {
-                    callback();
-                }
+                left: '+=' + (picturewidth / 2) + 'px' };
+
+            // TODO: Figure this out
+            if(shrinkboxenable) {
+//                anip.height = '0px';
+//                anip.width = '0px';
+//                anip.marginTop = '-=' + (pictureheight) + 'px';
+//                anip.marginTop = '-=' + (pictureheight / 4) + 'px';
+                //anip.top = '+=' + (pictureheight) + 'px'
+
             }
-        );
-
-        */
-
-        $(image).stop().animate(
-            {
-                height: '0px',
-                width: '0px',
-                marginTop: '+=' + (pictureheight / 2) + 'px',
-                top: '+=' + (pictureheight / 2) + 'px',
-                left: '+=' + (picturewidth / 2) + 'px'
-            }, 
-            anispeed,
-            anieasing,
-            function() {
-                if(++count == target && callback) {
-                    callback();
-                }
+            else {
+                anip.height = '0px';
+                anip.width = '0px';
+                anip.marginTop = '+=' + (pictureheight / 2) + 'px';
             }
-        );
 
-        // Shrink 
-        /*
-        $(editgrid).stop().animate(
-            {
-                height: '0px',
-                width: '0px',
-                top: '+=' + (pictureheight / 2) + 'px',
-                left: '+=' + (picturewidth / 2) + 'px'
-            }, 
-            anispeed,
-            anieasing,
-            function() {
-                if(++count == 2 && callback) {
-                    callback()
+            // Animate
+            $(image).stop().animate(
+                anip, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
+        }
+
+        // Display fade effect if enabled
+        if(shrinkfadeenable) {
+
+            // Increment target
+            target++;
+
+            // Fade 
+            $(editgrid).stop().animate(
+                {
+                    opacity: 0
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                function() {
+                    $(editgrid).css('display', 'none');
+                    cbwrap();
                 }
-            }
-        );
-        */
+            );
+        }
 
+
+        // If nothing is enabled just invoke the callback
+        if(0 == target && callback) {
+
+            callback();
+
+        }
     }
 
     // Shift the pictures down
@@ -2319,6 +2435,21 @@ var picturegrid = (function ($jq) {
 
         // Set the default nomeal height
         nomealheight = cfg.hp("nomealheight") ? cfg.nomealheight : 256;
+
+        // Set shrinkspeed
+        shrinkspeed = cfg.hp("shrinkspeed") ? cfg.shrinkspeed : 1000;
+
+        // Set shrinkeasing
+        shrinkeasing = cfg.hp("shrinkeasing") ? cfg.shrinkeasing : 'grideasingfunc';
+
+        // Set shinkfade enabled
+        shrinkfadeenable = cfg.hp("shrinkfadeenable") ? cfg.shrinkfadeenable : true;
+
+        // Set shrinkimage enabled
+        shrinkimgenable = cfg.hp("shrinkimgenable") ? cfg.shrinkimgenable : true;
+
+        // Set shrinkbox enabled
+        shrinkboxenable = cfg.hp("shrinkboxenable") ? cfg.shrinkboxenable : true;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";
