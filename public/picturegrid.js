@@ -199,6 +199,9 @@ var picturegrid = (function ($jq) {
     // A callback that returns true if the modal is up, false otherwise
     var modalisup;
 
+    // Height of our nomeal object
+    var nomealheight;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -531,7 +534,7 @@ var picturegrid = (function ($jq) {
         }
         // Show the nomeal picture
         else {
-            thumbheight = NOMEALHEIGHT;
+            thumbheight = nomealheight;
             imgsrc = '/images/nomeal.png';
         }
 
@@ -578,7 +581,7 @@ var picturegrid = (function ($jq) {
 
         // Height of the nomeal picture
         else {
-            thumbheight = NOMEALHEIGHT;
+            thumbheight = nomealheight;
         }
 
         return thumbheight;
@@ -1203,21 +1206,73 @@ var picturegrid = (function ($jq) {
         var anispeed;
         var anieasing;
 
-        if(deladd == "delete") {
+        // Resolve correct speed and easing for delete
+        if(deladd == "delete") { 
             anispeed = deletespeed;
             anieasing = deleteeasing;
         }
+
+        // Resolve correct speed and easing for add
         else if (deladd == "add"){
             anispeed = addspeed;
             anieasing = addeasing;
         }
+
+        // Shouldn't happen
         else {
             console.log("Internal error: shrinkegcontainer context not specified.");
             anispeed = deletespeed;
             anieasing = deleteeasing;
         }
 
+        // Find the picture
+        var image = $(editgrid).find('img');
 
+        var count=0;
+        var target = 1;
+
+
+        /*
+        var editg = $(editgrid).find('.editgridbg');
+
+
+        $(editg).stop().animate(
+            {
+                height: '0px',
+                width: '0px',
+                top: '+=' + (pictureheight / 2) + 'px',
+                left: '+=' + (picturewidth / 2) + 'px'
+            }, 
+            anispeed,
+            anieasing,
+            function() {
+                if(++count == target && callback) {
+                    callback();
+                }
+            }
+        );
+
+        */
+
+        $(image).stop().animate(
+            {
+                height: '0px',
+                width: '0px',
+                marginTop: '+=' + (pictureheight / 2) + 'px',
+                top: '+=' + (pictureheight / 2) + 'px',
+                left: '+=' + (picturewidth / 2) + 'px'
+            }, 
+            anispeed,
+            anieasing,
+            function() {
+                if(++count == target && callback) {
+                    callback();
+                }
+            }
+        );
+
+        // Shrink 
+        /*
         $(editgrid).stop().animate(
             {
                 height: '0px',
@@ -1227,8 +1282,13 @@ var picturegrid = (function ($jq) {
             }, 
             anispeed,
             anieasing,
-            callback
+            function() {
+                if(++count == 2 && callback) {
+                    callback()
+                }
+            }
         );
+        */
 
     }
 
@@ -2256,6 +2316,9 @@ var picturegrid = (function ($jq) {
 
         // Set the modalisup callback
         modalisup = cfg.hp("modalisup") ? cfg.modalisup : null;
+
+        // Set the default nomeal height
+        nomealheight = cfg.hp("nomealheight") ? cfg.nomealheight : 256;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";

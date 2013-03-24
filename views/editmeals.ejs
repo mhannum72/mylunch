@@ -30,11 +30,24 @@
 // Global minfo array holds the initial mealset
 var minfo = [];
 
-// Height of my nomeal picture.  This is dumb.
+// Height of my nomeal picture.  This is dumb: it should be a tunable within the picturegrid & carousel
 var NOMEALHEIGHT = 256;
 
+// Create string format for dates
+Date.prototype.asMyString = function() {
+    var monthNames = [ "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December" ];
+    return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
+}
+
+// Create string format for griddates
+Date.prototype.asSlashString = function() {
+    return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
+}
+
+
+
 // TODO - clean this up
-// Functionize mealinfo
 var MEALINFO = (function() {
 
     var NOMEAL = 0;
@@ -76,13 +89,13 @@ var MEALINFO = (function() {
     }
 
     // Utility function
-		function mealDateToDate(mealdate)
-		{
-		    var year = mealdate / 1000000; mealdate %= 1000000;
-		    var month = mealdate /  10000; mealdate %=   10000;
-		    var day  = mealdate /     100;
-		    return new Date(year, month-1, day);
-		}
+	function mealDateToDate(mealdate)
+	{
+	    var year = mealdate / 1000000; mealdate %= 1000000;
+	    var month = mealdate /  10000; mealdate %=   10000;
+	    var day  = mealdate /     100;
+	    return new Date(year, month-1, day);
+	}
 
     function dateToMealDate(date, mealconst)
     {
@@ -112,20 +125,6 @@ function mealpage(timestamp) {
     this.timestamp = timestamp;
     return this;
 
-}
-
-
-
-// Create string format for dates
-Date.prototype.asMyString = function() {
-    var monthNames = [ "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December" ];
-    return monthNames[this.getMonth()] + ' ' + this.getDate() + ', ' + this.getFullYear();
-}
-
-// Create string format for griddates
-Date.prototype.asSlashString = function() {
-    return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
 }
 
 // jquery ready handler
@@ -212,13 +211,14 @@ picturegrid.init(
             anchorclickfn       : showattributes.show,
             findpicidx          : findpicidx.search,
             modalisup           : showattributes.modalisshowing,
+            nomealheight        : NOMEALHEIGHT,
             titletrace          : true,
             picturecounttrace   : true,
             animatenextprev     : true,
             mealsperrow         : 3,
             rowsperpage         : 2,
             deletebehavior      : "shiftmeals",
-            deletespeed         : 3000
+            deletespeed         : 1500
         }
 );
 
