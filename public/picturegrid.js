@@ -1255,6 +1255,7 @@ var picturegrid = (function ($jq) {
                 // Create a new nextpage
                 var nextpage = new mealpage(parseInt(response.nextts,10));
 
+
                 if(newgrid) {
 
                     // Create a new prevpage
@@ -1325,6 +1326,9 @@ var picturegrid = (function ($jq) {
                                 // Invoke the callback
                                 if(callback) callback();
 
+                                // Setup next and prev page links
+                                nextprevpagelinks(nextpage, gridprevpage);
+
                             }
                         }
 
@@ -1341,6 +1345,10 @@ var picturegrid = (function ($jq) {
                             if(!next) {
 
                                 if(callback) callback();
+
+                                // Setup next and prev page links
+                                nextprevpagelinks(nextpage, gridprevpage);
+
                                 return;
 
                             }

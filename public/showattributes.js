@@ -282,7 +282,7 @@ showattributes = (function($jq) {
         popup = null;
 
         // nullify gridobj
-        gridobj = null;
+        //gridobj = null;
 
         // We are not showing
         isshowing = false;

@@ -5,8 +5,7 @@ mylunch
 todo
 ====
 
-* There's a bug if you try to delete a meal that you have just created ..
-  You gotta fix this
+* Try to make the delete-shink be center biased 
 
 * If you keep deleting stuff, you can make it so that there's something
   behind the thing being deleted.  You gotta fix this.
