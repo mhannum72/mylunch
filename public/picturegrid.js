@@ -118,9 +118,6 @@ var picturegrid = (function ($jq) {
     // cache the last mealinfo array
     var lastmealinfo;
 
-    // New meal anchor
-    //var newmealanchor;
-
     // Use hover text
     var usehovertext;
 
@@ -230,6 +227,7 @@ var picturegrid = (function ($jq) {
 
     }
 
+    // Invoke modalisup callback
     function modalisshowing() {
 
         if(modalisup) {
@@ -263,17 +261,21 @@ var picturegrid = (function ($jq) {
                     return;
                 }
 
-                // If addbehavior is shift, call drawnewmeals
+                // If addbehavior is shift redraw
                 if(addbehavior == "shiftmeals") {
                     drawnewmeals( 
-                        new mealpage(parseInt(response.timestamp,10)),
-                        showattributes.setgridobj
+                        parseInt(response.timestamp,10),
+                        showattributes.setgridobj,
+                        function() {
+                            //showattributes.setgridobj()
+                            // Display a popup
+                            showattributes.show(username, response.timestamp);
+                        }
                     );
 
-                    // Display a popup
-                    showattributes.show(username, response.timestamp);
                 }
 
+                // If addbehavior is shift
                 else if (addbehavior == "redrawgrid") {
 
                     // Create a new grid
@@ -298,8 +300,6 @@ var picturegrid = (function ($jq) {
 
     // Set the newmeal anchor
     function setnewmealanchor(anchor) {
-
-        //newmealanchor = anchor;
 
         // Invoke the popup handler if it's clicked
         $(anchor).click(function() {
@@ -403,31 +403,94 @@ var picturegrid = (function ($jq) {
         return 0;
     }
 
-    // XXX TODO
-    function drawnewmeals(nextpage, callback) {
+    // Test drawnewmeals
+    function drawnewmeals(newmealts, setgridobjcb, showattrcb) {
 
-        /* If this is not the first page, shift to the first page */
+        // Create an empty meal-object for the new meal
+        var newmeal = { 
+            timestamp : newmealts, 
+            picInfo : null, 
+            keytimestamp : 0,
+            title: null
+        };
+
+        // Create newmeal egcontainer
+        var gridmeal = pdiv(newmeal);
+
+        // Write the shift-meals and invoke callback function first
+        function shiftandcallback(gobj) {
+
+            // Add the new meal to the front of the grid
+            addmealtogrid(currentgrid, gridmeal, function(go) {
+
+                // Show the attributes for the new meal
+                showattrcb();
+
+                // Set my gridobj
+                setgridobjcb(go);
+
+            }, 
+            false, true);
+
+        }
+
+        // If this is not the first page, shift to the first page 
         if(gridprevpage && gridprevpage.timestamp > 0) {
 
             // Make this an ajax request that will return enough information
             $.getJSON('/editpagenext',
                 {
                     username: username,
-                    nextts: nextpage.timestamp,
+                    nextts: newmealts,
                     count: mealspergrid + 1
                 },
                 function(response) {
 
-                    // TODO
-                    // 1) Splice out the first meal
-                    // 2) Draw the grid
-                    // 3) Add the first meal to the beginning & animate
+                    if(response.errStr != undefined && response.errStr.length > 0) {
+                        // Send this error to a space at the top..
+                        //console.log('editpagenext error: ' + response.errStr);
+                        return;
+                    }
+                    else {
+
+                        var nextpage = new mealpage(
+                            parseInt(response.nextts,10) 
+                        );
+                        var prevpage = new mealpage(
+                            parseInt(response.prevts,10)
+                        );
+
+                        // Draw grid starting at idx 1
+                        response.mealinfo.startindex = 1;
+
+                        // 1) Splice out the first meal
+                        // 2) Draw the grid
+                        // 3) Add the first meal to the beginning & animate
+
+                        // Display the grid
+                        displaygrid(response.mealinfo, prevpage, nextpage, 
+                            'forwards', shiftandcallback);
+
+                    }
                 }
             );
         }
         else {
-            // 1) Add the first meal to the beginning & animate
+
+            addmealtogrid(currentgrid, gridmeal, function(go) {
+
+                // Show the attributes for the new meal
+                showattrcb();
+
+                // Set my gridobj
+                setgridobjcb(go);
+
+            },
+            false, true);
         }
+
+        // Newmealpage has the new meal information.
+        // 1) Add the first meal to the beginning & animate
 
     }
 
@@ -552,12 +615,6 @@ var picturegrid = (function ($jq) {
             thumbheight = nomealheight;
             imgsrc = '/images/nomeal.png';
         }
-
-        // Error checking
-        //if(thumbheight <= 0) {
-            //console.log("ERROR!  Thumbheight is an invalid value: " + 
-            //        thumbheight);
-        //}
 
         // Set image source
         gridpic.attr('src', imgsrc);
@@ -1019,7 +1076,7 @@ var picturegrid = (function ($jq) {
         var hdiv = null;
 
         // Shift-pic adds an extra meal at the end temporarily 
-        var maxmeals = delshift ? mealspergrid + 1 : mealspergrid;
+        var maxmeals = (delshift || addfront) ? mealspergrid + 1 : mealspergrid;
 
         // Return false if we're filled up
         if(griddiv.count >= maxmeals) {
@@ -2018,8 +2075,10 @@ var picturegrid = (function ($jq) {
     // Fill a picture grid from an array
     function fillfromarray(griddiv, mealinfo, callback) {
 
+        var startidx = mealinfo.hasOwnProperty("startindex") ? mealinfo.startindex : 0;
+
         // For each mealinfo
-        for(cnt = 0 ; cnt < mealinfo.length ; cnt++) {
+        for(cnt = startidx ; cnt < mealinfo.length ; cnt++) {
 
             // Create a gridpic
             var gridmeal = pdiv(mealinfo[cnt]);
@@ -2059,6 +2118,8 @@ var picturegrid = (function ($jq) {
     // Universal display function
     function displaygrid(mealinfo, prevpage, nextpage, direction, callback) {
 
+        var startidx = mealinfo.hasOwnProperty("startindex") ? mealinfo.startindex : 0;
+
         // Short circuit if were already displaying
         if (displaying) {
             //console.log("displaygrid is already displaying");
@@ -2089,8 +2150,8 @@ var picturegrid = (function ($jq) {
         var loaded = 0;
 
         // Determine last picture
-        var endpic = (mealinfo.length < mealspergrid) ? 
-            mealinfo.length : mealspergrid;
+        var endpic = ((mealinfo.length-startidx) < mealspergrid) ? 
+            (mealinfo.length-startidx) : mealspergrid;
 
         // Make a new picture grid
         var newgrid = makegrid();
