@@ -266,10 +266,10 @@ var picturegrid = (function ($jq) {
                     drawnewmeals( 
                         parseInt(response.timestamp,10),
                         showattributes.setgridobj,
-                        function() {
+                        function(gobj) {
                             //showattributes.setgridobj()
                             // Display a popup
-                            showattributes.show(username, response.timestamp);
+                            showattributes.show(username, response.timestamp, gobj);
                         }
                     );
 
@@ -403,6 +403,11 @@ var picturegrid = (function ($jq) {
         return 0;
     }
 
+    // Wait load - dumb utility because you can't rely on 'load' firing
+    // Apparently this won't work
+    function loadorloaded(imgtag, callback) {
+    }
+
     // Test drawnewmeals
     function drawnewmeals(newmealts, setgridobjcb, showattrcb) {
 
@@ -423,11 +428,14 @@ var picturegrid = (function ($jq) {
             // Add the new meal to the front of the grid
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
-                // Show the attributes for the new meal
-                showattrcb();
+                // Find gridobj
+                var eg = currentgrid.firstg ? currentgrid.firstg.editgrid : null;
 
                 // Set my gridobj
-                setgridobjcb(go);
+                setgridobjcb(eg);
+
+                // Show the attributes for the new meal
+                showattrcb(go);
 
             }, 
             false, true);
@@ -469,7 +477,7 @@ var picturegrid = (function ($jq) {
 
                         // Display the grid
                         displaygrid(response.mealinfo, prevpage, nextpage, 
-                            'forwards', shiftandcallback);
+                            'backwards', shiftandcallback);
 
                     }
                 }
@@ -479,11 +487,14 @@ var picturegrid = (function ($jq) {
 
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
-                // Show the attributes for the new meal
-                showattrcb();
+                // Find gridobj
+                var eg = currentgrid.firstg ? currentgrid.firstg.editgrid : null;
 
                 // Set my gridobj
-                setgridobjcb(go);
+                setgridobjcb(eg);
+
+                // Show the attributes for the new meal
+                showattrcb(go);
 
             },
             false, true);
@@ -1181,7 +1192,7 @@ var picturegrid = (function ($jq) {
                         if(++counter >= target) {
 
                             // Increment the number of pictures
-                            if(griddiv.count >= maxpicspergrid) {
+                            if(griddiv.count >= mealspergrid) {
 
                                 // Detach the last
                                 $(griddiv.lastg).detach();
@@ -1200,10 +1211,13 @@ var picturegrid = (function ($jq) {
                             // If there's a callback, invoke it now
                             if(loadcb) {
                                 var image = $(gridpic).find('.gridimage');
+                                loadcb(gridpic);
+                                /*
                                 image.on('load.picdivinternal', function() {
                                     image.off('load.picdivinternal');
                                     loadcb(griddiv);
                                 });
+                                */
                             }
                         }
                     }
@@ -1263,10 +1277,13 @@ var picturegrid = (function ($jq) {
             // Invoke 'pic-is-loaded' callback
             if(loadcb) {
                 var image = $(gridpic).find('.gridimage');
+                loadcb(gridpic);
+                /*
                 image.on('load.picdivinternal', function() {
                     image.off('load.picdivinternal');
                     loadcb(griddiv);
                 });
+                */
             }
         }
 
