@@ -424,11 +424,23 @@ var picturegrid = (function ($jq) {
         // Write the shift-meals and invoke callback function first
         function shiftandcallback(gobj) {
 
+            // Find the meal object for the last grid
+            var im = $(currentgrid.lastg).find('.internalmargin');
+
+            // Get the meal
+            var meal = im[0].meal;
+            
+            // Make a new nextpage 
+            var nextpage = new mealpage(meal.timestamp);
+
             // Add the new meal to the front of the grid
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
                 // Find gridobj
                 var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
+
+                // Setup the next and previous page links
+                nextprevpagelinks(nextpage, gridprevpage);
 
                 // Show the attributes for the new meal
                 showattrcb(eg);
@@ -478,10 +490,29 @@ var picturegrid = (function ($jq) {
         }
         else {
 
+            var nextpage = gridnextpage;
+
+            // If the grid has as many meals as it can, grab the last
+            if(currentgrid.count >= mealspergrid) {
+
+                // Find the meal object for the last grid
+                var im = $(currentgrid.lastg).find('.internalmargin');
+
+                // Get the meal
+                var meal = im[0].meal;
+
+                // Get the nextpage
+                nextpage = new mealpage(meal.timestamp);
+            }
+
+
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
                 // Find gridobj
                 var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
+
+                // Setup the next and previous page links
+                nextprevpagelinks(nextpage, gridprevpage);
 
                 // Show the attributes for the new meal
                 showattrcb(eg);
@@ -810,7 +841,7 @@ var picturegrid = (function ($jq) {
             .attr('class', 'internalmargin')
             .css('margin-top', picborder + 'px')
             .css('float', 'top');
-    
+
         // Center tag
         var center = $(dc('center'));
 
@@ -821,6 +852,9 @@ var picturegrid = (function ($jq) {
         var editImageDiv = $(dc('div'))
             .attr('class', 'imgdiv');
     
+        // Latch the meal
+        editInternal[0].meal = meal;
+
         // Append to center
         editImageDiv.appendTo(center);
 
@@ -1015,7 +1049,7 @@ var picturegrid = (function ($jq) {
 
         // Direct lookup for editgrid
         egcontainer[0].editgrid = editgrid[0];
-    
+
         // Return the top-level object
         return egcontainer[0];
     }
