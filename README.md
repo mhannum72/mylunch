@@ -5,10 +5,7 @@ mylunch
 todo
 ====
 
-* The new shift-add code is slightly buggy - the popup isn't showing, and 
-  I sometimes get redirected to the home page.
-
-* Try to make the delete-shink be center biased 
+* XXX Make the last picture the new 'nextpage' picture XXX
 
 * If you keep deleting stuff, you can make it so that there's something
   behind the thing being deleted.  You gotta fix this.
