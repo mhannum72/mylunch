@@ -412,6 +412,7 @@ var picturegrid = (function ($jq) {
 
         // Create an empty meal-object for the new meal
         var newmeal = { 
+            username : username,
             timestamp : newmealts, 
             picInfo : null, 
             keytimestamp : 0,
