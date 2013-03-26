@@ -265,7 +265,6 @@ var picturegrid = (function ($jq) {
                 if(addbehavior == "shiftmeals") {
                     drawnewmeals( 
                         parseInt(response.timestamp,10),
-                        showattributes.setgridobj,
                         function(gobj) {
                             //showattributes.setgridobj()
                             // Display a popup
@@ -409,7 +408,7 @@ var picturegrid = (function ($jq) {
     }
 
     // Test drawnewmeals
-    function drawnewmeals(newmealts, setgridobjcb, showattrcb) {
+    function drawnewmeals(newmealts, showattrcb) {
 
         // Create an empty meal-object for the new meal
         var newmeal = { 
@@ -430,9 +429,6 @@ var picturegrid = (function ($jq) {
 
                 // Find gridobj
                 var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
-
-                // Set my gridobj
-                setgridobjcb($(gridmeal));
 
                 // Show the attributes for the new meal
                 showattrcb(eg);
@@ -464,16 +460,13 @@ var picturegrid = (function ($jq) {
                         var nextpage = new mealpage(
                             parseInt(response.nextts,10) 
                         );
+
                         var prevpage = new mealpage(
                             parseInt(response.prevts,10)
                         );
 
                         // Draw grid starting at idx 1
                         response.mealinfo.startindex = 1;
-
-                        // 1) Splice out the first meal
-                        // 2) Draw the grid
-                        // 3) Add the first meal to the beginning & animate
 
                         // Display the grid
                         displaygrid(response.mealinfo, prevpage, nextpage, 
@@ -489,9 +482,6 @@ var picturegrid = (function ($jq) {
 
                 // Find gridobj
                 var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
-
-                // Set my gridobj
-                setgridobjcb(gridmeal);
 
                 // Show the attributes for the new meal
                 showattrcb(eg);
@@ -1150,11 +1140,13 @@ var picturegrid = (function ($jq) {
             // This is index -1
             gridpic.gcount = -1;
 
+            // XXX HERE: make the new picture small, or invisible
+
             // Find left offset
             var lft = findleftoffset(gridpic.gcount);
 
             // Find left offset
-            var top = findtopoffset(gridpic.gcount);
+            var tp = findtopoffset(gridpic.gcount);
 
             // Set initial css
             $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
