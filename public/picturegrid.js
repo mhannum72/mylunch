@@ -429,13 +429,13 @@ var picturegrid = (function ($jq) {
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
                 // Find gridobj
-                var eg = currentgrid.firstg ? currentgrid.firstg.editgrid : null;
+                var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
 
                 // Set my gridobj
-                setgridobjcb(eg);
+                setgridobjcb($(gridmeal));
 
                 // Show the attributes for the new meal
-                showattrcb(go);
+                showattrcb(eg);
 
             }, 
             false, true);
@@ -488,13 +488,13 @@ var picturegrid = (function ($jq) {
             addmealtogrid(currentgrid, gridmeal, function(go) {
 
                 // Find gridobj
-                var eg = currentgrid.firstg ? currentgrid.firstg.editgrid : null;
+                var eg = currentgrid.firstg ? $(currentgrid.firstg.editgrid) : null;
 
                 // Set my gridobj
-                setgridobjcb(eg);
+                setgridobjcb(gridmeal);
 
                 // Show the attributes for the new meal
-                showattrcb(go);
+                showattrcb(eg);
 
             },
             false, true);

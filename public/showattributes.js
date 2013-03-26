@@ -1674,6 +1674,9 @@ showattributes = (function($jq) {
         if(griddiv) {
             gridobj = griddiv;
         }
+        else {
+            gridobj = null;
+        }
 
         $.getJSON('/ajaxgetmealinfo',
             {
