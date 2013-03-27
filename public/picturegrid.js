@@ -1595,22 +1595,18 @@ var picturegrid = (function ($jq) {
         // Variable for thumbwidth
         var thumbwidth;
 
-        // Maybe always animate the top and left
-        var tp = findtopoffset(0);
-
-        var lft = findleftoffset(0);
-
-        // always animate the top and left
-        var tp = findtopoffset(0);
-
-        var lft = findleftoffset(0);
-
         // Callback wrapper
         function cbwrap() {
             if(++count == target && callback) {
                 callback();
             }
         }
+
+        /*
+        // always animate the top and left
+        var tp = findtopoffset(0);
+
+        var lft = findleftoffset(0);
 
         target++;
 
@@ -1623,6 +1619,7 @@ var picturegrid = (function ($jq) {
             groweasing,
             cbwrap
         );
+        */
 
 
         // Get thumbheight (and intm) ahead of time
