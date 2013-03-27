@@ -199,6 +199,9 @@ var picturegrid = (function ($jq) {
     // Height of our nomeal object
     var nomealheight;
 
+    // Width of our nomeal object
+    var nomealwidth;
+
     // Set the shrink speed
     var shrinkspeed;
 
@@ -680,6 +683,33 @@ var picturegrid = (function ($jq) {
         }
     }
 
+    // Return the width of the key-pic, the first pic, or no-meal
+    function calculatethumbwidth(meal) {
+
+        var thumbwidth;
+
+        // Find the key pic in the picInfo array
+        if(meal.keytimestamp) {
+
+            var idx = findpicidx(meal.picInfo, meal.keytimestamp);
+
+            if(idx >= 0) thumbwidth = meal.picInfo[idx].thumbwidth;
+        }
+
+        // Otherwise use the first picture
+        else if(meal.picInfo && meal.picInfo.length > 0) {
+
+            thumbwidth = meal.picInfo[0].thumbwidth;
+        }
+
+        // Height of the nomeal picture
+        else {
+            thumbwidth = nomealwidth;
+        }
+
+        return thumbwidth;
+    }
+
     // Return the height of the key-pic, the first pic, or no-meal
     function calculatethumbheight(meal) {
 
@@ -871,6 +901,13 @@ var picturegrid = (function ($jq) {
         // Latch the meal
         editInternal[0].meal = meal;
 
+        // Latch the thumbheight
+        editInternal[0].thumbheight = thumbheight;
+
+        // TODO: return both at same time (so only one array lookup).
+        // Latch the thumbwidth
+        editInternal[0].thumbwidth = calculatethumbwidth(meal);
+
         // Append to center
         editImageDiv.appendTo(center);
 
@@ -920,7 +957,7 @@ var picturegrid = (function ($jq) {
             imgsource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
         }
     
-        // Image teag
+        // Image tag
         var image = $(dc('img'))
             .attr('class', 'gridimage')
             .attr('src', imgsource);
@@ -1338,12 +1375,14 @@ var picturegrid = (function ($jq) {
             // Set marginTop to 0
             $(intm).css('marginTop', '0px');
 
+            /*
             // Shrink margin on image
             var imdv = $(editgrid).find('.imgdiv');
 
             // Set height & width to 0
             $(imdv).css('height', '0px')
                 .css('width', '0px');
+             */
 
             // Find the box
             var box = $(editgrid).find('.editgridbg');
@@ -1352,7 +1391,7 @@ var picturegrid = (function ($jq) {
             $(box).css('height', '0px')
                 .css('width', '0px')
                 .css('top', '+=' + (pictureheight / 2) + 'px')
-                .css('marginTop', '0px');
+                .css('margin-top', '0px');
 
         }
 
@@ -1364,6 +1403,8 @@ var picturegrid = (function ($jq) {
             
             $(img).css('top', '+=' + (pictureheight / 2) + 'px')
                 .css('left', '+=' + (picturewidth / 2) + 'px')
+                .css('height', '0px')
+                .css('width', '0px');
 
             if(!growboxenable) {
                 $(img).css('margin-top', '+=' + (pictureheight / 2) + 'px');
@@ -1384,6 +1425,23 @@ var picturegrid = (function ($jq) {
         // I am finished target
         var target = 0;
 
+        // The internal margin
+        var intm;
+
+        // Variable for thumbheight
+        var thumbheight;
+
+        // The thumbheight
+        if(shrinkboxenable || shrinkimgenable) {
+
+            // Find the internal margin
+            intm = $(editgrid).find('.internalmargin');
+
+            // Find the thumbheight
+            thumbheight = intm.thumbheight;
+
+        }
+
         // Callback wrapper
         function cbwrap() {
             if(++count == target && callback) {
@@ -1397,31 +1455,10 @@ var picturegrid = (function ($jq) {
             // Increment target
             target++;
 
-            // Find the internal margin
-            var intm = $(editgrid).find('.internalmargin');
-
             // Animate shrink
             $(intm).stop().animate(
                 {
                     marginTop: '0px'
-                }, 
-                shrinkspeed,
-                shrinkeasing,
-                cbwrap
-            );
-
-            // Increment target
-            target++;
-
-            // Shrink the internal margin
-            var imdv = $(editgrid).find('.imgdiv');
-
-            // Animate
-            $(imdv).stop().animate(
-                {
-                    height: '0px',
-                    width: '0px',
-                    //marginTop: '0px'
                 }, 
                 shrinkspeed,
                 shrinkeasing,
@@ -1440,8 +1477,8 @@ var picturegrid = (function ($jq) {
                     height: '0px',
                     width: '0px',
                     top: '+=' + (pictureheight / 2) + 'px',
-                    marginTop: '0px'
-                    //left: '+=' + (picturewidth / 2) + 'px'
+                    //left: '+=' + (picturewidth / 2) + 'px',
+                    marginTop: '0px',
                 }, 
                 shrinkspeed,
                 shrinkeasing,
@@ -1450,6 +1487,7 @@ var picturegrid = (function ($jq) {
         }
 
         // Display shrink effect if enabled
+        // Maybe this is centered if i scale the top by the imgheight?
         if(shrinkimgenable) {
             
             // Increment target
@@ -1460,6 +1498,8 @@ var picturegrid = (function ($jq) {
             
             // This animation changes if shrinkbox is enabled
             var anip = { 
+                width: '0px',
+                height: '0px',
                 top: '+=' + (pictureheight / 2) + 'px',
                 left: '+=' + (picturewidth / 2) + 'px' };
 
@@ -1514,6 +1554,29 @@ var picturegrid = (function ($jq) {
         // I am finished target
         var target = 0;
 
+        // Allocate intm variable ahead of time
+        var intm;
+
+        // Variable for thumbheight
+        var thumbheight;
+
+        // Variable for thumbwidth
+        var thumbwidth;
+
+        // Get thumbheight (and intm) ahead of time
+        if(growboxenable || growimgenable) {
+
+            // Find the internal margin
+            intm = $(editgrid).find('.internalmargin');
+
+            // Latch the thumbheight
+            thumbheight = intm.thumbheight;
+
+            // Latch the thumbwidth
+            thumbwidth = intm.thumbwidth;
+
+        }
+
         // Callback wrapper
         function cbwrap() {
             if(++count == target && callback) {
@@ -1527,9 +1590,6 @@ var picturegrid = (function ($jq) {
             // Increment target
             target++;
 
-            // Find the internal margin
-            var intm = $(editgrid).find('.internalmargin');
-
             // Animate growth
             $(intm).stop().animate(
                 {
@@ -1540,28 +1600,65 @@ var picturegrid = (function ($jq) {
                 cbwrap
             );
 
+            // Find the box
+            var box = $(editgrid).find('.editgridbg');
+
+            $(box).stop().animate(
+                {
+                    height: thumbheight + 'px',
+                    width: picturewidth + (2 * picborder) + 'px',
+                    marginTop: margintop + 'px',
+                    top: '-=' + (pictureheight / 2) + 'px',
+                }
+            );
+        }
+
+        // Display grow image effect if enabled 
+        if(growimgenable) {
+
             // Increment target
             target++;
 
-            // Grow the internal margin
-            var imdv = $(editgrid).find('.imgdiv');
+            // Find the picture
+            var image = $(editgrid).find('img');
 
-            // Animate
-            $(imdv).stop().animate(
-                {
-                    height: '0px',
-                    width: '0px',
-                    //marginTop: '0px'
-                }, 
-                shrinkspeed,
-                shrinkeasing,
+
+            var anip = {
+                width: thumbwidth + 'px',
+                height: thumbheight + 'px',
+                // These are wrong
+                top: '-=' + (pictureheight / 2) + 'px',
+                left: '-=' + (picturewidth / 2) + 'px' };
+
+            if(!growboxenable) {
+                anip.marginTop = '-=' + (pictureheight / 2) + 'px';
+            }
+
+            $(image).stop().animate(
+                anip,
+                growspeed,
+                groweasing,
                 cbwrap
             );
-
         }
 
-    }
+        // Display fade effect if enabled
+        if(growfadeenable) {
 
+            // Increment target
+            target++;
+
+            // Fade
+            $(editgrid).stop().animate(
+                {
+                    opacity: 1
+                },
+                growspeed,
+                groweasing,
+                cbwrap
+            );
+        }
+    }
 
 
     // Shift the pictures down
@@ -2529,6 +2626,9 @@ var picturegrid = (function ($jq) {
 
         // Set the default nomeal height
         nomealheight = cfg.hp("nomealheight") ? cfg.nomealheight : 256;
+
+        // Set the default nomeal width
+        nomealwidth = cfg.hp("nomealwidth") ? cfg.nomealwidth : 256;
 
         // Set shrinkspeed
         shrinkspeed = cfg.hp("shrinkspeed") ? cfg.shrinkspeed : 1000;
