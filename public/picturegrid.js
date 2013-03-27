@@ -214,6 +214,21 @@ var picturegrid = (function ($jq) {
     // Enable shrink box
     var shrinkboxenable;
 
+    // Growspeed
+    var growspeed;
+    
+    // Grow easing
+    var groweasing;
+
+    // Enable growfade
+    var growfadeenable;
+
+    // Growimg
+    var growimgenable;
+
+    // Enable grow box
+    var growboxenable;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -1166,16 +1181,11 @@ var picturegrid = (function ($jq) {
 
             }
 
-            // TODO - maybe this should shift, and then increase in 
-            // size to be visible
-
             // Prepend to the front of the list
             $(griddiv.ulist).prepend(gridpic);
 
             // This is index -1
             gridpic.gcount = -1;
-
-            // XXX HERE: make the new picture small, or invisible
 
             // Find left offset
             var lft = findleftoffset(gridpic.gcount);
@@ -1183,7 +1193,7 @@ var picturegrid = (function ($jq) {
             // Find left offset
             var tp = findtopoffset(gridpic.gcount);
 
-            // Set initial css
+            // Set initial css hidden offscreen (handled by find[left|top]offset)
             $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
 
             // Initialize a counter
@@ -1317,8 +1327,56 @@ var picturegrid = (function ($jq) {
         return true;
     }
 
-    // Shrink the egcontainer
-    function shrinkegcontainer(editgrid, deladd, callback) {
+    // Prepare egcontainer
+    function prepareegcontainer(editgrid) {
+
+        if(growboxenable) {
+
+            // Find the internal margin
+            var intm = $(editgrid).find('.internalmargin');
+
+            // Set marginTop to 0
+            $(intm).css('marginTop', '0px');
+
+            // Shrink margin on image
+            var imdv = $(editgrid).find('.imgdiv');
+
+            // Set height & width to 0
+            $(imdv).css('height', '0px')
+                .css('width', '0px');
+
+            // Find the box
+            var box = $(editgrid).find('.editgridbg');
+
+            // Set height, width, top and marginTop
+            $(box).css('height', '0px')
+                .css('width', '0px')
+                .css('top', '+=' + (pictureheight / 2) + 'px')
+                .css('marginTop', '0px');
+
+        }
+
+        // Prepare for image growth
+        if(growimgenable) {
+
+            // Find the picture
+            var image = $(editgrid).find('img');
+            
+            $(img).css('top', '+=' + (pictureheight / 2) + 'px')
+                .css('left', '+=' + (picturewidth / 2) + 'px')
+
+            if(!growboxenable) {
+                $(img).css('margin-top', '+=' + (pictureheight / 2) + 'px');
+            }
+        }
+
+        if(growfadeenable) {
+            $(editgrid).css('opacity', '0');
+        }
+    }
+
+    // Shrink the egcontainer for a delete
+    function shrinkegcontainer(editgrid, callback) {
 
         // Counter
         var count=0;
@@ -1336,50 +1394,6 @@ var picturegrid = (function ($jq) {
         // Display shrink box effect if enabled
         if(shrinkboxenable) {
 
-            // Will shrink egcontainer and adjust the margins on the inner
-
-            /*
-            // Increment target
-            target++;
-
-            // Nuke it
-            var mt = $(editgrid).find();
-
-            $(mt).stop().animate(
-                {
-                //    height: '0px',
-                //    width: '0px',
-                //    top: '+=' + (pictureheight / 2) + 'px'
-                //    left: '-=' + (picturewidth / 2) + 'px'
-                //    left: '+=' + (picturewidth / 2) + 'px'
-                    marginTop: '0px'
-                }, 
-                shrinkspeed,
-                shrinkeasing,
-                cbwrap
-            );
-            */
-
-            /*
-            // Increment target
-            target++;
-
-            // Animate margin top reduction
-            $(editgrid).stop().animate(
-                {
-                //    height: '0px',
-                //    width: '0px',
-                //    top: '+=' + (pictureheight / 2) + 'px'
-                //    left: '-=' + (picturewidth / 2) + 'px'
-                //    left: '+=' + (picturewidth / 2) + 'px'
-                    marginTop: '0px'
-                }, 
-                shrinkspeed,
-                shrinkeasing,
-                cbwrap
-            );
-            */
-
             // Increment target
             target++;
 
@@ -1389,15 +1403,12 @@ var picturegrid = (function ($jq) {
             // Animate shrink
             $(intm).stop().animate(
                 {
-//                    height: '0px',
-//                    width: '0px',
                     marginTop: '0px'
                 }, 
                 shrinkspeed,
                 shrinkeasing,
                 cbwrap
             );
-
 
             // Increment target
             target++;
@@ -1416,8 +1427,6 @@ var picturegrid = (function ($jq) {
                 shrinkeasing,
                 cbwrap
             );
-
-
 
             // Increment target
             target++;
@@ -1451,23 +1460,11 @@ var picturegrid = (function ($jq) {
             
             // This animation changes if shrinkbox is enabled
             var anip = { 
-                height: '0px',
-                width: '0px',
                 top: '+=' + (pictureheight / 2) + 'px',
                 left: '+=' + (picturewidth / 2) + 'px' };
 
-            // TODO: Figure this out
-            if(shrinkboxenable) {
-//                anip.height = '0px';
-//                anip.width = '0px';
-//                anip.marginTop = '-=' + (pictureheight) + 'px';
-//                anip.marginTop = '-=' + (pictureheight / 4) + 'px';
-                //anip.top = '+=' + (pictureheight) + 'px'
-
-            }
-            else {
-                anip.height = '0px';
-                anip.width = '0px';
+            // Figure this out
+            if(!shrinkboxenable) {
                 anip.marginTop = '+=' + (pictureheight / 2) + 'px';
             }
 
@@ -1500,7 +1497,6 @@ var picturegrid = (function ($jq) {
             );
         }
 
-
         // If nothing is enabled just invoke the callback
         if(0 == target && callback) {
 
@@ -1508,6 +1504,65 @@ var picturegrid = (function ($jq) {
 
         }
     }
+
+    // Grow the egcontainer for an add
+    function growegcontainer(editgrid, callback) {
+
+        // Counter
+        var count = 0;
+
+        // I am finished target
+        var target = 0;
+
+        // Callback wrapper
+        function cbwrap() {
+            if(++count == target && callback) {
+                callback();
+            }
+        }
+
+        // Display the grow-box effect
+        if(growboxenable) {
+
+            // Increment target
+            target++;
+
+            // Find the internal margin
+            var intm = $(editgrid).find('.internalmargin');
+
+            // Animate growth
+            $(intm).stop().animate(
+                {
+                    marginTop: picborder + 'px'
+                },
+                growspeed,
+                groweasing,
+                cbwrap
+            );
+
+            // Increment target
+            target++;
+
+            // Grow the internal margin
+            var imdv = $(editgrid).find('.imgdiv');
+
+            // Animate
+            $(imdv).stop().animate(
+                {
+                    height: '0px',
+                    width: '0px',
+                    //marginTop: '0px'
+                }, 
+                shrinkspeed,
+                shrinkeasing,
+                cbwrap
+            );
+
+        }
+
+    }
+
+
 
     // Shift the pictures down
     function dmealshiftmeals(meal, callback) {
@@ -1573,13 +1628,13 @@ var picturegrid = (function ($jq) {
                 // Create a new nextpage
                 var nextpage = new mealpage(parseInt(response.nextts,10));
 
-
+                // Need to redraw the grid
                 if(newgrid) {
 
                     // Create a new prevpage
                     var prevpage = new mealpage(parseInt(response.prevts,10));
 
-                    shrinkegcontainer(editgrid, "delete", function() {
+                    shrinkegcontainer(editgrid, function() {
 
                             // Detach from the ul
                             $(editgrid).detach();
@@ -1588,31 +1643,6 @@ var picturegrid = (function ($jq) {
                             displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
                         }
                     );
-
-
-                    /*
-                    // Shrink and display new grid
-                    $(editgrid).stop().animate(
-                        {
-                            height: '0px',
-                            width: '0px',
-                            top: '+=' + (pictureheight / 2) + 'px',
-                            left: '+=' + (picturewidth / 2) + 'px'
-                        },
-                        deletespeed,
-                        deleteeasing,
-                        function() {
-
-                            // Detach from the ul
-                            $(editgrid).detach();
-
-                            // Redraw the grid
-                            displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
-                        }
-                    );
-
-                    */
-
                 }
 
                 else {
@@ -1714,22 +1744,7 @@ var picturegrid = (function ($jq) {
                             }
                         }
 
-
-                        shrinkegcontainer(editgrid, "delete", shiftmeals);
-                        /*
-                        // Shrink the deleted meal
-                        $(editgrid).stop().animate(
-                            {
-                                height: '0px',
-                                width: '0px',
-                                top: '+=' + (pictureheight / 2) + 'px',
-                                left: '+=' + (picturewidth / 2) + 'px'
-                            },
-                            deletespeed,
-                            deleteeasing,
-                            shiftmeals
-                        );
-                        */
+                        shrinkegcontainer(editgrid, shiftmeals);
 
                     }
 
@@ -1747,35 +1762,9 @@ var picturegrid = (function ($jq) {
                     else {
                         shrinkandshift();
                     }
-
-                    /*
-
-
-                    // Find the index of the deleted picture
-                    var idx = findpicidx(lastmealinfo, meal.timestamp);
-
-                    if(idx < 0) {
-                        //console.log("Error - deleted picture is not in lastmealinfo.");
-                    }
-                    else {
-                        // Remove this picture
-                        lastmealinfo.splice(idx, 1);
-
-                        if(response.mealinfo.length >= 1) {
-
-                            lastmealinfo.push(response.mealinfo[0]);
-
-                        }
-
-                        // Display
-                        displaygrid(lastmealinfo, gridprevpage, nextpage, 'forwards');
-                    }
-                    */
-
                 }
             }
         );
-
     }
 
     // Redraw the grid when I delete a meal
@@ -2555,6 +2544,21 @@ var picturegrid = (function ($jq) {
 
         // Set shrinkbox enabled
         shrinkboxenable = cfg.hp("shrinkboxenable") ? cfg.shrinkboxenable : true;
+
+        // Set growspeed
+        growspeed = cfg.hp("growspeed") ? cfg.growspeed : 1000;
+
+        // Set groweasing
+        groweasing = cfg.hp("groweasing") ? cfg.groweasing : 'grideasingfunc';
+
+        // Set growfade enabled
+        growfadeenable = cfg.hp("growfadeenable") ? cfg.growfadeenable : true;
+
+        // Set growimage enabled
+        growimgenable = cfg.hp("growimgenable") ? cfg.growimgenable : true;
+
+        // Set growbox enabled
+        growboxenable = cfg.hp("growboxenable") ? cfg.growboxenable : true;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";
