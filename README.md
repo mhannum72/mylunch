@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Maybe add a 'disable animations' switch which will set the shrinkspeed,
+  growspeed, shiftspeed, etc. to 0.
+
 * XXX Make the last picture the new 'nextpage' picture XXX
 
 * If you keep deleting stuff, you can make it so that there's something

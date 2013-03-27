@@ -1221,6 +1221,9 @@ var picturegrid = (function ($jq) {
             // Prepend to the front of the list
             $(griddiv.ulist).prepend(gridpic);
 
+            // Prepare the egcontainer
+            prepareegcontainer(gridpic);
+
             // This is index -1
             gridpic.gcount = -1;
 
@@ -1282,17 +1285,16 @@ var picturegrid = (function ($jq) {
                                 griddiv.count++;
                             }
 
-                            // If there's a callback, invoke it now
-                            if(loadcb) {
-                                var image = $(gridpic).find('.gridimage');
-                                loadcb(gridpic);
-                                /*
-                                image.on('load.picdivinternal', function() {
-                                    image.off('load.picdivinternal');
-                                    loadcb(griddiv);
-                                });
-                                */
-                            }
+                            // Make it visible
+                            growegcontainer(gridpic, function() {
+
+                                // If there's a callback, invoke it now
+                                if(loadcb) {
+                                    var image = $(gridpic).find('.gridimage');
+                                    loadcb(gridpic);
+                                }
+
+                            });
                         }
                     }
                 );
@@ -1367,10 +1369,20 @@ var picturegrid = (function ($jq) {
     // Prepare egcontainer
     function prepareegcontainer(editgrid) {
 
-        if(growboxenable) {
+        var thumbheight;
+        var intm;
+
+        if(growboxenable || growimgenable) {
 
             // Find the internal margin
-            var intm = $(editgrid).find('.internalmargin');
+            intm = $(editgrid).find('.internalmargin');
+
+            // Grab the thumbheight
+            thumbheight = intm[0].thumbheight;
+
+        }
+
+        if(growboxenable) {
 
             // Set marginTop to 0
             $(intm).css('marginTop', '0px');
@@ -1389,9 +1401,22 @@ var picturegrid = (function ($jq) {
 
             // Set height, width, top and marginTop
             $(box).css('height', '0px')
-                .css('width', '0px')
-                .css('top', '+=' + (pictureheight / 2) + 'px')
-                .css('margin-top', '0px');
+                .css('width', '0px');
+                //.css('margin-top', '0px')
+                //.css('top', '+=' + (pictureheight / 2) + 'px')
+
+            // Gotta do the footer also
+            var footer = $(editgrid).find('.editgridfooter');
+
+            $(footer).css('height', '0px')
+                .css('width', '0px');
+
+//            .css('bottom', '-' + (footerheight + footerspace) + 'px')
+//            .css('left', '-1px')
+//            .css('clear', 'both')
+//            .css('width', picturewidth + (2 * picborder) + 'px')
+//            .css('height', footerheight)
+
 
         }
 
@@ -1399,12 +1424,19 @@ var picturegrid = (function ($jq) {
         if(growimgenable) {
 
             // Find the picture
-            var image = $(editgrid).find('img');
+            var img = $(editgrid).find('img');
             
+            /*
             $(img).css('top', '+=' + (pictureheight / 2) + 'px')
                 .css('left', '+=' + (picturewidth / 2) + 'px')
                 .css('height', '0px')
                 .css('width', '0px');
+                */
+
+            $(img).css('height', '0px')
+                .css('width', '0px')
+                .css('top', '+=' + (pictureheight / 2) + 'px')
+                .css('left', '+=' + (picturewidth / 2) + 'px');
 
             if(!growboxenable) {
                 $(img).css('margin-top', '+=' + (pictureheight / 2) + 'px');
@@ -1438,7 +1470,7 @@ var picturegrid = (function ($jq) {
             intm = $(editgrid).find('.internalmargin');
 
             // Find the thumbheight
-            thumbheight = intm.thumbheight;
+            thumbheight = intm[0].thumbheight;
 
         }
 
@@ -1505,7 +1537,7 @@ var picturegrid = (function ($jq) {
 
             // Figure this out
             if(!shrinkboxenable) {
-                anip.marginTop = '+=' + (pictureheight / 2) + 'px';
+                anip.marginTop = '+=' + (picturewidth / 2) + 'px';
             }
 
             // Animate
@@ -1563,6 +1595,36 @@ var picturegrid = (function ($jq) {
         // Variable for thumbwidth
         var thumbwidth;
 
+        // Maybe always animate the top and left
+        var tp = findtopoffset(0);
+
+        var lft = findleftoffset(0);
+
+        // always animate the top and left
+        var tp = findtopoffset(0);
+
+        var lft = findleftoffset(0);
+
+        // Callback wrapper
+        function cbwrap() {
+            if(++count == target && callback) {
+                callback();
+            }
+        }
+
+        target++;
+
+        $(editgrid).stop().animate(
+            {
+                top: tp + 'px',
+                left: lft + 'px'
+            },
+            growspeed,
+            groweasing,
+            cbwrap
+        );
+
+
         // Get thumbheight (and intm) ahead of time
         if(growboxenable || growimgenable) {
 
@@ -1570,18 +1632,11 @@ var picturegrid = (function ($jq) {
             intm = $(editgrid).find('.internalmargin');
 
             // Latch the thumbheight
-            thumbheight = intm.thumbheight;
+            thumbheight = intm[0].thumbheight;
 
             // Latch the thumbwidth
-            thumbwidth = intm.thumbwidth;
+            thumbwidth = intm[0].thumbwidth;
 
-        }
-
-        // Callback wrapper
-        function cbwrap() {
-            if(++count == target && callback) {
-                callback();
-            }
         }
 
         // Display the grow-box effect
@@ -1605,12 +1660,23 @@ var picturegrid = (function ($jq) {
 
             $(box).stop().animate(
                 {
-                    height: thumbheight + 'px',
+                    height: thumbheight + (2 * picborder) + 'px',
                     width: picturewidth + (2 * picborder) + 'px',
-                    marginTop: margintop + 'px',
-                    top: '-=' + (pictureheight / 2) + 'px',
+                    //marginTop: (pictureheight - thumbheight) + 'px',
+                    //top: '-=' + (pictureheight / 2) + 'px',
                 }
             );
+
+            target++;
+
+            var footer = $(editgrid).find('.editgridfooter');
+            $(footer).stop().animate(
+                {
+                    height: footerheight + 'px',
+                    width: picturewidth + (2 * picborder) + 'px'
+                }
+            );
+
         }
 
         // Display grow image effect if enabled 
@@ -1622,13 +1688,12 @@ var picturegrid = (function ($jq) {
             // Find the picture
             var image = $(editgrid).find('img');
 
-
             var anip = {
                 width: thumbwidth + 'px',
                 height: thumbheight + 'px',
-                // These are wrong
                 top: '-=' + (pictureheight / 2) + 'px',
-                left: '-=' + (picturewidth / 2) + 'px' };
+                left: '-=' + (picturewidth / 2) + 'px',
+            };
 
             if(!growboxenable) {
                 anip.marginTop = '-=' + (pictureheight / 2) + 'px';
