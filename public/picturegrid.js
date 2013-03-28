@@ -1677,7 +1677,11 @@ var picturegrid = (function ($jq) {
                 anip,
                 growspeed,
                 groweasing,
-                cbwrap
+                function() {
+                    $(image).css('height', 'auto')
+                        .css('width', 'auto');
+                    cbwrap();
+                }
             );
         }
 
