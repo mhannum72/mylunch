@@ -232,6 +232,9 @@ var picturegrid = (function ($jq) {
     // Enable grow box
     var growboxenable;
 
+    // Show attributes popup on new meal
+    var shownewmealpopup;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -256,7 +259,7 @@ var picturegrid = (function ($jq) {
     }
 
     // Create a new meal via an ajax request & then show it's attributes
-    function newmealpopup() {
+    function handlenewmeal() {
 
         if(modalisshowing()) {
             return false;
@@ -286,7 +289,9 @@ var picturegrid = (function ($jq) {
                         function(gobj) {
                             //showattributes.setgridobj()
                             // Display a popup
-                            showattributes.show(username, response.timestamp, gobj);
+                            if(shownewmealpopup) {
+                                showattributes.show(username, response.timestamp, gobj);
+                            }
                         }
                     );
 
@@ -302,7 +307,9 @@ var picturegrid = (function ($jq) {
                     );
     
                     // Display a popup
-                    showattributes.show(username, response.timestamp);
+                    if(shownewmealpopup) {
+                        showattributes.show(username, response.timestamp); 
+                    }
                 }
             }
         );
@@ -320,7 +327,7 @@ var picturegrid = (function ($jq) {
 
         // Invoke the popup handler if it's clicked
         $(anchor).click(function() {
-            newmealpopup();
+            handlenewmeal();
         });
 
     }
@@ -1119,7 +1126,9 @@ var picturegrid = (function ($jq) {
         else {
 
             // Normalize
-            if(idx < 0) idx = 0;
+            if(idx < 0) {
+                idx = 0;
+            }
 
             // Find the vertical index
             var vidx = Math.floor( idx / mealsperrow );
@@ -1387,36 +1396,25 @@ var picturegrid = (function ($jq) {
             // Set marginTop to 0
             $(intm).css('marginTop', '0px');
 
-            /*
-            // Shrink margin on image
-            var imdv = $(editgrid).find('.imgdiv');
-
-            // Set height & width to 0
-            $(imdv).css('height', '0px')
-                .css('width', '0px');
-             */
-
             // Find the box
             var box = $(editgrid).find('.editgridbg');
 
+            // Find initial top offset
+            var tp = findtopoffset(-1);
+
+            // Add half of a picture height to it
+            tp += (pictureheight / 2);
+
             // Set height, width, top and marginTop
             $(box).css('height', '0px')
-                .css('width', '0px');
-                //.css('margin-top', '0px')
-                //.css('top', '+=' + (pictureheight / 2) + 'px')
+                .css('width', '0px')
+                .css('top', tp + 'px');
 
             // Gotta do the footer also
             var footer = $(editgrid).find('.editgridfooter');
 
             $(footer).css('height', '0px')
                 .css('width', '0px');
-
-//            .css('bottom', '-' + (footerheight + footerspace) + 'px')
-//            .css('left', '-1px')
-//            .css('clear', 'both')
-//            .css('width', picturewidth + (2 * picborder) + 'px')
-//            .css('height', footerheight)
-
 
         }
 
@@ -1426,20 +1424,14 @@ var picturegrid = (function ($jq) {
             // Find the picture
             var img = $(editgrid).find('img');
             
-            /*
-            $(img).css('top', '+=' + (pictureheight / 2) + 'px')
-                .css('left', '+=' + (picturewidth / 2) + 'px')
-                .css('height', '0px')
-                .css('width', '0px');
-                */
-
             $(img).css('height', '0px')
-                .css('width', '0px')
-                .css('top', '+=' + (pictureheight / 2) + 'px')
-                .css('left', '+=' + (picturewidth / 2) + 'px');
+                .css('width', '0px');
 
-            if(!growboxenable) {
-                $(img).css('margin-top', '+=' + (pictureheight / 2) + 'px');
+            if(growboxenable) {
+                $(img).css('marginTop', '+=' + (pictureheight / 2) + 'px');
+            }
+            else {
+                $(img).css('marginTop', '+=' + (pictureheight / 2) + 'px');
             }
         }
 
@@ -1506,9 +1498,9 @@ var picturegrid = (function ($jq) {
             // Animate
             $(box).stop().animate(
                 {
+                    top: '+=' + (pictureheight / 2) + 'px',
                     height: '0px',
                     width: '0px',
-                    top: '+=' + (pictureheight / 2) + 'px',
                     //left: '+=' + (picturewidth / 2) + 'px',
                     marginTop: '0px',
                 }, 
@@ -1602,26 +1594,6 @@ var picturegrid = (function ($jq) {
             }
         }
 
-        /*
-        // always animate the top and left
-        var tp = findtopoffset(0);
-
-        var lft = findleftoffset(0);
-
-        target++;
-
-        $(editgrid).stop().animate(
-            {
-                top: tp + 'px',
-                left: lft + 'px'
-            },
-            growspeed,
-            groweasing,
-            cbwrap
-        );
-        */
-
-
         // Get thumbheight (and intm) ahead of time
         if(growboxenable || growimgenable) {
 
@@ -1655,9 +1627,13 @@ var picturegrid = (function ($jq) {
             // Find the box
             var box = $(editgrid).find('.editgridbg');
 
+            // Deal with chrome
+            var tp = findtopoffset(0);
+
             $(box).stop().animate(
                 {
                     height: thumbheight + (2 * picborder) + 'px',
+                    top: tp + 'px',
                     width: picturewidth + (2 * picborder) + 'px',
                     //marginTop: (pictureheight - thumbheight) + 'px',
                     //top: '-=' + (pictureheight / 2) + 'px',
@@ -1688,12 +1664,13 @@ var picturegrid = (function ($jq) {
             var anip = {
                 width: thumbwidth + 'px',
                 height: thumbheight + 'px',
-                top: '-=' + (pictureheight / 2) + 'px',
-                left: '-=' + (picturewidth / 2) + 'px',
             };
 
-            if(!growboxenable) {
+            if(growboxenable) {
                 anip.marginTop = '-=' + (pictureheight / 2) + 'px';
+            }
+            else {
+               anip.marginTop = '-=' + (pictureheight / 2) + 'px';
             }
 
             $(image).stop().animate(
@@ -2721,6 +2698,9 @@ var picturegrid = (function ($jq) {
 
         // Set growbox enabled
         growboxenable = cfg.hp("growboxenable") ? cfg.growboxenable : true;
+
+        // 
+        shownewmealpopup = cfg.hp("shownewmealpopup") ? cfg.shownewmealpopup : true;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";

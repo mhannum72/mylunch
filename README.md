@@ -5,26 +5,9 @@ mylunch
 todo
 ====
 
-* Maybe add a 'disable animations' switch which will set the shrinkspeed,
-  growspeed, shiftspeed, etc. to 0.
-
-* XXX Make the last picture the new 'nextpage' picture XXX
-
-* If you keep deleting stuff, you can make it so that there's something
-  behind the thing being deleted.  You gotta fix this.
-
-* Also create a shift-mode for adding a meal if you happen to be looking at
-  the first page.
-
-* Each of these can be placed absolutely within the grid, so that changing the 
-  data-structures don't affect their position.  This might be the way to go: 
-  it's probably easy to calculate an absolute-ish position for things.
-
-* How do you do that?
-
-* Akshat pointed out that what's happening in the background when you delete
-  a meal isn't all too clear.  It might be better to bite the buttet, and
-  animate the meal shifting.
+* Maybe add a 'publish' button that will allow meals to be viewable by 
+  everyone.  I can have a 'most viewed meals' on the first page, as well as
+  as 'most recently published'.
 
 * I had to stop myself from thinking about how to implement menus last night
   so that I could actually go to sleep..  I will create a menu-class, and a 
