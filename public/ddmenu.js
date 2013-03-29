@@ -67,7 +67,7 @@ var ddmenu = (function ($jq) {
         }
     }
 
-    function additem(menter, mleave) {
+    function additem(payload, menter, mleave) {
 
         // This should be a ul
         var ul = $(this);
@@ -93,10 +93,15 @@ var ddmenu = (function ($jq) {
 
         // Append element
         li.appendTo(ul);
+
+        // Append payload to the li
+        if(payload) {
+            $(payload).appendTo(li);
+        }
     }
 
     // This is going to return a 'ul' with a few functions attached to it
-    function makemenu() {
+    function makemenu(titlepayload) {
 
         // Create the ul container
         var menu = makeul();
@@ -112,6 +117,9 @@ var ddmenu = (function ($jq) {
 
         // Not sure if this will work with the 'this' keyword
         menu.additem = additem;
+
+        // Add a title
+        menu.additem(titlepayload, null, null);
 
         // Return this menu
         return menu;

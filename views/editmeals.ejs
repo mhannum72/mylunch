@@ -12,6 +12,7 @@
     </head>
     <body>
         <center>
+            <div class='menubar' id='menubar'></div>
             <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'></div> 
             <div class='gridNavDiv' id='gridNavDiv'></div>
             <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
@@ -24,6 +25,7 @@
     <script src="/showattributes.js"></script>
     <script src="/gridnav.js"></script>
     <script src="/picturegrid.js"></script>
+    <script src="/ddmenu.js"></script>
     <script src="/carousel.js"></script>
     <script type="text/javascript">
 
@@ -151,10 +153,19 @@ $(document).ready(function() {
     if(undefined != gridnav)
         gridnav.displaynav();
 
+    // Create some text
+    var testspan = $(document.createElement('span'))
+        .html('Test Title');
+    
+    // Display a simple menu bar
+    var testmenu = ddmenu.makemenu(testspan);
+
     // Display the picture grid
     if(undefined != picturegrid)
         picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
 
+
+    // Create a menu
 
     /* Not yet - I have grand plans here.  Eventually I might allow
      * the user to enter in the restaurant for a given meal.  This would
@@ -194,6 +205,7 @@ showattributes.init(
         picturecarousel.create,
         { 
             fadeheightelement   : $('#enddiv')[0],
+            // TODO- have showattributes create hiddenElements
             hiddenframe         : $('#hiddenElements')[0],
         }
 );
@@ -234,8 +246,7 @@ picturegrid.init(
 );
 
 // Simple picture icon class
-function iconinfo(name, width, height, attr) {
-    this.name = name;
+function iconinfo(name, width, height, attr) { this.name = name;
     this.width = width;
     this.height = height;
     this.position = attr && attr.hasOwnProperty("position") ? attr.position : null;
