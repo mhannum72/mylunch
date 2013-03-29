@@ -45,6 +45,8 @@ var ddmenu = (function ($jq) {
 
         // Create the ul container
         var ul = $(dc('ul'))
+            .css('list-style', 'none')
+            .css('float', 'left')
             .css('position', 'relative');
 
         return ul[0];
@@ -54,6 +56,7 @@ var ddmenu = (function ($jq) {
 
         // Create the li 
         var li = $(dc('li'))
+            .css('display', 'none')
             .css('float', 'left');
 
         // Set mouseenter function
@@ -65,6 +68,8 @@ var ddmenu = (function ($jq) {
         if(mleave) {
             li.mouseleave(function() { mleave(); });
         }
+
+        return li;
     }
 
     function additem(payload, menter, mleave) {
@@ -98,6 +103,9 @@ var ddmenu = (function ($jq) {
         if(payload) {
             $(payload).appendTo(li);
         }
+
+        // Return the li
+        return li;
     }
 
     // This is going to return a 'ul' with a few functions attached to it
@@ -105,6 +113,9 @@ var ddmenu = (function ($jq) {
 
         // Create the ul container
         var menu = makeul();
+
+        // Variable for li
+        var li;
 
         // Set the last li to null
         menu.lastli = null;
@@ -119,7 +130,10 @@ var ddmenu = (function ($jq) {
         menu.additem = additem;
 
         // Add a title
-        menu.additem(titlepayload, null, null);
+        li = menu.additem(titlepayload, null, null);
+
+        // Display it
+        li.css('display', 'inline');
 
         // Return this menu
         return menu;

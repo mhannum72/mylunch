@@ -160,12 +160,12 @@ $(document).ready(function() {
     // Display a simple menu bar
     var testmenu = ddmenu.makemenu(testspan);
 
+    // Append this to the menu bar
+    $(testmenu).appendTo( $('#menubar') );
+
     // Display the picture grid
     if(undefined != picturegrid)
         picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
-
-
-    // Create a menu
 
     /* Not yet - I have grand plans here.  Eventually I might allow
      * the user to enter in the restaurant for a given meal.  This would
