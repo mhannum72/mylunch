@@ -1,5 +1,61 @@
 body {
-  background: #779;
+
+/* Fade from E0DED7 to 777799 */
+/*
+background-image: -ms-linear-gradient(bottom, #E0DED7 0%, #777799 100%);
+background-image: -moz-linear-gradient(bottom, #E0DED7 0%, #777799 100%);
+background-image: -o-linear-gradient(bottom, #E0DED7 0%, #777799 100%);
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #E0DED7), color-stop(1, #777799));
+background-image: -webkit-linear-gradient(bottom, #E0DED7 0%, #777799 100%);
+background-image: linear-gradient(to top, #E0DED7 0%, #777799 100%);
+background-color: #E0DED7; 
+*/
+
+/* Fade from FFFFFF to 777799 */
+/*
+background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #777799 100%);
+background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #777799 100%);
+background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #777799 100%);
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #777799));
+background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #777799 100%);
+background-image: linear-gradient(to top, #FFFFFF 0%, #777799 100%);
+background-color: #FFFFFF; 
+*/
+
+/* Fade from F0F0F0 to 777799 */
+    /*
+background-image: -ms-linear-gradient(bottom, #F0F0F0 0%, #777799 100%);
+background-image: -moz-linear-gradient(bottom, #F0F0F0 0%, #777799 100%);
+background-image: -o-linear-gradient(bottom, #F0F0F0 0%, #777799 100%);
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #F0F0F0), color-stop(1, #777799));
+background-image: -webkit-linear-gradient(bottom, #F0F0F0 0%, #777799 100%);
+background-image: linear-gradient(to top, #F0F0F0 0%, #777799 100%);
+background-color: #F0F0F0; 
+*/
+
+/* Fade from F0F0F0 to 8888AA */
+background-image: -ms-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
+background-image: -moz-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
+background-image: -o-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #F0F0F0), color-stop(1, #8888AA));
+background-image: -webkit-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
+background-image: linear-gradient(to top, #F0F0F0 0%, #8888AA 100%);
+background-color: #F0F0F0; 
+
+
+/* Flat background 777799 */
+/*background: #777799; */
+
+/* Flat background 8888AA */
+/*background: #8888AA; */
+
+background-attachment: fixed;
+background-size: auto 800px;
+background-repeat: repeat-x;
+
+
+
+ 
   color: #555;
   font-size: 18px;
   height: 100%;
