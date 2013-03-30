@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Look at the arstechnica website: the background is graded, but it stays 
+  in place as you scroll down.  This might be a nice affect.
+
 * Maybe add a 'publish' button that will allow meals to be viewable by 
   everyone.  I can have a 'most viewed meals' on the first page, as well as
   as 'most recently published'.
