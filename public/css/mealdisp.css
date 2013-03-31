@@ -34,6 +34,7 @@ background-color: #F0F0F0;
 */
 
 /* Fade from F0F0F0 to 8888AA */
+    /*
 background-image: -ms-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
 background-image: -moz-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
 background-image: -o-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
@@ -41,13 +42,25 @@ background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, 
 background-image: -webkit-linear-gradient(bottom, #F0F0F0 0%, #8888AA 100%);
 background-image: linear-gradient(to top, #F0F0F0 0%, #8888AA 100%);
 background-color: #F0F0F0; 
+*/
+
+
+/* Fade from AAAACC to 666688 */
+background-image: -ms-linear-gradient(bottom, #AAAACC 0%, #666688 100%);
+background-image: -moz-linear-gradient(bottom, #AAAACC 0%, #666688 100%);
+background-image: -o-linear-gradient(bottom, #AAAACC 0%, #666688 100%);
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #AAAACC), color-stop(1, #666688));
+background-image: -webkit-linear-gradient(bottom, #AAAACC 0%, #666688 100%);
+background-image: linear-gradient(to top, #AAAACC 0%, #666688 100%);
+background-color: #AAAACC; 
+
 
 
 /* Flat background 777799 */
 /*background: #777799; */
 
 /* Flat background 8888AA */
-/*background: #8888AA; */
+/* background: #8888AA; */
 
 background-attachment: fixed;
 background-size: auto 800px;

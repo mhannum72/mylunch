@@ -5,6 +5,12 @@ mylunch
 todo
 ====
 
+* Yes .. will do ddmenu - I will make this a wrapper for the css stuff.
+
+* Okay - I think I'm back to doing ddmenu, but still considering other
+  options.  The advantage of ddmenu is that people would be less able to
+  hack this site- which is a nice thing.
+
 * Look at the arstechnica website: the background is graded, but it stays 
   in place as you scroll down.  This might be a nice affect.
 
