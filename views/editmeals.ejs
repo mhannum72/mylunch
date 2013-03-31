@@ -25,7 +25,7 @@
     <script src="/showattributes.js"></script>
     <script src="/gridnav.js"></script>
     <script src="/picturegrid.js"></script>
-    <script src="/ddmenu.js"></script>
+    <!-- script src="/ddmenu.js"></script -->
     <script src="/carousel.js"></script>
     <script type="text/javascript">
 
@@ -153,6 +153,7 @@ $(document).ready(function() {
     if(undefined != gridnav)
         gridnav.displaynav();
 
+    /*
     // Create some text
     var testspan = $(document.createElement('span'))
         .html('Test Title');
@@ -162,6 +163,11 @@ $(document).ready(function() {
 
     // Append this to the menu bar
     $(testmenu).appendTo( $('#menubar') );
+    */
+
+    // Display the header bar
+    if(undefined != headerbar)
+        headerbar.displayheader();
 
     // Display the picture grid
     if(undefined != picturegrid)
@@ -228,7 +234,7 @@ picturegrid.init(
             picturecounttrace   : true,
             animatenextprev     : true,
             mealsperrow         : 3,
-            rowsperpage         : 2,
+            rowsperpage         : 1,
             deletebehavior      : "shiftmeals",
             shrinkimgenable     : true,
             shrinkboxenable     : true,

@@ -5,8 +5,12 @@ mylunch
 todo
 ====
 
-* Maybe there's just one page: if you are logged in, you will be working
-  on the 'editmeals' page.
+* Don't focus on the dropdown menus - that's too small.  Focus on the top 
+  part- I'm not sure what it should look like - maybe the same shape as 
+  the gridnav .. possibly have the mylunch logo peering out above.
+
+* Maybe there's just one page: if you are logged in, you will be working on
+  the 'editmeals' page.
 
 * Yes .. will do ddmenu - I will make this a wrapper for the css stuff.
 
