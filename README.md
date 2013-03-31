@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Maybe there's just one page: if you are logged in, you will be working
+  on the 'editmeals' page.
+
 * Yes .. will do ddmenu - I will make this a wrapper for the css stuff.
 
 * Okay - I think I'm back to doing ddmenu, but still considering other
