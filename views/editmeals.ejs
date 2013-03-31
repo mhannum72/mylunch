@@ -12,7 +12,7 @@
     </head>
     <body>
         <center>
-            <div class='menubar' id='menubar'></div>
+            <div class='headerbardiv' id='headerbardiv'></div>
             <div class='picturegridDiv' id='picturegridDiv' name='picturegridDiv'></div> 
             <div class='gridNavDiv' id='gridNavDiv'></div>
             <div id="hiddenElements" class="hiddenElements" name="hiddenElements"></div>
@@ -25,6 +25,7 @@
     <script src="/showattributes.js"></script>
     <script src="/gridnav.js"></script>
     <script src="/picturegrid.js"></script>
+    <script src="/headerbar.js"></script>
     <!-- script src="/ddmenu.js"></script -->
     <script src="/carousel.js"></script>
     <script type="text/javascript">
@@ -286,6 +287,16 @@ gridnav.init(
             //prevpageicon        : new iconinfo("images/prevpage.png", 128, 128)
         }
 );
+
+// Initialize the headerbar object
+headerbar.init(
+        document.getElementById('headerbardiv'),
+        "<%= user.username %>",
+        {
+            headerbarwidth      : picturegrid.containerwidth(),
+            modalisup           : showattributes.modalisshowing,
+        }
+        );
 
 // Another way to do this is to have a showattributes function that 
 // takes a grid, and to have it use that grid directly.

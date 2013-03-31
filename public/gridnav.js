@@ -715,9 +715,6 @@ var gridnav = (function ($jq) {
             return false;
         }
 
-        // We'll be displaying soon
-        isdisplayed = true;
-
         // Create the container
         makecontainer();
 
@@ -787,6 +784,9 @@ var gridnav = (function ($jq) {
             nextli.appendTo(ulist);
 
         }
+
+        // We're displaying now
+        isdisplayed = true;
     }
 
     // Initialize the gridnav object
