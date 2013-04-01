@@ -5,6 +5,23 @@ mylunch
 todo
 ====
 
+* There could be an additional menu up top with drop-down items .. i don't know
+  if i like drop-down anymore.
+
+* Imagine that this was really simple: there are 4 headings:
+
+  Home
+  Editmeals
+  About
+
+  Maybe implement this much
+
+* Maybe when the user is editing, the 'edit' icon could be bigger, or
+  have the words 'Edit Meals' written over it.
+
+* I just want to get something out of the door .. keep it simple for now.  
+  Worry about magazine-cover homepages, etc, later.
+
 * TODAY: fix the attributes popup (finally).  Start on the 'share-a-meal'
   functionality.
 
@@ -12,7 +29,7 @@ todo
   or if I created a publicity stunt that would feature me on lots of 
   news stations, etc.
 
-* Let's talk about the home page: this should be like a magazine cover.
+* Let's talk about the home page: this could be like a magazine cover.
   It will feature the meal-of-the-day prominently (possibly as a back
   ground image) and then have other 'interesting' things:
 
