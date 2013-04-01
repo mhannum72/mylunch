@@ -88,6 +88,9 @@ showattributes = (function($jq) {
     // Whether to show the delete link
     var showdelete;
 
+    // Mask fade bottom margin
+    var maskfadebottommargin;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -342,7 +345,7 @@ showattributes = (function($jq) {
         var left = modalwidth / 2;
 
         // Half the width of the mask
-        var halfmaskwidth = maskfadewidth / 2;
+        var halfmaskwidth = windowwidth / 2;
 
         // Location of the left side of the popup
         var popupleft = halfmaskwidth - left;
@@ -382,6 +385,9 @@ showattributes = (function($jq) {
 
         // Get the current document height
         maskfadeheight = $(document).height();
+
+        // Give a little bit of breathing room
+        maskfadeheight += maskfadebottommargin;
 
         // Make sure to add the height of the difference between the current 
         // maximum picture and the actual max picture size.
@@ -1631,12 +1637,13 @@ showattributes = (function($jq) {
         class8.appendTo(popup);
 
         // Display background
-        showmaskfade();
+        //showmaskfade();
        
         // Wait for the first carousel image to load
         elm.loadcarousel(function(alen) {
 
             positionmodal();
+
 
             if(appendpop) {
                 popup.appendTo(appendpop);
@@ -1644,7 +1651,13 @@ showattributes = (function($jq) {
             else {
                 popup.appendTo('body');
             }
+
+
             popup.fadeIn({ queue: true, duration: 500 });
+
+            // Display background
+            showmaskfade();
+
         });
     }
 
@@ -1768,6 +1781,10 @@ showattributes = (function($jq) {
 
         // Set the showdelete
         showdelete = cfg.hp("showdelete") ? cfg.showdelete : true;
+
+        // Bottom margin for maskfade
+        maskfadebottommargin = cfg.hp("maskfadebottommargin") ? 
+            cfg.maskfadebottommargin : 30;
         
         // We are not showing
         isshowing = false;

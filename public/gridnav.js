@@ -149,6 +149,9 @@ var gridnav = (function ($jq) {
     // Callback to see if the modal is up
     var modalisupcb;
 
+    // Bottom margin of the container
+    var containerbottommargin;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -426,6 +429,7 @@ var gridnav = (function ($jq) {
             .css('-webkit-box-shadow', '3px 3px 5px #444')
             .css('-moz-box-shadow', '3px 3px 5px #444')
             .css('-moz-border-radius', '15px')
+            .css('bottom-margin', containerbottommargin + 'px')
             .css('border-radius', '15px')
             .css('border', '1px solid')
             .css('background-color', '#eee')
@@ -857,6 +861,10 @@ var gridnav = (function ($jq) {
 
         // Set to the callback which tells if the modal is up
         modalisupcb = cfg.hp("modalisup") ? cfg.modalisup : null;
+
+        // The bottom margin of this container
+        containerbottommargin = cfg.hp("containerbottommargin") ? 
+            cfg.containerbottommargin : 30;
 
         // Set the menucount
         menucount = (hasnextpage + hasprevpage + hasnewmeal + hasdatenav);

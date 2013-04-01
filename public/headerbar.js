@@ -35,6 +35,9 @@ var headerbar = (function ($jq) {
     // Get the inner width
     var headerbarinnerwidth;
 
+    // Top margin for the container
+    var containertopmargin;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -55,6 +58,7 @@ var headerbar = (function ($jq) {
             .css('-moz-border-radius', '15px')
             .css('border-radius', '15px')
             .css('border', '1px solid')
+            .css('margin-top', containertopmargin + 'px')
             .css('background-color', '#eee')
             .css('position', 'relative');
 
@@ -99,8 +103,12 @@ var headerbar = (function ($jq) {
         // Set to the callback which tells if the modal is up
         modalisupcb = cfg.hp("modalisup") ? cfg.modalisup : null;
 
+        // Top margin of the container
+        containertopmargin = cfg.hp("containertopmargin") ? cfg.containertopmargin : 30;
+
         // Width of the interior header bar
-        headervarinnerwidth = headerbarwidth - (outermarginleft + outermarginright);
+        headerbarinnerwidth = headerbarwidth - (outermarginleft + outermarginright);
+
     }
 
     // Display the header
