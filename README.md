@@ -5,6 +5,77 @@ mylunch
 todo
 ====
 
+* TODAY: fix the attributes popup (finally).  Start on the 'share-a-meal'
+  functionality.
+
+* Imagine I had everything in place, and then I started publicizing this,
+  or if I created a publicity stunt that would feature me on lots of 
+  news stations, etc.
+
+* Let's talk about the home page: this should be like a magazine cover.
+  It will feature the meal-of-the-day prominently (possibly as a back
+  ground image) and then have other 'interesting' things:
+
+  Most active users
+  Top 10 most interesting meals
+  Submit a picture / meal to be considered for the most interesting meal
+  Enter to win a meal at a local restaurant (by featuring that restaurant 
+  on your mealpage)
+  Contact myLunch!
+
+* On the home page: 
+  most active users
+  most interesting pictures
+  slideshows 
+  meal of the day 
+  free-lunch-giveaway 
+  lunch-money-sweepstakes
+  Partners-coupons for people who feature restaurants on their mealpage
+  It should have the 'meal-of-the-day' picture featured
+  share-a-meal: links to city-meals-on-wheels, city-harvest, and other
+  food related charities.  And a big message that says we'll be giving a
+  portion of our profits to these charities, or saying that we are 
+  proud sponsers of these charities.
+  Maybe the sweepstakes can be charity related?
+
+* What are the categories?
+  Home
+  Editmeals
+  Donate
+  About
+  Order
+
+* Create the charity page.
+
+* Possibly I should store the actual image as well as the resized images.
+  I'm not sure about this .. but if the user clicks on the image while
+  its in the slideshow, this could cause a download of the full-sized
+  image.
+
+* Create a 'share-a-meal' functionality within the showattributes popup
+  to allow users to send an email to their friends of a meal slideshow.
+  Sharing doesn' require the person viewing to have an account.
+
+* So the grid, showattributes, and the gridnav modules are logically 
+  married.  So, this bunch can maintain state even though it's not
+  being displayed.  If the user is looking at page 4, there's no reason
+  to rollback to page 1 if they go off the first menu ..
+
+* Make sure to write a 'are you sure you want to delete this meal' popup
+  so that people don't accidentally delete something.
+
+* Maybe define the 'hover' behavior of the new-meal icon to shrink the
+  meal a bit, and write the words, 'New Meal' below.
+
+* I'm thinking that this should be a single website: after the first http 
+  request, everything else should be handed via ajax requests, and the 
+  user experience should feel like you've never changed pages.  So the 
+  top menu can maybe have icons- clicking the 'home' icon will switch out
+  the middle (and possibly bottom) part of the page.
+
+  What this means is that I can animate the 'grid' / 'grid-nav', etc onto
+  the page if someone clicks on the 'edit' icon.
+
 * Don't focus on the dropdown menus - that's too small.  Focus on the top 
   part- I'm not sure what it should look like - maybe the same shape as 
   the gridnav .. possibly have the mylunch logo peering out above.
