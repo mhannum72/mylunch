@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* It looks like inkscape is the svg editor you'll want to use .. 
+
 * There could be an additional menu up top with drop-down items .. i don't know
   if i like drop-down anymore.
 
