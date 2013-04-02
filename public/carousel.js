@@ -5,6 +5,7 @@ var picturecarousel = (function ($jq) {
     var $ = $jq;
 
     function create(username, sourcedir, picinfo, findpicix, keytimestamp, adjustfadecb) {
+
         // Create element wrapper
         var dc = function(a)
         {

@@ -91,6 +91,12 @@ showattributes = (function($jq) {
     // Mask fade bottom margin
     var maskfadebottommargin;
 
+    // Prompt delete meal
+    var promptdeletemeal;
+
+    // Prompt delete picture
+    var promptdeletepic;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -548,6 +554,11 @@ showattributes = (function($jq) {
     
         // Click handler
         deleteAnchor.click(function() {
+
+            if(promptdeletepic) {
+                var answer = confirm("Delete this picture?");
+                if(!answer) return;
+            }
     
             // Remove picture from carousel
             elm.removepicture(function(removed, pinfo) {
@@ -1616,6 +1627,11 @@ showattributes = (function($jq) {
         
             deleteMealAnchor.click(function() {
 
+                if(promptdeletemeal) {
+                    var answer = confirm("Delete meal and all pictures?");
+                    if(!answer) return;
+                }
+
                 destroymodal(false);
 
                 if(griddelete) {
@@ -1786,6 +1802,14 @@ showattributes = (function($jq) {
         maskfadebottommargin = cfg.hp("maskfadebottommargin") ? 
             cfg.maskfadebottommargin : 30;
         
+        // Prompt the user when they delete a meal
+        promptdeletemeal = cfg.hp("promptdeletemeal") ? 
+            cfg.promptdeletemeal : true;
+
+        // Prompt the user when they delete a carousel picture
+        promptdeletepic = cfg.hp("promptdeletepic") ? 
+            cfg.promptdeletepic : true;
+
         // We are not showing
         isshowing = false;
 

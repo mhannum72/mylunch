@@ -15,6 +15,7 @@ todo
   Home
   Editmeals
   About
+  Contact
 
   Maybe implement this much
 
