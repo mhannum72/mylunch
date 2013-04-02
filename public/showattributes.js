@@ -544,6 +544,26 @@ showattributes = (function($jq) {
     
     }
 
+    // function which creates the delete meal dom
+    function createdeletemealprompt(yescb, nocb, dontaskcb) {
+
+        // Containing div
+        var promptdiv = $(dc('div'))
+            .css('display', 'none');
+
+        // Paragraph
+        var questionp = $(dc('p'));
+
+        // Text label
+        var label = $(dc('label'))
+            .html('Delete meal and all pictures?');
+
+        label.appendTo(questionp);
+        questionp.appendTo(promptdiv);
+
+        return promptdiv;
+    }
+
     // function which creates the delete anchor
     function createdeleteanchor(meal) {
 
@@ -1628,8 +1648,8 @@ showattributes = (function($jq) {
             deleteMealAnchor.click(function() {
 
                 if(promptdeletemeal) {
-                    var answer = confirm("Delete meal and all pictures?");
-                    if(!answer) return;
+
+
                 }
 
                 destroymodal(false);
