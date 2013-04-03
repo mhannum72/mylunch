@@ -100,6 +100,15 @@ showattributes = (function($jq) {
     // Use simpleprompts
     var usesimpleprompt;
 
+    // Show the 'dont prompt me' option
+    var showdontprompt;
+
+    // Popup button widths
+    var popupbuttonwidth;
+
+    // Button margins
+    var buttonmargin;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -556,8 +565,8 @@ showattributes = (function($jq) {
 
         // Paragraph
         var questionp = $(dc('p'))
-            .css('border', 'none')
-            .css('padding', '10px');
+            .css('border', 'none');
+            //.css('padding', rmargin + 'px');
 
         // Text label
         var label = $(dc('label'))
@@ -574,18 +583,25 @@ showattributes = (function($jq) {
         // Yes button
         var yesbutton = $(dc('input'))
             .attr('type', 'button')
-            .css('margin-right', '10px')
-            .attr('value', 'Yes');
+            .css('width', popupbuttonwidth + 'px')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
+            .attr('value', 'Confirm');
 
         // No button
         var nobutton = $(dc('input'))
             .attr('type', 'button')
-            .css('margin-right', '10px')
-            .attr('value', 'No');
+            .css('width', popupbuttonwidth + 'px')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
+            .attr('value', 'Cancel');
 
         // Don't prompt button
         var dontprompt = $(dc('input'))
             .attr('type', 'button')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
+            .css('width', popupbuttonwidth + 'px')
             .attr('value', 'Don\'t show this prompt');
 
         // Create yes button if callback was passed
@@ -606,7 +622,10 @@ showattributes = (function($jq) {
         // Append to modal
         yesbutton.appendTo(buttonp);
         nobutton.appendTo(buttonp);
-        dontprompt.appendTo(buttonp);
+
+        // Show this only if it's enabled
+        if(showdontprompt)
+            dontprompt.appendTo(buttonp);
 
         // Build div
         questionp.appendTo(promptdiv);
@@ -618,6 +637,9 @@ showattributes = (function($jq) {
 
     // function which creates the delete meal dom
     function createdeletemealprompt(yescb, nocb, dontpromptcb) {
+
+        // margin changes depending on shown options
+        var rmargin = showdontprompt ? 10 : 20;
 
         // Containing div
         var promptdiv = $(dc('div'))
@@ -643,18 +665,25 @@ showattributes = (function($jq) {
         // Yes button
         var yesbutton = $(dc('input'))
             .attr('type', 'button')
-            .css('margin-right', '10px')
-            .attr('value', 'Yes');
+            .css('width', popupbuttonwidth + 'px')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
+            .attr('value', 'Confirm');
 
         // No button
         var nobutton = $(dc('input'))
             .attr('type', 'button')
-            .css('margin-right', '10px')
-            .attr('value', 'No');
+            .css('width', popupbuttonwidth + 'px')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
+            .attr('value', 'Cancel');
 
         // Don't prompt button
         var dontprompt = $(dc('input'))
             .attr('type', 'button')
+            .css('width', popupbuttonwidth + 'px')
+            .css('margin-right', buttonmargin + 'px')
+            .css('margin-left', buttonmargin + 'px')
             .attr('value', 'Don\'t show this prompt');
 
         // Create yes button if callback was passed
@@ -675,7 +704,11 @@ showattributes = (function($jq) {
         // Append to modal
         yesbutton.appendTo(buttonp);
         nobutton.appendTo(buttonp);
-        dontprompt.appendTo(buttonp);
+
+        // Show this only if its enabled
+        if(showdontprompt) {
+            dontprompt.appendTo(buttonp);
+        }
 
         // Build div
         questionp.appendTo(promptdiv);
@@ -1809,7 +1842,7 @@ showattributes = (function($jq) {
 
                 if(promptdeletemeal) {
                     if(usesimpleprompt) {
-                        var answer = confirm("Delete this meal?");
+                        var answer = confirm("Delete this meal and all pictures?");
                         if(answer) {
                             deleteanddestroy();
                         }
@@ -2012,6 +2045,19 @@ showattributes = (function($jq) {
         // Use simple prompts
         usesimpleprompt = cfg.hp("usesimpleprompt") ? 
             cfg.usesimpleprompt : false;
+
+        // Show the dont prompt option
+        showdontprompt = cfg.hp("showdontprompt") ?
+            cfg.showdontprompt : false;
+
+        // Popup button width
+        popupbuttonwidth = cfg.hp("popupbuttonwidth") ? 
+            cfg.popupbuttonwidth : 100;
+
+        // Button margins
+        buttonmargin = cfg.hp("buttonmargin") ? 
+            cfg.buttonmargin : 20;
+        
 
         // We are not showing
         isshowing = false;
