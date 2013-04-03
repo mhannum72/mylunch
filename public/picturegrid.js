@@ -233,7 +233,7 @@ var picturegrid = (function ($jq) {
     var growboxenable;
 
     // Show attributes popup on new meal
-    var shownewmealpopup;
+    var popuponnewmeal;
 
     // Create element wrapper
     var dc = function(a)
@@ -289,7 +289,7 @@ var picturegrid = (function ($jq) {
                         function(gobj) {
                             //showattributes.setgridobj()
                             // Display a popup
-                            if(shownewmealpopup) {
+                            if(popuponnewmeal) {
                                 showattributes.show(username, response.timestamp, gobj);
                             }
                         }
@@ -307,7 +307,7 @@ var picturegrid = (function ($jq) {
                     );
     
                     // Display a popup
-                    if(shownewmealpopup) {
+                    if(popuponnewmeal) {
                         showattributes.show(username, response.timestamp); 
                     }
                 }
@@ -2704,7 +2704,7 @@ var picturegrid = (function ($jq) {
         growboxenable = cfg.hp("growboxenable") ? cfg.growboxenable : true;
 
         // 
-        shownewmealpopup = cfg.hp("shownewmealpopup") ? cfg.shownewmealpopup : true;
+        popuponnewmeal = cfg.hp("popuponnewmeal") ? cfg.popuponnewmeal : true;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";
