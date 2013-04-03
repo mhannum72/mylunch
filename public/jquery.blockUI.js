@@ -99,7 +99,7 @@
 				color:		'#000',
 				border:		'3px solid #aaa',
 				backgroundColor:'#fff',
-				cursor:		'wait'
+				//cursor:		'wait'
 			},
 
 			// minimal style set used when themes are used
@@ -113,7 +113,7 @@
 			overlayCSS:  {
 				backgroundColor:	'#000',
 				opacity:			0.6,
-				cursor:				'wait'
+				//cursor:				'wait'
 			},
 
 			// style to replace wait cursor before unblocking to correct issue
@@ -146,7 +146,7 @@
 			forceIframe: false,
 
 			// z-index for the blocking overlay
-			baseZ: 1000,
+			baseZ: 9999,
 
 			// set these to true to have the message automatically centered
 			centerX: true, // <-- only effects element blocking (page block controlled via css above)

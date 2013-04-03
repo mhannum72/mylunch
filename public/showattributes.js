@@ -97,6 +97,9 @@ showattributes = (function($jq) {
     // Prompt delete picture
     var promptdeletepic;
 
+    // Use simpleprompts
+    var usesimpleprompt;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -545,22 +548,140 @@ showattributes = (function($jq) {
     }
 
     // function which creates the delete meal dom
-    function createdeletemealprompt(yescb, nocb, dontaskcb) {
+    function createdeletepicprompt(yescb, nocb, dontpromptcb) {
 
         // Containing div
         var promptdiv = $(dc('div'))
             .css('display', 'none');
 
         // Paragraph
-        var questionp = $(dc('p'));
+        var questionp = $(dc('p'))
+            .css('border', 'none')
+            .css('padding', '10px');
+
+        // Text label
+        var label = $(dc('label'))
+            .html('Delete this picture?');
+
+        // Build label paragraph
+        label.appendTo(questionp);
+
+        // Button paragraph
+        var buttonp = $(dc('p'))
+            .css('border', 'none')
+            .css('padding', '0px');
+
+        // Yes button
+        var yesbutton = $(dc('input'))
+            .attr('type', 'button')
+            .css('margin-right', '10px')
+            .attr('value', 'Yes');
+
+        // No button
+        var nobutton = $(dc('input'))
+            .attr('type', 'button')
+            .css('margin-right', '10px')
+            .attr('value', 'No');
+
+        // Don't prompt button
+        var dontprompt = $(dc('input'))
+            .attr('type', 'button')
+            .attr('value', 'Don\'t show this prompt');
+
+        // Create yes button if callback was passed
+        if(yescb) {
+            yesbutton.click(function(){yescb();});
+        }
+
+        // Create no button if callback was passed
+        if(nocb) {
+            nobutton.click(function(){nocb();});
+        }
+
+        // Create dont prompt button if callback was passed
+        if(dontpromptcb) {
+            dontprompt.click(function(){dontpromptcb();});
+        }
+
+        // Append to modal
+        yesbutton.appendTo(buttonp);
+        nobutton.appendTo(buttonp);
+        dontprompt.appendTo(buttonp);
+
+        // Build div
+        questionp.appendTo(promptdiv);
+        buttonp.appendTo(promptdiv);
+
+        // Return completed prompt
+        return promptdiv;
+    }
+
+    // function which creates the delete meal dom
+    function createdeletemealprompt(yescb, nocb, dontpromptcb) {
+
+        // Containing div
+        var promptdiv = $(dc('div'))
+            .css('display', 'none');
+
+        // Paragraph
+        var questionp = $(dc('p'))
+            .css('border', 'none')
+            .css('padding', '10px');
 
         // Text label
         var label = $(dc('label'))
             .html('Delete meal and all pictures?');
 
+        // Build label paragraph
         label.appendTo(questionp);
-        questionp.appendTo(promptdiv);
 
+        // Button paragraph
+        var buttonp = $(dc('p'))
+            .css('border', 'none')
+            .css('padding', '0px');
+
+        // Yes button
+        var yesbutton = $(dc('input'))
+            .attr('type', 'button')
+            .css('margin-right', '10px')
+            .attr('value', 'Yes');
+
+        // No button
+        var nobutton = $(dc('input'))
+            .attr('type', 'button')
+            .css('margin-right', '10px')
+            .attr('value', 'No');
+
+        // Don't prompt button
+        var dontprompt = $(dc('input'))
+            .attr('type', 'button')
+            .attr('value', 'Don\'t show this prompt');
+
+        // Create yes button if callback was passed
+        if(yescb) {
+            yesbutton.click(function(){yescb();});
+        }
+
+        // Create no button if callback was passed
+        if(nocb) {
+            nobutton.click(function(){nocb();});
+        }
+
+        // Create dont prompt button if callback was passed
+        if(dontpromptcb) {
+            dontprompt.click(function(){dontpromptcb();});
+        }
+
+        // Append to modal
+        yesbutton.appendTo(buttonp);
+        nobutton.appendTo(buttonp);
+        dontprompt.appendTo(buttonp);
+
+        // Build div
+        questionp.appendTo(promptdiv);
+        buttonp.appendTo(promptdiv);
+
+        // Return completed prompt
         return promptdiv;
     }
 
@@ -575,62 +696,91 @@ showattributes = (function($jq) {
         // Click handler
         deleteAnchor.click(function() {
 
+
             if(promptdeletepic) {
-                var answer = confirm("Delete this picture?");
-                if(!answer) return;
+                if(usesimpleprompt) {
+                    var answer = confirm("Delete this picture?");
+                    if(answer) removepic();
+                }
+                else {
+                    var dpprompt = createdeletepicprompt(
+                        function() {
+                            removepic();
+                            $.unblockUI();
+                        },
+                        function() {
+                            $.unblockUI();
+                        },
+                        function() {
+                            promptdeletepic = false;
+                            removepic();
+                            $.unblockUI();
+                        }
+                    );
+
+                    $.blockUI({message: dpprompt});
+
+                }
+            }
+            else {
+                removepic();
             }
     
-            // Remove picture from carousel
-            elm.removepicture(function(removed, pinfo) {
-    
-                if(removed) {
-    
-                    // Find index of removed photo
-                    var ii = findpicidx(meal.picInfo, pinfo.timestamp);
-    
-                    // Remove this picture
-                    if(ii >= 0) {
-                        meal.picInfo.splice(ii, 1);
-                    }
-    
-                    var changepic = false;
-    
-                    // Delete from mongo
-                    deletePicAjax(meal, pinfo);
-    
-                    // Was this a key picture
-                    if(pinfo.timestamp == meal.keytimestamp) {
-    
-                        changepic = true;
-                        meal.keytimestamp = 0;
-    
-                    }
-    
-                    // If this was the first picture
-                    if(!meal.keytimestamp && ii == 0) {
-                        changepic = true;
-                    }
-    
-                    // Changing the displaypic
-                    if(changepic) {
-                        var pinfo0;
-    
-                        // Get new key picture
-                        if(meal.picInfo.length > 0) {
-                            pinfo0 = meal.picInfo[0];
+            // Encapsulate in a function
+            function removepic() {
+
+                // Remove picture from carousel
+                elm.removepicture(function(removed, pinfo) {
+        
+                    if(removed) {
+        
+                        // Find index of removed photo
+                        var ii = findpicidx(meal.picInfo, pinfo.timestamp);
+        
+                        // Remove this picture
+                        if(ii >= 0) {
+                            meal.picInfo.splice(ii, 1);
                         }
-    
-                        // Set new display picture
-                        if(setgriddisplay) {
-                            setgriddisplay(meal, pinfo0);
+        
+                        var changepic = false;
+        
+                        // Delete from mongo
+                        deletePicAjax(meal, pinfo);
+        
+                        // Was this a key picture
+                        if(pinfo.timestamp == meal.keytimestamp) {
+        
+                            changepic = true;
+                            meal.keytimestamp = 0;
+        
                         }
+        
+                        // If this was the first picture
+                        if(!meal.keytimestamp && ii == 0) {
+                            changepic = true;
+                        }
+        
+                        // Changing the displaypic
+                        if(changepic) {
+                            var pinfo0;
+        
+                            // Get new key picture
+                            if(meal.picInfo.length > 0) {
+                                pinfo0 = meal.picInfo[0];
+                            }
+        
+                            // Set new display picture
+                            if(setgriddisplay) {
+                                setgriddisplay(meal, pinfo0);
+                            }
+                        }
+        
+                        // Update grid picture count
+                        if(setgridcount)
+                            setgridcount(meal);
                     }
-    
-                    // Update grid picture count
-                    if(setgridcount)
-                        setgridcount(meal);
-                }
-            });
+                });
+            }
         });
 
         return deleteAnchor;
@@ -1647,16 +1797,45 @@ showattributes = (function($jq) {
         
             deleteMealAnchor.click(function() {
 
-                if(promptdeletemeal) {
+                function deleteanddestroy() {
 
+                    destroymodal(false);
 
+                    if(griddelete) {
+
+                        griddelete(meal);
+                    }
                 }
 
-                destroymodal(false);
+                if(promptdeletemeal) {
+                    if(usesimpleprompt) {
+                        var answer = confirm("Delete this meal?");
+                        if(answer) {
+                            deleteanddestroy();
+                        }
+                    }
+                    else {
 
-                if(griddelete) {
+                        var dmprompt = createdeletemealprompt(
+                            function() {
+                                deleteanddestroy();
+                                $.unblockUI();
+                            },
+                            function() {
+                                $.unblockUI();
+                            },
+                            function() {
+                                promptdeletemeal = false;
+                                deleteanddestroy();
+                                $.unblockUI();
+                            }
+                        );
     
-                    griddelete(meal);
+                        $.blockUI({message: dmprompt});
+                    }
+                }
+                else {
+                    deleteanddestroy();
                 }
     
             });
@@ -1829,6 +2008,10 @@ showattributes = (function($jq) {
         // Prompt the user when they delete a carousel picture
         promptdeletepic = cfg.hp("promptdeletepic") ? 
             cfg.promptdeletepic : true;
+
+        // Use simple prompts
+        usesimpleprompt = cfg.hp("usesimpleprompt") ? 
+            cfg.usesimpleprompt : false;
 
         // We are not showing
         isshowing = false;
