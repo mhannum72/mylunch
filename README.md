@@ -5,6 +5,19 @@ mylunch
 todo
 ====
 
+* Maybe give users the option of 'publishing' or 'unpublishing'.  
+  - Published meals will be available for others to view.  People who are 
+    following you will then be able to view it.  You can additionally send out
+    invitations for folks to look at what you ate.
+
+  - A published meal can't be modified or deleted until it is unpublished
+
+  - There will need to be a protocol for users who are viewing meals which
+    then become unpublished.   I'm not sure how to do this gracefully.
+
+* You'll have to place limits on the number of meals and the number of pictures
+  that a user can have.
+
 * It looks like inkscape is the svg editor you'll want to use .. 
 
 * There could be an additional menu up top with drop-down items .. i don't know
