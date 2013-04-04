@@ -41,10 +41,17 @@ var findpicidx = (function(cfg) {
 
     // Linear search function
     function linearsearch(pinfo, timestamp) {
-        for(var ii = 0 ; ii < pinfo.length ; ii++) {
+
+        for(var ii = 0 ; ii < pinfo.length ; ii++)  {
+
             if(pinfo[ii].timestamp == timestamp)
                 return ii;
+
+            if(pinfo[ii].timestamp > timestamp) {
+                return -1;
+            }
         }
+
         return -1;
     }
 
@@ -63,8 +70,8 @@ var findpicidx = (function(cfg) {
         binarysearch    : binarysearch,
         search          : optimalsearch
     };
-}( 
+}(
     // XXX Do different browsers have different cutoffs? XXX
-    { optcutoff : 100 } 
+    { optcutoff : 0 } 
 ));
 

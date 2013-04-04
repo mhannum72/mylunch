@@ -5,6 +5,17 @@ mylunch
 todo
 ====
 
+* Order of operations:
+
+* BUG!  When I change the key photo and then grid to another page and
+  then back, the position of the changed photo meal is incorrect.
+
+* Do the title bar first.  This will lead you into a few other pages.
+
+* An even easier project: the 'no meal' text
+
+* An easier project: captions for photos
+
 * Maybe give users the option of 'publishing' or 'unpublishing'.  
   - Published meals will be available for others to view.  People who are 
     following you will then be able to view it.  You can additionally send out
