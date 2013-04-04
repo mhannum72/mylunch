@@ -38,6 +38,21 @@ var headerbar = (function ($jq) {
     // Top margin for the container
     var containertopmargin;
 
+    // Contains the iconinfo for the home icon
+    var homeicon = null;
+
+    // Contains the iconinfo for editmeals
+    var editmealsicon = null;
+
+    // Contains the iconinfo for user preferences
+    var userprefsicon = null;
+
+    // Contains the iconinfo for about us
+    var abouticon = null;
+
+    // Count of menu items
+    var menucount = 0;
+    
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -105,6 +120,30 @@ var headerbar = (function ($jq) {
 
         // Top margin of the container
         containertopmargin = cfg.hp("containertopmargin") ? cfg.containertopmargin : 30;
+
+        // Get home iconinfo
+        if(cfg.homeicon) {
+            homeicon = cfg.homeicon;
+            menucount++;
+        }
+
+        // Editmeals icon info
+        if(cfg.editmealsicon) {
+            editmealsicon = cfg.editmealsicon;
+            menucount++;
+        }
+
+        // User prefs icon info
+        if(cfg.userprefsicon) {
+            userprefsicon = cfg.userprefsicon;
+            menucount++;
+        }
+
+        // About icon info
+        if(cfg.abouticon) {
+            abouticon = cfg.abouticon;
+            menucount++;
+        }
 
         // Width of the interior header bar
         headerbarinnerwidth = headerbarwidth - (outermarginleft + outermarginright);
