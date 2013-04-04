@@ -210,7 +210,7 @@ var gridnav = (function ($jq) {
     function getnewmealiconimg(iconinfo) {
         if(!newmealicondiv) {
             newmealicondiv = createicondiv(iconinfo);
-            newmealicondiv.attr('title', 'New Meal');
+            newmealicondiv.attr('title', 'Add a Meal');
         }
         return newmealicondiv;
     }
