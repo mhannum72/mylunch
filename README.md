@@ -5,10 +5,12 @@ mylunch
 todo
 ====
 
-* Order of operations:
+* Lunch-meat or Lunch-meet .. there's something there ..
 
-* BUG!  When I change the key photo and then grid to another page and
-  then back, the position of the changed photo meal is incorrect.
+* Maybe add a 'click to edit' message on top of the new meal icon that will 
+  appear after the fade-in.
+
+* Order of operations:
 
 * Do the title bar first.  This will lead you into a few other pages.
 

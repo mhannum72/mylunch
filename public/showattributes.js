@@ -389,7 +389,7 @@ showattributes = (function($jq) {
         maskfade.css(
             {
                 'width':wid + 'px', 
-                'height': maskfadeheight + 'px', 
+                'height': maskfadeheight + maskfadebottommargin + 'px', 
                 'display':'block'
             }
         );
@@ -405,7 +405,7 @@ showattributes = (function($jq) {
         maskfadeheight = $(document).height();
 
         // Give a little bit of breathing room
-        maskfadeheight += maskfadebottommargin;
+        //maskfadeheight += maskfadebottommargin;
 
         // Make sure to add the height of the difference between the current 
         // maximum picture and the actual max picture size.
@@ -419,7 +419,7 @@ showattributes = (function($jq) {
         maskfade.css(
             {
                 'width':wid + 'px', 
-                'height': maskfadeheight + 'px', 
+                'height': maskfadeheight + maskfadebottommargin + 'px', 
                 'opacity':maskfadeopacity, 
                 'display':'block'
             }
@@ -2087,8 +2087,6 @@ showattributes = (function($jq) {
     
         });
     }
-
-
 
     return {
         init                        : init,

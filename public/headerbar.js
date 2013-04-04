@@ -41,6 +41,9 @@ var headerbar = (function ($jq) {
     // Contains the iconinfo for the home icon
     var homeicon = null;
 
+    // Div holding home icon
+    var homeicondiv = null;
+
     // Contains the iconinfo for editmeals
     var editmealsicon = null;
 
@@ -50,6 +53,33 @@ var headerbar = (function ($jq) {
     // Contains the iconinfo for about us
     var abouticon = null;
 
+    // The height of a navdiv
+    var navdivheight;
+
+    // The width of a navdiv
+    var navdivwidth;
+
+    // Top menu margin
+    var menumargintop;
+
+    // Bottom menu margin
+    var menumarginbottom;
+
+    // Right menu margin
+    var menumarginright;
+
+    // Left menu margin
+    var menumarginleft;
+
+    // Grid nav width
+    var gridnavwidth;
+
+    // Inner width
+    var gridnavinnerwidth;
+
+    // Grid nav height
+    var gridnavheight;
+
     // Count of menu items
     var menucount = 0;
     
@@ -57,6 +87,33 @@ var headerbar = (function ($jq) {
     var dc = function(a) {
         return document.createElement(a);
     }
+
+    // Same function as h
+    function navdiv(name, cls) {
+
+        var ndiv = $(dc('div'))
+            .attr('id', name)
+            .attr('class', cls)
+            //.css('background-color', '#fff')
+            .css('width', navdivwidth + 'px')
+            .css('height', navdivheight + 'px')
+            //.css('color', '#bbb')
+            /*
+            .css('box-shadow', '3px 3px 5px #444')
+            .css('-webkit-box-shadow', '3px 3px 5px #444')
+            .css('-moz-box-shadow', '3px 3px 5px #444')
+            */
+            .css('margin-top', menumargintop + 'px')
+            .css('margin-bottom', menumarginbottom + 'px')
+            .css('margin-left', menumarginleft + 'px')
+            .css('margin-right', menumarginright + 'px')
+            .css('float', 'left')
+            .css('text-align', 'center');
+
+        return ndiv;
+    }
+
+
 
     // Make the container
     function makecontainer() {
@@ -92,6 +149,15 @@ var headerbar = (function ($jq) {
         return headerbarcontainer;
 
     }
+
+    function gethomeicondiv() {
+        
+        if(!homeicondiv) {
+            homeicondiv = 
+        }
+    }
+
+
     function init(indiv, uname, cfg) {
 
         // Shorten function name
@@ -120,6 +186,24 @@ var headerbar = (function ($jq) {
 
         // Top margin of the container
         containertopmargin = cfg.hp("containertopmargin") ? cfg.containertopmargin : 30;
+
+        // Top menu margin
+        menumargintop = cfg.hp("menumargintop") ? cfg.menumargintop : 10;
+
+        // Bottom menu margin
+        menumarginbottom = cfg.hp("menumarginbottom") ? cfg.menumarginbottom : 10;
+
+        // Right menu margin
+        menumarginright = cfg.hp("menumarginright") ? cfg.menumarginright : 20;
+
+        // Left menu margin
+        menumarginleft = cfg.hp("menumarginleft") ? cfg.menumarginleft : 20;
+
+        // Width
+        gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
+
+        // Height
+        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 120;
 
         // Get home iconinfo
         if(cfg.homeicon) {

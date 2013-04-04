@@ -353,9 +353,6 @@ var picturecarousel = (function ($jq) {
                     if(this.pinfo.height > elm.maxheight) { 
                         elm.maxheight = this.pinfo.height; 
                         elm.maxheightcnt = 1; 
-                        if(adjustfadecb) {
-                            adjustfadecb();
-                        }
                     }
                     else if(this.pinfo.height == elm.maxheight) { 
                         elm.maxheightcnt++;
@@ -826,6 +823,7 @@ var picturecarousel = (function ($jq) {
                 var $img = $dv.find('img');
                 $img.on('load.rotate', function(e) {
                     $img.off('load.rotate');
+                    if(adjustfadecb) adjustfadecb();
                     rotatetopicture(pinfo.timestamp);
                 });
             }
