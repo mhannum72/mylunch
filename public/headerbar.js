@@ -115,7 +115,7 @@ var headerbar = (function ($jq) {
             .css('margin-top', '0px')
             .css('margin-bottom', '0px')
             .css('display', 'inline-block')
-            .css('height', gridnavheight + 'px')
+            .css('height', headernavheight + 'px')
             .css('width', menuelementwidth + 'px')
             .css('display', 'inline-block');
 
@@ -213,14 +213,69 @@ var headerbar = (function ($jq) {
         return dv;
     }
 
-    function gethomeicondiv(iconinfo) {
+    function gethomeiconimg(iconinfo) {
+    }
+
+    // Create an icon image object
+    function createicondiv(iconinfo) {
+
+        var backgroundstring = 'transparent url(' + iconinfo.name + ') no-repeat';
+
+        if(iconinfo.position) {
+            backgroundstring += ' ' + iconinfo.position;
+        }
+        else {
+            backgroundstring += ' top left';
+        }
+
+        var topmargin = Math.floor((navdivheight - iconinfo.height) / 2);
+
+        var dv = $(dc('div'))
+            .css('width', iconinfo.width + 'px')
+            .css('height', iconinfo.height + 'px')
+            .css('background', 'transparent')
+            .css('text-indent', '-9000px')
+            .css('position', 'absolute')
+            .css('left', iconinfo.loffset + 'px')
+            .css('background', backgroundstring)
+            .css('margin-top', topmargin + 'px')
+            .html('.');
+
+        var leftmargin = Math.floor((navdivwidth - iconinfo.width) / 2);
+
+        // If this isn't floating center it
+        if(!iconinfo.imgfloat) {
+            dv.css('margin-left', leftmargin + 'px');
+        }
+
+        return dv;
+    }
+
+
+    function gethomeicondiv(iconinfo, nameroot, classroot) {
+
+        var div;
         
         if(!homeicondiv) {
-            homeicondiv = createicondiv(iconinfo);
-            if(iconinfo.imgfloat) {
-                homeicondiv.css('float', iconinfo.imgfloat);
+
+            homeicondiv = navdiv('homeicondiv', 'homeicondiv');
+
+            // TODO Create anchor
+            var homeanchor = $(dc('a'))
+                .attr('id', 'homeanchor')
+                .attr('href', 'javascript:void(0)');
+
+            if(homeicon && homeicon.width <= navdivwidth &&
+                    homeicon.height <= navdivheight) {
+                var homei = createicondiv(homeicon);
+                homei.attr('title', 'Home');
+                homei.appendTo(homeanchor);
             }
-            homeicondiv.css('title', 'Home')
+            else {
+                homeicondiv.html("Home");
+            }
+
+            homeanchor.appendTo(homeicondiv);
         }
         return homeicondiv;
     }
@@ -231,7 +286,7 @@ var headerbar = (function ($jq) {
         var homeli = navli('home', 'home');
 
         // Get homeli div
-        var homediv = gethomeicondiv();
+        var homediv = gethomeicondiv(homeicon, 'homeicon', 'homeicon');
 
         // Append it to the homeli
         homediv.appendTo(homeli);
@@ -340,6 +395,51 @@ var headerbar = (function ($jq) {
 
         // Calculate navdiv width
         navdivwidth = menuelementwidth - (menumarginleft + menumarginright);
+
+        // Calculate absolute placement here of the icons:  First icon starts 
+        // at left-offset 0, then increment by (totalwidth / (numicons - 1)) 
+        // for each subsequent icon.
+        //
+        // I think this ratio is correct even for placing the icon within the 
+        // containing div.  That is, the placements should be:
+        //
+        // 0 * (divwidth / (numicons - 1)) 
+        // 1 * (divwidth / (numicons - 1))
+        // 2 * (divwidht / (numicons - 1))
+        // (etc.)
+        //
+        // I'm not religious about these things, and there's no 'const' in 
+        // javascript, so possibly tack this calculation onto the iconinfo 
+        // object right here.
+        //
+        // TODO: calculate gridnav this way as well (the current method is
+        // wrong for anything other than than 3 icons).
+
+        // I think navdivwidth is correct
+        var increment = navdivwidth / (menucount - 1);
+
+        // Initialize counter
+        var counter = 0;
+
+        if(homeicon) {
+            homeicon.loffset = Math.floor( counter * increment );
+            counter++;
+        }
+
+        if(editmealsicon) {
+            editmealsicon.loffset = Math.floor( counter * increment );
+            counter++;
+        }
+
+        if(userprefsicon) {
+            userprefsicon.loffset = Math.floor( counter * increment );
+            counter++;
+        }
+
+        if(abouticon) {
+            abouticon.loffset = Math.floor( counter * increment );
+            counter++;
+        }
     }
 
     // Display the header

@@ -327,8 +327,8 @@ var gridnav = (function ($jq) {
                     newmealicon.height <= navdivheight) {
 
                 // Append 
-                newmealicon = getnewmealiconimg(newmealicon);
-                newmealicon.appendTo(nma);
+                var nm = getnewmealiconimg(newmealicon);
+                nm.appendTo(nma);
 
                 // TODO: define mouseenter behavior
                 /*
@@ -376,7 +376,6 @@ var gridnav = (function ($jq) {
             else {
                 nextpagediv.html('Next Page');
             }
-
         }
         return nextpagediv;
     }
