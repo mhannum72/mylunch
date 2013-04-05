@@ -456,7 +456,7 @@ var gridnav = (function ($jq) {
         return (getprevpagediv())[0];
     }
 
-        // Create a li
+    // Create a li
     function navli(name, cls) {
 
         var nli = $(dc('li'))

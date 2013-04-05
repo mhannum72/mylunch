@@ -2,6 +2,9 @@
 
 var headerbar = (function ($jq) {
 
+    // Cache jQuery
+    var $ = $jq;
+
     // Where this will appear on the page
     var parentdiv;
 
@@ -22,6 +25,9 @@ var headerbar = (function ($jq) {
 
     // Set to true if being displayed
     var isdisplayed = false;
+
+    // Reference to the unordered list
+    var ulist;
 
     // Outer margin left
     var outermarginleft;
@@ -85,10 +91,35 @@ var headerbar = (function ($jq) {
 
     // Width of a single menu element
     var menuelementwidth;
+
+    // Home icon li
+    var homeli;
     
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
+    }
+
+    // Create a li
+    function navli(name, cls) {
+
+        var nli = $(dc('li'))
+            .attr('id', name)
+            .attr('class', cls)
+            .css('float', 'left')
+            .css('padding', '0px')
+            .css('text-align', 'center')
+            .css('position', 'relative')
+            .css('margin-left', '0px')
+            .css('margin-right', '0px')
+            .css('margin-top', '0px')
+            .css('margin-bottom', '0px')
+            .css('display', 'inline-block')
+            .css('height', gridnavheight + 'px')
+            .css('width', menuelementwidth + 'px')
+            .css('display', 'inline-block');
+
+        return nli;
     }
 
     // Same function as headernav's version
@@ -137,8 +168,8 @@ var headerbar = (function ($jq) {
 
         // Make the inner div
         headerbarinner = $(dc('div'))
-            .attr('id', 'navinner')
-            .attr('class', 'navinner')
+            .attr('id', 'headerbarinner')
+            .attr('class', 'headerbarinner')
             .css('margin-left', outermarginleft + 'px')
             .css('margin-right', outermarginright + 'px')
             .css('width', headerbarinnerwidth + 'px')
@@ -148,7 +179,6 @@ var headerbar = (function ($jq) {
         headerbarinner.appendTo(headerbarcontainer);
 
         return headerbarcontainer;
-
     }
 
     function createicondiv(iconinfo) {
@@ -193,6 +223,21 @@ var headerbar = (function ($jq) {
             homeicondiv.css('title', 'Home')
         }
         return homeicondiv;
+    }
+
+    function homeiconli() {
+
+        // Get the prev li
+        var homeli = navli('home', 'home');
+
+        // Get homeli div
+        var homediv = gethomeicondiv();
+
+        // Append it to the homeli
+        homediv.appendTo(homeli);
+
+        // Return it
+        return homeli;
     }
 
     // Display the headerbar
@@ -311,6 +356,33 @@ var headerbar = (function ($jq) {
         // Attach this to the parent div
         if(parentdiv) {
             headerbarcontainer.appendTo(parentdiv);
+        }
+
+        // Create an unordered list
+        ulist = $(dc('ul'))
+            .attr('id', 'headerbarnavid')
+            .attr('class', 'headerbarnavul')
+            .css('position', 'static')
+            .css('clear', 'both')
+            .css('overflow', 'hidden')
+            .css('list-style-type', 'none')
+            .css('padding', '0px')
+            .css('float', 'left')
+            .css('margin', '0px')
+            .css('text-align', 'center')
+            .css('height', headernavheight + 'px')
+            .css('width', headerbarinnerwidth + 'px');
+
+        // Append to the container
+        ulist.appendTo(headerbarinner);
+
+        if(homeicon) {
+
+            // Create icon list element
+            homeli = homeiconli();
+
+            // Append icon to th eul
+            homeli.appendTo(ulist);
         }
 
         // Set to true
