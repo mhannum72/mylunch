@@ -72,23 +72,26 @@ var headerbar = (function ($jq) {
     var menumarginleft;
 
     // Grid nav width
-    var gridnavwidth;
+    var headernavwidth;
 
     // Inner width
-    var gridnavinnerwidth;
+    var headernavinnerwidth;
 
     // Grid nav height
-    var gridnavheight;
+    var headernavheight;
 
     // Count of menu items
     var menucount = 0;
+
+    // Width of a single menu element
+    var menuelementwidth;
     
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
     }
 
-    // Same function as h
+    // Same function as headernav's version
     function navdiv(name, cls) {
 
         var ndiv = $(dc('div'))
@@ -112,8 +115,6 @@ var headerbar = (function ($jq) {
 
         return ndiv;
     }
-
-
 
     // Make the container
     function makecontainer() {
@@ -150,14 +151,68 @@ var headerbar = (function ($jq) {
 
     }
 
-    function gethomeicondiv() {
-        
-        if(!homeicondiv) {
-            homeicondiv = 
+    function createicondiv(iconinfo) {
+
+        var backgroundstring = 'transparent url(' + iconinfo.name + ') no-repeat';
+
+        if(iconinfo.position) {
+            backgroundstring += ' ' + iconinfo.position;
         }
+        else {
+            backgroundstring += ' top left';
+        }
+
+        var topmargin = Math.floor((navdivheight - iconinfo.height) / 2);
+
+        var dv = $(dc('div'))
+            .css('width', iconinfo.width + 'px')
+            .css('height', iconinfo.height + 'px')
+            .css('background', 'transparent')
+            .css('text-indent', '-9000px')
+            .css('background', backgroundstring)
+            .css('margin-top', topmargin + 'px')
+            .html('.');
+
+        var leftmargin = Math.floor((navdivwidth - iconinfo.width) / 2);
+
+        // If this isn't floating center it
+        if(!iconinfo.imgfloat) {
+            dv.css('margin-left', leftmargin + 'px');
+        }
+
+        return dv;
     }
 
+    function gethomeicondiv(iconinfo) {
+        
+        if(!homeicondiv) {
+            homeicondiv = createicondiv(iconinfo);
+            if(iconinfo.imgfloat) {
+                homeicondiv.css('float', iconinfo.imgfloat);
+            }
+            homeicondiv.css('title', 'Home')
+        }
+        return homeicondiv;
+    }
 
+    // Display the headerbar
+    function displayheader()
+    {
+        // Don't redras
+        if(isdisplayed) {
+            return false;
+        }
+
+        // Create the container
+        makecontainer();
+
+        // Set to true
+        isdisplayed = true;
+
+        return true;
+    }
+
+    // Initialize headerbar
     function init(indiv, uname, cfg) {
 
         // Shorten function name
@@ -200,10 +255,10 @@ var headerbar = (function ($jq) {
         menumarginleft = cfg.hp("menumarginleft") ? cfg.menumarginleft : 20;
 
         // Width
-        gridnavwidth = cfg.hp("gridnavwidth") ? cfg.gridnavwidth : 1180;
+        headernavwidth = cfg.hp("headernavwidth") ? cfg.headernavwidth : 1180;
 
         // Height
-        gridnavheight = cfg.hp("gridnavheight") ? cfg.gridnavheight : 120;
+        headernavheight = cfg.hp("headernavheight") ? cfg.headernavheight : 120;
 
         // Get home iconinfo
         if(cfg.homeicon) {
@@ -232,6 +287,14 @@ var headerbar = (function ($jq) {
         // Width of the interior header bar
         headerbarinnerwidth = headerbarwidth - (outermarginleft + outermarginright);
 
+        // Calculate the width of a single menu element
+        menuelementwidth = Math.floor( headerbarinnerwidth / menucount );
+
+        // Calculate navdiv height
+        navdivheight = headernavheight - (menumargintop + menumarginbottom);
+
+        // Calculate navdiv width
+        navdivwidth = menuelementwidth - (menumarginleft + menumarginright);
     }
 
     // Display the header

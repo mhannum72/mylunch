@@ -187,9 +187,6 @@ var gridnav = (function ($jq) {
             dv.css('margin-left', leftmargin + 'px');
         }
 
-            //.css('margin-left', ((navdivwidth - iconinfo.width) / 2) + 'px')
-            //.css('margin', '0 auto')
-
         return dv;
     }
 
@@ -230,9 +227,7 @@ var gridnav = (function ($jq) {
             if(iconinfo.imgfloat) {
                 nextpageicondiv.css('float', iconinfo.imgfloat);
             }
-            //nextpageicondiv.css('float', 'right')
-            //    .attr('title', 'Next Meals');
-            nextpageicondiv.css('title', 'Next Meals')
+            nextpageicondiv.css('title', 'Next Meals');
         }
         return nextpageicondiv;
     }
@@ -873,7 +868,7 @@ var gridnav = (function ($jq) {
         gridinnerwidth = gridnavwidth - (outermarginleft + outermarginright);
 
         // Calculate the width of a single menu element
-        menuelementwidth = Math.floor( (gridinnerwidth) / menucount );
+        menuelementwidth = Math.floor( gridinnerwidth / menucount );
 
         // Calculate navdiv height
         navdivheight = gridnavheight - (menumargintop + menumarginbottom);

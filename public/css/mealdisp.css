@@ -82,8 +82,10 @@ a:focus {
     outline: none;
 }
 
+/*
 :focus, :active { outline: 0; border: 0;}
 ::-moz-focus-inner { border: 0; }
+*/
 
 a {
   text-decoration: none;
