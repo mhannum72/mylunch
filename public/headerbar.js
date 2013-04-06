@@ -47,15 +47,6 @@ var headerbar = (function ($jq) {
     // Contains the iconinfo for the home icon
     var homeicon = null;
 
-    // Div holding home icon
-    var homeicondiv = null;
-
-    // Div holding editmeals icon
-    var editmealsicondiv = null;
-
-    // User preferences icon div
-    var userprefsicondiv = null;
-
     // Contains the iconinfo for editmeals
     var editmealsicon = null;
 
@@ -99,13 +90,13 @@ var headerbar = (function ($jq) {
     var menuelementwidth;
 
     // Home icon li
-    var homeli; 
+    //var homeli; 
 
     // Edit icon li
-    var editli;
+    //var editli;
 
     // User prefs li
-    var userpli;
+    //var userpli;
 
     // Create element wrapper
     var dc = function(a) {
@@ -113,7 +104,7 @@ var headerbar = (function ($jq) {
     }
 
     // Create a li
-    function navli(name, cls) {
+    function navli(id, cls) {
 
         var nli = $(dc('li'))
             .attr('id', name)
@@ -193,42 +184,6 @@ var headerbar = (function ($jq) {
         return headerbarcontainer;
     }
 
-    function createicondiv(iconinfo) {
-
-        var backgroundstring = 'transparent url(' + iconinfo.name + ') no-repeat';
-
-        if(iconinfo.position) {
-            backgroundstring += ' ' + iconinfo.position;
-        }
-        else {
-            backgroundstring += ' top left';
-        }
-
-        var topmargin = Math.floor((navdivheight - iconinfo.height) / 2);
-
-        var dv = $(dc('div'))
-            .css('width', iconinfo.width + 'px')
-            .css('height', iconinfo.height + 'px')
-            .css('background', 'transparent')
-            .css('text-indent', '-9000px')
-            .css('background', backgroundstring)
-            .css('margin-top', topmargin + 'px')
-            .html('.');
-
-        // Uhhh .. the loffset logic needs to go here?
-        var leftmargin = Math.floor((navdivwidth - iconinfo.width) / 2);
-
-        // If this isn't floating center it
-        if(!iconinfo.imgfloat) {
-            dv.css('margin-left', leftmargin + 'px');
-        }
-
-        return dv;
-    }
-
-    function gethomeiconimg(iconinfo) {
-    }
-
     // Create an icon image object
     function createicondiv(iconinfo) {
 
@@ -264,121 +219,47 @@ var headerbar = (function ($jq) {
         return dv;
     }
 
-    function getuserpicondiv(iconinfo) {
-        if(!userprefsicondiv) {
-            userprefsicondiv = navdiv('userprefsicondiv', 'userprefsicondiv');
+    function icondiv(iconinfo, id, cls, title) {
 
-            var userprefsanchor = $(dc('a'))
-                .attr('id', 'userprefsanchor')
-                .attr('href', 'javascript:void(0)');
+        var rdv = navdiv(id + 'div', cls + 'div');
 
-            if(userprefsicon && userprefsicon.width <= navdivwidth &&
-                    userprefsicon.height <= navdivheight) {
-                var userpi = createicondiv(userprefsicon);
-                userpi.attr('title', 'User Preferences');
-                userpi.appendTo(userprefsanchor);
-            }
-            else {
-                userprefsicondiv.html("User Preferences");
-            }
-            userprefsanchor.appendTo(userprefsicondiv);
+        var anchor = $(dc('a'))
+            .attr('id', id + 'anchor')
+            .attr('href', 'javascript:void(0)');
+
+        // Put a reference to this anchor in my iconinfo
+        iconinfo.anchor = anchor;
+
+        if(iconinfo && iconinfo.width <= navdivwidth &&
+                iconinfo.height <= navdivheight) {
+
+            var idv = createicondiv(iconinfo);
+            idv.attr('title', title);
+            idv.appendTo(anchor);
         }
-        return userprefsicondiv;
-    }
-
-    function getediticondiv(iconinfo) {
-
-        if(!editmealsicondiv) {
-
-            editmealsicondiv = navdiv('editmealsicondiv', 'editmealsicondiv');
-
-            var editmealsanchor = $(dc('a'))
-                .attr('id', 'editmealsanchor')
-                .attr('href', 'javascript:void(0)');
-
-            if(editmealsicon && editmealsicon.width <= navdivwidth &&
-                    editmealsicon.height <= navdivheight) {
-                var editi = createicondiv(editmealsicon);
-                editi.attr('title', 'Edit Meals');
-                editi.appendTo(editmealsanchor);
-            }
-            else {
-                editmealsicondiv.html("Edit Meals");
-            }
-            editmealsanchor.appendTo(editmealsicondiv);
+        else {
+            rdv.html(title);
         }
-        return editmealsicondiv;
+
+        anchor.appendTo(rdv);
+
+        return rdv;
     }
 
 
-    function gethomeicondiv(iconinfo) {
+    function iconli(iconinfo, id, cls, title) {
 
-        if(!homeicondiv) {
+        // Get a new li
+        var li = navli(id, cls);
 
-            homeicondiv = navdiv('homeicondiv', 'homeicondiv');
-
-            // TODO Create anchor
-            var homeanchor = $(dc('a'))
-                .attr('id', 'homeanchor')
-                .attr('href', 'javascript:void(0)');
-
-            if(homeicon && homeicon.width <= navdivwidth &&
-                    homeicon.height <= navdivheight) {
-                var homei = createicondiv(homeicon);
-                homei.attr('title', 'Home');
-                homei.appendTo(homeanchor);
-            }
-            else {
-                homeicondiv.html("Home");
-            }
-
-            homeanchor.appendTo(homeicondiv);
-        }
-        return homeicondiv;
-    }
-
-    function homeiconli() {
-
-        // Get the li
-        homeli = navli('home', 'home');
-
-        // Get homeli div
-        var homediv = gethomeicondiv(homeicon, 'homeicon', 'homeicon');
-
-        // Append it to the homeli
-        homediv.appendTo(homeli);
-
-        // Return it
-        return homeli;
-    }
-
-    function editmealsiconli() {
-
-        // Get the li
-        editli = navli('editmeals', 'editmeals');
-
-        // Get edit meals div
-        var editdiv = getediticondiv(editmealsicon, 'editmealsicon', 'editmealsicon');
+        // Get a new div
+        var dv = icondiv(iconinfo, id, cls, title);
 
         // Append to the li
-        editdiv.appendTo(editli);
+        dv.appendTo(li);
 
         // Return it
-        return editli;
-    }
-
-    function userprefsiconli() {
-
-        // Get the li
-        userpli = navli('userprefs', 'userprefs');
-
-        // Get userprefs div
-        var userpdiv = getuserpicondiv(userprefsicon, 'userprefsicon', 'userprefsicon');
-
-        // Append to the li
-        userpdiv.appendTo(userpli);
-
-        return userpli;
+        return li;
     }
 
     // Display the headerbar
@@ -568,7 +449,7 @@ var headerbar = (function ($jq) {
         if(homeicon) {
 
             // Create icon list element
-            homeli = homeiconli();
+            var homeli = iconli(homeicon, 'home', 'home', 'Home');
 
             // Append icon to th eul
             homeli.appendTo(ulist);
@@ -578,7 +459,7 @@ var headerbar = (function ($jq) {
         if(editmealsicon) {
 
             // Create the list element
-            editli = editmealsiconli();
+            var editli = iconli(editmealsicon, 'editmeals', 'editmeals', 'Edit Meals');
 
             // Append to ulist
             editli.appendTo(ulist);
@@ -588,10 +469,20 @@ var headerbar = (function ($jq) {
         if(userprefsicon) {
 
             // Create list element
-            userpli = userprefsiconli();
+            var userpli = iconli(userprefsicon, 'userprefs', 'userprefs', 'User Preferences');
 
             // Append to ulist
             userpli.appendTo(ulist);
+        }
+
+        if(abouticon) {
+
+            // Create list element
+            var aboutpli = iconli(abouticon, 'abouticon', 'abouticon', 'About Us');
+
+
+            // Append to ulist
+            aboutpli.appendTo(ulist);
         }
 
         // Set to true

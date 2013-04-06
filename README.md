@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* The title-bar style looks cluttered .. 
+
 * Lunch-meat or Lunch-meet .. there's something there ..
 
 * Maybe add a 'click to edit' message on top of the new meal icon that will 
