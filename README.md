@@ -16,7 +16,9 @@ todo
 
 * An even easier project: the 'no meal' text
 
-* An easier project: captions for photos
+* An easier project: captions for photos!  This would be hella simple, and
+  hella-fun.  I would just add a caption field to the picinfo structure I 
+  have ..
 
 * Maybe give users the option of 'publishing' or 'unpublishing'.  
   - Published meals will be available for others to view.  People who are 
