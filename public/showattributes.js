@@ -109,6 +109,9 @@ showattributes = (function($jq) {
     // Button margins
     var buttonmargin;
 
+    // Can dismiss
+    var candismiss = true;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -279,6 +282,10 @@ showattributes = (function($jq) {
 
     // Tear down
     function destroymodal(faded) {
+
+        // TODO: maybe popup here?  'You are in the middle of an operation .. are you sure?'
+        if(!candismiss)
+            return;
 
         // Destroy carousel
         elm.destroy();
@@ -528,6 +535,7 @@ showattributes = (function($jq) {
     
                 // Add to the picture-mobile
                 callback(null, pinfo);
+                candismiss = true;
                 return;
             }
             else {
@@ -541,6 +549,7 @@ showattributes = (function($jq) {
         // Invoked when the user selects a file
         fileupload.change(function() {
 
+            candismiss = false;
             uploadform.submit();
             setTimeout(checkuploaded, 500);
 
