@@ -5,7 +5,7 @@ mylunch
 todo
 ====
 
-* The title-bar style looks cluttered .. 
+* The title-bar style looks cluttered .. maybe I chaulk it up to try-1?
 
 * Lunch-meat or Lunch-meet .. there's something there ..
 
