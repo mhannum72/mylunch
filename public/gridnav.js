@@ -152,6 +152,9 @@ var gridnav = (function ($jq) {
     // Bottom margin of the container
     var containerbottommargin;
 
+    // Is inited
+    var inited=false;
+
     // Create element wrapper
     var dc = function(a) {
         return document.createElement(a);
@@ -787,6 +790,12 @@ var gridnav = (function ($jq) {
         isdisplayed = true;
     }
 
+    // Return true if inited
+    function isinited()
+    {
+        return inited;
+    }
+
     // Initialize the gridnav object
     function init(indiv, uname, cfg) {
 
@@ -875,11 +884,15 @@ var gridnav = (function ($jq) {
         // Calculate navdiv width
         navdivwidth = menuelementwidth - (menumarginleft + menumarginright);
 
+        // Inited
+        inited=true;
+
     }
 
     // Exposed functions
     return {
         init                        : init,
+        isinited                    : isinited,
         displaynav                  : displaynav,
         nextprevcallback            : nextprevcallback,
         getnewmealanchor            : getnewmealanchor,

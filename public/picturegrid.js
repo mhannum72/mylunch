@@ -235,6 +235,9 @@ var picturegrid = (function ($jq) {
     // Show attributes popup on new meal
     var popuponnewmeal;
 
+    // Set to true after inited
+    var inited = false;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -2471,6 +2474,12 @@ var picturegrid = (function ($jq) {
 
     }
 
+    // Tell caller whether we're ready
+    function isinited()
+    {
+        return inited;
+    }
+
     // Must be called before anything else
     function init(indiv, uname, pvpg, nxpg, cfg) {
 
@@ -2802,11 +2811,15 @@ var picturegrid = (function ($jq) {
         if(parentdiv) {
             gridoutercontainer.appendTo(parentdiv);
         }
+
+        // inited
+        inited=true;
     }
 
     // Exposed functions
     return {
         init                        : init,
+        isinited                    : isinited,
         displaygrid                 : displaygrid,
         mealcount                   : mealcount,
         updatedisplaypicture        : updatedisplaypicture,

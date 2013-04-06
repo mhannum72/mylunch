@@ -89,14 +89,8 @@ var headerbar = (function ($jq) {
     // Width of a single menu element
     var menuelementwidth;
 
-    // Home icon li
-    //var homeli; 
-
-    // Edit icon li
-    //var editli;
-
-    // User prefs li
-    //var userpli;
+    // Set to true if inited
+    var inited = false;
 
     // Create element wrapper
     var dc = function(a) {
@@ -363,57 +357,22 @@ var headerbar = (function ($jq) {
         // Calculate navdiv width
         navdivwidth = menuelementwidth - (menumarginleft + menumarginright);
 
-        // Calculate absolute placement here of the icons:  First icon starts 
-        // at left-offset 0, then increment by (totalwidth / (numicons - 1)) 
-        // for each subsequent icon.
-        //
-        // I think this ratio is correct even for placing the icon within the 
-        // containing div.  That is, the placements should be:
-        //
-        // 0 * (divwidth / (numicons - 1)) 
-        // 1 * (divwidth / (numicons - 1))
-        // 2 * (divwidht / (numicons - 1))
-        // (etc.)
-        //
-        // I'm not religious about these things, and there's no 'const' in 
-        // javascript, so possibly tack this calculation onto the iconinfo 
-        // object right here.
-        //
-        // TODO: calculate gridnav this way as well (the current method is
-        // wrong for anything other than than 3 icons).
+        // Inited
+        inited = true;
+    }
 
-        // I think navdivwidth is correct
-        /* This is all wrong apparently */
-        /*
-        var increment = navdivwidth / (menucount - 1);
-
-        // Initialize counter
-        var counter = 0;
-
-        if(homeicon) {
-            homeicon.loffset = Math.floor( counter * increment );
-            counter++;
-        }
-
-        if(editmealsicon) {
-            editmealsicon.loffset = Math.floor( counter * increment );
-            counter++;
-        }
-
-        if(userprefsicon) {
-            userprefsicon.loffset = Math.floor( counter * increment );
-            counter++;
-        }
-
-        if(abouticon) {
-            abouticon.loffset = Math.floor( counter * increment );
-            counter++;
-        }
-        */
+    // Whether to display 
+    function isinited()
+    {
+        return inited;
     }
 
     // Display the header
     function displayheader() {
+
+        if(!isinited) {
+            return false;
+        }
 
         // Don't redraw
         if(isdisplayed) {
@@ -492,6 +451,7 @@ var headerbar = (function ($jq) {
 
     return {
         init                        : init,
+        isinited                    : isinited,
         displayheader               : displayheader
     };
 }(jQuery));

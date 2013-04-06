@@ -50,8 +50,6 @@ Date.prototype.asSlashString = function() {
     return (this.getMonth() + 1) + '/' + this.getDate() + '/' + this.getFullYear();
 }
 
-
-
 // TODO - clean this up
 var MEALINFO = (function() {
 
@@ -153,15 +151,15 @@ $(document).ready(function() {
     }
 
     // Display the navigation bar
-    if(undefined != gridnav)
+    if(undefined != gridnav && gridnav.isinited())
         gridnav.displaynav();
 
     // Display the header bar
-    if(undefined != headerbar)
+    if(undefined != headerbar && headerbar.isinited())
         headerbar.displayheader();
 
     // Display the picture grid
-    if(undefined != picturegrid)
+    if(undefined != picturegrid && picturegrid.isinited())
         picturegrid.displaygrid(minfo, null, nextpage, 'forwards');
 
     /* Not yet - I have grand plans here.  Eventually I might allow
@@ -196,15 +194,15 @@ $(document).ready(function() {
     */
 });
 
-// Initialize showattributes object
+// Initialize showattributes object.. possibly should be part of picturegrid?
 showattributes.init(
         findpicidx.search, 
         picturecarousel.create,
         { 
+            // Showattributes could or should create hiddenElements?
             fadeheightelement   : $('#enddiv')[0],
-            // TODO- have showattributes create hiddenElements
             hiddenframe         : $('#hiddenElements')[0],
-            usesimpleprompt     : false,
+            usesimpleprompt     : false,                            // Use modal rather than simple-prompts
             popupbuttonwidth    : 100,
             buttonmargin        : 20
         }
@@ -228,7 +226,7 @@ picturegrid.init(
             picturecounttrace   : true,
             animatenextprev     : true,
             mealsperrow         : 3,
-            rowsperpage         : 1,
+            rowsperpage         : 2,
             deletebehavior      : "shiftmeals",
             shrinkimgenable     : true,
             shrinkboxenable     : true,
@@ -267,7 +265,7 @@ gridnav.init(
             hasdatenav          : false,
             nextpageicon        : new iconinfo("images/rightarrow.png",     63, 100, { position : 'right', imgfloat : 'right' }),
             prevpageicon        : new iconinfo("images/leftarrow.png",      63, 100, { position : 'left', imgfloat : 'left' }),
-            /* I keep wavering between these two */
+            // I keep wavering between these two 
             newmealicon         : new iconinfo("images/addmeal.png",        110, 96),
 //            newmealicon         : new iconinfo("images/hamburger.png",    112, 95),
             datenavicon         : new iconinfo("images/calendar.png",       107, 95)

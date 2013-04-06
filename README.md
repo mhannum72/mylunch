@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* Disable 'modal-cancel' while a picture is being uploaded.
+
+* Wait - the title-bar looks OKAY if I have two rows rather than one..
+
 * The title-bar style looks cluttered .. maybe I chaulk it up to try-1?
 
 * Lunch-meat or Lunch-meet .. there's something there ..
