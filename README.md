@@ -5,7 +5,8 @@ mylunch
 todo
 ====
 
-* Disable 'modal-cancel' while a picture is being uploaded.
+* Would it be cool to have the pictures in the grid to be black-and-white 
+  until you hover over them (possibly)?
 
 * Wait - the title-bar looks OKAY if I have two rows rather than one..
 
