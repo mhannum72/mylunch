@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Maybe I could animate with 2 images on top of each other - one full gray
+  scale, the other color.  I could animate the opacity of each ..
+
 * Would it be cool to have the pictures in the grid to be black-and-white 
   until you hover over them (possibly)?
 

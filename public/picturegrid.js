@@ -235,6 +235,9 @@ var picturegrid = (function ($jq) {
     // Show attributes popup on new meal
     var popuponnewmeal;
 
+    // Show grid pictures in grayscale
+    var grayscalegrid;
+
     // Set to true after inited
     var inited = false;
 
@@ -971,6 +974,59 @@ var picturegrid = (function ($jq) {
         var image = $(dc('img'))
             .attr('class', 'gridimage')
             .attr('src', imgsource);
+
+        if(grayscalegrid) {
+
+            // Modify this css
+            image.css('filter', 'url(filters.svg#grayscale)')
+                .css('filter', 'gray')
+                .css('-webkit-filter', 'grayscale(1)');
+
+            $(this).css('filter', 'none')
+                .css('-webkit-filter', 'grayscale(0)');
+
+            image.mouseenter(function() {
+
+                $(this).css('filter', 'none')
+                    .css('-webkit-filter', 'grayscale(0)');
+
+                /*
+                $(this).stop().animate(
+                    {
+                        filter: 'none'
+                    },
+                    addshiftspeed,
+                    addshifteasing,
+                    function() { }
+                );
+                */
+            });
+
+            image.mouseleave(function() {
+                $(this).css('filter', 'url(filters.svg#grayscale)')
+                    .css('filter', 'gray')
+                    .css('-webkit-filter', 'grayscale(1)');
+                }
+            );
+
+            /*
+            // Lift the filter when the mouse enters
+            image.mouseenter(function() {
+                image.stop().animate(
+                    {
+                        filter: 'none',
+                        webkitfilter: 'grayscale(0)'
+                    },
+                    addshiftspeed,
+                    addshifteasing,
+                    function() {
+                    }
+                );
+            });
+            */
+
+        }
+
 
         // Append to my anchor
         image.appendTo(anchor);
@@ -2712,8 +2768,11 @@ var picturegrid = (function ($jq) {
         // Set growbox enabled
         growboxenable = cfg.hp("growboxenable") ? cfg.growboxenable : true;
 
-        // 
+        // Popup immediately on new-page click
         popuponnewmeal = cfg.hp("popuponnewmeal") ? cfg.popuponnewmeal : true;
+
+        // True if the grid should be shown in grayscale
+        grayscalegrid = cfg.hp("grayscalegrid") ? cfg.grayscalegrid : true;
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";
