@@ -4033,7 +4033,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
 
             if(merror) throw(merror);
 
-            var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + " " + picinfo.thumbheight;
+            var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + 
+                    " " + picinfo.thumbheight + " " + picinfo.thumbwidth;
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.write(successResp);
             res.end();

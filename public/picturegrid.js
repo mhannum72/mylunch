@@ -238,6 +238,9 @@ var picturegrid = (function ($jq) {
     // Show grid pictures in grayscale
     var grayscalegrid;
 
+    // How much opacity in the rest state
+    var grayscalestartopacity;
+
     // Speed that grayscale images fade in
     var grayscalefadeinspeed;
 
@@ -690,12 +693,13 @@ var picturegrid = (function ($jq) {
         }
 
         // Set image source
-        gridpic.attr('src', imgsrc);
+        gridpic.attr('src', imgsrc)
+            .css('left', picborder + ( (picturewidth - thumbwidth) / 2) + 'px')
 
         // Set correct height and margin
         griddiv.css('height', (thumbheight + (2 * picborder)) + 'px')
-            .css('left', picborder + ( (picturewidth - twidth) / 2) + 'px')
             .css('margin-top', (pictureheight - thumbheight) + 'px');
+
 
         // Update keytimestamp in meal object
         if(picinfo) {
@@ -992,8 +996,7 @@ var picturegrid = (function ($jq) {
         if(grayscalegrid) {
 
             // Make the original image opaque
-            image.css('opacity', 0);
-
+            image.css('opacity', 1);
 
             // Create an overlaying img
             overlayimg = $(dc('img'))
@@ -1001,67 +1004,52 @@ var picturegrid = (function ($jq) {
                 .css('left', picborder + ( (picturewidth - twidth) / 2 ) + 'px')
                 .attr('class', 'gridoverlay')
                 .attr('src', imgsource)
-                .css('opacity', '1')
-                .css('z-index', '9999')
+                .css('opacity', grayscalestartopacity)
+                .css('z-index', '2000')
                 .css('filter', 'url(filters.svg#grayscale)')
                 .css('filter', 'gray')
                 .css('-webkit-filter', 'grayscale(1)');
 
             overlayimg.mouseenter(function() {
 
-                image.css('opacity', 1);
-                $(this).stop().animate(
-                    {
-                        opacity: 0
-                    },
-                    grayscalefadeinspeed,
-                    grayscalefadeineasing,
-                    function() { }
-                );
+                if( !modalisshowing() ) {
 
-//                $(this).css('opacity', '0');
+                    image.css('opacity', 1);
 
-                /*
-                $(this).stop().animate(
-                    {
-                        filter: 'none'
-                    },
-                    addshiftspeed,
-                    addshifteasing,
-                    function() { }
-                );
-                */
+                    if(grayscalefadeinspeed <= 0) {
+                        $(this).css('opacity', 0);
+                    }
+                    else {
+
+                        $(this).stop().animate(
+                            {
+                                opacity: 0
+                            },
+                            grayscalefadeinspeed,
+                            grayscalefadeineasing,
+                            function() { }
+                        );
+
+                    }
+                }
             });
 
             overlayimg.mouseleave(function() {
 
-//                $(this).css('opacity', '1');
-                $(this).stop().animate(
-                    {
-                        opacity: 1
-                    },
-                    grayscalefadeoutspeed,
-                    grayscalefadeouteasing,
-                    function() { }
-                );
+                if(grayscalefadeoutspeed <= 0) {
+                    $(this).css('opacity', grayscalestartopacity);
+                }
+                else {
+                    $(this).stop().animate(
+                        {
+                            opacity: grayscalestartopacity
+                        },
+                        grayscalefadeoutspeed,
+                        grayscalefadeouteasing,
+                        function() { }
+                    );
+                }
             });
-
-            /*
-            // Lift the filter when the mouse enters
-            image.mouseenter(function() {
-                image.stop().animate(
-                    {
-                        filter: 'none',
-                        webkitfilter: 'grayscale(0)'
-                    },
-                    addshiftspeed,
-                    addshifteasing,
-                    function() {
-                    }
-                );
-            });
-            */
-
         }
 
 
@@ -1525,6 +1513,7 @@ var picturegrid = (function ($jq) {
             var img = $(editgrid).find('img');
             
             $(img).css('height', '0px')
+                .css('left', picborder + (picturewidth / 2))
                 .css('width', '0px');
 
             if(growboxenable) {
@@ -1624,8 +1613,11 @@ var picturegrid = (function ($jq) {
             var anip = { 
                 width: '0px',
                 height: '0px',
-                top: '+=' + (pictureheight / 2) + 'px',
-                left: '+=' + (picturewidth / 2) + 'px' };
+                top: picborder + (pictureheight / 2) + 'px',
+                left: picborder + (picturewidth / 2) + 'px',
+            };
+                //top: '+=' + (pictureheight / 2) + 'px',
+                //left: '+=' + (picturewidth / 2) + 'px' };
 
             // Figure this out
             if(!shrinkboxenable) {
@@ -1763,6 +1755,7 @@ var picturegrid = (function ($jq) {
 
             var anip = {
                 width: thumbwidth + 'px',
+                left: (picborder + ( picturewidth - thumbwidth ) / 2),
                 height: thumbheight + 'px',
             };
 
@@ -2815,11 +2808,14 @@ var picturegrid = (function ($jq) {
         // True if the grid should be shown in grayscale
         grayscalegrid = cfg.hp("grayscalegrid") ? cfg.grayscalegrid : true;
 
-        // Time for a grayscale image to fade in
-        grayscalefadeinspeed = cfg.hp("grayscalefadeinspeed") ? cfg.grayscalefadeinspeed : 2000;
+        // Set the starting opacity for grayscale affect
+        grayscalestartopacity = cfg.hp("grayscalestartopacity") ? cfg.grayscalestartopacity : 0;
 
         // Time for a grayscale image to fade in
-        grayscalefadeoutspeed = cfg.hp("grayscalefadeoutspeed") ? cfg.grayscalefadeoutspeed : 1000;
+        grayscalefadeinspeed = cfg.hp("grayscalefadeinspeed") ? cfg.grayscalefadeinspeed : 750;
+
+        // Time for a grayscale image to fade in
+        grayscalefadeoutspeed = cfg.hp("grayscalefadeoutspeed") ? cfg.grayscalefadeoutspeed : 500;
 
         // Fadein easing
         grayscalefadeineasing = cfg.hp("grayscalefadeineasing") ? cfg.grayscalefadeineasing : 'grideasingfunc';

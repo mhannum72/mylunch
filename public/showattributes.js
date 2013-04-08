@@ -491,8 +491,8 @@ showattributes = (function($jq) {
             // Grab the text
             var bodytext = $hiddeniframe.contents().find('body').html();
     
-            // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight>"
-            var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+$/;
+            // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight> <thumbwidth>"
+            var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+ [0-9]+$/;
     
             // TODO: put a reasonable hard-timeout here.
             //
@@ -519,12 +519,20 @@ showattributes = (function($jq) {
     
                 // Retrieve picture height
                 var height = parseInt(ar[2], 10);
-    
+
                 // Retrieve thumbnail height
                 var thumbheight = parseInt(ar[3], 10);
     
+                // Retrieve thumb width
+                var thumbwidth = parseInt(ar[4], 10);
+
                 // Create minimal picinfo
-                var pinfo = { 'timestamp' : picts, 'height': height, 'thumbheight': thumbheight };
+                var pinfo = { 
+                    'timestamp'     : picts, 
+                    'height'        : height, 
+                    'thumbheight'   : thumbheight,
+                    'thumbwidth'    : thumbwidth
+                };
     
                 // Debug messages
                 /*
