@@ -238,6 +238,12 @@ var picturegrid = (function ($jq) {
     // Show grid pictures in grayscale
     var grayscalegrid;
 
+    // Speed that grayscale images fade in
+    var grayscalefadeinspeed;
+
+    // Easing for grayscale fadein
+    var grayscaleeasing;
+
     // Set to true after inited
     var inited = false;
 
@@ -663,6 +669,7 @@ var picturegrid = (function ($jq) {
 
         // Init thumb height
         var thumbheight = 0;
+        var thumbwidth = 0;
 
         // New source for key timestamp
         var imgsrc;
@@ -671,12 +678,14 @@ var picturegrid = (function ($jq) {
         if(picinfo) {
 
             thumbheight = picinfo.thumbheight;
+            thumbwidth = picinfo.thumbwidth;
             imgsrc = '/thumbs/' + meal.username + '/' + picinfo.timestamp;
 
         }
         // Show the nomeal picture
         else {
             thumbheight = nomealheight;
+            thumbwidth = nomealwidth;
             imgsrc = '/images/nomeal.png';
         }
 
@@ -685,6 +694,7 @@ var picturegrid = (function ($jq) {
 
         // Set correct height and margin
         griddiv.css('height', (thumbheight + (2 * picborder)) + 'px')
+            .css('left', picborder + ( (picturewidth - twidth) / 2) + 'px')
             .css('margin-top', (pictureheight - thumbheight) + 'px');
 
         // Update keytimestamp in meal object
@@ -919,7 +929,7 @@ var picturegrid = (function ($jq) {
 
         // TODO: return both at same time (so only one array lookup).
         // Latch the thumbwidth
-        editInternal[0].thumbwidth = calculatethumbwidth(meal);
+        var twidth = editInternal[0].thumbwidth = calculatethumbwidth(meal);
 
         // Append to center
         editImageDiv.appendTo(center);
@@ -972,23 +982,44 @@ var picturegrid = (function ($jq) {
     
         // Image tag
         var image = $(dc('img'))
+            .css('position', 'absolute')
+            .css('left', picborder + ( (picturewidth - twidth) / 2 ) + 'px')
             .attr('class', 'gridimage')
             .attr('src', imgsource);
 
+        var overlayimg=null;
+
         if(grayscalegrid) {
 
-            // Modify this css
-            image.css('filter', 'url(filters.svg#grayscale)')
+            // Make the original image opaque
+            image.css('opacity', 0);
+
+
+            // Create an overlaying img
+            overlayimg = $(dc('img'))
+                .css('position', 'absolute')
+                .css('left', picborder + ( (picturewidth - twidth) / 2 ) + 'px')
+                .attr('class', 'gridoverlay')
+                .attr('src', imgsource)
+                .css('opacity', '1')
+                .css('z-index', '9999')
+                .css('filter', 'url(filters.svg#grayscale)')
                 .css('filter', 'gray')
                 .css('-webkit-filter', 'grayscale(1)');
 
-            $(this).css('filter', 'none')
-                .css('-webkit-filter', 'grayscale(0)');
+            overlayimg.mouseenter(function() {
 
-            image.mouseenter(function() {
+                image.css('opacity', 1);
+                $(this).stop().animate(
+                    {
+                        opacity: 0
+                    },
+                    grayscalefadeinspeed,
+                    grayscalefadeineasing,
+                    function() { }
+                );
 
-                $(this).css('filter', 'none')
-                    .css('-webkit-filter', 'grayscale(0)');
+//                $(this).css('opacity', '0');
 
                 /*
                 $(this).stop().animate(
@@ -1002,12 +1033,18 @@ var picturegrid = (function ($jq) {
                 */
             });
 
-            image.mouseleave(function() {
-                $(this).css('filter', 'url(filters.svg#grayscale)')
-                    .css('filter', 'gray')
-                    .css('-webkit-filter', 'grayscale(1)');
-                }
-            );
+            overlayimg.mouseleave(function() {
+
+//                $(this).css('opacity', '1');
+                $(this).stop().animate(
+                    {
+                        opacity: 1
+                    },
+                    grayscalefadeoutspeed,
+                    grayscalefadeouteasing,
+                    function() { }
+                );
+            });
 
             /*
             // Lift the filter when the mouse enters
@@ -1030,6 +1067,10 @@ var picturegrid = (function ($jq) {
 
         // Append to my anchor
         image.appendTo(anchor);
+
+        if(overlayimg) {
+            overlayimg.appendTo(anchor);
+        }
 
         // Return the newly created object 
         return editInternal;
@@ -2773,6 +2814,18 @@ var picturegrid = (function ($jq) {
 
         // True if the grid should be shown in grayscale
         grayscalegrid = cfg.hp("grayscalegrid") ? cfg.grayscalegrid : true;
+
+        // Time for a grayscale image to fade in
+        grayscalefadeinspeed = cfg.hp("grayscalefadeinspeed") ? cfg.grayscalefadeinspeed : 2000;
+
+        // Time for a grayscale image to fade in
+        grayscalefadeoutspeed = cfg.hp("grayscalefadeoutspeed") ? cfg.grayscalefadeoutspeed : 1000;
+
+        // Fadein easing
+        grayscalefadeineasing = cfg.hp("grayscalefadeineasing") ? cfg.grayscalefadeineasing : 'grideasingfunc';
+
+        // Fadeout easing
+        grayscalefadeouteasing = cfg.hp("grayscalefadeouteasing") ? cfg.grayscalefadeouteasing : 'grideasingfunc';
 
         // Default to shiftmeals
         deletebehavior = "shiftmeals";
