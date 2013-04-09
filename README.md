@@ -5,11 +5,29 @@ mylunch
 todo
 ====
 
+* Maybe make a trash-can one of the icons on the top of the screen - users 
+  will be able to restore deleted pictures and meals from the trash can.`
+
+* Okay - I need to change the structure of this: using the email-address
+  to access the user's pictures is wrong .. they'll be unable to change the
+  email address without having to update a TON of stuff.
+
+* The 'correct' way to do this is to create a unique userid .. I don't have
+  to throw away my current code: multiple email addresses might map to the
+  same unique userid.
+
+* Doing this now will save me major headaches later.
+
+* This might require an addition hit to mongo (maybe?).  Or, alternatively,
+  keep the unique userid cached on the server after the first lookup.  
+
 * Work on the 'User Preferences' screen.  This should have very basic things:
 
   Logout
-  Update Email Address
+  Update Email Address (heavy-weight .. )
   Update Password
+  Update Name
+  Update Address
   Buy More Space (Maybe?)
 
 * Wait - the title-bar looks OKAY if I have two rows rather than one..

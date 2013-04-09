@@ -109,9 +109,6 @@ var picturegrid = (function ($jq) {
     // Viewport width leaves a little breathing room at the edges
     var viewportwidth;
 
-    // Some fudge for stripe text
-    var stripefudge;
-
     // Set the anchor click function
     var anchorclickfn;
 
@@ -186,12 +183,6 @@ var picturegrid = (function ($jq) {
 
     // Set to true to animate grid pages
     var animatenextprev;
-
-    // I can either delete a meal in place or redraw the grid
-    var deletebehavior;
-
-    // I can either always redraw the entire grid or shift in the first element
-    var addbehavior;
 
     // A callback that returns true if the modal is up, false otherwise
     var modalisup;
@@ -291,41 +282,22 @@ var picturegrid = (function ($jq) {
                         window.location.replace("/signin");
                     }
                     else {
-                        //console.log("Response error is ", response.message);
                         window.location.replace("/");
                     }
                     return;
                 }
 
-                // If addbehavior is shift redraw
-                if(addbehavior == "shiftmeals") {
-                    drawnewmeals( 
-                        parseInt(response.timestamp,10),
-                        function(gobj) {
-                            //showattributes.setgridobj()
-                            // Display a popup
-                            if(popuponnewmeal) {
-                                showattributes.show(username, response.timestamp, gobj);
-                            }
+                // Draw new mealpage
+                drawnewmeals( 
+                    parseInt(response.timestamp,10),
+                    function(gobj) {
+
+                        // Display a popup
+                        if(popuponnewmeal) {
+                            showattributes.show(username, response.timestamp, gobj);
                         }
-                    );
-
-                }
-
-                // If addbehavior is shift
-                else if (addbehavior == "redrawgrid") {
-
-                    // Create a new grid
-                    drawnextmeals( 
-                        new mealpage(parseInt(response.timestamp,10)),
-                        showattributes.setgridobj
-                    );
-    
-                    // Display a popup
-                    if(popuponnewmeal) {
-                        showattributes.show(username, response.timestamp); 
                     }
-                }
+                );
             }
         );
     }
@@ -442,12 +414,7 @@ var picturegrid = (function ($jq) {
         return 0;
     }
 
-    // Wait load - dumb utility because you can't rely on 'load' firing
-    // Apparently this won't work
-    function loadorloaded(imgtag, callback) {
-    }
-
-    // Test drawnewmeals
+    // Insert a new meal onto the mealpage
     function drawnewmeals(newmealts, showattrcb) {
 
         // Create an empty meal-object for the new meal
@@ -1167,7 +1134,6 @@ var picturegrid = (function ($jq) {
             .attr('class', 'egcontainer')
             .css('float', 'left')
             .css('float', 'bottom')
-            //.css('position', 'relative')
             .css('width', picturewidth + (2 * picborder) + 'px')
             .css('height', (pictureheight + footerheight + picborder) + 'px')
             .css('margin-top', margintop + 'px')
@@ -1178,16 +1144,7 @@ var picturegrid = (function ($jq) {
             .css('display', 'inline-block');
 
         // If the redraw behavior is shiftmeals
-        if(deletebehavior == "shiftmeals") {
-
-            egcontainer.css('position', 'absolute');
-
-        }
-        else {
-
-            egcontainer.css('position', 'relative');
-
-        }
+        egcontainer.css('position', 'absolute');
 
         // Create the grid components
         var editgrid = pdivinner(meal);
@@ -1435,17 +1392,15 @@ var picturegrid = (function ($jq) {
             gridpic.gcount = griddiv.count++;
 
             // Adjust the absolute position
-            if(deletebehavior == "shiftmeals") {
     
-                // Calculate left offset
-                var lft = findleftoffset(gridpic.gcount);
-    
-                // Calculate top offset
-                var tp = findtopoffset(gridpic.gcount);
-    
-                // Set css
-                $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
-            }
+            // Calculate left offset
+            var lft = findleftoffset(gridpic.gcount);
+
+            // Calculate top offset
+            var tp = findtopoffset(gridpic.gcount);
+
+            // Set css
+            $(gridpic).css('top', tp + 'px').css('left', lft + 'px');
 
             // Invoke 'pic-is-loaded' callback
             if(loadcb) {
@@ -1798,7 +1753,7 @@ var picturegrid = (function ($jq) {
 
 
     // Shift the pictures down
-    function dmealshiftmeals(meal, callback) {
+    function deletemealfromgrid(meal, callback) {
 
         var editgrid;
 
@@ -2102,242 +2057,6 @@ var picturegrid = (function ($jq) {
         );
     }
 
-    // Delete a meal from the grid
-    function dmealreplace(meal, callback) {
-
-        var editgrid;
-
-        // Get the gridobj
-        if(!meal.gridobj) meal.gridobj = showattributes.getgridobj();
-
-        // Grab gridobj directly - i think this can only be gridobj
-        editgrid = $(meal.gridobj).parent()[0];
-
-        // Grab a pointer to the first
-        var firstgrid = currentgrid.firstg;
-
-        // Grab a pointer to the last
-        var lastgrid = currentgrid.lastg;
-        
-        // How many pictures to request from the server
-        var reqcount = 1;
-
-        // Set to redraw entire grid
-        var redraw = false;
-
-        // Next-meal request variable
-        var nmealtime = 0;
-
-        // Prev-meal request variable
-        var pmealtime = 0;
-
-        // Last remaining picture on the grid
-        if(firstgrid == lastgrid) {
-
-            // We'll want to redraw the previous page
-            redraw = true;
-
-            // Ask the server for the previous page
-            if(gridprevpage) {
-
-                // Grab prevmeal timestamp
-                pmealtime = gridprevpage.timestamp;
-
-                // Ask for an entire grid
-                reqcount = mealspergrid;
-            }
-        }
-
-        // If there's a next page..
-        else if(gridnextpage) {
-            // ..ask for a single meal
-            nmealtime = gridnextpage.timestamp;
-        }
-
-        // Get pointer to next
-        var nextgrid = editgrid.nextg;
-
-        // Remove meal
-        $(editgrid.editgrid).remove();
-
-        // Walk gridpics, copying each into the last
-        while(nextgrid) {
-
-            // Repoint me to next
-            editgrid.editgrid = nextgrid.editgrid;
-
-            // Jquery wrapper for internal
-            var $igrid = $(nextgrid.editgrid);
-
-            // Detach from nextgrid
-            $igrid.detach();
-
-            // Reattach to currentgrid
-            $igrid.appendTo(editgrid);
-
-            // Set editgrid to nextgrid
-            editgrid = nextgrid;
-
-            // Set nextgrid to nextgrid.next
-            nextgrid = editgrid.nextg;
-        }
-
-        // Zap internals- this may be filled above
-        editgrid.editgrid = null;
-
-        /* 
-         * This request has two flavors.  If prevts is set at all, the
-         * backend assumes that this is the last picture on the page,
-         * and sends the information for the previous page.  If it is
-         * 0, then this is a normal delete.
-         */
-
-        // Ask server to delete the meal
-        $.getJSON('/deletemeal',
-            {
-                username: meal.username,
-                timestamp: meal.timestamp,
-                nextts: nmealtime,
-                prevts: pmealtime,
-                count: reqcount
-            },
-            function(response) {
-                if(response.errStr != undefined && response.errStr.length > 0) {
-                    if(response.errStr == "signin") {
-                        window.location.replace("/signin");
-                    }
-                    else {
-                        //console.log("getJSON response error is ", response.errStr);
-                        window.location.replace("/");
-                    }
-                    return;
-                }
-
-                // Create a new prevpage
-                var prevpage = new mealpage(parseInt(response.prevts,10));
-
-                // Create a new nextpage
-                var nextpage = new mealpage(parseInt(response.nextts,10));
-
-                // Redraw the grid
-                if(redraw) {
-
-                    displaygrid(response.mealinfo, prevpage, nextpage, 'backwards');
-
-                }
-
-                // Normal case
-                else {
-
-                    // Update nextpage with the server response
-                    gridnextpage = nextpage;
-
-                    // Found a new last meal
-                    if(response.mealinfo && response.mealinfo.length >= 1) {
-
-                        // Create a pdiv
-                        var $newpic = $(pdivinner(response.mealinfo[0]));
-
-                        // Switch out internals
-                        lastgrid.editgrid = $newpic[0];
-
-                        // Append
-                        $newpic.appendTo(lastgrid);
-
-                        // Grab the image tag
-                        var image = $newpic.find('.gridimage');
-
-                        // Wait for this to load
-                        image.on('load.deletepic', function() {
-
-                            // Cancel event trigger
-                            image.off('load.deletepic');
-
-                            // Set up next and prev page links
-                            nextprevpagelinks(nextpage, prevpage);
-                        });
-                    }
-
-                    // Delete last grid object
-                    else {
-
-                        // Get a pointer to the previous
-                        var prev = lastgrid.prevg;
-
-                        // Cut out of the linked list
-                        prev.nextg = null;
-
-                        // Update the lastgrid
-                        currentgrid.lastg = prev;
-
-                        // Might have to delete stripe
-                        if(prev.stripe != lastgrid.stripe) {
-
-                            // New last stripe
-                            currentgrid.laststripe = prev.stripe;
-
-                            // Nullify next
-                            currentgrid.laststripe.nextst = null;
-
-                            // Remove the lastgrid stripe
-                            lastgrid.stripe.remove();
-                            
-                        }
-
-                        // Remove the grid
-                        else {
-
-                            // Remove the lastgrid
-                            $(lastgrid).remove();
-
-                            // If there's a spacer, remove it 
-                            if(lastgrid.spacer)
-                                $(lastgrid.spacer).remove();
-
-                        }
-
-                        // Decrement count
-                        currentgrid.count--;
-
-                        // Set next and prev links
-                        nextprevpagelinks(nextpage, gridprevpage);
-
-                    }
-                }
-
-                // Tear down modal
-                if(callback) callback();
-
-            }
-        );  // getJSON
-    }
-
-    function deletemealfromgrid(meal, callback) {
-
-        if(deletebehavior == "replacemeals") {
-
-            dmealreplace(meal, callback);
-
-        }
-        else if(deletebehavior == "redrawgrid") {
-
-            dmealredraw(meal, callback);
-
-        }
-        else if(deletebehavior == "shiftmeals") {
-
-            dmealshiftmeals(meal, callback);
-
-        }
-        else {
-
-            //console.log("Error in deletemealfromgrid: behavior not specified");
-            // Fail big
-            // dmealreplace(meal, callback);
-
-        }
-    }
-
     // Fill a picture grid from an array
     function fillfromarray(griddiv, mealinfo, callback) {
 
@@ -2513,7 +2232,7 @@ var picturegrid = (function ($jq) {
                         alldone
                     );
     
-                    // Annimate leaving grid
+                    // Animate leaving grid
                     if(currentgrid) {
                         $cg.stop().animate(
                             { left : direction + gridwidth + 'px'},
@@ -2662,7 +2381,7 @@ var picturegrid = (function ($jq) {
         grideasing = cfg.hp("grideasing") ? cfg.grideasing : 'grideasingfunc';
 
         // Speed to change pages
-        gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 1000;
+        gridspeed = cfg.hp("gridspeed") ? cfg.gridspeed : 900;
 
         // Easing function
         deleteeasing = cfg.hp("deleteeasing") ? cfg.deleteeasing : 'grideasingfunc';
@@ -2822,35 +2541,6 @@ var picturegrid = (function ($jq) {
 
         // Fadeout easing
         grayscalefadeouteasing = cfg.hp("grayscalefadeouteasing") ? cfg.grayscalefadeouteasing : 'grideasingfunc';
-
-        // Default to shiftmeals
-        deletebehavior = "shiftmeals";
-
-        // Set the delete meal behavior
-        if(cfg.hp("deletebehavior")) {
-
-            // I can either delete in place or redraw the grid
-            if(cfg.deletebehavior == "shiftmeals")
-                deletebehavior = "shiftmeals";
-
-            if(cfg.deletebehavior == "redrawgrid")
-                deletebehavior = "redrawgrid";
-
-            if(cfg.deletebehavior == "shiftmeals")
-                deletebehavior = "shiftmeals";
-        }
-
-        // Default to 'redrawgrid' for addbehavior 
-        addbehavior = "redrawgrid";
-
-        if(cfg.hp("addbehavior")) {
-
-            if(cfg.addbehavior == "shiftmeals")
-                addbehavior = "shiftmeals";
-            if(cfg.addbehavior == "redrawgrid")
-                addbehavior = "redrawgrid";
-        }
-        
 
         // Set the easing function in jQuery
         if(!$.easing[grideasing]) {
