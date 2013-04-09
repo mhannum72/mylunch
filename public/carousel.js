@@ -214,14 +214,18 @@ var picturecarousel = (function ($jq) {
         // Show the navigation arrow
         elm.shownav = function(elm) {
             if(elm.nav && elm.prevarrow && elm.nextarrow) {
-                elm.nav.css({'opacity':1.0});
+                elm.nav.css({'opacity':1});
+                elm.prevarrow.css({'opacity':1});
+                elm.nextarrow.css({'opacity':1});
             }
         }
     
         // Hide navigation arrows
         elm.hidenav = function(elm) {
             if(elm.nav && elm.prevarrow && elm.nextarrow) {
-                elm.nav.css({'opacity':0.0});
+                elm.nav.css({'opacity':0});
+                elm.prevarrow.css({'opacity':0});
+                elm.nextarrow.css({'opacity':0});
             }
         }
     
