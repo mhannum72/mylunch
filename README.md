@@ -5,15 +5,14 @@ mylunch
 todo
 ====
 
-* Maybe I could animate with 2 images on top of each other - one full gray
-  scale, the other color.  I could animate the opacity of each ..
+* Work on the 'User Preferences' screen.  This should have very basic things:
 
-* Would it be cool to have the pictures in the grid to be black-and-white 
-  until you hover over them (possibly)?
+  Logout
+  Update Email Address
+  Update Password
+  Buy More Space (Maybe?)
 
 * Wait - the title-bar looks OKAY if I have two rows rather than one..
-
-* The title-bar style looks cluttered .. maybe I chaulk it up to try-1?
 
 * Lunch-meat or Lunch-meet .. there's something there ..
 
