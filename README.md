@@ -8,6 +8,8 @@ todo
 * Maybe make a trash-can one of the icons on the top of the screen - users 
   will be able to restore deleted pictures and meals from the trash can.`
 
+* This will be a 2-3 day project
+
 * Okay - I need to change the structure of this: using the email-address
   to access the user's pictures is wrong .. they'll be unable to change the
   email address without having to update a TON of stuff.
