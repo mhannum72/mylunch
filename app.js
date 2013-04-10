@@ -77,6 +77,18 @@ var notfoundthumb = null;
 // TODO: Find or write a faster image-resizer.
 var org = 'mylunch.org';
 
+// Mongo error for dupkey
+var dupkeystr = 'E11000';
+
+// Return true if this was a dup-key error
+function dupkeyerror(err) {
+    if(err.message.substr(0, 6) == dupkeystr) {
+        return true;
+    }
+    return false;
+}
+
+
 // Mongo handle
 var mongo = require('mongodb'),
     db = new mongo.Db('mylunch', new mongo.Server('localhost', 27017, { auto_reconnect: true }));
@@ -85,18 +97,21 @@ var mongo = require('mongodb'),
 db.open(function(error, client){
     if (error) throw error;
     
-    // Create indexes for users
+    // Create indexes for users.  Use this to store information about the user. 
+    // Usernames can change, but a userid cannot.
     db.collection('users', function(error, collection) {
         collection.ensureIndex({username:1},{unique:true});
+        collection.ensureIndex({userid:1},{unique:true});
     });
 
     // Create indexes for mealInfo
     db.collection('mealInfo', function(error, collection) {
-        collection.ensureIndex({username:1, timestamp:1},{unique:true});
+        // collection.ensureIndex({username:1, userid:1}
+        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
         collection.ensureIndex({timestamp:1, worldViewable: 1, verifiedByAdmin:1, adminAllow:1});
         collection.ensureIndex({restaurantId: 1});
-        collection.ensureIndex({username: 1, deleted: 1, whenDeleted: 1});
-        collection.ensureIndex({username: 1, mealDate:1, timestamp:1},{unique:true});
+        collection.ensureIndex({userid: 1, deleted: 1, whenDeleted: 1});
+        collection.ensureIndex({userid: 1, mealDate:1, timestamp:1},{unique:true});
     });
 
     // Create indexes for mealPics
@@ -150,18 +165,75 @@ getRotatingImagesFromMongo = function(callback) {
     });
 }
 
-// Insert a new user into mongodb
-setNewUserInMongo = function(user, callback) {
-    getCollection('users', function(error, userTable) {
-        if(error) throw (error);
-        if(user.username == undefined) {
-            throw new Error('setNewUserInMongo called with NULL username.');
-        }
-        userTable.insert(user, {safe:true}, function(err, object) {
-            if(err) throw (err);
-            callback(err, object);
-        });
+// Create a new user object & set default attributes.
+function User(username, password, userid) {
+    
+    // TODO create a unique-id: 
+    // timestamp + dupcount + machine-that-generated-it?
+    this.userid = userid;
+    this.username = username;
+    this.password = password;
+    this.createDate = Date.now();
+    this.lastUpdated = this.createDate;
+    this.lastUpdatedBy = "";
+    this.lastLogin = this.createDate;
+    this.firstName = "";
+    this.middleName = "";
+    this.lastName = "";
+    this.suffixName = "";
+    this.addressStreet = "";
+    this.addressCity = "";
+    this.addressState = "";
+    this.addressZip = "";
+    this.addressCountry = "";
+    this.phone = "";
+    this.maxPics = 1000;
+    this.numPics = 0;
+    this.showMealsPerPage = 9;
+    this.defaultWorldViewable = false;
+    this.isAdmin = false;
+    this.lastIp = "";
+    this.lastGeo = 0;
+    this.lastLatitude = 0;
+    this.lastLongitude = 0;
+}
+
+// TODO: A database table which contains machine mappings
+// when there's more than one machine, I can add that here
+// and use dupcount rather than random
+function generateUniqueUserId(username, password, callback) {
+    return Date.now() * 1000 + Math.floor(Math.random() % 1000);
+}
+
+// Allocate a user with a unique userid
+function getUser(username, password, callback) {
+    // When I have a new user, I will invoke 
+    // callback( error, newuser )
+    generateUniqueUserId(username, password, function(err, uniqueid) {
+        if(err) throw(err);
+        var user = new User(username, password, uniqueid);
+        callback(null, user);
     });
+}
+
+// Insert a new user into mongodb
+setNewUserInMongo = function(username, password, callback) {
+    var user = new User(username, password, 0);
+    var uniqueid = generateUniqueUserId(username, password, callback);
+    //getUser(username, password, function(usererr, user) {
+        getCollection('users', function(error, userTable) {
+
+            // var uniqueid = generateUniqueUserId(username, password, callback);
+            if(error) throw (error);
+            if(user.username == undefined) {
+                throw new Error('setNewUserInMongo called with NULL username.');
+            }
+            userTable.insert(user, {safe:true}, function(err, object) {
+                if(err) throw (err);
+                callback(err, object);
+            });
+        });
+    //}
 }
 
 // Set the last login to now.
@@ -1025,6 +1097,31 @@ getRestaurantInfoById = function(restaurantId, callback) {
     });
 }
 
+// Callback with a 'true' if the userid exists, false otherwise
+// I can't call this in a loop, but I can call it recursively ..
+// I can generate completely unique from a single machine .. 
+// I can bake the machine-name into the uniquid
+//
+// Maybe a database could keep track of machines?
+//
+// This has to be synchronous ..
+useridExistsInMongo = function(userid, callback) {
+
+    var projection = { 'userid' : 1 };
+    getCollection('users', function(error, userTable) {
+        if(error) throw (error);
+        userTable.find({userid: userid}, projection).toArray(function( err, results ) {
+            if(err) throw(err);
+            if(results.length > 1 || results.length < 0) {
+                throw new Error(results.length + ' records for unique index on userid ' + userid);
+            }
+
+            var found = (results.length == 1);
+            callback(found);
+        });
+    }
+}
+
 // Retrieve a user from mongodb
 getUserFromMongo = function(username, callback) {
     getCollection('users', function(error, userTable) {
@@ -1641,34 +1738,8 @@ function authenticate_resignin_get(req, res, next, message) {
     });
 }
 
-// Create a new user object & set default attributes.
-function User(username, password) {
-    this.username = username;
-    this.password = password;
-    this.createDate = Date.now();
-    this.lastUpdated = this.createDate;
-    this.lastUpdatedBy = "";
-    this.lastLogin = this.createDate;
-    this.firstName = "";
-    this.middleName = "";
-    this.lastName = "";
-    this.suffixName = "";
-    this.addressStreet = "";
-    this.addressCity = "";
-    this.addressState = "";
-    this.addressZip = "";
-    this.addressCountry = "";
-    this.phone = "";
-    this.maxPics = 1000;
-    this.numPics = 0;
-    this.showMealsPerPage = 9;
-    this.defaultWorldViewable = false;
-    this.isAdmin = false;
-    this.lastIp = "";
-    this.lastGeo = 0;
-    this.lastLatitude = 0;
-    this.lastLongitude = 0;
-}
+var lastts = 0;
+var lastdup = 0;
 
 // What defines a restaurant
 function restaurantInfo(name, username) {
@@ -1927,10 +1998,10 @@ function authenticate_resignin_post(req, res, next) {
         }
 
         // Allocate a full-fledged user object
-        var user = new User(tmpuser.username, tmpuser.password);
+        // var user = new User(tmpuser.username, tmpuser.password);
 
         // Add to the user's table
-        setNewUserInMongo(user, function(err, reply) {
+        setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, reply) {
 
             // Delete the key
             redisClient.del(req.params.id, function(err, reply) {} );
@@ -3384,10 +3455,10 @@ app.get('/authenticate/:id', function(req, res, next) {
             if(key == req.params.id) {
 
                 // Get a new user object
-                var user = new User(tmpuser.username, tmpuser.password);
+                //var user = new User(tmpuser.username, tmpuser.password);
 
                 // Add to mongo user's table
-                setNewUserInMongo(user, function(err, reply) {
+                setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, reply) {
 
                     if (err) throw (err);
 
