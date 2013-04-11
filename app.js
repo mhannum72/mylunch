@@ -313,7 +313,7 @@ updateShowPicsPerPageInMongo = function(username, showMealsPerPage, callback) {
     });
 }
 
-updateTitleInMongo = function(username, timestamp, title, callback) {
+updateTitleInMongo = function(userid, timestamp, title, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {title: title}}, {safe: true}, function(err) {
@@ -609,19 +609,19 @@ updateVerifyMealInfoInMongo = function(mealinfo, callback) {
 
 // Get mealinfo information.  Call this the first time with afterTs set
 // to 0, and always pass in the timestamp of the last record.
-getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
+getMealInfoFromMongoFwd_int = function(userid, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
         var projection = {};
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
 
         // Make sure to sort in the direction of your search to get sane results.
         mealInfo.find(
             // Criteria
-            { $and  :                               [   { username: username },
+            { $and  :                               [   { userid: userid },
                                                         { timestamp: { $gte: ts } },
                                                         { deleted: viewDeleted } ] },
             // Index
@@ -669,7 +669,7 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
             mealInfo.find(
 
                 // Query
-                { $and  :                           [   { username: username },
+                { $and  :                           [   { userid: userid },
                                                         { timestamp: { $lt: ts } },
                                                         { deleted: viewDeleted } ] },
                         
@@ -708,12 +708,12 @@ getMealInfoFromMongoFwd_int = function(username, ts, limit, viewDeleted, wholere
     });
 }
 
-getMealInfoFromMongoFwd = function(username, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, true, callback);
+getMealInfoFromMongoFwd = function(userid, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(userid, ts, limit, viewDeleted, true, callback);
 }
 
-getMealInfoFromMongoFwdMenu = function(username, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoFwd_int(username, ts, limit, viewDeleted, false, callback);
+getMealInfoFromMongoFwdMenu = function(userid, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoFwd_int(userid, ts, limit, viewDeleted, false, callback);
 }
 
 // This is the 'next' case.
@@ -1446,7 +1446,7 @@ app.get('/images/notfoundthumb.png', function(req, res) {
 app.get('/thumbs/:userid/:timestamp', function(req, res) {
 
     // Retrieve the meal thumbnail
-    getMealThumbFromMongo(parseInt(req.params.username)/* userid */, parseInt(req.params.timestamp, 10), function(err, mealthumb) {
+    getMealThumbFromMongo(parseInt(req.params.userid)/* userid */, parseInt(req.params.timestamp, 10), function(err, mealthumb) {
 
         if(err) throw (err);
 
@@ -1464,7 +1464,7 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
         }
 
         // Display the image if we got it
-        if(mealthumb.worldViewable || mealthumb.username == req.session.user.username) {
+        if(mealthumb.worldViewable || mealthumb.userid == req.session.user.userid) {
               res.contentType(mealthumb.imageType);
               res.end(mealthumb.image, 'binary');
         } 
@@ -2395,6 +2395,8 @@ app.post('/updateposition', function(req, res, next) {
 
 app.post('/savereview', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2407,10 +2409,10 @@ app.post('/savereview', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.userid) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched userids in savereview request:');
         console.log('session userid is ' + req.session.user.userid);
-        console.log('request user is ' + req.body.username);
+        console.log('request user is ' + userid);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
@@ -2436,7 +2438,7 @@ app.post('/savereview', function(req, res, next) {
 
     req.session.last_saveinfo = Date.now();
 
-    updateReviewInMongo(parseInt(req.body.userid, 10), parseInt(req.body.timestamp), req.body.review,
+    updateReviewInMongo(userid, parseInt(req.body.timestamp), req.body.review,
             function(err) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 if(err) {
@@ -2735,7 +2737,7 @@ app.post('/savetitle', function(req, res, next) {
         res.end();
         return;
     }
-    if(userid != req.session.user.userid) {
+    if(userid !== req.session.user.userid) {
         console.log('mismatched usernames in savetitle request:');
         console.log('session userid is ' + req.session.user.userid);
         console.log('request userid is ' + req.body.username);
@@ -2922,7 +2924,7 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
 });
 
 // I can delete this i think
-function editpagenextprev(req, res, next, timestamp, isprev) {
+function editpagenextprev(req, res, userid, next, timestamp, isprev) {
     // No real need to pass this back and forth...
     var count = parseInt(req.query.count, 10);
     var ts;
@@ -2940,7 +2942,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
 
     if(isprev == false) {
 
-        getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, 
+        getMealInfoFromMongoRevMenu(userid, ts, count, false, 
                 function(err, mealinfo, nextts, prevts) {
 
             // Add a hex-id to each of my mealinfos
@@ -2950,7 +2952,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
                 console.log('Illogical state in editpagenextprev: next record not found?');
                 // md = dateToMealDate(new Date(), MAXMEAL);
 
-                getMealInfoFromMongoRevMenu(req.session.user.username, ts, count, false, 
+                getMealInfoFromMongoRevMenu(userid, ts, count, false, 
                     function(err, mealinfo, nextts, prevts) {
 
                     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2985,7 +2987,7 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
     }
     else { // isprev == true
 
-        getMealInfoFromMongoFwdMenu(req.session.user.username, ts, count, false, 
+        getMealInfoFromMongoFwdMenu(userid, ts, count, false, 
                 function(err, mealinfo, nextts, prevts) {
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -3004,6 +3006,9 @@ function editpagenextprev(req, res, next, timestamp, isprev) {
 }
 
 function editpagenextprevstart(req, res, next, timestamp, isprev) {
+
+    var userid = parseInt(req.query.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -3018,17 +3023,17 @@ function editpagenextprevstart(req, res, next, timestamp, isprev) {
         return;
     }
 
-    if(req.query.username != req.session.user.username) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in editpagenext request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + username);
+        console.log('session user is ' + req.session.user.userid);
+        console.log('request user is ' + userid);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
         res.end();
         return;
     }
 
-    editpagenextprev(req, res, next, timestamp, isprev);
+    editpagenextprev(req, res, userid, next, timestamp, isprev);
 }
 
 // Do the 'nextpage' & lookup picture logic first.
@@ -3050,6 +3055,8 @@ app.get('/deletemeal', function(req, res, next) {
     }
     */
 
+    var userid = parseInt(req.query.username, 10);
+
     if(req.query.count == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "badrequest"}));
@@ -3064,7 +3071,7 @@ app.get('/deletemeal', function(req, res, next) {
         return;
     }
 
-    if(req.session.user.userid != req.query.username) {
+    if(req.session.user.userid != userid) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "signin"}));
         res.end();
@@ -3086,7 +3093,7 @@ app.get('/deletemeal', function(req, res, next) {
     var timestamp = parseInt(req.query.timestamp, 10);
     var count = parseInt(req.query.count, 10);
 
-    setDeleteFlagInMongo(parseInt(req.query.username), timestamp, function(err, record, updated) {
+    setDeleteFlagInMongo(userid, timestamp, function(err, record, updated) {
 
         // Items in the trash can will be purged to make room for new pictures.  The 
         // dumb way to implement this is to only show the last X deleted things in 
@@ -3105,7 +3112,7 @@ app.get('/deletemeal', function(req, res, next) {
 
             if(prevts > 0) {
                 getMealInfoFromMongoFwdMenu(
-                    req.session.user.username, 
+                    userid,
                     //prevmd,
                     prevts,
                     count, 
@@ -3129,7 +3136,7 @@ app.get('/deletemeal', function(req, res, next) {
 
                 // We're authenticated.. get the nextpage mealinfo.
                 getMealInfoFromMongoRevMenu(
-                        req.session.user.username, 
+                        userid,
                         //nextmd, 
                         nextts,
                         count, 

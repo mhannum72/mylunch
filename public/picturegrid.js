@@ -649,7 +649,7 @@ var picturegrid = (function ($jq) {
 
             thumbheight = picinfo.thumbheight;
             thumbwidth = picinfo.thumbwidth;
-            imgsrc = '/thumbs/' + meal.username + '/' + picinfo.timestamp;
+            imgsrc = '/thumbs/' + meal.userid + '/' + picinfo.timestamp;
 
         }
         // Show the nomeal picture
@@ -912,7 +912,7 @@ var picturegrid = (function ($jq) {
         // Use a callback to set the anchor's target
         if(anchorclickfn) {
             anchor.click(function() {
-                anchorclickfn(meal.username, meal.timestamp, editgrid);
+                anchorclickfn(meal.userid, meal.timestamp, editgrid);
             });
         }
 
@@ -943,12 +943,12 @@ var picturegrid = (function ($jq) {
 
         // Use the key picture
         else if (meal.keytimestamp) {
-            imgsource = '/thumbs/' + meal.username + '/' + meal.keytimestamp;
+            imgsource = '/thumbs/' + meal.userid + '/' + meal.keytimestamp;
         }
 
         // Use the first picture
         else{
-            imgsource = '/thumbs/' + meal.username + '/' + meal.picInfo[0].timestamp;
+            imgsource = '/thumbs/' + meal.userid + '/' + meal.picInfo[0].timestamp;
         }
     
         // Image tag
@@ -1795,7 +1795,7 @@ var picturegrid = (function ($jq) {
         // Ask server to delete the meal
         $.getJSON('/deletemeal',
             {
-                username: meal.username,
+                username: meal.userid,
                 timestamp: meal.timestamp,
                 nextts: nmealtime,
                 prevts: pmealtime,
@@ -1998,7 +1998,7 @@ var picturegrid = (function ($jq) {
         // Ask server to delete the meal
         $.getJSON('/deletemeal',
             {
-                username: meal.username,
+                username: meal.userid,
                 timestamp: meal.timestamp,
                 nextts: nmealtime,
                 prevts: pmealtime,

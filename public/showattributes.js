@@ -120,7 +120,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     timestamp: meal.timestamp,
                     rating: rating
                 }),
@@ -138,7 +138,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     mealts: meal.timestamp,
                     keyts: picInfo.timestamp,
                 }),
@@ -156,7 +156,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     mealts: meal.timestamp,
                     timestamp: picInfo.timestamp,
                 }),
@@ -174,7 +174,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     timestamp: meal.timestamp,
                     meal: newMeal
                 }),
@@ -192,7 +192,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     timestamp: meal.timestamp,
                     review: review
                 }),
@@ -211,7 +211,7 @@ showattributes = (function($jq) {
             contentType: 'application/json',
             data: JSON.stringify(
                 {
-                    username: meal.username,
+                    username: meal.userid,
                     timestamp: meal.timestamp,
                     mealdate: mealdate
                 }),
@@ -878,7 +878,7 @@ showattributes = (function($jq) {
         uploadAnchor.click(function() {
     
             // Popup works from a hidden frame
-            uploadmealpopup(meal.username, meal.timestamp, function(err, pinfo) {
+            uploadmealpopup(meal.userid, meal.timestamp, function(err, pinfo) {
     
                 // Throw any errors
                 if(err) throw(err);
@@ -1250,7 +1250,7 @@ showattributes = (function($jq) {
     // Meal attributes / edit modal
     function showattributesmealinfo(username, meal, restaurant, restaurantId) {
     
-        var username = meal.username;
+        var username = meal.userid;
         var timestamp = meal.timestamp;
     
         // Create the popup div
@@ -1421,7 +1421,7 @@ showattributes = (function($jq) {
                         contentType: 'application/json',
                         data: JSON.stringify(
                             {
-                                username: meal.username,
+                                username: meal.userid,
                                 timestamp: meal.timestamp,
                                 title: titleEditInput.val()
                             }),
