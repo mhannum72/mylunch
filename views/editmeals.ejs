@@ -211,7 +211,7 @@ showattributes.init(
 // Initialize grid
 picturegrid.init(
         document.getElementById('picturegridDiv'), 
-        "<%= user.username %>",
+        "<%= user.userid %>",
         new mealpage(<%= prevts != undefined ? prevts : 0 %>), 
         new mealpage(<%= nextts != undefined ? nextts : 0 %>),
         { 
@@ -260,7 +260,7 @@ function iconinfo(name, width, height, attr) { this.name = name;
 // Initialize the gridnav object
 gridnav.init(
         document.getElementById('gridNavDiv'),
-        "<%= user.username %>",
+        "<%= user.userid %>",
         {
             gridnavwidth        : picturegrid.containerwidth(),
             modalisup           : showattributes.modalisshowing,
@@ -280,7 +280,7 @@ gridnav.init(
 // Initialize the headerbar object
 headerbar.init(
         document.getElementById('headerbardiv'),
-        "<%= user.username %>",
+        "<%= user.userid %>",
         {
             headerbarwidth      : picturegrid.containerwidth(),
             modalisup           : showattributes.modalisshowing,
@@ -375,7 +375,7 @@ pinfo<%= i %> [ <%= j %> ] = new truncPicInfo(
 
 // Initial minfo array
 minfo[<%= i %>] = new truncMeal(
-        "<%= meal.username %>",
+        "<%= meal.userid %>",
         <%= meal.timestamp %>,
         <%= meal.keytimestamp %>,
         "<%= meal.title %>",

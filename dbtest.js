@@ -3,13 +3,22 @@ var mongo = require('mongodb'),
     db = new mongo.Db('mylunch', new mongo.Server('localhost', 27017, { auto_reconnect: true }));
 
 var testtable = 'mytest';
-var dupkeymessage = 'E11000';
 
 getCollection = function(coll, callback) {
     db.collection(coll, function(error, collection) {
         if(error) callback(error);
         else callback(null, collection);
     });
+}
+
+var dupkeystr = 'E11000';
+
+function dupkeyerror(err) {
+    if(err.message.substr(0, 6) == dupkeystr) {
+        var idx = err.message.substr(36).split(' ')[0];
+        return idx;
+    }
+    return false;
 }
 
 // Open Mongo
@@ -30,8 +39,9 @@ db.open(function(error, client){
             testcol.insert(newrec, {safe: true}, function(err, object) {
                 if(err) {
                     // .. this seems to work ..
-                    if(err.message.substr(0, 6) == dupkeymessage) {
-                        console.log('Got a dup key from mongo:' + err);
+                    var idx = dupkeyerror(err);
+                    if(idx) {
+                        console.log("dup index is " + idx);
                     }
                     else {
                         throw(err);

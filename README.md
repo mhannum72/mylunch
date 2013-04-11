@@ -5,6 +5,8 @@ mylunch
 todo
 ====
 
+* Update mongodb to 64-bit
+
 * Maybe make a trash-can one of the icons on the top of the screen - users 
   will be able to restore deleted pictures and meals from the trash can.`
 
