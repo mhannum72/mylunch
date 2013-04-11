@@ -257,8 +257,8 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
         }
         
         // Success
-        callback( null, object );
-    } 
+        callback( null, user );
+    }); 
 }
 
 // Insert a new user into mongodb
@@ -268,7 +268,7 @@ setNewUserInMongo = function(username, password, callback) {
 
         if(error) throw (error);
 
-        if(user.username == undefined) {
+        if(username == undefined) {
             throw new Error('setNewUserInMongo called with NULL username.');
         }
 
@@ -316,17 +316,17 @@ updateShowPicsPerPageInMongo = function(username, showMealsPerPage, callback) {
 updateTitleInMongo = function(username, timestamp, title, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {title: title}}, {safe: true}, function(err) {
+        mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {title: title}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
     });
 }
 
-updateRatingInMongo = function(username, timestamp, rating, callback) {
+updateRatingInMongo = function(userid, timestamp, rating, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {rating: rating}}, {safe: true}, function(err) {
+        mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {rating: rating}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -391,13 +391,13 @@ function mealToConst(meal)
 /* The 'mealdate' is formatted as YYYYMMDDmm - where the final 'mm' is the meal
  * constant corresponding to the meal in question.  I've decided to leave it 
  * this way because it can be described easily by an index and its sortable.  */
-updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
+updateMealDateInMongo = function(userid, timestamp, mealdate, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.find( { username: username, timestamp: timestamp } ).toArray( function(err, results) {
+        mealinfo.find( { userid: userid, timestamp: timestamp } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + timestamp);
+                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
             }
 
             var oldDate = results[0].mealDate;
@@ -407,7 +407,7 @@ updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
 
             if(oldmealconst != newmealconst) {
                 // This turns into an update mealdate and meal in mongo request
-                console.log("updating both mealdate and meal for user " + username + " timestamp " + timestamp);
+                console.log("updating both mealdate and meal for user " + userid + " timestamp " + timestamp);
                 console.log("oldmeal is " + oldmealconst + " newmeal is " + newmealconst);
 
                 var newmeal = constToMeal(newmealconst);
@@ -420,7 +420,7 @@ updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
                 }
             }
             var newMealDate = (mealdate - (mealdate % 100)) + newmealconst;
-            mealinfo.update({username: username, timestamp: timestamp},
+            mealinfo.update({userid: userid, timestamp: timestamp},
                     {$set: {meal: meal, mealDate: newMealDate}}, {safe: true}, function(err) {
                 if(err) throw(err);
                 callback(err);
@@ -429,21 +429,21 @@ updateMealDateInMongo = function(username, timestamp, mealdate, callback) {
     });
 }
 
-updateMealInMongo = function(username, timestamp, meal, callback) {
+updateMealInMongo = function(userid, timestamp, meal, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
 
         // Have to find it- this will pull it into the buffer cache
-        mealinfo.find( { username: username, timestamp: timestamp } ).toArray( function(err, results) {
+        mealinfo.find( { userid: userid, timestamp: timestamp } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + timestamp);
+                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
             }
 
             var oldDate = results[0].mealDate;
             var newMealDate = (oldDate - (oldDate % 100)) + mealToConst(meal);
 
-            mealinfo.update({username: username, timestamp: timestamp}, 
+            mealinfo.update({userid: userid, timestamp: timestamp}, 
                     {$set: {meal: meal, mealDate: newMealDate}}, {safe: true}, function(err) {
                 if(err) throw(err);
                 callback(err);
@@ -452,20 +452,20 @@ updateMealInMongo = function(username, timestamp, meal, callback) {
     });
 }
 
-updateReviewInMongo = function(username, timestamp, review, callback) {
+updateReviewInMongo = function(userid, timestamp, review, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {review: review}}, {safe: true}, function(err) {
+        mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {review: review}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
     });
 }
 
-updateTmpReviewInMongo = function(username, timestamp, tmpreview, callback) {
+updateTmpReviewInMongo = function(userid, timestamp, tmpreview, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
-        mealinfo.update({username: username, timestamp: timestamp}, {$set: {tmpReview: tmpreview}}, {safe: true}, function(err) {
+        mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {tmpReview: tmpreview}}, {safe: true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -477,7 +477,7 @@ updateCompleteMealInfoInMongo = function(mealinfo, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
-        mealInfo.update({username:mealinfo.username, timestamp:mealinfo.timestamp}, mealinfo, {safe:true}, function(err) {
+        mealInfo.update({userid:mealinfo.userid, timestamp:mealinfo.timestamp}, mealinfo, {safe:true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -600,7 +600,7 @@ updateVerifyMealInfoInMongo = function(mealinfo, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
-        mealInfo.update({username:mealinfo.username, timestamp:mealinfo.timestamp}, {$set: {verifiedByAdmin: mealinfo.verifiedByAdmin, adminAllow: mealinfo.adminAllow}}, {safe:true}, function(err) {
+        mealInfo.update({userid:mealinfo.userid, timestamp:mealinfo.timestamp}, {$set: {verifiedByAdmin: mealinfo.verifiedByAdmin, adminAllow: mealinfo.adminAllow}}, {safe:true}, function(err) {
             if(err) throw(err);
             callback(err);
         });
@@ -717,7 +717,7 @@ getMealInfoFromMongoFwdMenu = function(username, ts, limit, viewDeleted, callbac
 }
 
 // This is the 'next' case.
-getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholerec, callback) {
+getMealInfoFromMongoRev_int = function(userid, ts, limit, viewDeleted, wholerec, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
@@ -725,14 +725,14 @@ getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholere
         var cnt = 0;
 
         if(!wholerec) {
-            projection = { 'username' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
         
         // This is convoluted query finds mealinfo records before mealDate, timestamp.
         mealInfo.find(
 
             // Query
-            { $and  :                               [   { username: username },
+            { $and  :                               [   { userid: userid },
                                                         { timestamp: { $lte: ts } },
                                                         { deleted: viewDeleted } ] },
 
@@ -774,7 +774,7 @@ getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholere
             mealInfo.find( 
 
             // Query
-            { $and  :                               [   { username: username },
+            { $and  :                               [   { userid: userid },
                                                         { timestamp: { $gt: ts } },
                                                         { deleted: viewDeleted } ] },
 
@@ -820,12 +820,12 @@ getMealInfoFromMongoRev_int = function(username, ts, limit, viewDeleted, wholere
 
 }
 
-getMealInfoFromMongoRev = function(username, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, true, callback);
+getMealInfoFromMongoRev = function(userid, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(userid, ts, limit, viewDeleted, true, callback);
 }
 
-getMealInfoFromMongoRevMenu = function(username, ts, limit, viewDeleted, callback) {
-    getMealInfoFromMongoRev_int(username, ts, limit, viewDeleted, false, callback);
+getMealInfoFromMongoRevMenu = function(userid, ts, limit, viewDeleted, callback) {
+    getMealInfoFromMongoRev_int(userid, ts, limit, viewDeleted, false, callback);
 }
 
 
@@ -862,7 +862,7 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
         if(error) throw (error);
 
         // Some sanity checks
-        if(mymealinfo.username == undefined) {
+        if(mymealinfo.userid == undefined) {
             throw new Error('updateMealInfoPicInfoInMongo called with undefined username');
         }
         if(mymealinfo.timestamp == undefined) {
@@ -911,15 +911,15 @@ findtsinpicinfo = function(ts, pinfo) {
     }
 }
 
-updateKeyPicInMongo = function(username, mealts, picts, callback) {
+updateKeyPicInMongo = function(userid, mealts, picts, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
 
         // Find this meal
-        mealinfo.find( { username: username, timestamp: mealts } ).toArray( function(err, results) {
+        mealinfo.find( { userid: userid, timestamp: mealts } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + mealts);
+                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
             }
 
             var result = results[0];
@@ -929,7 +929,7 @@ updateKeyPicInMongo = function(username, mealts, picts, callback) {
 
             if(ii < 0) {
                 console.log("Error - couldn't find picture with timestamp " + picts
-                    + " for user " + username);
+                    + " for user " + userid);
                 throw new Error("Couldn't find picture");
                 return;
             }
@@ -938,7 +938,7 @@ updateKeyPicInMongo = function(username, mealts, picts, callback) {
             result.keytimestamp = picts;
 
             // Update mongo
-            mealinfo.update( { username: username, timestamp: mealts }, 
+            mealinfo.update( { userid: userid, timestamp: mealts }, 
                 { $set: {keytimestamp: picts} }, {safe:true}, function(err) {
                     if(err) throw(err);
                     callback(err);
@@ -954,7 +954,7 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
         mealinfo.find( { userid: userid, timestamp: mealts } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + username + ' timestamp ' + mealts);
+                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
             }
 
             var result = results[0];
@@ -964,7 +964,7 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
 
             if(ii < 0) {
                 console.log("Error - couldn't find picture with timestamp " + picts
-                    + " for user " + username);
+                    + " for user " + userid);
                 throw new Error("Couldn't find picture");
                 return;
             }
@@ -993,8 +993,8 @@ setMealInfoInMongo = function(mymealinfo, callback) {
         if(error) throw (error);
 
         // Some sanity checks
-        if(mymealinfo.username == undefined) {
-            throw new Error('setMealInfoInMongo called with undefined username');
+        if(mymealinfo.userid == undefined) {
+            throw new Error('setMealInfoInMongo called with undefined userid');
         }
         if(mymealinfo.timestamp == undefined) {
             throw new Error('setMealInfoInMongo called with undefined timestamp');
@@ -1101,14 +1101,14 @@ setMealPicInMongo = function(mealpic, callback) {
 
 
 // Retrieve a meal picture from mongodb
-getMealPicFromMongo = function(username, timestamp, callback) {
+getMealPicFromMongo = function(userid, timestamp, callback) {
     getCollection('mealPics', function(error, mealPics) {
         if(error) throw (error);
 
-        mealPics.find( {username:username, timestamp: timestamp}).toArray( function( err, results) {
+        mealPics.find( {userid:userid, timestamp: timestamp}).toArray( function( err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' pics in Mongo for ' + username + ' timestamp ' + timestamp);
+                throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
             }
             if(results.length == 0) {
                 callback(err);
@@ -1146,6 +1146,7 @@ getRestaurantInfoById = function(restaurantId, callback) {
 // Maybe a database could keep track of machines?
 //
 // This has to be synchronous ..
+/*
 useridExistsInMongo = function(userid, callback) {
 
     var projection = { 'userid' : 1 };
@@ -1162,6 +1163,7 @@ useridExistsInMongo = function(userid, callback) {
         });
     }
 }
+*/
 
 // Retrieve a user from mongodb
 getUserFromMongo = function(username, callback) {
@@ -1319,7 +1321,8 @@ function chooseimage(req, res, err, files)
 // This is functionized to accomodate async-thumb code
 function showMealPicture( req, res ) {
     // Retrieve the meal thumbnail
-    getMealPicFromMongo(req.params.username, parseInt(req.params.timestamp, 10), function(err, mealpic) {
+    var userid = parseInt(req.params.username);
+    getMealPicFromMongo(userid, parseInt(req.params.timestamp, 10), function(err, mealpic) {
 
         if(err || mealpic == undefined) {
             // TODO - create a default 'not-found' picture. 
@@ -1329,7 +1332,7 @@ function showMealPicture( req, res ) {
             return;
         }
         // Display the image if we got it
-        if(mealpic.worldViewable || mealpic.username == req.session.user.username) {
+        if(mealpic.worldViewable || mealpic.userid == req.session.user.userid) {
             res.contentType(mealpic.imageType);
             res.end(mealpic.image, 'binary');
         } 
@@ -1443,7 +1446,7 @@ app.get('/images/notfoundthumb.png', function(req, res) {
 app.get('/thumbs/:userid/:timestamp', function(req, res) {
 
     // Retrieve the meal thumbnail
-    getMealThumbFromMongo(req.params.userid, parseInt(req.params.timestamp, 10), function(err, mealthumb) {
+    getMealThumbFromMongo(parseInt(req.params.username)/* userid */, parseInt(req.params.timestamp, 10), function(err, mealthumb) {
 
         if(err) throw (err);
 
@@ -1890,7 +1893,7 @@ function mealDateToDate(mealdate)
 }
 
 // Create an empty mealinfo object with default attributes.
-function mealInfo(userid) {
+function mealInfo(user) {
 
     // Username of creator
     this.userid = user.userid;
@@ -2042,7 +2045,7 @@ function authenticate_resignin_post(req, res, next) {
         // var user = new User(tmpuser.username, tmpuser.password);
 
         // Add to the user's table
-        setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, reply) {
+        setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, user) {
 
             // Create an error page possibly?
             if(err) {
@@ -2358,10 +2361,12 @@ app.post('/updateposition', function(req, res, next) {
         return;
     }
 
-    if(req.body.username != req.session.user.username) {
-        console.log('mismatched usernames in savereview request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+    var userid = parseInt(req.body.username);
+
+    if(userid != req.session.user.userid) {
+        console.log('mismatched userids in savereview request:');
+        console.log('session userid is ' + req.session.user.userid);
+        console.log('request userid is ' + userid);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
@@ -2402,9 +2407,9 @@ app.post('/savereview', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
-        console.log('mismatched usernames in savereview request:');
-        console.log('session user is ' + req.session.user.username);
+    if(req.body.username != req.session.user.userid) {
+        console.log('mismatched userids in savereview request:');
+        console.log('session userid is ' + req.session.user.userid);
         console.log('request user is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
@@ -2431,7 +2436,7 @@ app.post('/savereview', function(req, res, next) {
 
     req.session.last_saveinfo = Date.now();
 
-    updateReviewInMongo(req.body.username, parseInt(req.body.timestamp), req.body.review,
+    updateReviewInMongo(parseInt(req.body.userid, 10), parseInt(req.body.timestamp), req.body.review,
             function(err) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 if(err) {
@@ -2449,6 +2454,8 @@ app.post('/savereview', function(req, res, next) {
 // Update key picture handler
 app.post('/updatekeypic', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2461,7 +2468,7 @@ app.post('/updatekeypic', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in saverating request:');
         console.log('session user is ' + req.session.user.username);
         console.log('request user is ' + req.body.username);
@@ -2489,7 +2496,7 @@ app.post('/updatekeypic', function(req, res, next) {
 
  //   try {
         updateKeyPicInMongo(
-                req.body.username, 
+                userid, 
                 parseInt(req.body.mealts, 10), 
                 parseInt(req.body.keyts, 10), 
                 function(err) {
@@ -2515,6 +2522,8 @@ app.post('/updatekeypic', function(req, res, next) {
 
 app.post('/deletepic', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2527,10 +2536,10 @@ app.post('/deletepic', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in saverating request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+        console.log('session userid is ' + req.session.user.userid);
+        console.log('request userid is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
@@ -2553,7 +2562,7 @@ app.post('/deletepic', function(req, res, next) {
 
     req.session.last_saveinfo = Date.now();
 
-    deletePicFromMongo(parseInt(req.body.userid), parseInt(req.body.mealts, 10), parseInt(req.body.timestamp, 10), function(err) {
+    deletePicFromMongo(userid, parseInt(req.body.mealts, 10), parseInt(req.body.timestamp, 10), function(err) {
         if(err) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.write(JSON.stringify({message: "dberror"}));
@@ -2566,7 +2575,7 @@ app.post('/deletepic', function(req, res, next) {
             // Update outstanding number of pictures for this user
             req.session.user.numPics--;
 
-            updateCurrentNumPicsInMongo(req.body.username, req.session.user.numPics, function(err) { 
+            updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) { 
                 if(err) throw(err);
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -2580,6 +2589,8 @@ app.post('/deletepic', function(req, res, next) {
 
 app.post('/saverating', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2592,10 +2603,10 @@ app.post('/saverating', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in saverating request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+        console.log('session userid is ' + req.session.user.userid);
+        console.log('request userid is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
@@ -2621,7 +2632,7 @@ app.post('/saverating', function(req, res, next) {
 
     req.session.last_saveinfo = Date.now();
 
-    updateRatingInMongo(req.body.username, parseInt(req.body.timestamp), parseInt(req.body.rating),
+    updateRatingInMongo(userid, parseInt(req.body.timestamp), parseInt(req.body.rating),
             function(err) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 if(err) {
@@ -2638,6 +2649,7 @@ app.post('/saverating', function(req, res, next) {
 
 app.post('/savemeal', function(req, res, next) {
 
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2650,9 +2662,12 @@ app.post('/savemeal', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+
+    var userid = parseInt(req.body.username, 10);
+
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in savemeal request:');
-        console.log('session user is ' + req.session.user.username);
+        console.log('session user is ' + req.session.user.userid);
         console.log('request user is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
@@ -2706,6 +2721,8 @@ app.post('/savemeal', function(req, res, next) {
 // 'savetitle' now applied to picInfo rather than mealInfo
 app.post('/savetitle', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({errStr: "baduser"}));
@@ -2718,10 +2735,10 @@ app.post('/savetitle', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.username) {
+    if(userid != req.session.user.userid) {
         console.log('mismatched usernames in savetitle request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+        console.log('session userid is ' + req.session.user.userid);
+        console.log('request userid is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
@@ -2747,7 +2764,7 @@ app.post('/savetitle', function(req, res, next) {
 
     req.session.last_saveinfo = Date.now();
 
-    updateTitleInMongo(req.body.username, parseInt(req.body.timestamp), req.body.title,
+    updateTitleInMongo(userid, parseInt(req.body.timestamp), req.body.title,
             function(err) {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 if(err) {
@@ -3484,9 +3501,10 @@ app.get('/resetpassword/:id', function(req, res, next) {
 app.get('/authenticate/:id', function(req, res, next) {
 
     redisClient.get(req.params.id, function(err, reply) {
-        if (err) {
+        if (err || null==reply) {
+            res.redirect('/');
             // Just throw it for now.
-            throw (err);
+            //throw (err);
             // app.redirect('/authenticate_error');
         }
         else {
@@ -3506,7 +3524,7 @@ app.get('/authenticate/:id', function(req, res, next) {
                 //var user = new User(tmpuser.username, tmpuser.password);
 
                 // Add to mongo user's table
-                setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, reply) {
+                setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, user) {
 
                     // Create an error page possibly?
                     if (err) {
@@ -3853,14 +3871,14 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     
     if(isprev == false) {
         //getMealInfoFromMongoRev(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
-        getMealInfoFromMongoRev(req.session.user.username, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        getMealInfoFromMongoRev(req.session.user.userid, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             // Add a hex-id to each of my mealinfos
             if(mealinfo.length == 0 && timestamp != -1) {
 
                 ts = Date.now();
 
                 // getMealInfoFromMongoRev(req.session.user.username,ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
-                getMealInfoFromMongoRev(req.session.user.username,ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+                getMealInfoFromMongoRev(req.session.user.userid,ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
                     res.render('editmeals.ejs', {
                         user: req.session.user,
                         mealinfo: mealinfo,
@@ -3885,7 +3903,7 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     }
     else { // prevpage is true
         // getMealInfoFromMongoFwd(req.session.user.username, ts, req.session.user.showMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
-        getMealInfoFromMongoFwd(req.session.user.username, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
+        getMealInfoFromMongoFwd(req.session.user.userid, ts, maxMealsPerPage, viewDeleted, function(err, mealinfo, nextts, prevts) {
             res.render('editmeals.ejs', {
                 user: req.session.user,
                 mealinfo: mealinfo,
@@ -4392,7 +4410,7 @@ app.post('/savemealdate', function(req, res, next) {
         return;
     }
     if(req.body.username != req.session.user.username) {
-        console.log('mismatched usernames in savemeal request:');
+        console.log('mismatched usernames in savemealdate request:');
         console.log('session user is ' + req.session.user.username);
         console.log('request user is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -4444,6 +4462,8 @@ app.post('/savemealdate', function(req, res, next) {
 
 app.post('/editmealsupload', function(req, res, next) {
 
+    var userid = parseInt(req.body.username, 10);
+
     if(req.session.user == undefined) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.write("BAD-REQUEST");
@@ -4457,10 +4477,10 @@ app.post('/editmealsupload', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.body.username != req.session.user.userid) {
-        console.log('mismatched usernames in savemeal request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+    if(userid != req.session.user.userid) {
+        console.log('mismatched usernames in editmealsupload request:');
+        console.log('session user is ' + req.session.user.userid);
+        console.log('request user is ' + userid);
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.write("BAD-REQUEST");
         res.end();
@@ -4510,17 +4530,20 @@ app.get('/newmeal', function(req, res, next) {
         res.end();
         return;
     }
-    if(req.query.username != req.session.user.username) {
-        console.log('mismatched usernames in savemeal request:');
-        console.log('session user is ' + req.session.user.username);
-        console.log('request user is ' + req.body.username);
+
+    var userid = parseInt(req.query.username);
+
+    if(userid != req.session.user.userid) {
+        console.log('mismatched userids in newmeal request:');
+        console.log('session userid is ' + req.session.user.userid);
+        console.log('request userid is ' + req.body.username);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({message: "baduser"}));
         res.end();
         return;
     }
 
-    var mealinfo = new mealInfo(req.session.userid);
+    var mealinfo = new mealInfo(req.session.user);
 
     setMealInfoInMongo(mealinfo, function(err, object) {
         if(err) {
