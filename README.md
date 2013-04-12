@@ -5,9 +5,22 @@ mylunch
 todo
 ====
 
+* (sigh) I think I'm going to have to replace the backend.  Maybe there's 
+  another nosql solution?  Or I'm not opposed to using a normal database.
+
+* Mongodb might not be what I want.   The 2Gb / 32-bit limitation tells me 
+  that all of my data has to live in memory.  I don't think this even 
+  qualifies as a database.  It's a datastructure that you can query fast.
+
+* Here's what would be cool: when you type stuff into a search bar it displays
+  a menu of autocomplete selections.  What would be cool is if the selected 
+  mealthumb(s) would pop-up as you press the down-key.
+
 * There must be an easy way to search on the meal's title or other fields.
   Sometimes I'd like to easily pull up something that I ate a while ago, 
-  and I've forgotten about it.
+  and I've forgotten about it.  Akshat tells me that lucene does exactly this
+  pretty well- opengrok, the java-based 'wicked-fast' source browser uses 
+  lucene.
 
 * Update mongodb to 64-bit
 
