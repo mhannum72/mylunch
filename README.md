@@ -5,25 +5,14 @@ mylunch
 todo
 ====
 
+* There must be an easy way to search on the meal's title or other fields.
+  Sometimes I'd like to easily pull up something that I ate a while ago, 
+  and I've forgotten about it.
+
 * Update mongodb to 64-bit
 
 * Maybe make a trash-can one of the icons on the top of the screen - users 
   will be able to restore deleted pictures and meals from the trash can.`
-
-* This will be a 2-3 day project
-
-* Okay - I need to change the structure of this: using the email-address
-  to access the user's pictures is wrong .. they'll be unable to change the
-  email address without having to update a TON of stuff.
-
-* The 'correct' way to do this is to create a unique userid .. I don't have
-  to throw away my current code: multiple email addresses might map to the
-  same unique userid.
-
-* Doing this now will save me major headaches later.
-
-* This might require an addition hit to mongo (maybe?).  Or, alternatively,
-  keep the unique userid cached on the server after the first lookup.  
 
 * Work on the 'User Preferences' screen.  This should have very basic things:
 

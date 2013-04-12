@@ -1355,7 +1355,7 @@ var showFavicon = function(req, res) {
 
     // Read it from disk the first time.
     if(favicon == null) {
-        fs.readFile('protected/mealfavicon.ico', function(err, img) {
+        fs.readFile('public/images/mealfavicon.ico', function(err, img) {
             if(err) throw(err);
             favicon = img;
             res.writeHead(200, {'Content-type': 'image/x-icon'});
@@ -1372,7 +1372,7 @@ var showNoMealPicture = function(req, res) {
 
     // Read it from disk the first time.
     if(nomealpic == null) {
-        fs.readFile('protected/nomeal.png', function(err, img) {
+        fs.readFile('public/images/nomeal.png', function(err, img) {
             if(err) throw(err);
             nomealpic = img;
             res.writeHead(200, {'Content-type': 'image/png'});
@@ -1389,7 +1389,7 @@ var showNotFoundPicture = function(req, res) {
 
     // Read it from disk the first time.
     if(notfoundpic == null) {
-        fs.readFile('protected/notfound.png', function(err, img) {
+        fs.readFile('public/images/notfound.png', function(err, img) {
             if(err) throw(err);
             notfoundpic = img;
             res.writeHead(200, {'Content-type': 'image/png'});
@@ -1406,7 +1406,7 @@ var showNotFoundThumb = function(req, res) {
 
     // Read it from disk the first time.
     if(notfoundthumb == null) {
-        fs.readFile('protected/notfoundthumb.png', function(err, img) {
+        fs.readFile('public/images/notfoundthumb.png', function(err, img) {
             if(err) throw(err);
             notfoundthumb = img;
             res.writeHead(200, {'Content-type': 'image/png'});
@@ -1426,7 +1426,7 @@ app.get('/images/notfound.png', function(req, res) {
 var nomealcount = 0;
 
 // Call the nomeal picture handler
-app.get('/images/nomeal.png', function(req, res) {
+app.get('public/images/nomeal.png', function(req, res) {
     showNoMealPicture(req, res);
 });
 

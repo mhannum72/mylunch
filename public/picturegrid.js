@@ -73,6 +73,9 @@ var picturegrid = (function ($jq) {
     // Derived: how many pixels wide?
     var gridwidth;
 
+    // Derived: how many pixels tall?
+    var gridheight;
+
     // Allow 
     var nxpvcallback;
 
@@ -238,6 +241,9 @@ var picturegrid = (function ($jq) {
     // Easing for grayscale fadein
     var grayscaleeasing;
 
+    // Variable which contains the nomeals display
+    var nomealsdiv=null;
+
     // Set to true after inited
     var inited = false;
 
@@ -307,6 +313,32 @@ var picturegrid = (function ($jq) {
 
         return mealspergrid;
 
+    }
+
+    // Create the picture grid
+    function makegrid() {
+
+        // Width string
+        //var widthpx = gridwidth + 'px';
+
+        var griddiv = $(dc('div'))
+            .attr('class', 'picturegrid')
+            //.css('margin-left', 'auto')
+            //.css('margin-right', 'auto')
+            .css('position', 'absolute')
+            .css('float', 'left')
+            .css('width', gridwidth + 'px');
+    
+        // Set first picture to null
+        griddiv.first = null;
+
+        // Set last picture to null
+        griddiv.last = null;
+
+        // Set count to 0
+        griddiv.count = 0;
+
+        return griddiv; 
     }
 
     // Set the newmeal anchor
@@ -419,7 +451,7 @@ var picturegrid = (function ($jq) {
 
         // Create an empty meal-object for the new meal
         var newmeal = { 
-            username : username,
+            userid : username,
             timestamp : newmealts, 
             picInfo : null, 
             keytimestamp : 0,
@@ -428,6 +460,14 @@ var picturegrid = (function ($jq) {
 
         // Create newmeal egcontainer
         var gridmeal = pdiv(newmeal);
+
+        // Temporary glue
+        if(!currentgrid) {
+
+            currentgrid = makegrid();
+
+            currentgrid.appendTo(gridviewport);
+        }
 
         // Write the shift-meals and invoke callback function first
         function shiftandcallback(gobj) {
@@ -2074,30 +2114,23 @@ var picturegrid = (function ($jq) {
         }
     }
 
-    // Create the picture grid
-    function makegrid() {
+    // Create the nomeals display
+    function nomealsdisplay() {
 
-        // Width string
-        //var widthpx = gridwidth + 'px';
+        // Create the nomeals div
+        if(!nomealsdiv) {
 
-        var griddiv = $(dc('div'))
-            .attr('class', 'picturegrid')
-            //.css('margin-left', 'auto')
-            //.css('margin-right', 'auto')
-            .css('position', 'absolute')
-            .css('float', 'left')
-            .css('width', gridwidth + 'px');
-    
-        // Set first picture to null
-        griddiv.first = null;
+            var griddiv = $(dc('div'))
+                .attr('class', 'nomealsdisplay')
+                .attr('id', 'nomealsdisplay')
+                .css('float', 'left')
+                .css('height', gridheight + 'px')
+                .css('width', gridwidth + 'px');
 
-        // Set last picture to null
-        griddiv.last = null;
-
-        // Set count to 0
-        griddiv.count = 0;
-
-        return griddiv; 
+            // This is the nomeals-display grid
+            nomealsdiv = griddiv;
+        }
+        return nomealsdiv;
     }
 
     // Universal display function
@@ -2370,10 +2403,14 @@ var picturegrid = (function ($jq) {
         // Calculate spacer width
         //spacerwidth = cfg.hp("spacerwidth") ? cfg.spacerwidth : 20;
 
-        // Derived: how many pixels wide?
+        // How many pixels wide?
         gridwidth = ((picturewidth + marginleft + marginright + 
             (2 * picborder)) * mealsperrow);
     
+        // How many pixels tall
+        gridheight = ((pictureheight + margintop + marginbottom +
+                    (2 * picborder)) * rowsperpage);
+
         // Allow 
         nxpvcallback = cfg.hp("nxpvcallback") ? cfg.nxpvcallback : null;
     
