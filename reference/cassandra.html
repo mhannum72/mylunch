@@ -1,0 +1,1883 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:b="http://www.google.com/2005/gml/b" xmlns:data="http://www.google.com/2005/gml/data" xmlns:expr="http://www.google.com/2005/gml/expr"><head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<script async="" src="cassandra_files/cbgapi.loaded_1"></script><script async="" src="cassandra_files/cbgapi.loaded_0"></script><script type="text/javascript">(function() { var b=window,e="jstiming",g="tick";(function(){function d(a){this.t={};this.tick=function(a,d,c){c=void 0!=c?c:(new Date).getTime();this.t[a]=[c,d]};this[g]("start",null,a)}var a=new d;b.jstiming={Timer:d,load:a};if(b.performance&&b.performance.timing){var a=b.performance.timing,c=b[e].load,f=a.navigationStart,a=a.responseStart;0<f&&a>=f&&(c[g]("_wtsrt",void 0,f),c[g]("wtsrt_","_wtsrt",a),c[g]("tbsd_","wtsrt_"))}try{a=null,b.chrome&&b.chrome.csi&&(a=Math.floor(b.chrome.csi().pageT),c&&0<f&&(c[g]("_tbnd",void 0,b.chrome.csi().startE),
+c[g]("tbnd_","_tbnd",f))),null==a&&b.gtbExternal&&(a=b.gtbExternal.pageT()),null==a&&b.external&&(a=b.external.pageT,c&&0<f&&(c[g]("_tbnd",void 0,b.external.startE),c[g]("tbnd_","_tbnd",f))),a&&(b[e].pt=a)}catch(l){}})();b.tickAboveFold=function(d){var a=0;if(d.offsetParent){do a+=d.offsetTop;while(d=d.offsetParent)}d=a;750>=d&&b[e].load[g]("aft")};var h=!1;function k(){h||(h=!0,b[e].load[g]("firstScrollTime"))}b.addEventListener?b.addEventListener("scroll",k,!1):b.attachEvent("onscroll",k);
+ })();</script>
+<meta content="true" name="MSSmartTagsPreventParsing">
+<meta content="blogger" name="generator">
+<link href="http://blog.reddit.com/favicon.ico" rel="icon" type="image/x-icon">
+<link href="http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html" rel="canonical">
+<link rel="alternate" type="application/atom+xml" title="blog.reddit -- what's new on reddit - Atom" href="http://blog.reddit.com/feeds/posts/default">
+<link rel="alternate" type="application/rss+xml" title="blog.reddit -- what's new on reddit - RSS" href="http://blog.reddit.com/feeds/posts/default?alt=rss">
+<link rel="service.post" type="application/atom+xml" title="blog.reddit -- what's new on reddit - Atom" href="http://www.blogger.com/feeds/13407979/posts/default">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.blogger.com/rsd.g?blogID=13407979">
+<link rel="alternate" type="application/atom+xml" title="blog.reddit -- what's new on reddit - Atom" href="http://blog.reddit.com/feeds/5764514349606097124/comments/default">
+<link rel="image_src" href="http://2.bp.blogspot.com/_SMII3qiVCz8/S-nGhEr6lwI/AAAAAAAAAGY/tPQJuR2j60s/s72-c/404.png">
+<!--[if IE]> <script> (function() { var html5 = ("abbr,article,aside,audio,canvas,datalist,details," + "figure,footer,header,hgroup,mark,menu,meter,nav,output," + "progress,section,time,video").split(','); for (var i = 0; i < html5.length; i++) { document.createElement(html5[i]); } try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {} })(); </script> <![endif]-->
+<title>blog.reddit -- what's new on reddit: reddit's May 2010 "State of the Servers" report</title>
+<link type="text/css" rel="stylesheet" href="cassandra_files/2761160889-widget_css_bundle.css">
+<link type="text/css" rel="stylesheet" href="cassandra_files/authorization.css">
+<style id="page-skin-1" type="text/css"><!--
+/*
+* Tekka
+* style modified from glish: http://www.glish.com/css/
+*
+* Updated by Blogger Team
+*/
+/* Variable definitions
+<Variable name="testy" type="automatic" description="wee">
+<Variable name="mainBgColor" description="Page Background Color"
+type="color" default="#f5f5f5">
+<Variable name="mainTextColor"  description="Text Color"
+type="color" default="#000000">
+<Variable name="dateHeaderColor" description="Date Header Color"
+type="color" default="#808080">
+<Variable name="mainLinkColor" description="Link Color"
+type="color" default="#336699">
+<Variable name="mainVisitedLinkColor" description="Visited Link Color"
+type="color" default="#9966A2">
+<Variable name="sidebarBgColor" description="Sidebar Background Color"
+type="color" default="#ffffff">
+<Variable name="sidebarTextColor" description="Sidebar Text Color"
+type="color" default="#000000">
+<Variable name="sidebarTitleColor" description="Sidebar Title Color"
+type="color" default="#000000">
+<Variable name="sidebarLinkColor" description="Sidebar Link Color"
+type="color" default="#0000ff">
+<Variable name="sidebarVisitedLinkColor" description="Sidebar Visited Link Color"
+type="color" default="#800080">
+<Variable name="bodyFont" description="Text Font"
+type="font" default="normal normal 125% 'Trebuchet MS', verdana, sans-serif">
+<Variable name="startSide" description="Start side in blog language"
+type="automatic" default="left">
+<Variable name="endSide" description="End side in blog language"
+type="automatic" default="right">
+*/
+#navbar-iframe {
+display: none !important;
+}
+body {
+margin-top:0px;
+margin-right:0px;
+margin-bottom:0px;
+margin-left:0px;
+font-size: smaller;
+background-color: #ffffff;
+color: #000000;
+}
+#content-wrapper {
+margin-top: 0px;
+margin-right: 0px;
+margin-bottom: 0;
+margin-left: 5px;
+}
+#HTML1 {
+margin-left:-7px;
+margin-bottom:-10px;
+}
+#HTML2 {
+margin-left:-7px;
+margin-top:7px;
+}
+#awepartner{
+font-size: 1.7em;
+font-weight: bold;
+color: #cee3f8;
+line-height: 1.1em;
+letter-spacing: -.05em;
+}
+blockquote {
+border-left: 1px dashed #c0c0c0;
+padding-left: 7px;
+}
+h1 {
+font-size:400%;
+padding-left:15px;
+text-transform:uppercase;
+}
+h1 a, h1 a:link, h1 a:visited {
+text-decoration:none;
+color: #000000;
+}
+.description {
+text-align: center;
+padding-top:10px;
+}
+h2.date-header {
+border-bottom:none;
+letter-spacing: .25em;
+font-size: 70%;
+text-align:left;
+margin-top:20px;
+margin-bottom:-17px;
+padding:1px;
+padding-left:21px;
+color: #7f7f7f;
+font-weight: normal;
+font-family: Verdana, Sans-serif;
+background: url(http://s3.amazonaws.com/sp.reddit.com/fade.png) repeat-y;
+background-position: top right;
+background-color:#f0f0f0;
+}
+.post h3 {
+font-size: 175%;
+font-weight:bold;
+line-height: 1.3em;
+margin-bottom: 0px;
+}
+.post h3 a,
+.post h3 a:visited {
+color: #000000;
+}
+.post h3 a:hover {color:#ff4500;}
+.post-footer a:link{color: black}
+.post-footer a:visited{color: #444}
+.post {
+padding-left:20px;
+margin-bottom:40px;
+padding-right:20px;
+line-height:1.5em;
+}
+.post-footer {
+margin-bottom:15px;
+margin-left:0px;
+font-size: 90%;
+color: #ff4500;
+}
+.icon-action {
+padding: 0 0 4px 0;
+}
+a.icon-action {
+border-bottom:none;
+}
+#comments {
+margin-left: 20px;
+}
+.feed-links {
+clear: both;
+line-height: 2.5em;
+margin-left: 20px;
+}
+.BlogArchive #ArchiveList ul.posts li {
+list-style-type:circle;
+margin-left:.1em;
+padding-left: 1.4em;
+}
+#blog-pager-newer-link {
+float: left;
+margin-left: 20px;
+}
+#blog-pager-older-link {
+float: right;
+}
+#blog-pager {
+text-align: center;
+}
+#main {
+float:left;
+padding-bottom:20px;
+margin-top:20px;
+padding:0px;
+width:67%;
+max-width: 800px;
+font: normal normal 125% Arial, sans-serif;
+word-wrap: break-word; /* fix for long text breaking sidebar float in IE */
+overflow: hidden;     /* fix for long non-text content breaking IE sidebar float */
+}
+.sidebar h2 {
+font-weight:bold;
+font-size: 150%;
+color: #000000;
+}
+a {
+text-decoration:none
+}
+a img {
+padding: 9px;
+border-top: solid 1px #a0a0a0;
+border-right: solid 1px #333333;
+border-bottom: solid 1px #333;
+border-left: solid 1px #a0a0a0;
+background-color: white;
+}
+a {
+color: #336699;
+}
+a:hover {
+color: #ff4500;
+}
+a:visited {
+color: #9966A2;
+}
+#sidebar a {
+color: #ffffff;
+line-height: 1.5em;
+}
+#sidebar a:hover,
+#sidebar a:visited {
+color: #b3b3b3;
+}
+#sidebar {
+text-transform:none;
+background-color: #666666;
+color: #000000;
+padding-left: 20px;
+padding-bottom: 20px;
+width: 30%;
+float: right;
+font: normal normal 125% Arial, sans-serif;
+border-left:2px solid #000000;
+border-bottom:2px solid #222;
+word-wrap: break-word; /* fix for long text breaking sidebar float in IE */
+overflow: hidden;     /* fix for long non-text content breaking IE sidebar float */
+}
+.sidebar .widget {
+padding-top: 4px;
+padding-right: 8px;
+padding-bottom: 0;
+padding-left: 0;
+}
+.profile-textblock {
+clear: both;
+margin-left: 0;
+}
+.profile-img {
+float: left;
+margin-top: 0;
+margin-right: 5px;
+margin-bottom: 5px;
+margin-left: 0;
+}
+.clear {
+clear: both;
+}
+.comment-footer {
+padding-bottom: 1em;
+}
+.reddit-comments {
+margin-left: 20px;
+background: #CEE3F8;
+padding: 3px 6px;
+border-radius: 3px;
+}
+.reddit-button {
+display: inline-block;
+vertical-align: middle;
+height: 20px;
+}
+
+--></style>
+<script type="text/javascript">var a=navigator,b="userAgent",c="indexOf",f="&m=1",g="(^|&)m=",h="?",k="?m=1";function l(){var d=window.location.href,e=d.split(h);switch(e.length){case 1:return d+k;case 2:return 0<=e[1].search(g)?null:d+f;default:return null}}if(-1!=a[b][c]("Mobile")&&-1!=a[b][c]("WebKit")&&-1==a[b][c]("iPad")||-1!=a[b][c]("Opera Mini")||-1!=a[b][c]("IEMobile")){var m=l();m&&window.location.replace(m)};
+</script><script type="text/javascript">
+if (window.jstiming) window.jstiming.load.tick('headEnd');
+</script><script src="cassandra_files/google_top_exp.js" type="text/javascript"></script><style>.gc-bubbleDefault{background-color:transparent !important;text-align:left;padding:0 !important;margin:0 !important;border:0 !important;table-layout:auto !important}.gc-reset{background-color:transparent !important;border:0 !important;padding:0 !important;margin:0 !important;text-align:left}.pls-bubbleTop{border-bottom:1px solid #ccc !important}.pls-topTail,.pls-vertShimLeft,.pls-contentLeft{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/border_3.gif) !important}.pls-topTail{background-repeat:repeat-x !important;background-position:bottom !important}.pls-vertShim{background-color:#fff !important;text-align:right}.pls-vertShimLeft{background-repeat:repeat-y !important;background-position:right !important;height:4px}.pls-vertShimRight{height:4px}.pls-confirm-container .pls-vertShim{background-color:#fff3c2 !important}.pls-contentWrap{background-color:#fff !important;position:relative !important;vertical-align:top}.pls-contentLeft{background-repeat:repeat-y;background-position:right;vertical-align:top}.pls-dropRight{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleDropR_3.png) !important;background-repeat:repeat-y !important;vertical-align:top}.pls-vert,.pls-tailleft,.pls-dropTR .pls-dropBR,.pls-dropBL,.pls-vert img{vertical-align:top}.pls-dropBottom{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleDropB_3.png) !important;background-repeat:repeat-x !important;width:100%;vertical-align:top}.pls-topLeft{background:inherit !important;text-align:right;vertical-align:bottom}.pls-topRight{background:inherit !important;text-align:left;vertical-align:bottom}.pls-bottomLeft{background:inherit !important;text-align:right}.pls-bottomRight{background:inherit !important;text-align:left;vertical-align:top}.pls-tailtop,.pls-tailright,.pls-tailbottom,.pls-tailleft{display:none;position:relative}.pls-tailbottom,.pls-tailtop,.pls-tailright,.pls-tailleft,.pls-dropTR,.pls-dropBR,.pls-dropBL{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleSprite_3.png) !important;background-repeat:no-repeat}.pls-tailbottom{background-position:-23px 0}.pls-confirm-container .pls-tailbottom{background-position:-23px -10px}.pls-tailtop{background-position:-19px -20px}.pls-tailright{background-position:0 0}.pls-tailleft{background-position:-10px 0}.pls-tailtop{vertical-align:top}.gc-bubbleDefault td{line-height:0;font-size:0}.pls-topLeft img,.pls-topRight img,.pls-tailbottom{vertical-align:bottom}.pls-bottomLeft img,.bubbleDropTR,.pls-dropBottomL img,.pls-dropBottom img,.pls-dropBottomR img,.pls-bottomLeft{vertical-align:top}.pls-dropTR{background-position:0 -22px}.pls-dropBR{background-position:0 -27px}.pls-dropBL{background-position:0 -16px}.pls-spacertop,.pls-spacerright,.pls-spacerbottom,.pls-spacerleft{position:static !important}.pls-spinner{bottom:0;position:absolute;left:0;margin:auto;right:0;top:0}</style></head>
+<body>
+<div class="navbar section" id="navbar"><div class="widget Navbar" id="Navbar1"><script type="text/javascript">
+    function setAttributeOnload(object, attribute, val) {
+      if(window.addEventListener) {
+        window.addEventListener('load',
+          function(){ object[attribute] = val; }, false);
+      } else {
+        window.attachEvent('onload', function(){ object[attribute] = val; });
+      }
+    }
+  </script>
+<div id="navbar-iframe-container"><iframe src="cassandra_files/navbar.html" name="navbar-iframe" id="navbar-iframe" vspace="0" tabindex="0" style="" marginwidth="0" marginheight="0" hspace="0" frameborder="0" scrolling="no" width="100%"></iframe></div>
+<script gapi_processed="true" type="text/javascript" src="navbar_data/plusone.js"></script>
+<script type="text/javascript">
+        gapi.load("iframes-styles-bubble", function() {
+          if (window.iframes && iframes.open) {
+            iframes.open(
+                '//www.blogger.com/navbar.g?targetBlogID\07513407979\46blogName\75blog.reddit+--+what\47s+new+on+reddit\46publishMode\75PUBLISH_MODE_HOSTED\46navbarType\75SILVER\46layoutType\75LAYOUTS\46searchRoot\75http://blog.reddit.com/search\46blogLocale\75en_US\46v\0752\46homepageUrl\75http://blog.reddit.com/\46targetPostID\0755764514349606097124\46blogPostOrPageUrl\75http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html\46vt\75-1480064636225063054',
+                {
+                  container: "navbar-iframe-container",
+                  id: "navbar-iframe"
+                },
+                {
+                });
+          }
+        });
+      </script><script type="text/javascript">
+(function() {
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = '//pagead2.googlesyndication.com/pagead/js/google_top_exp.js';
+var head = document.getElementsByTagName('head')[0];
+if (head) {
+head.appendChild(script);
+}})();
+</script>
+</div></div>
+<div id="outer-wrapper"><div id="wrap2">
+<!-- skip links for text browsers -->
+<span id="skiplinks" style="display:none;">
+<a href="#main">skip to main </a> |
+      <a href="#sidebar">skip to sidebar</a>
+</span>
+<div class="item" id="content-wrapper">
+<div id="crosscol-wrapper" style="text-align:center">
+<div class="crosscol section" id="crosscol"></div>
+</div>
+<div id="main-wrapper">
+<div class="main section" id="main"><div class="widget HTML" id="HTML1">
+<div class="widget-content">
+<a style="border:0" href="http://blog.reddit.com/"><img style="border: 0px; margin-left:20px;" src="cassandra_files/reddit_blog.png" border="0"></a>
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=13407979&amp;widgetType=HTML&amp;widgetId=HTML1&amp;action=editWidget&amp;sectionId=main" onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML1"));' target="configHTML1" title="Edit">
+<img alt="" src="cassandra_files/icon18_wrench_allbkg.png" height="18" width="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div><div class="widget Blog" id="Blog1">
+<div class="blog-posts hfeed">
+<!-- google_ad_section_start(name=default) -->
+
+        <div class="date-outer">
+      
+<h2 class="date-header"><span>Tuesday, May 11, 2010</span></h2>
+
+        <div class="date-posts">
+      
+<div class="post-outer">
+<div class="post hentry uncustomized-post-template post-5764514349606097124">
+<a name="5764514349606097124"></a>
+<h3 class="post-title entry-title">
+<a href="http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html">reddit's May 2010 "State of the Servers" report</a>
+</h3>
+<div class="post-header-line-1"></div>
+<div class="post-footer">
+<div class="post-footer-line post-footer-line-1">
+<span class="post-author vcard">
+Posted by
+<span class="fn">the reddit admins</span>
+</span>
+<span class="post-timestamp">
+at
+<a class="timestamp-link" href="http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html" rel="bookmark" title="permanent link"><abbr class="published" title="2010-05-11T14:45:00-07:00">14:45</abbr></a>
+</span>
+<div style="display:inline; color:#c0c0c0; padding: 0 4px; font-size: 1.3em">|</div>
+<span class="reaction-buttons">
+</span>
+<span class="star-ratings">
+</span>
+<span class="post-backlinks post-comment-link">
+</span>
+<span class="post-icons">
+<div class="reddit-button">
+<script>reddit_url='http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html'</script>
+<script src="cassandra_files/button1.js" type="text/javascript"></script><iframe src="cassandra_files/button1.html" frameborder="0" height="22" scrolling="no" width="120"></iframe>
+</div>
+<span class="item-action">
+<a href="http://www.blogger.com/email-post.g?blogID=13407979&amp;postID=5764514349606097124" title="Email Post">
+<img alt="" class="icon-action" src="cassandra_files/icon18_email.gif" height="13" width="18">
+</a>
+</span>
+<span class="item-control blog-admin pid-1367173676">
+<a href="http://www.blogger.com/post-edit.g?blogID=13407979&amp;postID=5764514349606097124&amp;from=pencil" title="Edit Post">
+<img alt="" class="icon-action" src="cassandra_files/icon18_edit_allbkg.gif" height="18" width="18">
+</a>
+</span>
+</span>
+</div>
+<div class="post-footer-line post-footer-line-2">
+<span class="post-labels">
+Labels:
+<a href="http://blog.reddit.com/search/label/problem%20servers" rel="tag">problem servers</a>,
+<a href="http://blog.reddit.com/search/label/server%20problems" rel="tag">server problems</a>
+</span>
+</div>
+<div class="post-footer-line post-footer-line-3"></div>
+</div>
+<div class="post-body entry-content">
+We promised we'd make a blog post about last week's issues, but every 
+time we sat down to write it, a new issue popped up. It's been a crappy 
+week. Anyway, although we're still knee-deep in looking for ways to make
+ the site more stable, it's probably time to write up that, uh, writeup.<br><br>Warning: this post is dense with needlessly technical information. But there's a cartoon if you make it to the end.<h2>she who entangled programmers</h2>The
+ primary cause of the initial slowness and later the all-out outage was 
+the amount of time we spent blocking on Cassandra. Before you blame 
+Cassandra outright, we've been running on Cassandra for our persistent 
+cache for a while now, and when we first deployed it we deployed three 
+machines to the cluster, which at the time was plenty. For performance 
+we stuck a memcached cluster in front of it (because using it to replace
+ memcacheDB was an emergency and we didn't want to wait for Cassandra's 
+0.6 release, which ships with in-core row-caching).<br><br>(Still with me?)<br><br>Since
+ then the amount of data that we've been storing in it has significantly
+ increased and so has the effective load on the memcached/Cassandra 
+pair. memcached is blindingly fast, so we didn't notice that effective 
+load was becoming way too high for just Cassandra to be able to keep up 
+on only three nodes, as it was when we first deployed it. On Wednesday, 
+we changed our memcached hashing implementation (from modulo to ketama, 
+actually to avoid exactly this kind of problem in the future), 
+effectively emptying the memcaches. We've done this before, and the 
+resultant load is usually a bit high for an hour or so, but we've always
+ carried through it just fine. The load on the Cassandra cluster rose 
+instantly and dramatically (which is normal), and stayed high (which is 
+not). Our Cassandra cluster was now so underprovisioned for the load 
+that it wasn't able to catch up. Requests hitting Cassandra started 
+failing with a TimeoutException, and didn't stop.<br><br>Normally the 
+load would go down as more keys are requested and stored in memcached, 
+so repeated requests for the same key would succeed as soon as the first
+ one completes. Since our data in Cassandra has very high locality this 
+would alleviate the load very quickly, but a pair of quirks kept this 
+from happening. First, Cassandra has an internal queue of work to do. 
+When it times out a client (10s by default), it still leaves the 
+operation in the queue of work to complete (even though the person that 
+asked for the read is no longer even holding the socket), which given a 
+constant stream of requests makes the amount of pending work snowball 
+effectively infinitely (specifically, ROW-READ-STAGE's PENDING 
+operations grow unbounded). And second, since the request has timed out,
+ reddit isn't able to take the answer and put it in memcached. Combined,
+ these keep us from ever catching up once we fall behind.<br><br>The way
+ you resolve this with Cassandra is by adding more nodes. But the 
+node-bootstrapping process is particularly expensive (it incurs a 
+process called anti-compaction, which duplicates most of the data on the
+ node being split to make room for the new one) and when the node gets 
+this far behind (that is, when you most need to be able to bootstrap a 
+new node) it actually makes things worse. Adding new nodes too quickly 
+can make things worse yet: the way a bootstrap works is by finding the 
+node in the ring with the highest "load" (that is, the most disk-space 
+used). The new node takes responsibility for half of his ring-space, has
+ the data shipped to himself, and starts serving it up. But the old node
+ doesn't delete the now obsolete data until it's told to execute a 
+cleanup operation, and continues to count that obsolete, unreachable 
+data towards his own load until that time, so new bootstrapping nodes 
+overestimate his load. With a small enough ring this can cause the load 
+of the nodes to become severely imbalanced, which when you're already 
+imbalanced and loaded exacerbates the issue.<br><br>We eventually worked
+ around this by adding a temporary hack to the code that if the data was
+ not found in memcached, the app should assume that it doesn't exist 
+instead of going on to check Cassandra. This removed the read-load from 
+Cassandra but has the side-effect that if you vote or submit a link in 
+that time, when we go to re-order the listings in which the voted item 
+appears we end up fetching an empty listing, adding the voted item, and 
+storing a new 1-item list, overwriting the non-empty list that used to 
+be stored. This is what caused some listings to become empty or 
+inconsistent. Because we receive so many votes this tends to keep the 
+active listings (like /r/reddit.com) very close to consistent but less 
+active ones (like smaller reddits and user-pages) then have a huge gap 
+of data. As we write this a mapreduce job is running to recalculate 
+those listings from the canonical store at about 20/sec, and should be 
+done by the end of the week. During this time no links, comments, or 
+votes were lost, just the persisted cache of what goes into what 
+listing.<br><br>With the read-load gone from Cassandra we were able to 
+finally bring up some new nodes. This is already a long and expensive 
+process but in our case because of some application quirks also required
+ some hand-holding, which took all Wednesday night and into Thursday 
+until around noon. Some particular members of the #cassandra room on 
+Freenode IRC were there for a lot of time walking us through many of the
+ required processes and Cassandra internals to help us keep the downtime
+ as short and the data-loss as small as possible. In particular, the 
+users driftx, jbellis, ericflo, and benblack were all especially 
+helpful, and we owe you guys a case of beer some time.<br><br>Here are some of the lessons we have learnt about Cassandra so far:<ul><li>It
+ scales up nicely, but doesn't scale down nearly as well. At only three 
+nodes we weren't able to take advantage of most of Cassandra's 
+safeguards for ending up in this situation.</li><li>After bootstrapping a new node, the old ones don't delete old data until you run the cleanup, which can unbalance your cluster.</li><li>The pending queue is a good thing to monitor</li><li>It's
+ significantly preferable to be over-provisioned than underprovisioned, 
+and you need good statistics on your growth to project the number of 
+nodes you'll need to handle your load as it increases so that you don't 
+fall behind the curve. We've learnt that this is true of all things in 
+our system, but our monitoring was skewed by memcached masking the load 
+issue.</li></ul><h2>Cassandra is saved by the Amazonians</h2>To make 
+things worse, during the outage we had some initial problems getting the
+ capacity from EC2 that we needed to quickly scale up Cassandra.  
+Sometimes a hedge fund or biotech company will come through and fire up 
+1000 instances in a single EC2 zone to do some number crunching.  A 
+properly architected application will be able to work around this 
+problem by simply coming up in another zone.  We hope to one day have 
+our application at that point, but right now we're sensitive to internal
+ latency and so operating cross-zone is a serious performance hit. Since
+ the bulk of our application is in a zone that had this capacity problem
+ on Thursday, we had trouble getting the instance sizes we needed 
+alongside them. To Amazon's credit, they did help us get what we needed 
+quickly once we told them about the problem.<h2>she must have been pregnant<a href="http://en.wikipedia.org/wiki/Rabbit_test">*</a></h2>After
+ finally recovering from the Cassandra failure and preparing to head off
+ for some much-needed sleep, our internal message bus (rabbitmq) died, 
+which added about an hour to the downtime. It dies like this pretty 
+often at 2am or at other especially bad times. Usually it doesn't cause 
+any data-loss, just sleep-loss (its queues are persisted and the apps 
+just build up their own queues until it comes back up), but in this case
+ it decided to crash in a way that corrupted its database of persisted 
+queues beyond repair. rabbitmq accounts for the only unrecoverable 
+data-loss incurred, which was about 400 votes. As far as we can tell, 
+these were entirely unlinked events. Coincidentally, rabbitmq crashed 
+twice more that day and a few more times into the weekend. For now we've
+ upgraded to the latest version of Erlang (rabbitmq is written in 
+Erlang) since R13B-4 is rumoured to have significantly better memory 
+management which can act as a temporary stopgap for the apparent reasons
+ for some of the crashes, but not all of them. Things have improved thus
+ far, but replacing rabbitmq is at the top end of our extremely long 
+list of things to do.<h2>broken listings</h2>Last week's woes only got in the way of fixing our <a href="http://www.reddit.com/r/blog/comments/bzlte/we_know_about_the_problem_with_missing_items_from/">aforementioned</a>
+ data integrity problems. Right before the proverbial shit / fan 
+interaction last week, we had an unrelated caching bug appear where a 
+cache node went into an indeterminate state where it wasn't down so much
+ as returning empty results (in this case, empty precomputed listings). 
+This normally isn't bad, except when those corrupted listings start 
+having updates and inserts applied to them, and are subsequently cached 
+mostly empty (the same symptom as during the Cassandra downtime but for 
+unrelated reasons). Since all listings are stored in the same caches, 
+this affected some random sampling of listings all over the site.  The 
+mapreduce job will fix instances of this inconsistency regardless of the
+ cause.<h2>email verification irony</h2>We've also discovered that a lot of the <a href="http://blog.reddit.com/2010/04/reddit-experiment-help-reddit-catch.html">verification emails</a>
+ we've been sending out haven't been going through. It seems that the 
+mail server admins at some popular domains (e.g., comcast.net, rr.com, 
+adelphia.net, and me.com) have their servers configured to consider all 
+mail from reddit to be spam. This is because Trend Micro has marked 
+Amazon's entire EC2 network as a <a href="http://www.mail-abuse.com/enduserinfo_dul.html">"dial-up pool"</a>,
+ and the aforementioned domains subscribe to Trend Micro's list and 
+block all mail from anyone on said list. We've written to Trend Micro 
+explaining that we're actually neither a spammer nor an individual end 
+user, but rather an honest website that's kind of a big deal, and they 
+sent us a form letter explaining how to configure Outlook Express and 
+encouraging us to ask our ISP for further information. We'll try to 
+figure something out as soon as time allows.<h2>moving<a name="failiens"> </a>forward</h2>We
+ think the twine and gum holding our servers together should last for 
+the time being, but just in case things fall apart again, we've gone 
+ahead and updated our failure aliens (or, "failiens") to a new set 
+provided by <a href="http://www.reddit.com/user/SubaruKayak">SubaruKayak</a>.<br><br>We hope you don't get to see them for a long, long time, but here's a sneak peek at the new 404 page:<br><br><a href="http://reddit.com/4/0/4"><img style="display:block; margin:0px auto 10px; text-align:center;width: 320px; height: 178px;" src="cassandra_files/404.png" alt="" id="BLOGGER_PHOTO_ID_5470121493914097410" border="0"></a><br>We invite all reddit artists to contribute your own images of the alien in strange, exotic locales. <a href="http://i.imgur.com/23ySV.png">You can get the template here.</a> (Kinda looks like Homsar, doesn't he?)<h2>in conclusion</h2>Despite
+ these problems, our traffic keeps growing, so thank you again for your 
+continued patience -- even if it means we'll have the usual problems of 
+scaling up every few weeks.<br><br>We know that this site would be nothing without its community, and we thank you for your support.
+<div style="clear: both;"></div>
+</div>
+</div>
+<a class="reddit-comments" href="http://www.reddit.com/submit?url=http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html">discuss this post on reddit</a>
+</div>
+
+      </div></div>
+    
+<!-- google_ad_section_end -->
+</div>
+<div class="blog-pager" id="blog-pager">
+<span id="blog-pager-newer-link">
+<a class="blog-pager-newer-link" href="http://blog.reddit.com/2010/05/admins-never-do-what-you-want-now-it-is.html" id="Blog1_blog-pager-newer-link" title="Newer Post">Newer Post</a>
+</span>
+<span id="blog-pager-older-link">
+<a class="blog-pager-older-link" href="http://blog.reddit.com/2010/05/from-reddit-archives.html" id="Blog1_blog-pager-older-link" title="Older Post">Older Post</a>
+</span>
+<a class="home-link" href="http://blog.reddit.com/">Home</a>
+</div>
+<div class="clear"></div>
+<div class="post-feeds">
+</div>
+</div></div>
+</div>
+<div id="sidebar-wrapper">
+<div class="sidebar section" id="sidebar"><div class="widget Text" id="Text1">
+<a href="http://feeds.feedburner.com/redditblog" rel="alternate" title="Subscribe to my feed" type="application/rss+xml"><img alt="" src="cassandra_files/feed-icon32x32.png" style="float:left; background: none; border:0; margin-left:-8px;"></a><h2 class="title" style="text-transform: uppercase;">the reddit blog</h2>
+<div class="widget-content">
+Keep up with the latest development updates, community announcements, and general reddit tomfoolery.
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=13407979&amp;widgetType=Text&amp;widgetId=Text1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("Text1"));' target="configText1" title="Edit">
+<img alt="" src="cassandra_files/icon18_wrench_allbkg.png" height="18" width="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div><div class="widget BlogArchive" id="BlogArchive1">
+<h2>Blog Archive</h2>
+<div class="widget-content">
+<div id="ArchiveList">
+<div id="BlogArchive1_ArchiveList">
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2013-01-01T00:00:00-08:00&amp;updated-max=2014-01-01T00:00:00-08:00&amp;max-results=8">2013</a>
+<span class="post-count" dir="ltr">(8)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2013_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2013_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2013_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2013_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2012-01-01T00:00:00-08:00&amp;updated-max=2013-01-01T00:00:00-08:00&amp;max-results=34">2012</a>
+<span class="post-count" dir="ltr">(34)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2012_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2011-01-01T00:00:00-08:00&amp;updated-max=2012-01-01T00:00:00-08:00&amp;max-results=50">2011</a>
+<span class="post-count" dir="ltr">(59)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(9)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2011_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate expanded">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy toggle-open">▼&nbsp;</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2010-01-01T00:00:00-08:00&amp;updated-max=2011-01-01T00:00:00-08:00&amp;max-results=50">2010</a>
+<span class="post-count" dir="ltr">(72)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(7)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(9)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate expanded">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy toggle-open">▼&nbsp;</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(5)</span>
+<ul class="posts">
+<li><a href="http://blog.reddit.com/2010/05/its-scavenger-hunt.html">It's a scavenger hunt!</a></li>
+<li><a href="http://blog.reddit.com/2010/05/call-for-interns.html">Call for interns</a></li>
+<li><a href="http://blog.reddit.com/2010/05/admins-never-do-what-you-want-now-it-is.html">The admins never do what you want?  Now it is easi...</a></li>
+<li><a href="http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html">reddit's May 2010 "State of the Servers" report</a></li>
+<li><a href="http://blog.reddit.com/2010/05/from-reddit-archives.html">From the reddit archives</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2010_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(13)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2009-01-01T00:00:00-08:00&amp;updated-max=2010-01-01T00:00:00-08:00&amp;max-results=50">2009</a>
+<span class="post-count" dir="ltr">(178)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(7)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(12)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(14)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(14)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(14)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(16)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(16)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(19)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(15)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(25)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2009_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(18)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2008-01-01T00:00:00-08:00&amp;updated-max=2009-01-01T00:00:00-08:00&amp;max-results=50">2008</a>
+<span class="post-count" dir="ltr">(74)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(16)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(7)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2008_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2007-01-01T00:00:00-08:00&amp;updated-max=2008-01-01T00:00:00-08:00&amp;max-results=46">2007</a>
+<span class="post-count" dir="ltr">(46)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_09_01_archive.html">September</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(7)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(7)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2007_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2006-01-01T00:00:00-08:00&amp;updated-max=2007-01-01T00:00:00-08:00&amp;max-results=37">2006</a>
+<span class="post-count" dir="ltr">(37)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_08_01_archive.html">August</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_07_01_archive.html">July</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_06_01_archive.html">June</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_05_01_archive.html">May</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_04_01_archive.html">April</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_03_01_archive.html">March</a>
+<span class="post-count" dir="ltr">(6)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_02_01_archive.html">February</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2006_01_01_archive.html">January</a>
+<span class="post-count" dir="ltr">(9)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/search?updated-min=2005-01-01T00:00:00-08:00&amp;updated-max=2006-01-01T00:00:00-08:00&amp;max-results=20">2005</a>
+<span class="post-count" dir="ltr">(20)</span>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2005_12_01_archive.html">December</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2005_11_01_archive.html">November</a>
+<span class="post-count" dir="ltr">(8)</span>
+</li>
+</ul>
+<ul>
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+          ►&nbsp;
+        
+</span>
+</a>
+<a class="post-count-link" href="http://blog.reddit.com/2005_10_01_archive.html">October</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=13407979&amp;widgetType=BlogArchive&amp;widgetId=BlogArchive1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("BlogArchive1"));' target="configBlogArchive1" title="Edit">
+<img alt="" src="cassandra_files/icon18_wrench_allbkg.png" height="18" width="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div><div class="widget HTML" id="HTML3">
+<div class="widget-content">
+<!--
+<div style="margin-top:10px;"><iframe frameborder="0" width="300" style="width:300px;height:
+250px;" src="http://www.redditjobs.com/Widget/RedditHome.aspx" height="250"></iframe></div>
+-->
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=13407979&amp;widgetType=HTML&amp;widgetId=HTML3&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML3"));' target="configHTML3" title="Edit">
+<img alt="" src="cassandra_files/icon18_wrench_allbkg.png" height="18" width="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div></div>
+</div>
+<!-- spacer for skins that want sidebar and main to be the same height-->
+<div class="clear">&nbsp;</div>
+</div>
+<!-- end content-wrapper -->
+</div></div>
+<!-- end outer-wrapper -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="cassandra_files/ga.js" type="text/javascript"></script><iframe src="cassandra_files/blank.html" style="height: 0px; width: 0px; position: absolute;" name="google_top_static_frame" frameborder="0"></iframe>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-1237041-10");
+pageTracker._trackPageview();
+</script>
+<script type="text/javascript">
+if (window.jstiming) window.jstiming.load.tick('widgetJsBefore');
+</script><script type="text/javascript" src="cassandra_files/1384195903-widgets.js"></script>
+<script gapi_processed="true" type="text/javascript" src="navbar_data/plusone.js"></script>
+<script type="text/javascript">
+if (typeof(BLOG_attachCsiOnload) != 'undefined' && BLOG_attachCsiOnload != null) { window['blogger_templates_experiment_id'] = "templatesV1";window['blogger_blog_id'] = '13407979';BLOG_attachCsiOnload('item_'); }_WidgetManager._Init('//www.blogger.com/rearrange?blogID\x3d13407979','//blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html','13407979');
+_WidgetManager._SetDataContext([{'name': 'blog', 'data': {'blogId': '13407979', 'bloggerUrl': 'http://www.blogger.com', 'title': 'blog.reddit -- what\47s new on reddit', 'pageType': 'item', 'url': 'http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html', 'canonicalUrl': 'http://blog.reddit.com/2010/05/reddits-may-2010-state-of-servers.html', 'canonicalHomepageUrl': 'http://blog.reddit.com/', 'homepageUrl': 'http://blog.reddit.com/', 'blogspotFaviconUrl': 'http://blog.reddit.com/favicon.ico', 'enabledCommentProfileImages': true, 'adultContent': false, 'disableAdSenseWidget': false, 'analyticsAccountNumber': '', 'searchLabel': '', 'searchQuery': '', 'pageName': 'reddit\47s May 2010 \42State of the Servers\42 report', 'pageTitle': 'blog.reddit -- what\47s new on reddit: reddit\47s May 2010 \42State of the Servers\42 report', 'encoding': 'UTF-8', 'locale': 'en-US', 'localeLanguage': 'en', 'isPrivate': false, 'isMobile': false, 'isMobileRequest': false, 'mobileClass': '', 'isPrivateBlog': false, 'languageDirection': 'ltr', 'feedLinks': '\74link rel\75\42alternate\42 type\75\42application/atom+xml\42 title\75\42blog.reddit -- what\46#39;s new on reddit - Atom\42 href\75\42http://blog.reddit.com/feeds/posts/default\42 /\76\n\74link rel\75\42alternate\42 type\75\42application/rss+xml\42 title\75\42blog.reddit -- what\46#39;s new on reddit - RSS\42 href\75\42http://blog.reddit.com/feeds/posts/default?alt\75rss\42 /\76\n\74link rel\75\42service.post\42 type\75\42application/atom+xml\42 title\75\42blog.reddit -- what\46#39;s new on reddit - Atom\42 href\75\42http://www.blogger.com/feeds/13407979/posts/default\42 /\76\n\74link rel\75\42EditURI\42 type\75\42application/rsd+xml\42 title\75\42RSD\42 href\75\42http://www.blogger.com/rsd.g?blogID\07513407979\42 /\76\n\74link rel\75\42alternate\42 type\75\42application/atom+xml\42 title\75\42blog.reddit -- what\46#39;s new on reddit - Atom\42 href\75\42http://blog.reddit.com/feeds/5764514349606097124/comments/default\42 /\76\n', 'meTag': '', 'openIdOpTag': '', 'postImageThumbnailUrl': 'http://2.bp.blogspot.com/_SMII3qiVCz8/S-nGhEr6lwI/AAAAAAAAAGY/tPQJuR2j60s/s72-c/404.png', 'imageSrcTag': '\74link rel\75\42image_src\42 href\75\42http://2.bp.blogspot.com/_SMII3qiVCz8/S-nGhEr6lwI/AAAAAAAAAGY/tPQJuR2j60s/s72-c/404.png\42 /\76\n', 'latencyHeadScript': '\74script type\75\42text/javascript\42\76(function() { var b\75window,e\75\42jstiming\42,g\75\42tick\42;(function(){function d(a){this.t\75{};this.tick\75function(a,d,c){c\75void 0!\75c?c:(new Date).getTime();this.t[a]\75[c,d]};this[g](\42start\42,null,a)}var a\75new d;b.jstiming\75{Timer:d,load:a};if(b.performance\46\46b.performance.timing){var a\75b.performance.timing,c\75b[e].load,f\75a.navigationStart,a\75a.responseStart;0\74f\46\46a\76\75f\46\46(c[g](\42_wtsrt\42,void 0,f),c[g](\42wtsrt_\42,\42_wtsrt\42,a),c[g](\42tbsd_\42,\42wtsrt_\42))}try{a\75null,b.chrome\46\46b.chrome.csi\46\46(a\75Math.floor(b.chrome.csi().pageT),c\46\0460\74f\46\46(c[g](\42_tbnd\42,void 0,b.chrome.csi().startE),\nc[g](\42tbnd_\42,\42_tbnd\42,f))),null\75\75a\46\46b.gtbExternal\46\46(a\75b.gtbExternal.pageT()),null\75\75a\46\46b.external\46\46(a\75b.external.pageT,c\46\0460\74f\46\46(c[g](\42_tbnd\42,void 0,b.external.startE),c[g](\42tbnd_\42,\42_tbnd\42,f))),a\46\46(b[e].pt\75a)}catch(l){}})();b.tickAboveFold\75function(d){var a\0750;if(d.offsetParent){do a+\75d.offsetTop;while(d\75d.offsetParent)}d\75a;750\76\75d\46\46b[e].load[g](\42aft\42)};var h\75!1;function k(){h||(h\75!0,b[e].load[g](\42firstScrollTime\42))}b.addEventListener?b.addEventListener(\42scroll\42,k,!1):b.attachEvent(\42onscroll\42,k);\n })();\74/script\076', 'mobileHeadScript': '', 'view': '', 'dynamicViewsCommentsSrc': '//www.blogblog.com/dynamicviews/4224c15c4e7c9321/js/comments.js', 'dynamicViewsScriptSrc': '//www.blogblog.com/dynamicviews/7b32dfe08d385af5', 'plusOneApiSrc': 'https://apis.google.com/js/plusone.js', 'sf': 'n', 'tf': ''}}, {'name': 'skin', 'data': {'vars': {'mainVisitedLinkColor': '#9966A2', 'sidebarBgColor': '#666666', 'mainTextColor': '#000000', 'sidebarTitleColor': '#000000', 'sidebarVisitedLinkColor': '#b3b3b3', 'mainBgColor': '#ffffff', 'sidebarTextColor': '#000000', 'sidebarLinkColor': '#ffffff', 'mainLinkColor': '#336699', 'testy': 'null', 'bodyFont': 'normal normal 125% Arial, sans-serif', 'dateHeaderColor': '#7f7f7f', 'endSide': 'right', 'startSide': 'left'}, 'override': '\n.reddit-comments {\n  margin-left: 20px;\n  background: #CEE3F8;\n  padding: 3px 6px;\n  border-radius: 3px;\n}\n\n.reddit-button {\n  display: inline-block;\n  vertical-align: middle;\n  height: 20px;\n}\n'}}, {'name': 'view', 'data': {'classic': {'name': 'classic', 'url': '/?view\75classic'}, 'flipcard': {'name': 'flipcard', 'url': '/?view\75flipcard'}, 'magazine': {'name': 'magazine', 'url': '/?view\75magazine'}, 'mosaic': {'name': 'mosaic', 'url': '/?view\75mosaic'}, 'sidebar': {'name': 'sidebar', 'url': '/?view\75sidebar'}, 'snapshot': {'name': 'snapshot', 'url': '/?view\75snapshot'}, 'timeslide': {'name': 'timeslide', 'url': '/?view\75timeslide'}}}]);
+_WidgetManager._RegisterWidget('_TextView', new _WidgetInfo('Text1', 'sidebar', null, document.getElementById('Text1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogArchiveView', new _WidgetInfo('BlogArchive1', 'sidebar', null, document.getElementById('BlogArchive1'), {'languageDirection': 'ltr'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML3', 'sidebar', null, document.getElementById('HTML3'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_NavbarView', new _WidgetInfo('Navbar1', 'navbar', null, document.getElementById('Navbar1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML1', 'main', null, document.getElementById('HTML1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogView', new _WidgetInfo('Blog1', 'main', null, document.getElementById('Blog1'), {'cmtInteractionsEnabled': false, 'lightboxEnabled': true, 'lightboxModuleUrl': '//www.blogger.com/static/v1/jsbin/4050351478-lbx.js', 'lightboxCssUrl': '//www.blogger.com/static/v1/v-css/228702327-lightbox_bundle.css'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_PageListView', new _WidgetInfo('PageList1', 'null', null, document.getElementById('PageList1'), {'title': 'Pages', 'links': [{'href': 'http://blog.reddit.com/', 'title': 'Home', 'isCurrentPage': false}], 'mobile': false}, 'displayModeFull'));
+</script>
+
+</body></html>
