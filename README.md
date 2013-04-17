@@ -30,6 +30,31 @@ mylunch
 todo
 ====
 
+* This makes sense .. I'm going to do it.  The database records should 
+  contain the path to the pictures.
+
+* Ok .. I think I have a plan:  I'm going to stay with mongo to store the
+  user data (it works fine).  This is just a dumb key-value store.  I can 
+  write my own blindingly fast cache .. or even better, I can just store 
+  these as files on the fs .. now here's the interesting part: I can 
+  create a clusters of machines which handle a set of users.  So a local
+  mongo might contain information for (say) 10k users, and a file system
+  on that local machine would have all of the necessary photos, thumbs,
+  etc, that these users use.
+
+* If I stay with mongo, I will have to revisit the implementation and 
+  revise my deployment strategies ..
+
+* Mongodb has COLLECTION-LEVEL-LOCKING.  This is pretty terrible.  Maybe
+  each user could get their own collection?  How fast is it to resolve
+  a collection for a user?  I guess I could 'cache' the collection-
+  handle ..
+
+* I'm thinking that Cassandra might be the right product, but I'll have to
+  take care to configure it correctly.  I will have to make sure I have the
+  'timeout' feature turned off .. and I'll have to have a sane way to 
+  partition the data (I think the default random algorithm is sub-optimal).
+
 * (sigh) I think I'm going to have to replace the backend.  Maybe there's 
   another nosql solution?  Or I'm not opposed to using a normal database.
 
@@ -50,7 +75,7 @@ todo
 * Update mongodb to 64-bit
 
 * Maybe make a trash-can one of the icons on the top of the screen - users 
-  will be able to restore deleted pictures and meals from the trash can.`
+  will be able to restore deleted pictures and meals from the trash can.
 
 * Work on the 'User Preferences' screen.  This should have very basic things:
 
