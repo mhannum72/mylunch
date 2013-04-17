@@ -2,6 +2,31 @@ mylunch
 =======
 * Personal project: a website where people can upload pictures of their meals.
 
+* All of the pictures should be stored in redis (with a refreshing timeout)
+  and onto disk.  There's a little bit of meta-information that I'll want to 
+  store in a header here.
+
+* Today all of the pictures are kept in mongodb- knowing what I now know 
+  about mongo, this is a very bad design because despite being webscale, mongo
+  doesn't scale: it's a memory mapped file that uses the machine's virtual 
+  memory system as it's buffer-cache.  This means that it will happily
+  consume all of your machines memory if you let it.  Mongo issue number 2:
+  lock granularity: they have a single lock per collection (table) that they
+  lock in read-mode for reads, write-mode for writes.  Whoever thought mongo
+  was 'webscale' is seriously dumb.
+
+* I don't have to throw all of this away necessarily (though I might 
+  eventually).  If I consider mongodb to be simply a small-ish in-memory hash
+  which contains the meta-information about the pictures then I'm golden.
+
+* For the pictures themselves, I'll access them directly from the file-system.
+  My plan is to create a small-ish server which will handle the replication of
+  the image files across different machines.  My web-server should make all 
+  read and write requests through this server.
+
+* Cut 1: this will be very simple, local machine only.  Maybe it uses redis
+  or memcached 
+
 todo
 ====
 
