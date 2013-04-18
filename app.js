@@ -27,6 +27,9 @@ var util = require('util');
 var geoip = require('geoip');
 var city = new geoip.City('geolitecity/GeoLiteCity.dat');
 
+// How long pictures and thumbs will stay in the redis-cache
+// var redisImageTimeout = 3600;
+
 // forget zlib (its slow).  if im gonna compress i'll use lz4
 // var zlib = require('zlib');
 
@@ -40,6 +43,8 @@ var maxMealWidth = 780;
 var maxMealHeight = 780;
 var maxThumbWidth = 300;
 var maxThumbHeight = 300;
+
+var directorymode = 0777;
 
 // Maximum meals on editpage
 var maxMealsPerPage = 25;
@@ -55,6 +60,9 @@ var infoUpdateMs = 1 * msPerSecond;
 
 // position can only be updated once every 10 seconds
 var posUpdateMs = 5 * msPerSecond;
+
+// user pictures base directory
+var basedirectory = '/data/users';
 
 var webPort = 3000;
 var webBase = 'localhost:' + webPort;
@@ -256,8 +264,29 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
             }
         }
         
-        // Success
-        callback( null, user );
+        // Success: create new directories:
+        var useriddir = basedirectory + '/' + uniqueid;
+        var imagedir = useriddir + '/images';
+
+        fs.mkdir(userdir, directorymode, function(err) {
+
+            if(err) throw (err);
+            callback( null, user );
+
+            var count = 0;
+
+            // Invoke user callback when we're done
+            function complete(err) {
+                if(err) throw(err);
+                //if(++count == 2) {
+                //    callback( null, user );
+                //}
+                callback( null, user );
+            }
+
+            fs.mkdir(imagedir, directorymode, complete);
+
+        });
     }); 
 }
 
@@ -1006,7 +1035,13 @@ setMealInfoInMongo = function(mymealinfo, callback) {
         // Insert the meal information
         mealInfo.insert(mymealinfo, {safe:true}, function(err, object) {
             if(err) throw (err);
-            callback(err, object);
+
+            // Keeping with my clever hack
+            var newmealdir = basedirectory + '/' + mymealinfo.userid + '/images/' + mymealinfo.timestamp;
+            fs.mkdir(newmealdir, directorymode, function(err) {
+                if(err) throw (err);
+                callback(null, object);
+            });
         });
     });
 }
@@ -1088,13 +1123,55 @@ deleteMealPicInMongo = function(userid, timestamp, callback) {
 }
 
 // Set a meal picture
-setMealPicInMongo = function(mealpic, callback) {
+setMealPicInMongo = function(mealpic, mealts, callback) {
+
+    var count = 0;
+    // Here's a really low hack:
+    //
+    // I'm going to create a new object which doesn't have the image: 
+    // the image will be stored on disk.  
+
+    // Create a reference to image
+    var image = mealpic.image;
+
+    // Delete the property
+    delete mealpic.image;
+
+    // Get collection
     getCollection('mealPics', function(error, mealPics) {
         if(error) throw (error);
 
+        // Insert
         mealPics.insert(mealpic, {safe:true}, function(err, object) {
+            mealpic.image = image;
             if(err) throw (err);
-            callback( err, object );
+
+            // Redis-key
+            var rediskey = mealpic.userid + '/images/' + mealts + '/' + mealpic.timestamp;
+
+            // Filename 
+            var picname = basedirectory + '/' + mealpic.userid + '/images/' + mealts + '/' + mealpic.timestamp;
+
+            // Count completions
+            var count = 0;
+
+            // Callback for fs write and redis writes
+            function writecb(err) {
+
+                if(err) throw(err);
+
+                if(++count == 2) {
+                    callback( err, object );
+                }
+
+            }
+
+            // Write to fs
+            fs.writeFile(picname, image, writecb);
+
+            // Write to redis
+            redisClient.set(rediskey, image, writecb); 
+
         });
     });
 }
@@ -1199,6 +1276,9 @@ var RedisStore = require('connect-redis')(express);
 
 // Create a redis-client for my general use
 var redisClient = require('redis').createClient();
+
+// Configure redis as an lru-cache
+redisClient.config("set", "maxmemory-policy", "allkeys-lru");
 
 // Mailer
 var mailer = require('nodemailer').createTransport("SMTP", {
@@ -1849,6 +1929,7 @@ function picInfo(mitimestamp, name, size, width, height, type, features) {
     // Mealinfo timestamp - points to a mealinfo table entry
     this.mitimestamp = mitimestamp;
 
+    // This is imagetype
     this.type = type;
 
     this.width = width;
@@ -4161,6 +4242,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     picinfo.thumbwidth = Math.floor(scaleThumbWidth);
     picinfo.thumbheight = Math.floor(scaleThumbHeight);
 
+    // Set picture type
+    //picinfo.imagetype = req.files.inputupload.type;
 
     req.session.user.numPics++;
 
@@ -4168,8 +4251,11 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
         if(err) throw(err);
     });
 
+    // Write the picture to disk (and maybe to redis).  Instead of setMealPicInMongo, just write the
+    // picture
+
     var mealpic = new mealPic(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
-    setMealPicInMongo(mealpic, function(err, object) {
+    setMealPicInMongo(mealpic, picinfo.mitimestamp, function(err, object) {
 
         if(err) throw(err);
 
@@ -4310,6 +4396,16 @@ function imageFeatures(path, callback) {
     });
 }
 
+function imagepath( userid, mealts, picts ) 
+{
+    return basedirectory + '/' + userid + '/images/' + mealts + '/' + picts;
+}
+
+function thumbpath( userid, mealts, picts )
+{
+    return basedirectory + '/' + userid + '/thumbs/' + mealts + '/' + picts;
+}
+
 // Massage a mealpic that the user has just uploaded
 function editMealsUploadPost(req, res, mealinfo, next) {
 
@@ -4326,7 +4422,7 @@ function editMealsUploadPost(req, res, mealinfo, next) {
             return;
         }
 
-        // Ideal case: there's no resizing to do
+        // Ideal case: there's no resizing to do.  just move the picture in place
         if(features.width <= maxMealWidth && features.height <= maxMealHeight) {
             fs.readFile(req.files.inputupload.path, "binary", function(error, image) {
                 var picinfo = new picInfo(
@@ -4840,6 +4936,15 @@ app.get('/yesreallyanadmin', function(req, res, next) {
     });
 
 });
+
+// Get the user picture & thumbs base directory
+if(process.env.USER_BASE_IMAGES) {
+    basedirectory = process.env.USER_BASE_IMAGES;
+    console.log('Set user base image directory to ' +  basedirectory );
+}
+else {
+    console.log('User base image directory is ' +  basedirectory );
+}
 
 // Show pictures and information about the meals that I've uploaded.
 // I will allow each user to generate their own 'category' or 'folder',

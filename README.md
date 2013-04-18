@@ -2,9 +2,34 @@ mylunch
 =======
 * Personal project: a website where people can upload pictures of their meals.
 
-* All of the pictures should be stored in redis (with a refreshing timeout)
-  and onto disk.  There's a little bit of meta-information that I'll want to 
-  store in a header here.
+todo
+====
+
+* Maybe each picture can have a descriptor file which contains the meta-
+  information?
+
+* Step 1 in implementing this: I have move some meta information into the
+  picinfo table.  The downside to this is that it will take either two
+  database hits, or a db hit and a fs hit .. this is the argument for 
+  putting picture information in the header.  The argument against: I'd 
+  like to be able to open these pictures up from the filesystem itself.
+
+* Thought about going to mysql & decided against it.  I will still use
+  mongo for the small stuff (user records, stuff that can stay in-memory)
+  and the other stuff I will write to a file from within node itself
+  (cut 1).  This may eventually become a server, but not today.
+
+* This makes sense .. I'm going to do it.  The database records should 
+  contain the path to the pictures.
+
+* Ok .. I think I have a plan:  I'm going to stay with mongo to store the
+  user data (it works fine).  This is just a dumb key-value store.  I can 
+  write my own blindingly fast cache .. or even better, I can just store 
+  these as files on the fs .. now here's the interesting part: I can 
+  create a clusters of machines which handle a set of users.  So a local
+  mongo might contain information for (say) 10k users, and a file system
+  on that local machine would have all of the necessary photos, thumbs,
+  etc, that these users use.
 
 * Today all of the pictures are kept in mongodb- knowing what I now know 
   about mongo, this is a very bad design because despite being webscale, mongo
@@ -24,23 +49,12 @@ mylunch
   the image files across different machines.  My web-server should make all 
   read and write requests through this server.
 
+* All of the pictures should be stored in redis (with a refreshing timeout)
+  and onto disk.  There's a little bit of meta-information that I'll want to 
+  store in a header here.
+
 * Cut 1: this will be very simple, local machine only.  Maybe it uses redis
   or memcached 
-
-todo
-====
-
-* This makes sense .. I'm going to do it.  The database records should 
-  contain the path to the pictures.
-
-* Ok .. I think I have a plan:  I'm going to stay with mongo to store the
-  user data (it works fine).  This is just a dumb key-value store.  I can 
-  write my own blindingly fast cache .. or even better, I can just store 
-  these as files on the fs .. now here's the interesting part: I can 
-  create a clusters of machines which handle a set of users.  So a local
-  mongo might contain information for (say) 10k users, and a file system
-  on that local machine would have all of the necessary photos, thumbs,
-  etc, that these users use.
 
 * If I stay with mongo, I will have to revisit the implementation and 
   revise my deployment strategies ..
