@@ -1122,6 +1122,22 @@ deleteMealPicInMongo = function(userid, timestamp, callback) {
     });
 }
 
+function filename_for_image(userid, mealts, picts) {
+    return basedirectory + '/' + userid + '/images/' + mealts + '/img.' + picts;
+}
+
+function filename_for_thumb(userid, mealts, picts) {
+    return basedirectory + '/' + userid + '/thumbs/' + mealts + '/thm.' + picts;
+}
+
+function rediskey_for_image(userid, mealts, picts) {
+    return userid + '.' + mealts + '.img.' + picts;
+}
+
+function rediskey_for_thumb(userid, mealts, picts) {
+    return userid + '.' + mealts + '.thm.' + picts;
+}
+
 // Set a meal picture
 setMealPicInMongo = function(mealpic, mealts, callback) {
 
@@ -1147,10 +1163,10 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
             if(err) throw (err);
 
             // Redis-key
-            var rediskey = mealpic.userid + '/images/' + mealts + '/' + mealpic.timestamp;
+            var rediskey rediskey_for_image(mealpic.userid, mealts, mealpic.timestamp);
 
             // Filename 
-            var picname = basedirectory + '/' + mealpic.userid + '/images/' + mealts + '/' + mealpic.timestamp;
+            var picname = filename_for_image(mealpic.userid, mealts, mealpic.timestamp);
 
             // Count completions
             var count = 0;
@@ -1158,11 +1174,11 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
             // Callback for fs write and redis writes
             function writecb(err) {
 
+                // Throw an error if I got it
                 if(err) throw(err);
 
-                if(++count == 2) {
-                    callback( err, object );
-                }
+                // Callback 
+                if(++count == 2) callback( err, object );
 
             }
 
