@@ -271,20 +271,11 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
         fs.mkdir(userdir, directorymode, function(err) {
 
             if(err) throw (err);
-            callback( null, user );
 
-            var count = 0;
-
-            // Invoke user callback when we're done
-            function complete(err) {
+            fs.mkdir(imagedir, directorymode, function(err) {
                 if(err) throw(err);
-                //if(++count == 2) {
-                //    callback( null, user );
-                //}
                 callback( null, user );
-            }
-
-            fs.mkdir(imagedir, directorymode, complete);
+            });
 
         });
     }); 
@@ -1046,29 +1037,31 @@ setMealInfoInMongo = function(mymealinfo, callback) {
     });
 }
 
-getMealThumbFromMongoById = function( id, callback ) {
-    getCollection('mealThumbs', function(error, mealThumbs) {
-        if(error) throw (error);
+function filename_for_image(userid, mealts, picts) {
+    return basedirectory + '/' + userid + '/images/' + mealts + '/img.' + picts;
+}
 
-        mealThumbs.find( {_id: id }).toArray( function( err, results) {
-            if(err) throw(err);
-            if(results.length > 1) {
-                throw new Error(results.length + ' thumbs in Mongo for id' + id);
-            }
-            if(results.length == 0) {
-                callback(err);
-            }
-            else {
-                callback(err, results[0]);
-            }
-        });
-    });
+function filename_for_thumb(userid, mealts, picts) {
+    return basedirectory + '/' + userid + '/thumbs/' + mealts + '/thm.' + picts;
+}
+
+function rediskey_for_image(userid, picts) {
+    return userid + '.' + '.img.' + picts;
+}
+
+function rediskey_for_thumb(userid, picts) {
+    return userid + '.' + '.thm.' + picts;
 }
 
 // Get a thumbnail image from mongodb
 getMealThumbFromMongo = function(userid, timestamp, callback) {
     getCollection('mealThumbs', function(error, mealThumbs) {
         if(error) throw (error);
+
+        // TODO: If I knew the mitimestamp ahead of time, I could shoot off the 
+        // mongo-find and the redis-find in parallel rather than serially - to do
+        // this, I would have to include the meal-timestap in the client-side
+        // request.
 
         mealThumbs.find( {userid:userid, timestamp: timestamp}).toArray( function( err, results) {
             if(err) throw(err);
@@ -1079,6 +1072,40 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
                 callback(err);
             }
             else {
+
+                // Form redis-key
+                var rediskey = rediskey_for_thumb(userid, results[0].mitimestamp, results[0].timestamp);
+
+                // Request from redis
+                redisClient.get(rediskey, function( err, reply ) {
+
+                    // Throw errors
+                    if(err) throw (err);
+
+                    // Got a good reply
+                    if(reply) {
+
+                        // Debug trace
+                        console.log("Found cached thumb for user " + userid + " meal " + 
+                            results[0].mitimestamp + " timestamp " + timestamp);
+
+                        // Add image attribute
+                        results[0].image = reply;
+
+                        // Invoke callback
+                        callback(err, results[0]);
+
+                    }
+                    // Cache miss
+                    else {
+
+                        // Form filename for image
+                        var fsname = filename_for_thumb( userid, results[0].mitimestamp, timestamp);
+                    }
+
+
+                });
+
                 callback(err, results[0]);
             }
         });
@@ -1090,9 +1117,44 @@ setMealThumbInMongo = function(mealthumb, callback) {
     getCollection('mealThumbs', function(error, mealThumbs) {
         if(error) throw (error);
 
+        // Create a reference to the thmub
+        var image = mealthumb.image;
+
+        // Delete this attribute
+        delete mealthumb.image;
+
+        // Insert
         mealThumbs.insert(mealthumb, {safe:true}, function(err, object) {
+
+            // Put attribute back
+            mealthumb.image = image;
+
+            // Throw any errors
             if(err) throw (err);
-            callback( err, object );
+
+            // Redis key
+            var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+
+            // File name
+            var picname = filename_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+
+            // Write to fs
+            fs.writeFile(picname, image, function(err) {
+
+                if(err) throw (err);
+
+            });
+
+            // Write to redis
+            redisClient.set(rediskey, image, function(err) {
+
+                // Punt on error
+                if(err) throw (err);
+
+                // Invoke callback
+                callback( err, object );
+
+            });
         });
     });
 }
@@ -1122,24 +1184,8 @@ deleteMealPicInMongo = function(userid, timestamp, callback) {
     });
 }
 
-function filename_for_image(userid, mealts, picts) {
-    return basedirectory + '/' + userid + '/images/' + mealts + '/img.' + picts;
-}
-
-function filename_for_thumb(userid, mealts, picts) {
-    return basedirectory + '/' + userid + '/thumbs/' + mealts + '/thm.' + picts;
-}
-
-function rediskey_for_image(userid, mealts, picts) {
-    return userid + '.' + mealts + '.img.' + picts;
-}
-
-function rediskey_for_thumb(userid, mealts, picts) {
-    return userid + '.' + mealts + '.thm.' + picts;
-}
-
 // Set a meal picture
-setMealPicInMongo = function(mealpic, mealts, callback) {
+setMealPicInMongo = function(mealpic, callback) {
 
     var count = 0;
     // Here's a really low hack:
@@ -1147,26 +1193,32 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
     // I'm going to create a new object which doesn't have the image: 
     // the image will be stored on disk.  
 
-    // Create a reference to image
-    var image = mealpic.image;
-
-    // Delete the property
-    delete mealpic.image;
-
     // Get collection
     getCollection('mealPics', function(error, mealPics) {
+
+        // Throw any errors
         if(error) throw (error);
+
+        // Create a reference to image
+        var image = mealpic.image;
+
+        // Delete the property
+        delete mealpic.image;
 
         // Insert
         mealPics.insert(mealpic, {safe:true}, function(err, object) {
+
+            // Replace image attribute
             mealpic.image = image;
+
+            // Throw any errors
             if(err) throw (err);
 
             // Redis-key
-            var rediskey rediskey_for_image(mealpic.userid, mealts, mealpic.timestamp);
+            var rediskey = rediskey_for_image(mealpic.userid, mealpic.mitimestamp, mealpic.timestamp);
 
             // Filename 
-            var picname = filename_for_image(mealpic.userid, mealts, mealpic.timestamp);
+            var picname = filename_for_image(mealpic.userid, mealpic.mitimestamp, mealpic.timestamp);
 
             // Write to fs
             fs.writeFile(picname, image, function(err) { 
@@ -1175,39 +1227,17 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
 
             });
 
-            // Write to redis
+            // Callback after redis-write is complete
+            // I know this exposes a race, but seriously?
             redisClient.set(rediskey, image, function(err) {
 
                 // Punt on error
                 if(err) throw (err);
 
                 // Return control to the caller
-                callback( err, object );
+                callback( err, mealpic );
 
             }); 
-
-            /*
-            // Count completions
-            var count = 0;
-
-            // Callback for fs write and redis writes
-            function writecb(err) {
-
-                // Throw an error if I got it
-                if(err) throw(err);
-
-                // Callback 
-                if(++count == 2) callback( err, object );
-
-            }
-
-            // Write to fs
-            fs.writeFile(picname, image, function() { });
-
-            // Write to redis
-            redisClient.set(rediskey, image, writecb); 
-            */
-
         });
     });
 }
@@ -1218,17 +1248,95 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
     getCollection('mealPics', function(error, mealPics) {
         if(error) throw (error);
 
+        // Count completions
+        var count = 0;
+
+        // Declare reply
+        var reply = null;
+
+        // Declare results
+        var results = null;
+
+        function getmealpiccb( err, res, rep) {
+
+            // Throw any errors
+            if(err) throw( err );
+
+            // Filled by mongo find
+            if(res) results = res;
+
+            // Filled by redis find
+            if(rep) reply = rep;
+
+            // Continue if we have responses from both
+            if(++count == 2) {
+
+                // Sanity check mongo 
+                if(results.length > 1) {
+                    throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
+                }
+
+                // No records
+                if(results.length <= 0) {
+                    callback(err);
+                }
+
+                // Check reply from redis
+                if(reply) {
+
+                    // Debug trace
+                    console.log("Found cached image for user " + userid + " meal " + 
+                            results[0].mitimestamp + " timestamp " + timestamp);
+
+                    // Found image in redis
+                    results[0].image = reply;
+
+                    // Invoke callback
+                    callback(err, results[0]);
+
+                }
+
+                // Cache miss 
+                else {
+
+                    // Form filename for image
+                    var fsname = filename_for_image( userid, results[0].mitimestamp, timestamp);
+
+                    // Read file
+                    fs.readFile(fsname, function(err, image) {
+
+                        // Throw error if I got it
+                        if(err) throw(err);
+
+                        // Debug trace
+                        console.log("Found ondisk image for user " + userid + " meal " + 
+                            results[0].mitimestamp + " timestamp " + timestamp);
+
+                        // Set image
+                        results[0].image = image;
+
+                        // Races but we should hit the fs cache if redis loses
+                        redisClient.set(rediskey, image, null );
+
+                        // Invoke callback
+                        callback( null, results[0] );
+
+                    });
+                }
+            }
+        }
+
+        // Send asynchronous search to mongo
         mealPics.find( {userid:userid, timestamp: timestamp}).toArray( function( err, results) {
-            if(err) throw(err);
-            if(results.length > 1) {
-                throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
-            }
-            if(results.length == 0) {
-                callback(err);
-            }
-            else {
-                callback(err, results[0]);
-            }
+            getmealpiccb( err, results, null);
+        });
+
+        // Form redis-key
+        var rediskey = rediskey_for_image(userid, timestamp);
+
+        // Send asynchronous search to redis
+        redisClient.get(rediskey, function( err, reply ) {
+            getmealpiccb( err, null, reply);
         });
     });
 }
@@ -2105,6 +2213,7 @@ function mealInfo(user) {
 function mealThumb(userid, picInfo, image, imageType) {
     this.userid = userid;
     this.timestamp = picInfo.timestamp;
+    this.mitimestamp = picInfo.mitimestamp;
     this.imageType = imageType;
     this.image = image;
 }
@@ -2112,6 +2221,7 @@ function mealThumb(userid, picInfo, image, imageType) {
 // Create a pic object for mongo
 function mealPic(userid, picInfo, image, imageType) {
     this.userid = userid;
+    this.mitimestamp = picInfo.mitimestamp;
     this.timestamp = picInfo.timestamp;
     this.imageType = imageType;
     this.image = image;
@@ -4291,7 +4401,7 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     // Instead of setMealPicInMongo, just write the picture
 
     var mealpic = new mealPic(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
-    setMealPicInMongo(mealpic, picinfo.mitimestamp, function(err, object) {
+    setMealPicInMongo(mealpic, function(err, object) {
 
         if(err) throw(err);
 
