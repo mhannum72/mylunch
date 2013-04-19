@@ -1168,6 +1168,25 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
             // Filename 
             var picname = filename_for_image(mealpic.userid, mealts, mealpic.timestamp);
 
+            // Write to fs
+            fs.writeFile(picname, image, function(err) { 
+
+                if(err) throw (err);
+
+            });
+
+            // Write to redis
+            redisClient.set(rediskey, image, function(err) {
+
+                // Punt on error
+                if(err) throw (err);
+
+                // Return control to the caller
+                callback( err, object );
+
+            }); 
+
+            /*
             // Count completions
             var count = 0;
 
@@ -1183,10 +1202,11 @@ setMealPicInMongo = function(mealpic, mealts, callback) {
             }
 
             // Write to fs
-            fs.writeFile(picname, image, writecb);
+            fs.writeFile(picname, image, function() { });
 
             // Write to redis
             redisClient.set(rediskey, image, writecb); 
+            */
 
         });
     });
@@ -4267,8 +4287,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
         if(err) throw(err);
     });
 
-    // Write the picture to disk (and maybe to redis).  Instead of setMealPicInMongo, just write the
-    // picture
+    // Write the picture to disk (and maybe to redis).  
+    // Instead of setMealPicInMongo, just write the picture
 
     var mealpic = new mealPic(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
     setMealPicInMongo(mealpic, picinfo.mitimestamp, function(err, object) {
