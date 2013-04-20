@@ -5,6 +5,17 @@ mylunch
 todo
 ====
 
+* The images seem to flicker as they scroll onto the editmeals page - this
+  is probably only an issue for the LINUX version of firefox .. I will 
+  need to make sure and test other browsers on other machines to make sure 
+  this isn't an issue .. another approach might be to wait and apply the 
+  grayscale affect after the grid has moved in place ..
+
+* Fix the algorithm for choosing a user's name.
+
+* The pictures are being written through to disk.  There might be an issue
+  with scaling the redis cache (which is single threaded).
+
 * Maybe each picture can have a descriptor file which contains the meta-
   information?
 

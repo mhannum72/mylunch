@@ -27,9 +27,6 @@ var util = require('util');
 var geoip = require('geoip');
 var city = new geoip.City('geolitecity/GeoLiteCity.dat');
 
-// How long pictures and thumbs will stay in the redis-cache
-// var redisImageTimeout = 3600;
-
 // forget zlib (its slow).  if im gonna compress i'll use lz4
 // var zlib = require('zlib');
 
@@ -80,6 +77,8 @@ var nomealpic = null;
 var favicon = null;
 var notfoundpic = null;
 var notfoundthumb = null;
+
+var redispiccache = true;
 
 // Tried async thumbs: it's more efficient to go inline.  
 // TODO: Find or write a faster image-resizer.
@@ -1107,10 +1106,6 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
                 // Check reply from redis
                 if(reply) {
 
-                    // Debug trace
-                    console.log("Found cached thumb for user " + userid + " meal " + 
-                            results[0].mitimestamp + " timestamp " + timestamp);
-
                     // Found image in redis
                     results[0].image = reply;
 
@@ -1126,14 +1121,10 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
                     var fsname = filename_for_thumb( userid, results[0].mitimestamp, timestamp);
 
                     // Read file
-                    fs.readFile(fsname, function(err, image) {
+                    fs.readFile(fsname, "binary", function(err, image) {
 
                         // Throw error if I got it
                         if(err) throw(err);
-
-                        // Debug trace
-                        console.log("Found ondisk thumb for user " + userid + " meal " + 
-                            results[0].mitimestamp + " timestamp " + timestamp);
 
                         // Set image
                         results[0].image = image;
@@ -1166,9 +1157,14 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
         var rediskey = rediskey_for_thumb(userid, timestamp);
 
         // Send asynchronous search to redis
-        redisClient.get(rediskey, function( err, reply ) {
-            getmealthumbcb( err, null, reply);
-        });
+        if(redispiccache) {
+            redisClient.get(rediskey, function( err, reply ) {
+                getmealthumbcb( err, null, reply);
+            });
+        }
+        else {
+            getmealthumbcb( null, null, null );
+        }
     });
 }
 
@@ -1211,7 +1207,7 @@ setMealThumbInMongo = function(mealthumb, callback) {
             var picname = filename_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
 
             // Write file asynchronously
-            fs.writeFile(picname, image, function(err) {
+            fs.writeFile(picname, image, "binary", function(err) {
 
                 if(err) throw (err);
 
@@ -1226,7 +1222,7 @@ setMealThumbInMongo = function(mealthumb, callback) {
         });
 
         // Redis key
-        var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+        var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.timestamp);
 
         // Write to redis
         redisClient.set(rediskey, image, function(err, reply) {
@@ -1293,13 +1289,13 @@ setMealPicInMongo = function(mealpic, callback) {
             if(err) throw (err);
 
             // Redis-key
-            var rediskey = rediskey_for_image(mealpic.userid, mealpic.mitimestamp, mealpic.timestamp);
+            var rediskey = rediskey_for_image(mealpic.userid, mealpic.timestamp);
 
             // Filename 
             var picname = filename_for_image(mealpic.userid, mealpic.mitimestamp, mealpic.timestamp);
 
             // Write to fs
-            fs.writeFile(picname, image, function(err) { 
+            fs.writeFile(picname, mealpic.image, "binary", function(err) { 
 
                 if(err) throw (err);
 
@@ -1307,7 +1303,7 @@ setMealPicInMongo = function(mealpic, callback) {
 
             // Callback after redis-write is complete
             // I know this exposes a race, but seriously?
-            redisClient.set(rediskey, image, function(err, reply) {
+            redisClient.set(rediskey, mealpic.image, function(err, reply) {
 
                 // Punt on error
                 if(err) throw (err);
@@ -1365,10 +1361,6 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
                 // Check reply from redis
                 if(reply) {
 
-                    // Debug trace
-                    console.log("Found cached image for user " + userid + " meal " + 
-                            results[0].mitimestamp + " timestamp " + timestamp);
-
                     // Found image in redis
                     results[0].image = reply;
 
@@ -1384,14 +1376,10 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
                     var fsname = filename_for_image( userid, results[0].mitimestamp, timestamp);
 
                     // Read file
-                    fs.readFile(fsname, function(err, image) {
+                    fs.readFile(fsname, "binary", function(err, image) {
 
                         // Throw error if I got it
                         if(err) throw(err);
-
-                        // Debug trace
-                        console.log("Found ondisk image for user " + userid + " meal " + 
-                            results[0].mitimestamp + " timestamp " + timestamp);
 
                         // Set image
                         results[0].image = image;
@@ -1418,9 +1406,14 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
         var rediskey = rediskey_for_image(userid, timestamp);
 
         // Send asynchronous search to redis
-        redisClient.get(rediskey, function( err, reply ) {
-            getmealpiccb( err, null, reply);
-        });
+        if(redispiccache) {
+            redisClient.get(rediskey, function( err, reply ) {
+                getmealpiccb( err, null, reply);
+            });
+        }
+        else {
+            getmealpiccb( null, null, null);
+        }
     });
 }
 

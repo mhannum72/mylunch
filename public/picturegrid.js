@@ -1036,7 +1036,6 @@ var picturegrid = (function ($jq) {
                             grayscalefadeineasing,
                             function() { }
                         );
-
                     }
                 }
             });
