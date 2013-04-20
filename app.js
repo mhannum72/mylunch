@@ -268,15 +268,22 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
         var useriddir = basedirectory + '/' + uniqueid;
         var imagedir = useriddir + '/images';
 
-        fs.mkdir(userdir, directorymode, function(err) {
+        // Make user directory
+        fs.mkdir(useriddir, directorymode, function(err) {
 
+            // Throw any errors
             if(err) throw (err);
 
+            // Make images directory
             fs.mkdir(imagedir, directorymode, function(err) {
-                if(err) throw(err);
-                callback( null, user );
-            });
 
+                // Throw any errors
+                if(err) throw(err);
+
+                // Callback
+                callback( null, user );
+
+            });
         });
     }); 
 }
@@ -1029,6 +1036,7 @@ setMealInfoInMongo = function(mymealinfo, callback) {
 
             // Keeping with my clever hack
             var newmealdir = basedirectory + '/' + mymealinfo.userid + '/images/' + mymealinfo.timestamp;
+
             fs.mkdir(newmealdir, directorymode, function(err) {
                 if(err) throw (err);
                 callback(null, object);
@@ -1042,7 +1050,7 @@ function filename_for_image(userid, mealts, picts) {
 }
 
 function filename_for_thumb(userid, mealts, picts) {
-    return basedirectory + '/' + userid + '/thumbs/' + mealts + '/thm.' + picts;
+    return basedirectory + '/' + userid + '/images/' + mealts + '/thm.' + picts;
 }
 
 function rediskey_for_image(userid, picts) {
@@ -1055,8 +1063,94 @@ function rediskey_for_thumb(userid, picts) {
 
 // Get a thumbnail image from mongodb
 getMealThumbFromMongo = function(userid, timestamp, callback) {
+
+    // Grab the collection
     getCollection('mealThumbs', function(error, mealThumbs) {
+
+        // Throw an error if you got one
         if(error) throw (error);
+
+        // Count completions
+        var count = 0;
+
+        // Declare reply
+        var reply = null;
+
+        // Declare results
+        var results = null;
+
+        // Unified complete function
+        function getmealthumbcb( err, res, rep ) {
+
+            // Throw any errors
+            if(err) throw( err );
+
+            // Filled by mongo find
+            if(res) results = res;
+
+            // Filled by redis find
+            if(rep) reply = rep;
+
+            // Continue if we have responses from both
+            if(++count == 2) {
+
+                // Sanity check mongo 
+                if(results.length > 1) {
+                    throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
+                }
+
+                // No records
+                if(results.length <= 0) {
+                    callback(err);
+                }
+
+                // Check reply from redis
+                if(reply) {
+
+                    // Debug trace
+                    console.log("Found cached thumb for user " + userid + " meal " + 
+                            results[0].mitimestamp + " timestamp " + timestamp);
+
+                    // Found image in redis
+                    results[0].image = reply;
+
+                    // Invoke callback
+                    callback(err, results[0]);
+
+                }
+
+                // Cache miss 
+                else {
+
+                    // Form filename for image
+                    var fsname = filename_for_thumb( userid, results[0].mitimestamp, timestamp);
+
+                    // Read file
+                    fs.readFile(fsname, function(err, image) {
+
+                        // Throw error if I got it
+                        if(err) throw(err);
+
+                        // Debug trace
+                        console.log("Found ondisk thumb for user " + userid + " meal " + 
+                            results[0].mitimestamp + " timestamp " + timestamp);
+
+                        // Set image
+                        results[0].image = image;
+
+                        // Races but we'll hit the fs cache on a miss
+                        redisClient.set(rediskey, image, function( err, reply ) {
+                            if(err) throw(err);
+                        });
+
+                        // Invoke callback
+                        callback( null, results[0] );
+
+                    });
+                }
+            }
+        }
+
 
         // TODO: If I knew the mitimestamp ahead of time, I could shoot off the 
         // mongo-find and the redis-find in parallel rather than serially - to do
@@ -1064,57 +1158,27 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
         // request.
 
         mealThumbs.find( {userid:userid, timestamp: timestamp}).toArray( function( err, results) {
-            if(err) throw(err);
-            if(results.length > 1) {
-                throw new Error(results.length + ' thumbs in Mongo for ' + userid + ' timestamp ' + timestamp);
-            }
-            if(results.length == 0) {
-                callback(err);
-            }
-            else {
+            getmealthumbcb( null, results, null );
 
-                // Form redis-key
-                var rediskey = rediskey_for_thumb(userid, results[0].mitimestamp, results[0].timestamp);
+        });
 
-                // Request from redis
-                redisClient.get(rediskey, function( err, reply ) {
+        // Form redis-key
+        var rediskey = rediskey_for_thumb(userid, timestamp);
 
-                    // Throw errors
-                    if(err) throw (err);
-
-                    // Got a good reply
-                    if(reply) {
-
-                        // Debug trace
-                        console.log("Found cached thumb for user " + userid + " meal " + 
-                            results[0].mitimestamp + " timestamp " + timestamp);
-
-                        // Add image attribute
-                        results[0].image = reply;
-
-                        // Invoke callback
-                        callback(err, results[0]);
-
-                    }
-                    // Cache miss
-                    else {
-
-                        // Form filename for image
-                        var fsname = filename_for_thumb( userid, results[0].mitimestamp, timestamp);
-                    }
-
-
-                });
-
-                callback(err, results[0]);
-            }
+        // Send asynchronous search to redis
+        redisClient.get(rediskey, function( err, reply ) {
+            getmealthumbcb( err, null, reply);
         });
     });
 }
 
 // Set a meal-thumb
 setMealThumbInMongo = function(mealthumb, callback) {
+
+    // Get mealthumb collection
     getCollection('mealThumbs', function(error, mealThumbs) {
+
+        // Throw error
         if(error) throw (error);
 
         // Create a reference to the thmub
@@ -1123,42 +1187,56 @@ setMealThumbInMongo = function(mealthumb, callback) {
         // Delete this attribute
         delete mealthumb.image;
 
-        // Insert
-        mealThumbs.insert(mealthumb, {safe:true}, function(err, object) {
+        // Initialize count
+        var count = 0;
 
-            // Put attribute back
-            mealthumb.image = image;
+        // Serialize the mongo and redis writes
+        function writemealcb(err) {
 
             // Throw any errors
             if(err) throw (err);
 
-            // Redis key
-            var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+            // Both are finished
+            if(++count == 2) {
+
+                // Invoke callback
+                callback( err, mealthumb );
+            }
+        }
+
+        // Insert into mongo
+        mealThumbs.insert(mealthumb, {safe:true}, function(err, object) {
 
             // File name
             var picname = filename_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
 
-            // Write to fs
+            // Write file asynchronously
             fs.writeFile(picname, image, function(err) {
 
                 if(err) throw (err);
 
             });
 
-            // Write to redis
-            redisClient.set(rediskey, image, function(err) {
+            // Put attribute back
+            mealthumb.image = image;
 
-                // Punt on error
-                if(err) throw (err);
+            // Invoke callback
+            writemealcb(err);
 
-                // Invoke callback
-                callback( err, object );
+        });
 
-            });
+        // Redis key
+        var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+
+        // Write to redis
+        redisClient.set(rediskey, image, function(err, reply) {
+
+            // Invoke callback
+            writemealcb(err);
+
         });
     });
 }
-
 
 // Delete a meal-thumb
 deleteMealThumbInMongo = function(userid, timestamp, callback) {
@@ -1229,7 +1307,7 @@ setMealPicInMongo = function(mealpic, callback) {
 
             // Callback after redis-write is complete
             // I know this exposes a race, but seriously?
-            redisClient.set(rediskey, image, function(err) {
+            redisClient.set(rediskey, image, function(err, reply) {
 
                 // Punt on error
                 if(err) throw (err);
@@ -1246,6 +1324,8 @@ setMealPicInMongo = function(mealpic, callback) {
 // Retrieve a meal picture from mongodb
 getMealPicFromMongo = function(userid, timestamp, callback) {
     getCollection('mealPics', function(error, mealPics) {
+
+        // Throw an error if you got one
         if(error) throw (error);
 
         // Count completions
@@ -1257,6 +1337,7 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
         // Declare results
         var results = null;
 
+        // Unified complete function
         function getmealpiccb( err, res, rep) {
 
             // Throw any errors
@@ -1316,7 +1397,9 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
                         results[0].image = image;
 
                         // Races but we should hit the fs cache if redis loses
-                        redisClient.set(rediskey, image, null );
+                        redisClient.set(rediskey, image, function(err, reply) {
+                            if(err) throw (err);
+                        });
 
                         // Invoke callback
                         callback( null, results[0] );
@@ -4331,6 +4414,7 @@ app.get('/editmeals_change_pics/:newpics', function(req, res, next) {
 function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thumbheight) {
 
     var mealthumb = new mealThumb(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
+
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
