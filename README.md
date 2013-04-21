@@ -5,6 +5,13 @@ mylunch
 todo
 ====
 
+* Should I keep the large images around?  Maybe.. this means I should 
+  also keep the original filename around.  This is scary in that it will
+  take up a ton of disk space.  But I think I should do it.
+
+* After you publish a meal, the web server can keep track of the number 
+  of people who have viewed it.  Or maybe people can 'like' it .. ?
+
 * The images seem to flicker as they scroll onto the editmeals page - this
   is probably only an issue for the LINUX version of firefox .. I will 
   need to make sure and test other browsers on other machines to make sure 
