@@ -17,6 +17,40 @@ todo
 * After you publish a meal, the web server can keep track of the number 
   of people who have viewed it.  Or maybe people can 'like' it .. ?
 
+* "Popular public meals"
+
+* "What your friends are eating"
+
+* "For the love of food!", family and good times.
+
+* Wait .. I know the list of friends for any user on any given node.  I think 
+  I could just cache these in memcache and time them out every few minutes ..
+
+* 'Friends' is tougher .. this could be constantly changing .. so there could
+  be a difference between the set of 'friends' at time X and current friends.
+  Caching the id's of friends in each picture will cause lots of bloat.  I'm 
+  going to have to have an extra lookup for the 'friends'.  I'm not sure if 
+  this should work at this level (the 'get a picture' level).
+
+* 'Public' is easy .. 
+
+* Much as i hate normalization, a little bit of it is in order .. and this
+  will slow things down unfortunately ..
+
+* So how do I shard this .. ? 
+
+* I will simplify and just have 'publish to world', and 'publish to 
+  friends'.  A 'friendlist' is just a list of numbers in a database.  I 
+  would like the friendlist to stay sorted by id .. so this might be a 
+  record: (userid+friendid) with an index on this.  If a is friend to b, 
+  then both 'a+b' and 'b+a' should be in this table.  So yes - I'll have
+  friend requests via email, etc.  
+
+* I want a clever way to share these slideshows .. now I'm thinking that I 
+  could have several levels of publishing: I could allow it to be completely
+  public, I could allow it to be published to only 'friends', or I could allow
+  it to be published to a list of people who may or may not be 'friends'.
+
 * The images seem to flicker as they scroll onto the editmeals page - this
   is probably only an issue for the LINUX version of firefox .. I will 
   need to make sure and test other browsers on other machines to make sure 
