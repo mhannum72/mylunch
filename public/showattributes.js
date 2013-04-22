@@ -1755,9 +1755,9 @@ showattributes = (function($jq) {
             // If there's already a review, display it now
             var grid_review_pre = $(dc('div'))
                 .attr('class', 'grid_3')
-                .html('Review/Blog');
+                .html('Blog');
         
-            var review = "(click to edit review)";
+            var review = "(click to edit blog)";
         
             var grid_review = $(dc('div'))
                 .attr('class', 'grid_5')

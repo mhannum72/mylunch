@@ -5,6 +5,11 @@ mylunch
 todo
 ====
 
+* I've been thinking that the 'users' database should be different from the 
+  'pictures' database .. I'll want the 'users' database available everywhere.
+  It's something that I expect will have a very high read-rate, but a very 
+  low write rate.  The 'mongo cluster' might work for this.
+
 * Should I keep the large images around?  Maybe.. this means I should 
   also keep the original filename around.  This is scary in that it will
   take up a ton of disk space.  But I think I should do it.
