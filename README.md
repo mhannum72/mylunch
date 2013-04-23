@@ -5,6 +5,111 @@ mylunch
 todo
 ====
 
+* I'm reading that I can use something call 'commet requests' to update my 
+  webpage.  It looks like this is just an outstanding ajax request: the server 
+  sends a response with information / instructions, and the client sends 
+  another request.
+
+* Unpublish / timeout
+  1 X unpublishes a meal or the unpublish deamon sees the timeout
+  2 All of the live web-sessions are updated (the link is removed)
+    - The meal is removed from user's 'walls' if they are viewing that
+    - The meal is removed from all 'this-users-meals' walls
+  3 Delete all of the 'publish-id-timestamp' records.
+  4 Mark each picture as 'unpublished'
+  5 Mark the meal as 'unpublished'
+  6 If someone manages to click a link anyway display a 'this meal has been 
+    unpublished' modal.
+
+* Walk through 'meal-publish' or 'meal-publish-with-timeout':
+  1 X publishes a meal and is assigned a 'publish-id-timestamp'
+  2 The meal entry is updated with an 'unpublish-at-time' (for the unpublish deamon)
+  3 Each of the meal's pictures are labeled as 'world-viewable'
+  4 A record for each of X's followers is inserted in the database
+  5 Live web sessions are updated: this might be difficult-ish
+  6 Users that want texts / etc are updated (i think this is easier)
+
+  So long as a meal is 'published', the author cannot change it.  Instead they'll
+  have to 'unpublish', change, and then 'republish'.  The republish will generate
+  a new publish-timestamp.
+
+  People will be able to view these meals in the carousel by clicking on them as 
+  they appear on the page.  
+
+* I'll have to set a maximum number of folks that a user can follow.  That'll 
+  probably be pretty high though.
+
+* A better model might be the 'push-to-followers' model.  If user X publishes
+  a meal, a record containing this meal is pushed to all of user X's followers.
+
+  The records have this layout:
+  {
+     followerid;
+     publishtimestamp;
+     timestampofmeal;
+     creatorid;
+     hasbeenviewed;
+  }
+
+  There will be an index on (followerid+publishtimestamp) to allow for quick and
+  easy lookups.  There will also be an index on (creatorid+timestampofmeal) to
+  allow for quick and easy 
+
+  Both 'timeout' and 'unpublish' will utilize the same mechanism - it makes me 
+  a little nervious that this will be alot of server-side logic.
+
+  I will also let folks view the 'published meals of X'.
+
+* A user is following 10 people.  On the 'most recent' page I want to show the
+  most recent slideshows published by those 10 people.  This seems like it 
+  would be incredibly expensive to calculate in real-time.
+
+* Another thing I want: I want to know whether or not a person has viewed a 
+  slideshow. 
+
+* If a user is viewing a meal which has been unpublished then I would like that
+  to disappear also - maybe there will be a 'This meal has been unpublished', 
+  or a 'This meal has been timed-out' modal informing the user of what's 
+  happened.
+
+* So here's the rub: i would rather not display a stale link.  I would like to
+  find a way to remove a link from a user's stream if it should be unpublished
+  or if it should time out.  This should be possible.
+
+* Users will need to 'sign-in' to see what meals they are allowed to see.  
+  So there will be a page (in reverse order of time) of friends meals.  
+
+* I think I have it: 
+  I want to do 'timed publishing'.  This allows user to publish a meal for a 
+  period of days, hours, or forever.  After the time expires, then the meal 
+  will go back to 'private'.
+
+* The other idea is that I could turn this into a game .. facebook is a game
+  of sorts: people want to have the most 'friends'.  This game could be about 
+  accruing the most viewed meals.
+
+* Alternatively I could simply make everything public, and ask people to send
+  invitations out via email.  You are building a slideshow with this .. it's 
+  less interactive than simply posting random stuff to a wall.
+
+* Okay .. so I will have 'share-with-friends', 'share-with-everyone', and 
+  'make private'.  I could even support a 'timed-share' which would allow the
+  meal to be available for a period of time before going 'private'.
+
+* Creating things this way sort of stinks .. the quicker approach is the 'wall'
+  approach.
+
+* Rather than 'publish', maybe it would be better to have a simple 'share a 
+  meal' link on the meal popup.  
+
+* Maybe now I should start working on the 'friend management' page.  The 
+  icons can persist, but not as part of a banner (the way they are now).  They
+  should be alone, and flat (unless you hover).  And maybe captioned.
+
+* I'm wondering if making everything happen on the editmeals page is a great
+  idea .. I think that it makes things feel a little too much like a contained
+  system, or a video game.  So I'm not sure about the icons at the top.
+
 * I've been thinking that the 'users' database should be different from the 
   'pictures' database .. I'll want the 'users' database available everywhere.
   It's something that I expect will have a very high read-rate, but a very 

@@ -1773,6 +1773,10 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
               // TODO - create a default 'no permission' picture. 
               // res.writeHead(200, {'Content-Type': 'image/jpeg' });
               // res.end( nopermission.pic, 'binary');
+
+              // Send out the nomeal thumb
+              showNotFoundThumb(req, res);
+
               return;
         }
     });
