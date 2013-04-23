@@ -247,6 +247,9 @@ var picturegrid = (function ($jq) {
     // Set to true after inited
     var inited = false;
 
+    // Toggle to true when creating a meal
+    var changegrid = false;
+
     // Create element wrapper
     var dc = function(a)
     {
@@ -277,6 +280,15 @@ var picturegrid = (function ($jq) {
             return false;
         }
 
+        // Return immediately if we are running
+        if(changegrid) {
+            return false;
+        }
+
+        // We're now changing the grid
+        changegrid=true;
+
+        // Send ajax request
         $.getJSON(
             '/newmeal',
             {
@@ -290,6 +302,7 @@ var picturegrid = (function ($jq) {
                     else {
                         window.location.replace("/");
                     }
+                    changegrid=false;
                     return;
                 }
 
@@ -302,6 +315,9 @@ var picturegrid = (function ($jq) {
                         if(popuponnewmeal) {
                             showattributes.show(username, response.timestamp, gobj);
                         }
+
+                        // Toggle changegrid
+                        changegrid=false;
                     }
                 );
             }
