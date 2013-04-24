@@ -5167,10 +5167,10 @@ app.get('/yesreallyanadmin', function(req, res, next) {
 // Get the user picture & thumbs base directory
 if(process.env.USER_BASE_IMAGES) {
     basedirectory = process.env.USER_BASE_IMAGES;
-    console.log('Set user base image directory to ' +  basedirectory );
+    //console.log('Set user base image directory to ' +  basedirectory );
 }
 else {
-    console.log('User base image directory is ' +  basedirectory );
+    //console.log('User base image directory is ' +  basedirectory );
 }
 
 // Show pictures and information about the meals that I've uploaded.
@@ -5205,7 +5205,36 @@ else {
 // which do get in.
 
 // Open everything that we need to open
-app.listen(webPort, function(){
-    console.log( org + ' started on port ' + webPort);
-});
+//
+// Play with the cluster node.js module
+//
+//
+var use_cluster = 0;
 
+if(use_cluster) {
+
+    var cluster = require('cluster');
+    var numcpus = require('os').cpus().length;
+    var workers = (numcpus < 4) ? 4 : numcpus;
+
+    if(cluster.isMaster) {
+        for(var i = 0; i < workers; i++) {
+            cluster.fork();
+        }
+
+        cluster.on('exit', function(worker, code, signal) {
+            console.log('worker ' + worker.process.pid + ' died');
+        });
+
+
+    } else {
+        app.listen(webPort, function(){
+            console.log( org + ' pid ' + process.pid + ' started on port ' + webPort);
+        });
+    }
+}
+else {
+    app.listen(webPort, function(){
+        console.log( org + ' started on port ' + webPort);
+    });
+}
