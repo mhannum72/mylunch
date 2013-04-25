@@ -136,6 +136,13 @@ db.open(function(error, client){
         collection.ensureIndex({userid:1, timestamp:1},{unique:true});
     });
 
+    // Create indexes for mealIcons
+    db.collection('mealIcons', function(error, collection) {
+        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
+    });
+
+
+
     // Create indexes for restaurants table
     db.collection('restaurants', function(error, collection) {
         collection.ensureIndex({restaurantId:1}, {unique:true});
@@ -1063,6 +1070,106 @@ function rediskey_for_thumb(userid, picts) {
     return userid + '.' + '.thm.' + picts;
 }
 
+// Get an icon image from mongodb
+getMealIconFromMongo = function(userid, timestamp, callback) {
+
+     // Grab the collection
+    getCollection('mealIcons', function(error, mealThumbs) {
+
+        // Throw an error if you got one
+        if(error) throw (error);
+
+        // Count completions
+        var count = 0;
+
+        // Declare reply
+        var reply = null;
+
+        // Declare results
+        var results = null;
+
+        // Unified complete function
+        function getmealiconcb( err, res, rep ) {
+
+            if(err) throw( err );
+
+            // Filled by mongo find
+            if(res) results = res;
+
+            // Filled by redis find
+            if(rep) reply = rep;
+
+            // Continue if we have responses from both
+            if(++count == 2) {
+
+                // Sanity check mongo 
+                if(results.length > 1) {
+                    throw new Error(results.length + ' icons in Mongo for ' + userid + ' timestamp ' + timestamp);
+                }
+
+                // No records
+                if(results.length <= 0) {
+                    callback(err);
+                }
+
+                // Check reply from redis
+                if(reply) {
+
+                    // Found image in redis
+                    results[0].image = reply;
+
+                    // Invoke callback
+                    callback(err, results[0]);
+
+                }
+                // Cache miss 
+                else {
+
+                    // Form filename for image
+                    var fsname = filename_for_icon( userid, results[0].mitimestamp, timestamp);
+
+                    // Read file
+                    fs.readFile(fsname, "binary", function(err, image) {
+
+                        // Throw error if I got it
+                        if(err) throw(err);
+
+                        // Set image
+                        results[0].image = image;
+
+                        // Races but we'll hit the fs cache on a miss
+                        redisClient.set(rediskey, image, function( err, reply ) {
+                            if(err) throw(err);
+                        });
+
+                        // Invoke callback
+                        callback( null, results[0] );
+
+                    });
+                }
+            }
+        }
+
+        mealIcons.find( {userid:userid, timestamp: timestamp}).toArray( function(err, results) {
+            getmealiconcb( null, results, null );
+        });
+
+        // Form redis key
+        var rediskey = rediskey_for_icon(userid, timestamp);
+
+        if(redispiccache) {
+            redisClient.get(rediskey, function( err, reply ) {
+                getmealiconcb( err, null, reply );
+            });
+        }
+        else {
+            getmealiconcb( null, null, null );
+        }
+
+
+    });
+}
+
 // Get a thumbnail image from mongodb
 getMealThumbFromMongo = function(userid, timestamp, callback) {
 
@@ -1098,7 +1205,7 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
 
                 // Sanity check mongo 
                 if(results.length > 1) {
-                    throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    throw new Error(results.length + ' thumbs in Mongo for ' + userid + ' timestamp ' + timestamp);
                 }
 
                 // No records
@@ -1169,6 +1276,10 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
             getmealthumbcb( null, null, null );
         }
     });
+}
+
+// Set a meal-icon
+setMealIconInMongo = function(mealicon, callback) {
 }
 
 // Set a meal-thumb
@@ -1624,10 +1735,8 @@ function chooseimage(req, res, err, files)
 }
 
 // This is functionized to accomodate async-thumb code
-function showMealPicture( req, res ) {
-    // Retrieve the meal thumbnail
-    var userid = parseInt(req.params.username);
-    getMealPicFromMongo(userid, parseInt(req.params.timestamp, 10), function(err, mealpic) {
+function showMealPicture( req, res, userid, timestamp ) {
+    getMealPicFromMongo(userid, timestamp, function(err, mealpic) {
 
         if(err || mealpic == undefined) {
             // TODO - create a default 'not-found' picture. 
@@ -1653,7 +1762,9 @@ function showMealPicture( req, res ) {
 
 // Retrieve a pictures
 app.get('/pics/:username/:timestamp', function(req, res) {
-    showMealPicture(req, res);
+    var userid = parseInt(req.params.username, 10);
+    var timestamp = parseInt(req.params.timestamp, 10);
+    showMealPicture(req, res, userid, timestamp);
 });
 
 var showFavicon = function(req, res) {
@@ -1747,11 +1858,44 @@ app.get('/images/notfoundthumb.png', function(req, res) {
     showNotFoundThumb(req, res);
 });
 
+// Retrieve an icon
+app.get('/icon/:userid/:timestamp', function(req, res) {
+
+    var userid = parseInt(req.params.userid, 10);
+    var timestamp = parseInt(req.params.timestamp);
+
+    getMealIconFromMongo(userid, timestamp, function(err, mealicon) {
+        if(err) throw(err);
+        if(mealicon == undefined) {
+
+            console.log('mealicon is undefined for userid ' + userid + ' ts ' + timestamp );
+
+            // Show the actual image (even though this is slow)
+            showMealPicture( req, res, userid, timestamp );
+
+            return;
+        }
+
+        if(mealicon.worldViewable || mealicon.userid == userid) {
+            res.contentType(mealicon.imageType);
+            res.end(mealicon.image, 'binary');
+            return ;
+        }
+        else {
+            showNotFoundIcon(req, res);
+            return ;
+        }
+    });
+});
+
 // Retrieve a thumbnail
 app.get('/thumbs/:userid/:timestamp', function(req, res) {
 
+    var userid = parseInt(req.params.userid, 10);
+    var timestamp = parseInt(req.params.timestamp);
+
     // Retrieve the meal thumbnail
-    getMealThumbFromMongo(parseInt(req.params.userid)/* userid */, parseInt(req.params.timestamp, 10), function(err, mealthumb) {
+    getMealThumbFromMongo(userid/* userid */, timestamp, function(err, mealthumb) {
 
         if(err) throw (err);
 
@@ -1762,16 +1906,17 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
             // res.end( notfound.pic, 'binary');
             console.log('mealthumb is undefined for objectid ' + req.params.id);
 
-            // Send out the nomeal thumb
-            showNotFoundThumb(req, res);
+            // Try to find the actual image
+            showMealPicture( req, res, userid, timestamp );
 
             return;
         }
 
         // Display the image if we got it
-        if(mealthumb.worldViewable || mealthumb.userid == req.session.user.userid) {
+        if(mealthumb.worldViewable || mealthumb.userid == userid) {
               res.contentType(mealthumb.imageType);
               res.end(mealthumb.image, 'binary');
+              return ;
         } 
         // This user isn't privledged to see this
         else {
@@ -4413,9 +4558,13 @@ app.get('/editmeals_change_pics/:newpics', function(req, res, next) {
 // To implement a 'folder', you just need a username + folder + 
 // sequence + time-uploaded.  Right now I'm thinking that it makes sense 
 // to differentiate the global-folder from the others.
-function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thumbheight) {
 
-    var mealthumb = new mealThumb(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
+function edit_upload_internal_2(req, res, next, picinfo, thumbimage, iconimage) {
+    var id = parseInt(req.session.user.userid);
+
+    var mealthumb = new mealThumb(id, picinfo, thumbimage, req.files.inputupload.type);
+
+    var mealicon = new mealIcon(id, picinfo, iconimage, req.files.inputupload.type);
 
     setMealThumbInMongo(mealthumb, function(mterr, object) {
 
@@ -4429,6 +4578,10 @@ function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thum
         res.end();
         */
     });
+
+    setMealIconInMongo(mealicon, function(mterr, object) {
+        if(mterr) throw (mterr);
+    }
 }
 
 var dimensions = function(width, height) {
@@ -4439,11 +4592,13 @@ var dimensions = function(width, height) {
 
 var findScaledDimensions = function(indim, outdim, maxwidth, maxheight) {
 
+    // Both are out of range
     if(indim.width > maxwidth && indim.height > maxheight) {
 
         var testwidth = indim.width / maxwidth;
         var testheight = indim.height / maxheight;
 
+        // Scale to which ever is most out of range
         if(testwidth > testheight) {
             outdim.width = maxwidth;
             outdim.height = (maxwidth / indim.width) * indim.height;
@@ -4453,18 +4608,22 @@ var findScaledDimensions = function(indim, outdim, maxwidth, maxheight) {
             outdim.width = (maxheight / indim.height) * indim.width;
         }
     }
+    // Width is out of range: scale to width
     else if(indim.width > maxwidth) {
         outdim.width = maxwidth;
         outdim.height = (maxwidth / indim.width) * indim.height;
     }
+    // Height is out of range: scale to height
     else if(indim.height > maxheight){
         outdim.height = maxheight;
         outdim.width = (maxheight / indim.height) * indim.width;
     }
+    // Both height and width are in range
     else {
         outdim.height = indim.height;
         outdim.width = indim.width;
     }
+    // We want the floor
     outdim.height = Math.floor(outdim.height);
     outdim.width = Math.floor(outdim.width);
 }
@@ -4477,17 +4636,28 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     var scaleThumbWidth;
     var scaleThumbHeight;
 
-    var outdim = new dimensions( 0, 0 );
+    var scaleIconWidth;
+    var scaleIconHeight;
 
-    // Scale to icon dimensions
-    findScaledDimensions(picinfo, outdim, maxThumbWidth, maxThumbHeight);
+    var outdimthumb = new dimensions( 0, 0 );
+    var outdimicon = new dimensions( 0, 0 );
 
-    picinfo.thumbwidth = scaleThumbWidth = outdim.width;
-    picinfo.thumbheight = scaleThumbHeight = outdim.height;
+    // Find scaled dimensions for thumb and icon
+    findScaledDimensions(picinfo, outdimthumb, maxThumbWidth, maxThumbHeight);
+    findScaledDimensions(picinfo, outdimicon, maxIconWidth, maxIconHeight);
+
+    // Set the thumb dimensions
+    picinfo.thumbwidth = scaleThumbWidth = outdimthumb.width;
+    picinfo.thumbheight = scaleThumbHeight = outdimthumb.height;
+
+    // Set the icon dimensions before adding the picinfo to mongo
+    picinfo.iconwidth = scaleIconWidth = outdimicon.width;
+    picinfo.iconheight = scaleIconHeight = outdimicon.height;
+
+    // Set the image type
     picinfo.imagetype = req.files.inputupload.type;
 
-
-
+    // Increment the number of pictures this user has
     req.session.user.numPics++;
 
     updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) { 
@@ -4516,26 +4686,60 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
             res.write(successResp);
             res.end();
 
-            if(mealinfo.width <= maxThumbWidth && mealinfo.height <= maxThumbHeight) {
-                edit_upload_internal_2(req, res, next, picinfo, image, picinfo.width, picinfo.height );
+            // Have to resize either both, only the icon, or neither
+            var resizeIcon = ( mealinfo.width > maxIconWidth || mealinfo.height >= maxIconHeight );
+            var resizeThumb = ( mealinfo.width > maxThumbWidth || mealinfo.height >= maxThumbHeight );
+
+            var target = resizeIcon + resizeThumb;
+            var count = 0;
+
+            if(0 == target) {
+                edit_upload_internal_2( req, res, next, picinfo, image, image );
                 return;
+            }
+
+            var thumbimage = (resizeThumb ? null : image );
+            var iconimage = (resizeIcon ? null : image );
+
+            function callback(thumb, icon) {
+
+                if(thumb) thumbimage = thumb;
+                if(icon) iconimage = icon;
+
+                if(++count >= target) {
+                    edit_upload_internal_2( req, res, next, picinfo, thumbimage, iconimage );
+                }
             }
 
             // The thumbnail is last.  An earlier version used to return control to the 
             // user here.  This was to do the thumbnail creation-processing out-of-band:
             // If the user requests the thumbnail and it hasn't made it to mongo, I can 
             // always send the full picture.
-            im.resize( { 
-                srcData: image,
-                width: scaleThumbWidth,
-                height: scaleThumbHeight
-            }, // The resized image is stdout.
-            function(err, stdout, stderr) {
+            if(resizeThumb) {
+                im.resize( { 
+                    srcData: image,
+                    width: scaleThumbWidth,
+                    height: scaleThumbHeight
+                }, // The resized image is stdout.
+                function(err, thumb, stderr) {
+                    if(err) throw (err);
+                    callback(thumb, null);
+                    return;
+                });
+            }
 
-                if(err) throw (err);
-                edit_upload_internal_2(req, res, next, picinfo, stdout, scaleThumbWidth, scaleThumbHeight);
-                return;
-            });
+            if(resizeIcon) {
+                im.resize( { 
+                    srcData: image,
+                    width: scaleIconWidth,
+                    height: scaleIconHeight
+                }, // The resized image is stdout.
+                function(err, icon, stderr) {
+                    if(err) throw (err);
+                    callback(null, icon);
+                    return;
+                });
+            }
         });
     });
 }
@@ -4691,6 +4895,7 @@ function editMealsUploadPost(req, res, mealinfo, next) {
 
         scaleWidth = outdim.width;
         scaleHeight = outdim.height;
+
         // Okay - resize this and then upload
         im.resize( { 
             srcPath: req.files.inputupload.path,
