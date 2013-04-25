@@ -24,8 +24,8 @@ var msPerSecond = 1000;
 var express = require('express');
 var fs = require('fs');
 var util = require('util');
-var geoip = require('geoip');
-var city = new geoip.City('geolitecity/GeoLiteCity.dat');
+// var geoip = require('geoip');
+//var city = new geoip.City('geolitecity/GeoLiteCity.dat');
 
 // forget zlib (its slow).  if im gonna compress i'll use lz4
 // var zlib = require('zlib');
@@ -1523,6 +1523,7 @@ var maxCookieAge = 30 * 24 * 60 * 60 * msPerSecond;
 // Rate limit a bit
 var geoMaxCheckInterval = 10 * msPerSecond;
 
+/*
 function getGeoIp(req, res, next) {
 
     // Short circuit if we don't have a session yet
@@ -1554,6 +1555,7 @@ function getGeoIp(req, res, next) {
     next();
     return;
 }
+*/
 
 // Configuration
 app.configure(function(){
@@ -1570,7 +1572,7 @@ app.configure(function(){
     }));
     app.use(express.methodOverride());
     app.use(express.static(__dirname + '/public'));
-    app.use(getGeoIp);
+//    app.use(getGeoIp);
     app.use(app.router);
 });
 
