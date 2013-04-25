@@ -34,12 +34,15 @@ var util = require('util');
 var im = require('imagemagick');
 
 // Maximum pictures per meal (alot for a single meal).
+//
 var defaultMaxPicsPerMeal = 64; 
 // Scale variables
 var maxMealWidth = 780;
 var maxMealHeight = 780;
 var maxThumbWidth = 300;
 var maxThumbHeight = 300;
+var maxIconWidth = 100;
+var maxIconHeight = 100;
 
 var directorymode = 0777;
 
@@ -4428,6 +4431,45 @@ function edit_upload_internal_2(req, res, next, picinfo, image, thumbwidth, thum
     });
 }
 
+var dimensions = function(width, height) {
+    this.width = width;
+    this.height = height;
+    return this;
+}
+
+var findScaledDimensions = function(indim, outdim, maxwidth, maxheight) {
+
+    if(indim.width > maxwidth && indim.height > maxheight) {
+
+        var testwidth = indim.width / maxwidth;
+        var testheight = indim.height / maxheight;
+
+        if(testwidth > testheight) {
+            outdim.width = maxwidth;
+            outdim.height = (maxwidth / indim.width) * indim.height;
+        }
+        else {
+            outdim.height = maxheight;
+            outdim.width = (maxheight / indim.height) * indim.width;
+        }
+    }
+    else if(indim.width > maxwidth) {
+        outdim.width = maxwidth;
+        outdim.height = (maxwidth / indim.width) * indim.height;
+    }
+    else if(indim.height > maxheight){
+        outdim.height = maxheight;
+        outdim.width = (maxheight / indim.height) * indim.width;
+    }
+    else {
+        outdim.height = indim.height;
+        outdim.width = indim.width;
+    }
+    outdim.height = Math.floor(outdim.height);
+    outdim.width = Math.floor(outdim.width);
+}
+
+
 // TODO: write a scaling function would clean this up quite a bit
 function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
 
@@ -4435,44 +4477,16 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     var scaleThumbWidth;
     var scaleThumbHeight;
 
-    // Scale to whichever is the furthest out of whack.
-    if(picinfo.width > maxThumbWidth && picinfo.height > maxThumbHeight) {
-        // Scaled difference
-        var testwidth = picinfo.width / maxThumbWidth;
-        var testheight = picinfo.height / maxThumbHeight;
+    var outdim = new dimensions( 0, 0 );
 
-        // Width is further out of whack, so scale to width
-        if (testwidth > testheight) {
-            scaleThumbWidth = maxThumbWidth;
-            scaleThumbHeight = (maxThumbWidth / picinfo.width) * picinfo.height;
-        }
-        // Height is further out of whack, so scale to width
-        else {
-            scaleThumbHeight = maxThumbHeight;
-            scaleThumbWidth = (maxThumbHeight / picinfo.height) * picinfo.width;
-        }
-    }
-    // Only the width is out of bounds
-    else if(picinfo.width > maxThumbWidth) {
-        scaleThumbWidth = maxThumbWidth;
-        scaleThumbHeight = (maxThumbWidth / picinfo.width) * picinfo.height;
-    }
-    // Only the height is out of bounds
-    else if(picinfo.height > maxThumbHeight){
-        scaleThumbHeight = maxThumbHeight;
-        scaleThumbWidth = (maxThumbHeight / picinfo.height) * picinfo.width;
-    }
-    else {
-        scaleThumbHeight = picinfo.height;
-        scaleThumbWidth = picinfo.width;
-    }
+    // Scale to icon dimensions
+    findScaledDimensions(picinfo, outdim, maxThumbWidth, maxThumbHeight);
 
-    // Set thumb width and height in mealinfo
-    picinfo.thumbwidth = Math.floor(scaleThumbWidth);
-    picinfo.thumbheight = Math.floor(scaleThumbHeight);
+    picinfo.thumbwidth = scaleThumbWidth = outdim.width;
+    picinfo.thumbheight = scaleThumbHeight = outdim.height;
+    picinfo.imagetype = req.files.inputupload.type;
 
-    // Set picture type
-    //picinfo.imagetype = req.files.inputupload.type;
+
 
     req.session.user.numPics++;
 
@@ -4671,37 +4685,12 @@ function editMealsUploadPost(req, res, mealinfo, next) {
         var scaleWidth;
         var scaleHeight;
 
-        // For this case, scale to whichever is the furthest out of whack.
-        if(features.width > maxMealWidth && features.height > maxMealHeight) {
-            // Scaled difference
-            var testwidth = features.width / maxMealWidth;
-            var testheight = features.height / maxMealHeight;
+        var outdim = new dimensions(0, 0);
 
-            // Width is further out of whack, so scale to width
-            if (testwidth > testheight) {
-                scaleWidth = maxMealWidth;
-                scaleHeight = (maxMealWidth / features.width) * features.height;
-            }
-            // Height is further out of whack, so scale to width
-            else {
-                scaleHeight = maxMealHeight;
-                scaleWidth = (maxMealHeight / features.height) * features.width;
-            }
-        }
-        // Only the width is out of bounds
-        else if(features.width > maxMealWidth) {
-            scaleWidth = maxMealWidth;
-            scaleHeight = (maxMealWidth / features.width) * features.height;
-        }
-        // Only the height is out of bounds
-        else {
-            scaleHeight = maxMealHeight;
-            scaleWidth = (maxMealHeight / features.height) * features.width;
-        }
+        findScaledDimensions(features, outdim, maxMealWidth, maxMealHeight);
 
-        scaleWidth = Math.floor(scaleWidth);
-        scaleHeight = Math.floor(scaleHeight);
-
+        scaleWidth = outdim.width;
+        scaleHeight = outdim.height;
         // Okay - resize this and then upload
         im.resize( { 
             srcPath: req.files.inputupload.path,
