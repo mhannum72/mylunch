@@ -13,11 +13,12 @@
 
 // Search for memory leaks
 //var nodetime = require('nodetime').profile();
+/*
 require('nodetime').profile({
     accountKey: '499a83b95024e2eb05488f7973e133c53d43593f', 
     appName: 'Node.js Application'
   });
-
+*/
 
 // Enable debugging
 var debug = 1;
