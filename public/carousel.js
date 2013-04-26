@@ -136,6 +136,8 @@ var picturecarousel = (function ($jq) {
             var img = $(dc('img'))
                 .attr('class', 'pic-div-image')
                 .css('border', '1px solid')
+                .css('height', pinfo.height + 'px')
+                .css('width', pinfo.width + 'px')
                 .css('border-color', '#ddd')
                 .attr('src', img_source);
     

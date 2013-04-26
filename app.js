@@ -13,6 +13,11 @@
 
 // Search for memory leaks
 //var nodetime = require('nodetime').profile();
+require('nodetime').profile({
+    accountKey: '499a83b95024e2eb05488f7973e133c53d43593f', 
+    appName: 'Node.js Application'
+  });
+
 
 // Enable debugging
 var debug = 1;
@@ -92,6 +97,9 @@ var dupkeystr = 'E11000';
 
 // Offset to index 
 var dupidxoffset = 36;
+
+// Simulate a missing thumb
+var simulatemissingthumb = false;
 
 // Return true if this was a dup-key error
 function dupkeyerror(err) {
@@ -1293,7 +1301,7 @@ setMealIconInMongo = function(mealicon, callback) {
         // Throw error
         if(error) throw (error);
 
-        // Create a reference to the thmub
+        // Create a reference
         var image = mealicon.image;
 
         // Delete this attribute
@@ -1968,7 +1976,7 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
         if(err) throw (err);
 
         // Show an error image, or something
-        if(mealthumb == undefined) {
+        if(mealthumb == undefined || simulatemissingthumb) {
             // TODO: create a default 'not-found' picture. 
             // res.writeHead(200, {'Content-Type': 'image/jpeg' });
             // res.end( notfound.pic, 'binary');
@@ -2505,6 +2513,15 @@ function mealInfo(user) {
 
     // The user hasn't submitted anything yet
     this.tmpReview = "";
+}
+
+// Create a mealicon object for mongo.
+function mealIcon(userid, picInfo, image, imageType) {
+    this.userid = userid;
+    this.timestamp = picInfo.timestamp;
+    this.mitimestamp = picInfo.mitimestamp;
+    this.imageType = imageType;
+    this.image = image;
 }
 
 // Create a thumbnail object for mongo.
@@ -4755,8 +4772,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
             res.end();
 
             // Have to resize either both, only the icon, or neither
-            var resizeIcon = ( mealinfo.width > maxIconWidth || mealinfo.height >= maxIconHeight );
-            var resizeThumb = ( mealinfo.width > maxThumbWidth || mealinfo.height >= maxThumbHeight );
+            var resizeIcon = ( picinfo.width > maxIconWidth || picinfo.height >= maxIconHeight );
+            var resizeThumb = ( picinfo.width > maxThumbWidth || picinfo.height >= maxThumbHeight );
 
             var target = resizeIcon + resizeThumb;
             var count = 0;
@@ -4766,8 +4783,8 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
                 return;
             }
 
-            var thumbimage = (resizeThumb ? null : image );
-            var iconimage = (resizeIcon ? null : image );
+            var thumbimage = (resizeThumb == 0 ? image : null );
+            var iconimage = (resizeIcon == 0 ? image : null );
 
             function callback(thumb, icon) {
 

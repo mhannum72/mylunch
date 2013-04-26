@@ -238,9 +238,6 @@ var picturegrid = (function ($jq) {
     // Speed that grayscale images fade in
     var grayscalefadeinspeed;
 
-    // Easing for grayscale fadein
-    var grayscaleeasing;
-
     // Variable which contains the nomeals display
     var nomealsdiv=null;
 
@@ -249,6 +246,9 @@ var picturegrid = (function ($jq) {
 
     // Toggle to true when creating a meal
     var changegrid = false;
+
+    // Toggle to true to coerce an img width and height
+    var setimgsize;
 
     // Create element wrapper
     var dc = function(a)
@@ -719,6 +719,12 @@ var picturegrid = (function ($jq) {
         gridpic.attr('src', imgsrc)
             .css('left', picborder + ( (picturewidth - thumbwidth) / 2) + 'px')
 
+        // Set the image width and height
+        if(setimgsize) {
+            gridpic.css('width', thumbwidth + 'px')
+                .css('height', thumbheight + 'px');
+        }
+
         // Set correct height and margin
         griddiv.css('height', (thumbheight + (2 * picborder)) + 'px')
             .css('margin-top', (pictureheight - thumbheight) + 'px');
@@ -957,6 +963,7 @@ var picturegrid = (function ($jq) {
         // TODO: return both at same time (so only one array lookup).
         // Latch the thumbwidth
         var twidth = editInternal[0].thumbwidth = calculatethumbwidth(meal);
+        var theight = editInternal[0].thumbheight = calculatethumbheight(meal);
 
         // Append to center
         editImageDiv.appendTo(center);
@@ -1014,6 +1021,11 @@ var picturegrid = (function ($jq) {
             .attr('class', 'gridimage')
             .attr('src', imgsource);
 
+        if(setimgsize) {
+            image.css('width', twidth + 'px')
+                .css('height', theight + 'px');
+        }
+
         var overlayimg=null;
 
         if(grayscalegrid) {
@@ -1032,6 +1044,12 @@ var picturegrid = (function ($jq) {
                 .css('filter', 'url(filters.svg#grayscale)')
                 .css('filter', 'gray')
                 .css('-webkit-filter', 'grayscale(1)');
+
+
+            if(setimgsize) {
+                overlayimg.css('width', twidth + 'px')
+                    .css('height', theight + 'px');
+            }
 
             overlayimg.mouseenter(function() {
 
@@ -2593,6 +2611,9 @@ var picturegrid = (function ($jq) {
 
         // Fadeout easing
         grayscalefadeouteasing = cfg.hp("grayscalefadeouteasing") ? cfg.grayscalefadeouteasing : 'grideasingfunc';
+
+        // If there are no thumbs, the server will send the full sized image.  
+        setimgsize = cfg.hp("setimgsize") ? cfg.setimgsize : true;
 
         // Set the easing function in jQuery
         if(!$.easing[grideasing]) {
