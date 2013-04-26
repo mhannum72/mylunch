@@ -1062,12 +1062,20 @@ function filename_for_thumb(userid, mealts, picts) {
     return basedirectory + '/' + userid + '/images/' + mealts + '/thm.' + picts;
 }
 
+function filename_for_icon(userid, mealts, picts) {
+    return basedirectory + '/' + userid + '/images/' + mealts + '/ico.' + picts;
+}
+
 function rediskey_for_image(userid, picts) {
     return userid + '.' + '.img.' + picts;
 }
 
 function rediskey_for_thumb(userid, picts) {
     return userid + '.' + '.thm.' + picts;
+}
+
+function rediskey_for_icon(userid, picts) {
+    return userid + '.' + '.ico.' + picts;
 }
 
 // Get an icon image from mongodb
@@ -1165,8 +1173,6 @@ getMealIconFromMongo = function(userid, timestamp, callback) {
         else {
             getmealiconcb( null, null, null );
         }
-
-
     });
 }
 
@@ -1280,6 +1286,68 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
 
 // Set a meal-icon
 setMealIconInMongo = function(mealicon, callback) {
+
+    // Get mealIcon collection
+    getCollection('mealIcons', function(error, mealIcons) {
+
+        // Throw error
+        if(error) throw (error);
+
+        // Create a reference to the thmub
+        var image = mealicon.image;
+
+        // Delete this attribute
+        delete mealicon.image;
+
+        // Initialize count
+        var count = 0;
+
+        // Serialize the mongo and redis writes
+        function writemealcb(err) {
+
+            // Throw any errors
+            if(err) throw (err);
+
+            // Both are finished
+            if(++count == 2) {
+
+                // Invoke callback
+                callback( err, mealicon );
+            }
+        }
+
+        // Insert into mongo
+        mealIcons.insert(mealicon, {safe:true}, function(err, object) {
+
+            // File name
+            var picname = filename_for_icon(mealicon.userid, mealicon.mitimestamp, mealicon.timestamp);
+
+            // Write file asynchronously
+            fs.writeFile(picname, image, "binary", function(err) {
+
+                if(err) throw (err);
+
+            });
+
+            // Put attribute back
+            mealicon.image = image;
+
+            // Invoke callback
+            writemealcb(err);
+
+        });
+
+        // Redis key
+        var rediskey = rediskey_for_icon(mealicon.userid, mealicon.timestamp);
+
+        // Write to redis
+        redisClient.set(rediskey, image, function(err, reply) {
+
+            // Invoke callback
+            writemealcb(err);
+
+        });
+    });
 }
 
 // Set a meal-thumb
@@ -1879,11 +1947,11 @@ app.get('/icon/:userid/:timestamp', function(req, res) {
         if(mealicon.worldViewable || mealicon.userid == userid) {
             res.contentType(mealicon.imageType);
             res.end(mealicon.image, 'binary');
-            return ;
+            return;
         }
         else {
             showNotFoundIcon(req, res);
-            return ;
+            return;
         }
     });
 });
@@ -4581,7 +4649,7 @@ function edit_upload_internal_2(req, res, next, picinfo, thumbimage, iconimage) 
 
     setMealIconInMongo(mealicon, function(mterr, object) {
         if(mterr) throw (mterr);
-    }
+    });
 }
 
 var dimensions = function(width, height) {
