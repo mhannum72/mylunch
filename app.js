@@ -47,6 +47,8 @@ var maxMealWidth = 780;
 var maxMealHeight = 780;
 var maxThumbWidth = 300;
 var maxThumbHeight = 300;
+
+// Icon image of 100 seems reasonable
 var maxIconWidth = 100;
 var maxIconHeight = 100;
 
