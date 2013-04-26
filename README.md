@@ -5,12 +5,19 @@ mylunch
 todo
 ====
 
+* Steps:
+  1 Publish button
+  2 Following / followers list
+
+* If you are following no-one, you have to have a way to search and find the
+  folks you want to follow.
+
 * I can't saturate a CPU on the server side .. this disturbs me, actually:
   seeing as I shouldn't ever be waiting on I/O (right?  Right??), I should be
   able to consume a cpu by adding load.  Instead what's happeneing is that I'm
   only using about 10% cpu no matter how much load I throw at it.
 
-* I'm reading that I can use something call 'commet requests' to update my 
+* I'm reading that I can use something call 'comet requests' to update my 
   webpage.  It looks like this is just an outstanding ajax request: the server 
   sends a response with information / instructions, and the client sends 
   another request.
