@@ -40,8 +40,8 @@ var util = require('util');
 var im = require('imagemagick');
 
 // Maximum pictures per meal (alot for a single meal).
-//
-var defaultMaxPicsPerMeal = 64; 
+var defaultMaxPicsPerMeal = 256; 
+
 // Scale variables
 var maxMealWidth = 780;
 var maxMealHeight = 780;
@@ -221,6 +221,7 @@ function User(username, password, userid) {
     this.numPics = 0;
     this.showMealsPerPage = 9;
     this.defaultWorldViewable = false;
+    this.maxPicsPerMeal = defaultMaxPicsPerMeal;
     this.isAdmin = false;
     this.lastIp = "";
     this.lastGeo = 0;
@@ -2506,7 +2507,7 @@ function mealInfo(user) {
     this.deleted = false;
 
     // Maximum pics per single meal
-    this.maxPicsPerMeal = defaultMaxPicsPerMeal;
+    // this.maxPicsPerMeal = defaultMaxPicsPerMeal;
 
     // Restaurant: reference to the restaurants table
     this.restaurantId = -1;
@@ -3420,6 +3421,7 @@ app.get('/ajaxgetmealinfo', function(req, res, next) {
             return;
         }
 
+        // This code is on hold for now
         if(mealInfo.restaurantId > 0) {
             getRestaurantInfoById(mealInfo.restaurantId, function(err, restaurantInfo) {
                 if(err) throw(err);
@@ -5117,11 +5119,19 @@ app.post('/editmealsupload', function(req, res, next) {
             return;
         }
 
+        var maxpics = defaultMaxPicsPerMeal;
+
+        if(req.session.user.maxPicsPerMeal) {
+            maxpics = req.session.user.maxPicsPerMeal;
+        }
+
+
         // Verify that we're allowed to upload another picture
+        // This should be part of the user attributes, not the meal's attributes
         if(mealInfo.maxPicsPerMeal > 0 && 
-            mealInfo.picInfo.length >= mealInfo.maxPicsPerMeal) {
+            mealInfo.picInfo.length >= maxpics) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write("HAVE MAXIMUM PICS FOR THIS MEAL");
+            res.write("HAVE MAXIMUM PICS FOR THIS MEAL " + maxpics);
             res.end();
             return;
         }

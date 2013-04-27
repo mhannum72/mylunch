@@ -112,6 +112,18 @@ showattributes = (function($jq) {
     // Can dismiss
     var candismiss = true;
 
+    // Delete anchor
+    var deleteanchor = null;
+
+    // Upload anchor
+    var uploadanchor = null;
+
+    // Key anchor
+    var keyanchor = null;
+
+    // Holds the subcarousel
+    var subcarousel = null;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -411,13 +423,6 @@ showattributes = (function($jq) {
         // Get the current document height
         maskfadeheight = $(document).height();
 
-        // Give a little bit of breathing room
-        //maskfadeheight += maskfadebottommargin;
-
-        // Make sure to add the height of the difference between the current 
-        // maximum picture and the actual max picture size.
-        // maskfadeheight += 780;
-
         // Set sane minimum
         if(wid < minmaskfadewidth) 
             wid = minmaskfadewidth;
@@ -493,6 +498,9 @@ showattributes = (function($jq) {
     
             // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight> <thumbwidth>"
             var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+ [0-9]+$/;
+
+            // Have maximum pictures format
+            var maxpex = /^HAVE MAXIMUM PICS FOR THIS MEAL [0-9]+$/;
     
             // TODO: put a reasonable hard-timeout here.
             //
@@ -507,9 +515,28 @@ showattributes = (function($jq) {
                 return;
 
             }
+
+            // Maximum pics per meal
+            if(maxpex.test(bodytext)) {
+                // TODO: display 'you have reached the maximum number of pictures'
+                // I will need to test (and debug) this.
+                //
+                // A better way to do this is to have this information
+                // passed to this object somehow, and to disable the 
+                // 'upload new picture' anchor 
+                var ar = bodytext.split(" ");
+
+                // Retrieve the maximum number of pictures
+                var maxpics = parseInt(ar[6], 10);
+
+                // Invoke callback with the maximum pictures info
+                callback(null, false, null, maxpics);
+                candismiss = true;
+                return;
+            }
     
             // Success case 
-            if(regex.test(bodytext)) {
+            else if(regex.test(bodytext)) {
     
                 // Split on the spaces
                 var ar = bodytext.split(" ");
@@ -542,7 +569,7 @@ showattributes = (function($jq) {
                 */
     
                 // Add to the picture-mobile
-                callback(null, pinfo);
+                callback(null, true, pinfo, -1);
                 candismiss = true;
                 return;
             }
@@ -878,35 +905,42 @@ showattributes = (function($jq) {
         uploadAnchor.click(function() {
     
             // Popup works from a hidden frame
-            uploadmealpopup(meal.userid, meal.timestamp, function(err, pinfo) {
+            uploadmealpopup(meal.userid, meal.timestamp, function(err, gotpic, pinfo, maxpic) {
     
                 // Throw any errors
                 if(err) throw(err);
-    
-                // Add this to the carousel
-                elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
-    
-                    if(added) {
-    
-                        // Make key photo if this was the first
-                        if(ckfirst && setgriddisplay) {
-                            setgriddisplay(meal, pinfo);
+
+                // Hit the max picture case - our local information is wrong.  Update it
+                if(!gotpic && maxpic > 0) {
+                    // TODO
+                }
+
+                if(gotpic) {
+        
+                    // Add this to the carousel
+                    elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
+        
+                        if(added) {
+        
+                            // Make key photo if this was the first
+                            if(ckfirst && setgriddisplay) {
+                                setgriddisplay(meal, pinfo);
+                            }
+        
+                            // console.log('pushing ' + pinfo.timestamp + ' ts is ' + ts);
+        
+                            // Push this picture onto the meal.picInfo array
+                            meal.picInfo.push(pinfo);
+        
+                            // Update picture count
+                            if(setgridcount) 
+                                setgridcount(meal);
                         }
-    
-                        // console.log('pushing ' + pinfo.timestamp + ' ts is ' + ts);
-    
-                        // Push this picture onto the meal.picInfo array
-                        meal.picInfo.push(pinfo);
-    
-                        // Update picture count
-                        if(setgridcount) 
-                            setgridcount(meal);
-                    }
-    
-                    // Set the focus back on the carousel
-                    elm.focus();
-                });
-    
+        
+                        // Set the focus back on the carousel
+                        elm.focus();
+                    });
+                }
             });
         });
 
@@ -1307,33 +1341,34 @@ showattributes = (function($jq) {
             .attr('class', 'container_8');
     
         // Hold objects directly beneath the carousel
-        var subcarousel = $(dc('div'))
+        subcarousel = $(dc('div'))
             .attr('id', 'subcarousel')
             .attr('class', 'carousel_caption');
     
         // Create my upload anchor
-        var uploadAnchor = createuploadanchor(meal);
+        uploadanchor = createuploadanchor(meal);
     
         // Retrieve a delete anchor
-        var makeKeyAnchor = createkeyanchor(meal);
+        keyanchor = createkeyanchor(meal);
     
         // Create delete picture anchor
-        var deleteAnchor = createdeleteanchor(meal);
+        deleteanchor = createdeleteanchor(meal);
     
         // Add to the carousel fadeobjs
-        elm.addfadeobj(makeKeyAnchor.get(0));
+        elm.fadeatzeropics(keyanchor.get(0));
     
         // Add to the carousel fade objects
-        elm.addfadeobj(deleteAnchor.get(0));
+        elm.fadeatzeropics(deleteanchor.get(0));
     
         // Clear 
         var carouselClear = $(dc('div'))
             .attr('class', 'clear');
     
         // Attach to popup
-        uploadAnchor.appendTo(subcarousel);
-        makeKeyAnchor.appendTo(subcarousel);
-        deleteAnchor.appendTo(subcarousel);
+        uploadanchor.appendTo(subcarousel);
+        keyanchor.appendTo(subcarousel);
+        deleteanchor.appendTo(subcarousel);
+
         subcarousel.appendTo(class8);
         carouselClear.appendTo(class8);
     

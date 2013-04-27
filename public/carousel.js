@@ -173,7 +173,7 @@ var picturecarousel = (function ($jq) {
         }
     
         // Add a list of objects to fadein / fadeout
-        elm.addfadeobj = function(element) {
+        elm.fadeatzeropics = function(element) {
     
             // Toggle immediately
             if(elm.numpics == 0)
