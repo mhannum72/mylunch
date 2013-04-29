@@ -40,7 +40,7 @@ var util = require('util');
 var im = require('imagemagick');
 
 // Maximum pictures per meal (alot for a single meal).
-var defaultMaxPicsPerMeal = 256; 
+var defaultMaxPicsPerMeal = 4;
 
 // Scale variables
 var maxMealWidth = 780;
@@ -940,6 +940,10 @@ findtsinpicinfo = function(ts, pinfo) {
 
     while(true) {
 
+        // Punt on weird errors
+        if(undefined == pinfo[ii])
+            return -1;
+
         // Return index
         if(pinfo[ii].timestamp == ts)
             return ii;
@@ -1002,34 +1006,38 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
         mealinfo.find( { userid: userid, timestamp: mealts } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
-            }
-
-            var result = results[0];
-
-            // This will change to a binary search 
-            var ii = findtsinpicinfo(picts, result.picInfo);
-
-            if(ii < 0) {
-                console.log("Error - couldn't find picture with timestamp " + picts
-                    + " for user " + userid);
-                throw new Error("Couldn't find picture");
+                var err = new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
+                callback(err);
                 return;
             }
 
-                // Delete the picture
-                result.picInfo.splice(ii, 1);
+            var result = results[0];
+            var ii;
 
-                // Start async database deletes
-                deleteMealPicInMongo(userid, picts);
-                deleteMealThumbInMongo(userid, picts);
+            // This will change to a binary search 
+            if( !result || !result.picInfo || 
+                ((ii = findtsinpicinfo(picts, result.picInfo) < 0))) {
 
-                if(result.keytimestamp && result.keytimestamp == picts) {
-                    result.keytimestamp = 0;
-                }
+                console.log("Error - couldn't find picture with timestamp " + picts
+                    + " for user " + userid);
+                var err = new Error("Couldn't find picture");
+                callback(err);
+                return;
+            }
 
-                // Delete
-                updateMealInfoPicInfoInMongo(result, callback);
+            // Delete the picture
+            result.picInfo.splice(ii, 1);
+
+            // Start async database deletes
+            deleteMealPicInMongo(userid, picts);
+            deleteMealThumbInMongo(userid, picts);
+
+            if(result.keytimestamp && result.keytimestamp == picts) {
+                result.keytimestamp = 0;
+            }
+
+            // Delete
+            updateMealInfoPicInfoInMongo(result, callback);
         });
     });
 }
@@ -1223,12 +1231,15 @@ getMealThumbFromMongo = function(userid, timestamp, callback) {
 
                 // Sanity check mongo 
                 if(results.length > 1) {
-                    throw new Error(results.length + ' thumbs in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    var err = new Error(results.length + ' thumbs in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    callback(err);
+                    return;
                 }
 
                 // No records
-                if(results.length <= 0) {
+                if(!results || !results[0] || results.length <= 0) {
                     callback(err);
+                    return;
                 }
 
                 // Check reply from redis
@@ -1544,12 +1555,15 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
 
                 // Sanity check mongo 
                 if(results.length > 1) {
-                    throw new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    var err = new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    callback(err);
+                    return;
                 }
 
                 // No records
-                if(results.length <= 0) {
+                if(!results || results.length <= 0) {
                     callback(err);
+                    return;
                 }
 
                 // Check reply from redis
@@ -4436,9 +4450,7 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
                     res.render('editmeals.ejs', {
                         user: req.session.user,
                         mealinfo: mealinfo,
-                        //nextmd: nextmd,
                         nextts: nextts,
-                        //prevmd: prevmd,
                         prevts: prevts
                     });
                 });
@@ -4447,9 +4459,7 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
                 res.render('editmeals.ejs', {
                     user: req.session.user,
                     mealinfo: mealinfo,
-                    //nextmd: nextmd,
                     nextts: nextts,
-                    //prevmd: prevmd,
                     prevts: prevts
                 });
             }
@@ -4461,9 +4471,7 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
             res.render('editmeals.ejs', {
                 user: req.session.user,
                 mealinfo: mealinfo,
-                //nextmd: nextmd,
                 nextts: nextts,
-                //prevmd: prevmd,
                 prevts: prevts
             });
         }); // getMealInfoFromMongoFwd
@@ -5128,7 +5136,7 @@ app.post('/editmealsupload', function(req, res, next) {
 
         // Verify that we're allowed to upload another picture
         // This should be part of the user attributes, not the meal's attributes
-        if(mealInfo.maxPicsPerMeal > 0 && 
+        if(maxpics > 0 && 
             mealInfo.picInfo.length >= maxpics) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.write("HAVE MAXIMUM PICS FOR THIS MEAL " + maxpics);

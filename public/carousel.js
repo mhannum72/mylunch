@@ -4,7 +4,8 @@ var picturecarousel = (function ($jq) {
     // Cache jquery
     var $ = $jq;
 
-    function create(username, sourcedir, picinfo, findpicix, keytimestamp, adjustfadecb) {
+    function create(username, sourcedir, picinfo, findpicix, keytimestamp, 
+        adjustfadecb, maxpics) {
 
         // Create element wrapper
         var dc = function(a)
@@ -32,6 +33,9 @@ var picturecarousel = (function ($jq) {
     
         // Keep track of the picture count
         elm.numpics = 0;
+
+        // Maximum pics allowed
+        elm.maxpics = maxpics;
     
         // Set animating flag to false
         elm.animating = false;
@@ -70,7 +74,10 @@ var picturecarousel = (function ($jq) {
         elm.startindex = -1;
     
         // fadeout these at nomeal, fadein at first meal
-        elm.fadeobjs = [];
+        elm.fadezeropicsobjs = [];
+
+        // fade out at max pics
+        elm.fademaxpicsobjs = [];
     
         // Set the find-picture-index function
         elm.findpicix = findpicix;
@@ -171,6 +178,82 @@ var picturecarousel = (function ($jq) {
     
             return $dv;
         }
+
+        // Hide a subcarousel element
+        function elementhide(element) {
+
+            // Create when attached to the parent
+            if(!element.placeholder && element.parentNode) {
+
+                // Retrieve the class attribute
+                var cls = $(element).attr('class');
+
+                // Assign it to the new span
+                element.placeholder=$(dc('span'))
+                    .attr('class', cls)
+                    .css('opacity', 0)
+                    .css('cursor', 'default')
+                    .html('.')[0];
+
+                // Insert after the element
+                $(element.placeholder).insertAfter(element);
+
+            }
+
+            // Hide the element
+            $(element).hide();
+
+            // 'Show' the opaque placeholder
+            if(element.placeholder) {
+                $(element.placeholder).show();
+            }
+
+        }
+
+        // Show a subcarousel element 
+        function elementshow(element) {
+
+            // Create when attached to the parent
+            if(!element.placeholder && element.parentNode) {
+
+                // Retrieve the class attribute
+                var cls = $(element).attr('class');
+
+                // Assign it to the new span
+                element.placeholder=$(dc('span'))
+                    .attr('class', cls)
+                    .css('opacity', 0)
+                    .css('cursor', 'default')
+                    .html('.')[0];
+
+                // Insert after the element
+                $(element.placeholder).insertAfter(element);
+
+            }
+
+            // Show the element
+            $(element).show();
+
+            // 'Hide' the opaque placeholder
+            if(element.placeholder) {
+                $(element.placeholder).hide();
+            }
+        }
+
+        elm.fadeatmaxpics = function(element) {
+
+            if(elm.numpics >= maxpics)
+            {
+                elementhide(element);
+            }
+            else
+            {
+                elementshow(element);
+            }
+
+            // Push onto the fademaxpicsobjs array
+            elm.fademaxpicsobjs.push(element);
+        }
     
         // Add a list of objects to fadein / fadeout
         elm.fadeatzeropics = function(element) {
@@ -178,15 +261,17 @@ var picturecarousel = (function ($jq) {
             // Toggle immediately
             if(elm.numpics == 0)
             {
-                $(element).hide();
+                elementhide(element);
+                //$(element).hide();
             }
             else
             {
-                $(element).show();
+                elementshow(element);
+                //$(element).show();
             }
     
-            // Push onto the fadeobjs array
-            elm.fadeobjs.push(element);
+            // Push onto the fadezeropicsobjs array
+            elm.fadezeropicsobjs.push(element);
         }
     
         // Toggle only if I need to
@@ -480,9 +565,16 @@ var picturecarousel = (function ($jq) {
             // Destroy navigation arrows
             else if(0 == elm.numpics) {
     
-                // Fade out all fadeobjs
-                elm.fadeobjs.forEach(function(obj) {
-                    $(obj).hide();
+                // Fade out all fadezeropicsobjs
+                elm.fadezeropicsobjs.forEach(function(obj) {
+                    elementhide(obj);
+                    //$(obj).hide();
+                });
+            }
+            else if(elm.numpics == (maxpics - 1)) {
+                elm.fademaxpicsobjs.forEach(function(obj) {
+                    elementshow(obj);
+                    //$(obj).show();
                 });
             }
     
@@ -536,7 +628,7 @@ var picturecarousel = (function ($jq) {
         elm.removepicture = function(callback) {
     
             // Check addremove flag
-            if(elm.addremove) {
+            if(elm.addremove || elm.rotating) {
     
                 //console.log('Removepicture returning because we are add removing.');
                 if(callback) callback(false);
@@ -552,6 +644,13 @@ var picturecarousel = (function ($jq) {
     
             // Find the div
             var $target = $dv.eq(0);
+
+            // If this is the nomeal div return
+            if($target.is('#pic-div-nomeal')) {
+                elm.addremove = false;
+                if(callback) callback(false);
+                return false;
+            }
     
             // If there are no pictures return
             if($target.length <= 0) {
@@ -559,7 +658,9 @@ var picturecarousel = (function ($jq) {
                 if(callback) callback(false);
                 return false;
             }
-    
+
+            // If this is the nomeal picture return
+
             // Get the image inside this div
             var $img = $target.find('.pic-div-image');
     
@@ -682,8 +783,9 @@ var picturecarousel = (function ($jq) {
                 rotate = true;
     
                 // Show the fadeobjects
-                elm.fadeobjs.forEach(function(obj) {
-                    $(obj).show();
+                elm.fadezeropicsobjs.forEach(function(obj) {
+                    elementshow(obj);
+                    //$(obj).show();
                 });
     
             }
@@ -699,7 +801,22 @@ var picturecarousel = (function ($jq) {
                 // Rotate to new picture
                 rotate = true;
             }
+            else if(elm.numpics >= maxpics - 1) {
+
+                // Not viewable
+                $dv.css('left', '-10000px');
+    
+                // Rotate to new picture
+                rotate = true;
+
+                // Hide fade at maxpics
+                elm.fademaxpicsobjs.forEach(function(obj) {
+                    elementhide(obj);
+                    //$(obj).hide();
+                });
+            }
             else {
+
                 // Not viewable
                 $dv.css('left', '-10000px');
     

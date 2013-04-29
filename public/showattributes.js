@@ -124,6 +124,9 @@ showattributes = (function($jq) {
     // Holds the subcarousel
     var subcarousel = null;
 
+    // Maximum pictures per meal
+    var maxpicspermeal;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -499,7 +502,7 @@ showattributes = (function($jq) {
             // The format is 'SUCCESS <timestamp> <mealheight> <thumbheight> <thumbwidth>"
             var regex = /^SUCCESS [0-9]+ [0-9]+ [0-9]+ [0-9]+$/;
 
-            // Have maximum pictures format
+            // Have maximum pictures format - just another failure
             var maxpex = /^HAVE MAXIMUM PICS FOR THIS MEAL [0-9]+$/;
     
             // TODO: put a reasonable hard-timeout here.
@@ -516,27 +519,8 @@ showattributes = (function($jq) {
 
             }
 
-            // Maximum pics per meal
-            if(maxpex.test(bodytext)) {
-                // TODO: display 'you have reached the maximum number of pictures'
-                // I will need to test (and debug) this.
-                //
-                // A better way to do this is to have this information
-                // passed to this object somehow, and to disable the 
-                // 'upload new picture' anchor 
-                var ar = bodytext.split(" ");
-
-                // Retrieve the maximum number of pictures
-                var maxpics = parseInt(ar[6], 10);
-
-                // Invoke callback with the maximum pictures info
-                callback(null, false, null, maxpics);
-                candismiss = true;
-                return;
-            }
-    
             // Success case 
-            else if(regex.test(bodytext)) {
+            if(regex.test(bodytext)) {
     
                 // Split on the spaces
                 var ar = bodytext.split(" ");
@@ -569,7 +553,7 @@ showattributes = (function($jq) {
                 */
     
                 // Add to the picture-mobile
-                callback(null, true, pinfo, -1);
+                callback(null, pinfo);
                 candismiss = true;
                 return;
             }
@@ -773,7 +757,6 @@ showattributes = (function($jq) {
         // Click handler
         deleteAnchor.click(function() {
 
-
             if(promptdeletepic) {
                 if(usesimpleprompt) {
                     var answer = confirm("Delete this picture?");
@@ -905,17 +888,12 @@ showattributes = (function($jq) {
         uploadAnchor.click(function() {
     
             // Popup works from a hidden frame
-            uploadmealpopup(meal.userid, meal.timestamp, function(err, gotpic, pinfo, maxpic) {
+            uploadmealpopup(meal.userid, meal.timestamp, function(err, pinfo) {
     
                 // Throw any errors
                 if(err) throw(err);
 
-                // Hit the max picture case - our local information is wrong.  Update it
-                if(!gotpic && maxpic > 0) {
-                    // TODO
-                }
-
-                if(gotpic) {
+                if(pinfo) {
         
                     // Add this to the carousel
                     elm.addpicture(pinfo, false, false, function(added, ckfirst, ts) {
@@ -1304,7 +1282,8 @@ showattributes = (function($jq) {
     
         // Create a carousel
         elm = createcarousel(username, 'pics', 
-                meal.picInfo, findpicidx, meal.keytimestamp, adjustmaskfade);
+                meal.picInfo, findpicidx, meal.keytimestamp, adjustmaskfade,
+                maxpicspermeal);
     
         // Append it to the div
         elm.appendTo(carouselDivContainer);
@@ -1344,7 +1323,7 @@ showattributes = (function($jq) {
         subcarousel = $(dc('div'))
             .attr('id', 'subcarousel')
             .attr('class', 'carousel_caption');
-    
+
         // Create my upload anchor
         uploadanchor = createuploadanchor(meal);
     
@@ -1359,11 +1338,14 @@ showattributes = (function($jq) {
     
         // Add to the carousel fade objects
         elm.fadeatzeropics(deleteanchor.get(0));
+
+        // Add to the carousel fade objects
+        elm.fadeatmaxpics(uploadanchor.get(0));
     
         // Clear 
         var carouselClear = $(dc('div'))
             .attr('class', 'clear');
-    
+
         // Attach to popup
         uploadanchor.appendTo(subcarousel);
         keyanchor.appendTo(subcarousel);
@@ -2110,6 +2092,8 @@ showattributes = (function($jq) {
         buttonmargin = cfg.hp("buttonmargin") ? 
             cfg.buttonmargin : 20;
         
+        maxpicspermeal = cfg.hp("maxpicspermeal") ? 
+            cfg.maxpicspermeal : 64;
 
         // We are not showing
         isshowing = false;
