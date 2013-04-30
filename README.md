@@ -5,6 +5,13 @@ mylunch
 todo
 ====
 
+* I need to define a 'projects' document which outlines the important tasks that
+  I'd like to get done.
+
+* Maybe there might be a 'content' button below the carousel that shows a table
+  of contents in pictures.  These would be mini-thumbs.  A single toc page might 
+  define the upper bound of photos.
+
 * Steps:
   1 Publish button
   2 Following / followers list
