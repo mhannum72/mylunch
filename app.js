@@ -39,8 +39,8 @@ var util = require('util');
 // Image manipulation 
 var im = require('imagemagick');
 
-// Maximum pictures per meal (alot for a single meal).
-var defaultMaxPicsPerMeal = 4;
+// Maximum pictures per meal
+var defaultMaxPicsPerMeal = 128;
 
 // Scale variables
 var maxMealWidth = 780;

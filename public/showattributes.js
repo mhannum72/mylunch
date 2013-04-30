@@ -746,6 +746,44 @@ showattributes = (function($jq) {
         return promptdiv;
     }
 
+    function preventDefault(e) {
+        e = e || window.event;
+        if (e.preventDefault)
+            e.preventDefault();
+        e.returnValue = false;  
+    }
+
+    function keydown(e) {
+
+        var keys = [37, 38, 39, 40];
+
+        for (var i = keys.length; i--;) {
+            if (e.keyCode === keys[i]) {
+                preventDefault(e);
+                return;
+            }
+        }
+    }
+
+    function wheel(e) {
+        preventDefault(e);
+    }
+
+    function disable_scroll() {
+        if (window.addEventListener) {
+            window.addEventListener('DOMMouseScroll', wheel, false);
+        }
+        window.onmousewheel = document.onmousewheel = wheel;
+        document.onkeydown = keydown;
+    }
+
+    function enable_scroll() {
+        if (window.removeEventListener) {
+            window.removeEventListener('DOMMouseScroll', wheel, false);
+        }
+        window.onmousewheel = document.onmousewheel = document.onkeydown = null;  
+    }
+
     // function which creates the delete anchor
     function createdeleteanchor(meal) {
 
@@ -766,18 +804,22 @@ showattributes = (function($jq) {
                     var dpprompt = createdeletepicprompt(
                         function() {
                             removepic();
+                            enable_scroll();
                             $.unblockUI();
                         },
                         function() {
+                            enable_scroll();
                             $.unblockUI();
                         },
                         function() {
                             promptdeletepic = false;
                             removepic();
+                            enable_scroll();
                             $.unblockUI();
                         }
                     );
 
+                    disable_scroll();
                     $.blockUI({message: dpprompt});
 
                 }
@@ -1886,18 +1928,22 @@ showattributes = (function($jq) {
                         var dmprompt = createdeletemealprompt(
                             function() {
                                 deleteanddestroy();
+                                enable_scroll();
                                 $.unblockUI();
                             },
                             function() {
+                                enable_scroll();
                                 $.unblockUI();
                             },
                             function() {
                                 promptdeletemeal = false;
                                 deleteanddestroy();
+                                enable_scroll();
                                 $.unblockUI();
                             }
                         );
     
+                        disable_scroll();
                         $.blockUI({message: dmprompt});
                     }
                 }
