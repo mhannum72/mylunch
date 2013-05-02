@@ -623,6 +623,10 @@ var picturecarousel = (function ($jq) {
                 callback(true, pinfo);
             }
         }
+
+        elm.isrotating = function() {
+            return elm.rotating;
+        }
     
         // Remove current picture
         elm.removepicture = function(callback) {

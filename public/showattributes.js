@@ -164,7 +164,7 @@ showattributes = (function($jq) {
     }
     
     // Delete this picture
-    function deletePicAjax(meal, picInfo) {
+    function deletePicAjax(meal, picInfo, callback) {
         $.ajax({
             url: '/deletepic',
             type: 'POST',
@@ -177,6 +177,17 @@ showattributes = (function($jq) {
                 }),
             dataType: 'json',
             complete: function(resp, astat) {
+
+                var response = JSON.parse(resp.responseText);
+
+                if(undefined != response.message && response.message == "success") {
+                    console.log("success!");
+                }
+
+                // Error
+                else {
+                    console.log("error: " + response.message);
+                }
             }
         });
     }
@@ -794,6 +805,16 @@ showattributes = (function($jq) {
     
         // Click handler
         deleteAnchor.click(function() {
+
+            // Return immediately if the carousel is rotating
+            if(!elm || true == elm.isrotating()) {
+                return;
+            }
+
+            // Return immediately if there are no more pictures
+            if(meal.picInfo.length <= 0) {
+                return;
+            }
 
             if(promptdeletepic) {
                 if(usesimpleprompt) {

@@ -22,6 +22,7 @@ require('nodetime').profile({
 
 // Enable debugging
 var debug = 1;
+var deletetrace = 0;
 
 // Constant
 var msPerSecond = 1000;
@@ -904,7 +905,7 @@ getMealInfoFromMongoVerify = function(timestamp, afterTs, limit, callback) {
     });
 }
 
-updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
+updateMealInfoPicInfoInMongo = function(mymealinfo, callback, isdelete, dtimestamp) {
 
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
@@ -925,13 +926,23 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback) {
         mealInfo.update({userid: mymealinfo.userid, timestamp:mymealinfo.timestamp}, 
             {$set: {picInfo: mymealinfo.picInfo, keytimestamp: keyts }}, {safe:true}, function(err) {
                 if(err) throw(err);
+                if(deletetrace && isdelete) {
+
+                    // Delete user trace
+                    console.log("Delete user=" + mymealinfo.userid + " timestamp=" + dtimestamp );
+
+                    // Dump the picinfo
+                    pictsdumppicinfo(mymealinfo.picInfo);
+
+                    console.log(" ");
+                }
                 callback(err);
             });
 
     });
 }
 
-findtsinpicinfo = function(ts, pinfo) {
+findtsinpicinfobinary = function(ts, pinfo) {
 
     // This will change to a binary search 
     var left = 0;
@@ -941,8 +952,11 @@ findtsinpicinfo = function(ts, pinfo) {
     while(true) {
 
         // Punt on weird errors
-        if(undefined == pinfo[ii])
+        if(undefined == pinfo[ii]) {
+            console.log("pinfo[" + ii + "] is undefined");
+            console.log("pinfo length is " + pinfo.length);
             return -1;
+        }
 
         // Return index
         if(pinfo[ii].timestamp == ts)
@@ -961,6 +975,34 @@ findtsinpicinfo = function(ts, pinfo) {
         // Next element
         ii = Math.floor(left + ( (right - left) / 2));
     }
+}
+
+findtsinpicinfolinear = function(ts, pinfo) {
+
+    // Simple scan
+    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+        if(pinfo[ii].timestamp == ts)
+            return ii;
+    }
+    return -1;
+}
+
+pictsdumppicinfo = function( pinfo ) {
+    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+        console.log("pinfo[" + ii + "] == " + pinfo[ii].timestamp);
+    }
+}
+
+findtsinpicinfo = function(ts, pinfo) {
+    var x1 = findtsinpicinfolinear(ts, pinfo);
+    var x2 = findtsinpicinfobinary(ts, pinfo);
+
+    if(x1 !== x2) {
+        console.log("Error - linear search returns ix " + x1 + " binary returns ix " + x2);
+        dumppicinfo(pinfo);
+    }
+
+    return x1;
 }
 
 updateKeyPicInMongo = function(userid, mealts, picts, callback) {
@@ -1015,18 +1057,29 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
             var ii;
 
             // This will change to a binary search 
+            // XXX THIS IS THE BUG
             if( !result || !result.picInfo || 
                 ((ii = findtsinpicinfo(picts, result.picInfo) < 0))) {
 
-                console.log("Error - couldn't find picture with timestamp " + picts
-                    + " for user " + userid);
+                console.log("Error - couldn't find picture with timestamp=" + picts
+                    + " mealts=" + mealts + " user=" + userid + " result.picinfo.length=" +
+                    result.picInfo.length);
                 var err = new Error("Couldn't find picture");
                 callback(err);
                 return;
             }
+            else {
 
-            // Delete the picture
-            result.picInfo.splice(ii, 1);
+                // Dump out this array
+                //
+                console.log("found user=" + userid + " picts=" + picts + " at index " + ii);
+                pictsdumppicinfo(result.picInfo);
+
+                // if(result.picInfo[ii] != 
+
+                // Delete the picture
+                result.picInfo.splice(ii, 1);
+            }
 
             // Start async database deletes
             deleteMealPicInMongo(userid, picts);
@@ -1037,7 +1090,7 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
             }
 
             // Delete
-            updateMealInfoPicInfoInMongo(result, callback);
+            updateMealInfoPicInfoInMongo(result, callback, true, picts);
         });
     });
 }
@@ -1446,6 +1499,9 @@ deleteMealThumbInMongo = function(userid, timestamp, callback) {
 
         mealThumbs.remove({ userid: userid, timestamp: timestamp }, function(err, object) {
             if(err) throw (err);
+            if(deletetrace) {
+                console.log("delete mealthumb user=" + userid + " timestamp=" + timestamp);
+            }
             if(callback) callback( err, object );
         });
     });
@@ -1458,6 +1514,9 @@ deleteMealPicInMongo = function(userid, timestamp, callback) {
 
         mealPics.remove({ userid: userid, timestamp: timestamp },  function(err, object) {
             if(err) throw (err);
+            if(deletetrace) {
+                console.log("delete mealpic user=" + userid + " timestamp=" + timestamp);
+            }
             if(callback) callback( err, object );
         });
     });
@@ -1998,7 +2057,7 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
             // TODO: create a default 'not-found' picture. 
             // res.writeHead(200, {'Content-Type': 'image/jpeg' });
             // res.end( notfound.pic, 'binary');
-            console.log('mealthumb is undefined for objectid ' + req.params.id);
+            console.log('mealthumb is undefined for userid=' +  userid + ' timestamp=' + timestamp);
 
             // Try to find the actual image
             showMealPicture( req, res, userid, timestamp );
@@ -4838,7 +4897,7 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
                     return;
                 });
             }
-        });
+        }, 0);
     });
 }
 
