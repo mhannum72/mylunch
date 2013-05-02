@@ -73,6 +73,11 @@ var posUpdateMs = 5 * msPerSecond;
 // user pictures base directory
 var basedirectory = '/data/users';
 
+// log file
+var logfilename = '/data/mylunch.log';
+
+var log = null;
+
 var webPort = 3000;
 var webBase = 'localhost:' + webPort;
 
@@ -104,6 +109,22 @@ var dupidxoffset = 36;
 
 // Simulate a missing thumb
 var simulatemissingthumb = false;
+
+// Logging function
+function wrlog(log, string) {
+
+    // Return immediately if there's no log
+    if(!log) return;
+
+    // Format a timestamp
+    var ts = new Date();
+
+    var tstamp = (ts.getMonth() + 1) + '/' + ts.getDate() + '/' + ts.getFullYear() + ' ' + ts.getHours() + ':' + 
+        ts.getMinutes() + ':' + ts.getSeconds() + ' ';
+
+    log.write(tstamp + string);
+}
+
 
 // Return true if this was a dup-key error
 function dupkeyerror(err) {
@@ -152,8 +173,6 @@ db.open(function(error, client){
     db.collection('mealIcons', function(error, collection) {
         collection.ensureIndex({userid:1, timestamp:1},{unique:true});
     });
-
-
 
     // Create indexes for restaurants table
     db.collection('restaurants', function(error, collection) {
@@ -942,6 +961,7 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback, isdelete, dtimesta
     });
 }
 
+// Binary search
 findtsinpicinfobinary = function(ts, pinfo) {
 
     // This will change to a binary search 
@@ -1056,34 +1076,33 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
             var result = results[0];
             var ii;
 
-            // This will change to a binary search 
-            // XXX THIS IS THE BUG
-            if( !result || !result.picInfo || 
-                ((ii = findtsinpicinfo(picts, result.picInfo) < 0))) {
+            if(!result || !result.picInfo) {
+                console.log("Null result.picInfo for user=" + userid + " timestamp=" + picts);
+                var err = new Error("Null result.picInfo");
+                callback(err);
+                return;
+            }
 
+            ii = findtsinpicinfo(picts, result.picInfo);
+
+            // This will change to a binary search 
+            if(ii < 0) {
                 console.log("Error - couldn't find picture with timestamp=" + picts
                     + " mealts=" + mealts + " user=" + userid + " result.picinfo.length=" +
-                    result.picInfo.length);
+                    result.picInfo.length + " index=" + ii);
                 var err = new Error("Couldn't find picture");
                 callback(err);
                 return;
             }
             else {
-
-                // Dump out this array
-                //
-                console.log("found user=" + userid + " picts=" + picts + " at index " + ii);
-                pictsdumppicinfo(result.picInfo);
-
-                // if(result.picInfo[ii] != 
-
                 // Delete the picture
                 result.picInfo.splice(ii, 1);
             }
 
             // Start async database deletes
-            deleteMealPicInMongo(userid, picts);
-            deleteMealThumbInMongo(userid, picts);
+            deleteMealPicInMongo(userid, mealts, picts);
+            deleteMealThumbInMongo(userid, mealts, picts);
+            deleteMealIconInMongo(userid, mealts, picts);
 
             if(result.keytimestamp && result.keytimestamp == picts) {
                 result.keytimestamp = 0;
@@ -1492,8 +1511,38 @@ setMealThumbInMongo = function(mealthumb, callback) {
     });
 }
 
+deleteMealIconInMongo = function(userid, mealts, timestamp, callback) {
+    getCollection('mealIcons', function(error, mealIcons) {
+
+        if(error) throw(error);
+
+        mealIcons.remove({userid: userid, timestamp: timestamp }, function(err, object) {
+            if(deletetrace) {
+                console.log("delete mealicon user=" + userid + " timestamp=" + timestamp);
+            }
+            if(callback) callback( err, object );
+
+            // Filename
+            var iconname = filename_for_icon(userid, mealts, timestamp);
+
+            // Redis key
+            var rediskey = rediskey_for_icon(userid, mealts, timestamp);
+
+            // Delete redis key
+            redisClient.del(rediskey, function(err, reply) {
+                if(err) console.log("Error deleting icon " + rediskey + " from redis");
+            });
+
+            // Delete file
+            fs.unlink(iconname, function(err) {
+                if(err) console.log("Error deleting icon " + iconname + " from fs");
+            });
+        });
+    });
+}
+
 // Delete a meal-thumb
-deleteMealThumbInMongo = function(userid, timestamp, callback) {
+deleteMealThumbInMongo = function(userid, mealts, timestamp, callback) {
     getCollection('mealThumbs', function(error, mealThumbs) {
         if(error) throw (error);
 
@@ -1503,12 +1552,28 @@ deleteMealThumbInMongo = function(userid, timestamp, callback) {
                 console.log("delete mealthumb user=" + userid + " timestamp=" + timestamp);
             }
             if(callback) callback( err, object );
+
+            // Filename
+            var thumbname = filename_for_thumb(userid, mealts, timestamp);
+
+            // Redis key
+            var rediskey = rediskey_for_thumb(userid, timestamp);
+
+            // Delete redis key
+            redisClient.del(rediskey, function(err, reply) {
+                if(err) console.log("Error deleting thumb " + rediskey + " from redis");
+            });
+
+            // Delete file
+            fs.unlink(thumbname, function(err) {
+                if(err) console.log("Error deleting thumb " + thumbname + " from fs");
+            });
         });
     });
 }
 
 // Delete a meal picture
-deleteMealPicInMongo = function(userid, timestamp, callback) {
+deleteMealPicInMongo = function(userid, mealts, timestamp, callback) {
     getCollection('mealPics', function(error, mealPics) {
         if(error) throw (error);
 
@@ -1517,7 +1582,26 @@ deleteMealPicInMongo = function(userid, timestamp, callback) {
             if(deletetrace) {
                 console.log("delete mealpic user=" + userid + " timestamp=" + timestamp);
             }
+
+            // Callback now
             if(callback) callback( err, object );
+
+            // Filename
+            var picname = filename_for_image(userid, mealts, timestamp);
+
+            // Redis key
+            var rediskey = rediskey_for_image(userid, timestamp);
+
+            // Delete redis key
+            redisClient.del(rediskey, function(err, reply) {
+                if(err) console.log("Error deleting image " + rediskey + " from redis");
+            });
+
+            // Delete file
+            fs.unlink(picname, function(err) {
+                if(err) console.log("Error deleting image " + picname + " from fs");
+            });
+
         });
     });
 }
@@ -5526,13 +5610,20 @@ app.get('/yesreallyanadmin', function(req, res, next) {
 });
 
 // Get the user picture & thumbs base directory
-if(process.env.USER_BASE_IMAGES) {
-    basedirectory = process.env.USER_BASE_IMAGES;
+if(process.env.MYLUNCH_USER_BASE_IMAGES) {
+    basedirectory = process.env.MYLUNCH_USER_BASE_IMAGES;
     //console.log('Set user base image directory to ' +  basedirectory );
 }
 else {
     //console.log('User base image directory is ' +  basedirectory );
 }
+
+if(process.env.MYLUNCH_LOGNAME) {
+    logfilename = process.env.MYLUNCH_LOGNAME;
+}
+
+// Open the logfile
+log = fs.createWriteStream(logfilename, { 'flags': 'a' });
 
 // Show pictures and information about the meals that I've uploaded.
 // I will allow each user to generate their own 'category' or 'folder',
@@ -5571,6 +5662,8 @@ else {
 //
 //
 var use_cluster = 0;
+
+wrlog(log, "this is a test\n");
 
 if(use_cluster) {
 

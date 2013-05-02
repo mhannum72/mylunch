@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Need an event log to log all meal-creations, picture uploads, picture deletes
+  and meal-deletions.
+
 * I need to define a 'projects' document which outlines the important tasks that
   I'd like to get done.
 
