@@ -111,18 +111,25 @@ var dupidxoffset = 36;
 var simulatemissingthumb = false;
 
 // Logging function
-function wrlog(log, string) {
+function wrlog(log, string, toconsole) {
 
     // Return immediately if there's no log
     if(!log) return;
 
-    // Format a timestamp
+    // Get current time
     var ts = new Date();
 
+    // Generate timestamp string
     var tstamp = (ts.getMonth() + 1) + '/' + ts.getDate() + '/' + ts.getFullYear() + ' ' + ts.getHours() + ':' + 
         ts.getMinutes() + ':' + ts.getSeconds() + ' ';
+    
+    // Write to logfile adding a newline
+    log.write(tstamp + string + "\n");
 
-    log.write(tstamp + string);
+    // Additionally write to console
+    if(toconsole) {
+        console.log(string);
+    }
 }
 
 
@@ -140,6 +147,7 @@ var mongo = require('mongodb'),
 
 // Open Mongo
 db.open(function(error, client){
+    // We cant recover from this
     if (error) throw error;
     
     // Create indexes for users.  Use this to store information about the user. 
@@ -203,18 +211,6 @@ getCollection = function(coll, callback) {
     });
 }
 
-
-// This might change:  an 'image-of-the-day' might make more sense
-getRotatingImagesFromMongo = function(callback) {
-    getCollection('rotating_images', function(error, rotTable) {
-        if(error) throw (error);
-        rotTable.find({ deleted: false }).toArray(function(err, results) {
-            if(err) throw(err);
-            callback(err, results);
-        });
-    });
-}
-
 // Create a new user object & set default attributes.
 function User(username, password, userid) {
     
@@ -271,10 +267,10 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
         // Exceeded max count
         if( err && ( count >= max ) ) {
 
-            // Print a message here: this probably means we're under heavy load
-            console.log('Failed to add user ' + username + ' to table: ' + err );
-
             callback( err );
+
+            // Write to logfile
+            wrlog(log, "Failed to add user " + username + " after " + max + " retries, err " + err, true);
 
             return;
         }
@@ -312,17 +308,25 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
         // Make user directory
         fs.mkdir(useriddir, directorymode, function(err) {
 
-            // Throw any errors
-            if(err) throw (err);
+            // Failing to make a directory is pretty serious
+            if(err) {
+
+                // Gerenate log message and trace
+                wrlog(log, "Error: failed to mkdir " + useriddir + " err " + err, true);
+
+                // Callback
+                callback( err );
+
+            }
 
             // Make images directory
             fs.mkdir(imagedir, directorymode, function(err) {
 
-                // Throw any errors
-                if(err) throw(err);
+                // Gerenate log message and trace
+                wrlog(log, "Error: failed to mkdir " + imagedir + " err " + err, true);
 
                 // Callback
-                callback( null, user );
+                callback( err );
 
             });
         });
@@ -337,7 +341,15 @@ setNewUserInMongo = function(username, password, callback) {
         if(error) throw (error);
 
         if(username == undefined) {
-            throw new Error('setNewUserInMongo called with NULL username.');
+
+            // New error
+            var err = new Error('setNewUserInMongo called with NULL username.');
+
+            // Callback
+            callback(err);
+
+            // Write to log & console
+            wrlog(log, "setNewUserInMongo called with NULL username.", true);
         }
 
         addNewUserToTable(userTable, username, password, callback, 0, 5);
@@ -352,7 +364,8 @@ updateLastLoginInMongo = function(username, callback) {
         if(error) throw (error);
         var lastLogin = Date.now();
         userTable.update({username: username}, {$set: {lastLogin: lastLogin}}, {safe:true}, function(err) {
-            if(err) throw(err);
+            if(err) wrlog(log, "Failed update lastlogin users table last login for " + username + 
+                " err " + err, true);
             callback(err);
         });
     });
@@ -364,7 +377,8 @@ updateCurrentNumPicsInMongo = function(username, numPics, callback) {
 
         if(error) throw (error);
         userTable.update({username: username}, {$set: {numPics:numPics}}, {safe:true}, function(err) {
-            if(err) throw(err);
+            if(err) wrlog(log, "Failed update numpics users table for " + username + " err " 
+                + err, true);
             callback(err);
         });
     });
@@ -375,7 +389,8 @@ updateShowPicsPerPageInMongo = function(username, showMealsPerPage, callback) {
 
         if(error) throw (error);
         userTable.update({username: username}, {$set: {showMealsPerPage:showMealsPerPage}}, {safe:true}, function(err) {
-            if(err) throw(err);
+            if(err) wrlog(log, "Failed update showpicsperpage users table for " + username + " err " 
+                + err, true);
             callback(err);
         });
     });
@@ -385,7 +400,8 @@ updateTitleInMongo = function(userid, timestamp, title, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {title: title}}, {safe: true}, function(err) {
-            if(err) throw(err);
+            if(err) wrlog(log, "Failed update title mealinfo table for " + username + " mealid " + 
+                timestamp + " err " + err, true);
             callback(err);
         });
     });
@@ -395,7 +411,8 @@ updateRatingInMongo = function(userid, timestamp, rating, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {rating: rating}}, {safe: true}, function(err) {
-            if(err) throw(err);
+            if(err) wrlog(log, "Failed update rating mealinfo table for " + username + " mealid " + 
+                timestamp + " err " + err, true);
             callback(err);
         });
     });
@@ -463,9 +480,16 @@ updateMealDateInMongo = function(userid, timestamp, mealdate, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.find( { userid: userid, timestamp: timestamp } ).toArray( function(err, results) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Find mealdate error for user " + userid + " timestamp " + timestamp + " err " + err);
+                callback(err);
+                return;
+            }
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                var err =new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                wrlog(log, "Multiple mealdate records for user " + userid + " mealdate " + timestamp, true);
+                callback(err);
+                return ;
             }
 
             var oldDate = results[0].mealDate;
@@ -475,8 +499,8 @@ updateMealDateInMongo = function(userid, timestamp, mealdate, callback) {
 
             if(oldmealconst != newmealconst) {
                 // This turns into an update mealdate and meal in mongo request
-                console.log("updating both mealdate and meal for user " + userid + " timestamp " + timestamp);
-                console.log("oldmeal is " + oldmealconst + " newmeal is " + newmealconst);
+                // console.log("updating both mealdate and meal for user " + userid + " timestamp " + timestamp);
+                // console.log("oldmeal is " + oldmealconst + " newmeal is " + newmealconst);
 
                 var newmeal = constToMeal(newmealconst);
                 if(newmeal != "?") {
@@ -490,7 +514,8 @@ updateMealDateInMongo = function(userid, timestamp, mealdate, callback) {
             var newMealDate = (mealdate - (mealdate % 100)) + newmealconst;
             mealinfo.update({userid: userid, timestamp: timestamp},
                     {$set: {meal: meal, mealDate: newMealDate}}, {safe: true}, function(err) {
-                if(err) throw(err);
+                if(err) wrlog(log, "Update mealdate error for user " + userid + " timestamp " + timestamp + " err " + err);
+                // if(err) throw(err);
                 callback(err);
             });
         });
@@ -2756,6 +2781,9 @@ function authenticate_resignin_post(req, res, next) {
                 return;
             }
 
+            // Generate a logfile message
+            wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + user.userid);
+
             // Delete the key
             redisClient.del(req.params.id, function(err, reply) {} );
 
@@ -4249,6 +4277,9 @@ app.get('/authenticate/:id', function(req, res, next) {
                     // Make the session user-aware
                     req.session.user = user;
 
+                    // Generate a logfile message
+                    wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + user.userid);
+
                     // Send to nextpage if needed
                     if (req.session.nextpage) {
                         var nextpage = req.session.nextpage;
@@ -5612,14 +5643,43 @@ app.get('/yesreallyanadmin', function(req, res, next) {
 // Get the user picture & thumbs base directory
 if(process.env.MYLUNCH_USER_BASE_IMAGES) {
     basedirectory = process.env.MYLUNCH_USER_BASE_IMAGES;
-    //console.log('Set user base image directory to ' +  basedirectory );
 }
 else {
-    //console.log('User base image directory is ' +  basedirectory );
 }
 
 if(process.env.MYLUNCH_LOGNAME) {
     logfilename = process.env.MYLUNCH_LOGNAME;
+}
+
+// Roll the logfile
+var maxback = 7;
+
+// How many logfiles to keep
+if(process.env.MYLUNCH_KEEP_LOG_COUNT) {
+    maxback = process.env.MYLUNCH_KEEP_LOG_COUNT;
+    if(maxback < 1) maxback = 1;
+}
+
+// Use fs.renameSync(old, new);
+for(var ii = maxback ; ii > 0 ; ii--) {
+    var oldname, newname;
+
+    if(ii == 1) {
+        oldname = logfilename;
+    }
+    else {
+        oldname = logfilename + '.' + (ii - 1);
+    }
+
+    newname = logfilename + '.' + ii;
+
+    // Ignore any errors
+    try {
+        fs.renameSync(oldname, newname);
+    }
+    catch(err) { 
+        // console.log("mv " + oldname + " " + newname + " error: " + err);
+    }
 }
 
 // Open the logfile
@@ -5659,11 +5719,7 @@ log = fs.createWriteStream(logfilename, { 'flags': 'a' });
 // Open everything that we need to open
 //
 // Play with the cluster node.js module
-//
-//
 var use_cluster = 0;
-
-wrlog(log, "this is a test\n");
 
 if(use_cluster) {
 
@@ -5677,18 +5733,18 @@ if(use_cluster) {
         }
 
         cluster.on('exit', function(worker, code, signal) {
-            console.log('worker ' + worker.process.pid + ' died');
+            wrlog(log, 'Worker ' + worker.process.pid + ' has died', true);
         });
 
 
     } else {
         app.listen(webPort, function(){
-            console.log( org + ' pid ' + process.pid + ' started on port ' + webPort);
+            wrlog(log, org + ' pid ' + process.pid + ' started on port ' + webPort, true);
         });
     }
 }
 else {
     app.listen(webPort, function(){
-        console.log( org + ' started on port ' + webPort);
+        wrlog(log, org + ' pid ' + process.pid + ' started on port ' + webPort, true);
     });
 }

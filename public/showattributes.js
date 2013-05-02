@@ -1268,7 +1268,7 @@ showattributes = (function($jq) {
         return grid_stars;
     }
 
-    // Create the grid-date object
+    // Create the grid-date object.  This will prolly be deleted eventually.
     function makepopdate(meal) {
 
         var mealDate = MEALINFO.mealDateToDate(meal.mealDate);
