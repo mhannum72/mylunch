@@ -5,6 +5,20 @@ mylunch
 todo
 ====
 
+* There's a clear advantage when I write, as this will only be a single database
+  access.  I can make this happen in a clever way I think..
+
+* Mealpics, mealthumbs, and images now have the same format (more or less).  Maybe I
+  should consider having a consolidated descriptor record for this.
+
+* If a meal is published, prevent the owner from editing it
+
+* Make deleting a meal an actual delete rather than a set-delete-bit.  I'll have
+  to think about this.
+
+* Okay - I have an event log.  Changing all of this code is boring.  I'm going
+  to pursue something else.
+
 * Need an event log to log all meal-creations, picture uploads, picture deletes
   and meal-deletions.
 

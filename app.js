@@ -118,10 +118,22 @@ function wrlog(log, string, toconsole) {
 
     // Get current time
     var ts = new Date();
+    var month = ts.getMonth() + 1;
+    var date = ts.getDate();
+    var year = ts.getFullYear();
+    var hours = ts.getHours();
+    var mins = ts.getMinutes();
+    var secs = ts.getSeconds();
+
+    if(month < 10)  month = '0' + month;
+    if(date < 10)   date = '0' + date;
+    if(hours < 10)  hours = '0' + hours;
+    if(mins < 10)   mins = '0' + mins;
+    if(secs < 10)   secs = '0' + secs;
 
     // Generate timestamp string
-    var tstamp = (ts.getMonth() + 1) + '/' + ts.getDate() + '/' + ts.getFullYear() + ' ' + ts.getHours() + ':' + 
-        ts.getMinutes() + ':' + ts.getSeconds() + ' ';
+    var tstamp = year + '/' + month + '/' + date + ' ' + hours + ':' + 
+        mins + ':' + secs + ' ';
     
     // Write to logfile adding a newline
     log.write(tstamp + string + "\n");
@@ -161,8 +173,8 @@ db.open(function(error, client){
     db.collection('mealInfo', function(error, collection) {
         // collection.ensureIndex({username:1, userid:1}
         collection.ensureIndex({userid:1, timestamp:1},{unique:true});
-        collection.ensureIndex({timestamp:1, worldViewable: 1, verifiedByAdmin:1, adminAllow:1});
-        collection.ensureIndex({restaurantId: 1});
+        // collection.ensureIndex({timestamp:1, worldViewable: 1, verifiedByAdmin:1, adminAllow:1});
+        // collection.ensureIndex({restaurantId: 1});
         collection.ensureIndex({userid: 1, deleted: 1, whenDeleted: 1});
         collection.ensureIndex({userid: 1, mealDate:1, timestamp:1},{unique:true});
     });
@@ -233,10 +245,13 @@ function User(username, password, userid) {
     this.addressZip = "";
     this.addressCountry = "";
     this.phone = "";
-    this.maxPics = 1000;
+
+    // There's a max-pics per meal
+    // Maybe rate-limit the number of meals posted?
     this.numPics = 0;
+    this.numMeals = 0;
+    this.maxMeals = 10;
     this.showMealsPerPage = 9;
-    this.defaultWorldViewable = false;
     this.maxPicsPerMeal = defaultMaxPicsPerMeal;
     this.isAdmin = false;
     this.lastIp = "";
@@ -371,6 +386,19 @@ updateLastLoginInMongo = function(username, callback) {
     });
 }
 
+// Update the user's current meal count
+updateCurrentNumMealsInMongo = function(username, numMeals, callback) {
+    getCollection('users', function(error, userTable) {
+
+        if(error) throw (error);
+        userTable.update({username: username}, {$set: {numMeals:numMeals}}, {safe:true}, function(err) {
+            if(err) wrlog(log, "Failed update numMeals for " + username + " err " 
+                + err, true);
+            callback(err);
+        });
+    });
+}
+
 // Update the user's current disk usage & number of pictures
 updateCurrentNumPicsInMongo = function(username, numPics, callback) {
     getCollection('users', function(error, userTable) {
@@ -416,6 +444,73 @@ updateRatingInMongo = function(userid, timestamp, rating, callback) {
             callback(err);
         });
     });
+}
+
+pictsdumppicinfo = function( pinfo ) {
+    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+        console.log("pinfo[" + ii + "] == " + pinfo[ii].timestamp);
+    }
+}
+
+// Binary search
+findtsinpicinfobinary = function(ts, pinfo) {
+
+    // This will change to a binary search 
+    var left = 0;
+    var right = pinfo.length;
+    var ii = Math.floor(left + ( (right - left) / 2));
+
+    while(true) {
+
+        // Punt on weird errors
+        if(undefined == pinfo[ii]) {
+            console.log("pinfo[" + ii + "] is undefined");
+            console.log("pinfo length is " + pinfo.length);
+            return -1;
+        }
+
+        // Return index
+        if(pinfo[ii].timestamp == ts)
+            return ii;
+
+        // Change left endpoint
+        if(ts > pinfo[ii].timestamp)
+            left = ii + 1;
+        // Change right endpoint
+        else if(ts < pinfo[ii].timestamp)
+            right = ii;
+
+        // Didn't find it
+        if(left >= right) return -1;
+
+        // Next element
+        ii = Math.floor(left + ( (right - left) / 2));
+    }
+}
+
+findtsinpicinfolinear = function(ts, pinfo) {
+
+    // Simple scan
+    for(var ii = 0 ; ii < pinfo.length ; ii++) {
+        if(pinfo[ii].timestamp == ts)
+            return ii;
+    }
+    return -1;
+}
+
+findtsinpicinfo = function(ts, pinfo) {
+
+    // TODO - use linear for less than 100 elements, binary otherwise
+    var x1 = findtsinpicinfolinear(ts, pinfo);
+    var x2 = findtsinpicinfobinary(ts, pinfo);
+
+    if(x1 !== x2) {
+        console.log("Error - linear search returns ix " + x1 + " binary returns ix " + x2);
+        dumppicinfo(pinfo);
+        throw new Error("Linear search returns ix " + x1 + " binary returns ix " + x2);
+    }
+
+    return x1;
 }
 
 function constToMeal(mc)
@@ -530,7 +625,10 @@ updateMealInMongo = function(userid, timestamp, meal, callback) {
         mealinfo.find( { userid: userid, timestamp: timestamp } ).toArray( function(err, results) {
             if(err) throw(err);
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                var err=new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                wrlog(log, "Multiple mealinfo records in mongo for " + userid + " timestamp " + timestamp, true);
+                callback(err);
+                return;
             }
 
             var oldDate = results[0].mealDate;
@@ -538,7 +636,10 @@ updateMealInMongo = function(userid, timestamp, meal, callback) {
 
             mealinfo.update({userid: userid, timestamp: timestamp}, 
                     {$set: {meal: meal, mealDate: newMealDate}}, {safe: true}, function(err) {
-                if(err) throw(err);
+                if(err) {
+                    wrlog(log, "Error updating mealdate in mongo for user " + userid + " ts " 
+                        + timestamp + " err " + err, true);
+                }
                 callback(err);
             });
         });
@@ -549,7 +650,10 @@ updateReviewInMongo = function(userid, timestamp, review, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {review: review}}, {safe: true}, function(err) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error updating review in mongo for user " + userid + " ts " + 
+                    timestamp + " err " + err, true);
+            }
             callback(err);
         });
     });
@@ -559,7 +663,10 @@ updateTmpReviewInMongo = function(userid, timestamp, tmpreview, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.update({userid: userid, timestamp: timestamp}, {$set: {tmpReview: tmpreview}}, {safe: true}, function(err) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error updating tmpreview in mongo for user " + userid + " ts " + 
+                    timestamp + " err " + err, true);
+            }
             callback(err);
         });
     });
@@ -571,7 +678,10 @@ updateCompleteMealInfoInMongo = function(mealinfo, callback) {
         if(error) throw (error);
 
         mealInfo.update({userid:mealinfo.userid, timestamp:mealinfo.timestamp}, mealinfo, {safe:true}, function(err) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error updating mealinfo in mongo for user " + mealinfo.userid + " ts " + 
+                    mealinfo.timestamp + " err " + err, true);
+            }
             callback(err);
         });
     });
@@ -583,7 +693,9 @@ updatePasswordInMongo = function(username, newpassword, callback) {
     getCollection('users', function(error, userTable) {
         if(error) throw (error);
         userTable.update({username: username}, {$set: {password: newpassword}}, {safe:true}, function(err) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error updating password in mongo for user " + username + " err " + err, true);
+            }
             callback(err);
         });
     });
@@ -616,19 +728,30 @@ getOneMealInfoFromMongoInternal = function(userid, timestamp, getextra, callback
     var projection; 
     
     if(getextra) {
-        projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'rating' : 1, 'review' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+        projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'published' : 1, 
+            'rating' : 1, 'review' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
     }
     else {
-        projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+        projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'published' : 1, 
+            'picInfo' : 1, 'keytimestamp' : 1 };
     }
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
         
         mealInfo.find(  {userid: userid, timestamp: timestamp, deleted: false }, projection )
         .toArray( function(err, results) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Mongo error finding mealinfo for userid " + userid + " timestamp " + timestamp + 
+                    " err " + err, true);
+                callback(err);
+                return;
+            }
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                var error=new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + timestamp);
+                wrlog(log, "Multiple meals for for userid " + userid + " timestamp " + timestamp + 
+                    " err " + err);
+                callback(error);
+                return;
             }
             if(results.length == 0) {
                 callback(err);
@@ -655,8 +778,12 @@ setDeleteFlagInMongo = function(userid, timestamp, callback) {
         if(error) throw (error);
         var deletedTime = Date.now();
             mealInfo.findAndModify({userid:userid, timestamp:timestamp, deleted:false}, [], {$set: {deleted:true, whenDeleted: deletedTime}},{new:true}, function(err, record) {
-            if(err) throw(err);
-
+            if(err) {
+                wrlog(log, "Error setting delete flag for user " + userid + " timestamp " + timestamp + 
+                    " err " + err, true);
+                callback(err);
+                return;
+            }
             db.lastError(function(error, result) {
                 callback(err, record, result.updatedExisting);
             });
@@ -671,35 +798,6 @@ setDeleteFlagInMongo = function(userid, timestamp, callback) {
 purgeMealFromMongo = function(username, timestamp, callback) {
 }
 
-// TODO - restaurant page
-// redo the meal edit page.  Make every change an ajax .json request
-// Will this be too chaty?
-//
-// I'd like user's to be able to PUBLISH reviews to the restaurant page.
-// Maybe a pop-up will tell the user that they can't modify their mealinfo
-// after a review has been published to the restaurant page..   
-// YES - this restricts freedom a bit, but we have to have SOME rules.
-//
-// Maybe I should have two buttons: a 'SAVE CHANGES' button, and a
-// 'PUBLISH TO RESTAURANT PAGE' button.  I will introduce a 'mealInfo state'
-// You are either 'unpublished', 'under review', 'published', and maybe 'barred'
-// I will have to consider this more..
-//
-// I'm not sure if I will have the 'under-review' part .. I can allow it,
-//
-// XXX prolly dead code
-
-updateVerifyMealInfoInMongo = function(mealinfo, callback) {
-    getCollection('mealInfo', function(error, mealInfo) {
-        if(error) throw (error);
-
-        mealInfo.update({userid:mealinfo.userid, timestamp:mealinfo.timestamp}, {$set: {verifiedByAdmin: mealinfo.verifiedByAdmin, adminAllow: mealinfo.adminAllow}}, {safe:true}, function(err) {
-            if(err) throw(err);
-            callback(err);
-        });
-    });
-}
-
 // Get mealinfo information.  Call this the first time with afterTs set
 // to 0, and always pass in the timestamp of the last record.
 getMealInfoFromMongoFwd_int = function(userid, ts, limit, viewDeleted, wholerec, callback) {
@@ -708,7 +806,8 @@ getMealInfoFromMongoFwd_int = function(userid, ts, limit, viewDeleted, wholerec,
 
         var projection = {};
         if(!wholerec) {
-            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 
+                'published' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
 
         // Make sure to sort in the direction of your search to get sane results.
@@ -734,8 +833,10 @@ getMealInfoFromMongoFwd_int = function(userid, ts, limit, viewDeleted, wholerec,
 
             if(err) 
             {
-                console.log("Error 1");
-                throw(err);
+                wrlog(log, "Mongo error finding forward mealinfo for userid " + userid + " timestamp " + 
+                    timestamp + " err " + err, true);
+                callback(err);
+                return;
             }
 
             var prevmealtimestamp = 0;
@@ -783,8 +884,10 @@ getMealInfoFromMongoFwd_int = function(userid, ts, limit, viewDeleted, wholerec,
 
                     if(err) 
                     {
-                        console.log("Error 1");
-                        throw(err);
+                        wrlog(log, "Mongo error finding forward(2) mealinfo for userid " + userid + " timestamp " + 
+                            timestamp + " err " + err, true);
+                        callback(err);
+                        return;
                     }
 
                     //var nextmealdate = 0;
@@ -818,7 +921,8 @@ getMealInfoFromMongoRev_int = function(userid, ts, limit, viewDeleted, wholerec,
         var cnt = 0;
 
         if(!wholerec) {
-            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
+            projection = { 'userid' : 1, 'mealDate': 1, 'title': 1, 'timestamp' : 1, 'meal' : 1, 
+                'published' : 1, 'picInfo' : 1, 'keytimestamp' : 1 };
         }
         
         // This is convoluted query finds mealinfo records before mealDate, timestamp.
@@ -851,8 +955,10 @@ getMealInfoFromMongoRev_int = function(userid, ts, limit, viewDeleted, wholerec,
             // Throw an error for now
             if(err) 
             {
-                console.log("Error 3");
-                throw(err);
+                wrlog(log, "Mongo error finding backwards mealinfo for userid " + userid + " timestamp " + 
+                    timestamp + " err " + err, true);
+                callback(err);
+                return;
             }
 
             // Fill nextmealdate and timestamp
@@ -891,8 +997,10 @@ getMealInfoFromMongoRev_int = function(userid, ts, limit, viewDeleted, wholerec,
                 // Throw an error for now
                 if(err) 
                 {
-                    console.log("Error 4");
-                    throw(err);
+                    wrlog(log, "Mongo error finding backwards(2) mealinfo for userid " + userid + " timestamp " + 
+                        timestamp + " err " + err, true);
+                    callback(err);
+                    return;
                 }
 
                 // Fill previous mealDate and timestamp variables
@@ -921,34 +1029,6 @@ getMealInfoFromMongoRevMenu = function(userid, ts, limit, viewDeleted, callback)
     getMealInfoFromMongoRev_int(userid, ts, limit, viewDeleted, false, callback);
 }
 
-
-getMealInfoFromMongoVerifyRev = function(beforeTs, limit, callback) {
-
-    getCollection('mealInfo', function(error, mealInfo) {
-        if(error) throw (error);
-
-        mealInfo.find({timestamp: { $lt: beforeTs }, verifiedByAdmin: false, worldViewable: true})
-        .sort( { timestamp : -1 } ) .limit(limit) .toArray( function(err, results) {
-            if(err) throw(err);
-            callback(err, results);
-        });
-    });
-}
-
-
-getMealInfoFromMongoVerify = function(timestamp, afterTs, limit, callback) {
-
-    getCollection('mealInfo', function(error, mealInfo) {
-        if(error) throw (error);
-
-        mealInfo.find(  {timestamp: { $gt: afterTs }, verifiedByAdmin: false } )
-        .sort( { timestamp : -1 } ) .limit(limit) .toArray( function(err, results) {
-            if(err) throw(err);
-            callback(err, results);
-        });
-    });
-}
-
 updateMealInfoPicInfoInMongo = function(mymealinfo, callback, isdelete, dtimestamp) {
 
     getCollection('mealInfo', function(error, mealInfo) {
@@ -956,24 +1036,39 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback, isdelete, dtimesta
 
         // Some sanity checks
         if(mymealinfo.userid == undefined) {
-            throw new Error('updateMealInfoPicInfoInMongo called with undefined username');
+            var err = new Error('updateMealInfoPicInfoInMongo called with undefined username');
+            wrlog(log, "updatemealinfopicinfo called with undefined userid", true);
+            callback(err);
+            return;
         }
         if(mymealinfo.timestamp == undefined) {
-            throw new Error('updateMealInfoPicInfoInMongo called with undefined timestamp');
+            var err = new Error('updateMealInfoPicInfoInMongo called with undefined timestamp');
+            wrlog(log, "updatemealinfopicinfo called with undefined timestamp", true);
+            callback(err);
+            return;
         }
         if(mymealinfo.timestamp <= 0) {
-            throw new Error('updateMealInfoPicInfoInMongo called with invalid timestamp');
+            var err= new Error('updateMealInfoPicInfoInMongo called with invalid timestamp');
+            wrlog(log, "updatemealinfopicinfo called with invalid timestamp", true);
+            callback(err);
+            return;
         }
 
         var keyts = mymealinfo.keytimestamp ? mymealinfo.keytimestamp : 0;
 
         mealInfo.update({userid: mymealinfo.userid, timestamp:mymealinfo.timestamp}, 
             {$set: {picInfo: mymealinfo.picInfo, keytimestamp: keyts }}, {safe:true}, function(err) {
-                if(err) throw(err);
+                if(err) {
+                    wrlog(log, "updatemealinfopicinfo update failure for user " + 
+                        mymealinfo.userid + " ts " + mymealinfo.timestamp, true);
+                    callback(err);
+                    return;
+                }
+
                 if(deletetrace && isdelete) {
 
                     // Delete user trace
-                    console.log("Delete user=" + mymealinfo.userid + " timestamp=" + dtimestamp );
+                    wrlog(log, "Delete user=" + mymealinfo.userid + " timestamp=" + dtimestamp, true );
 
                     // Dump the picinfo
                     pictsdumppicinfo(mymealinfo.picInfo);
@@ -986,79 +1081,24 @@ updateMealInfoPicInfoInMongo = function(mymealinfo, callback, isdelete, dtimesta
     });
 }
 
-// Binary search
-findtsinpicinfobinary = function(ts, pinfo) {
-
-    // This will change to a binary search 
-    var left = 0;
-    var right = pinfo.length;
-    var ii = Math.floor(left + ( (right - left) / 2));
-
-    while(true) {
-
-        // Punt on weird errors
-        if(undefined == pinfo[ii]) {
-            console.log("pinfo[" + ii + "] is undefined");
-            console.log("pinfo length is " + pinfo.length);
-            return -1;
-        }
-
-        // Return index
-        if(pinfo[ii].timestamp == ts)
-            return ii;
-
-        // Change left endpoint
-        if(ts > pinfo[ii].timestamp)
-            left = ii + 1;
-        // Change right endpoint
-        else if(ts < pinfo[ii].timestamp)
-            right = ii;
-
-        // Didn't find it
-        if(left >= right) return -1;
-
-        // Next element
-        ii = Math.floor(left + ( (right - left) / 2));
-    }
-}
-
-findtsinpicinfolinear = function(ts, pinfo) {
-
-    // Simple scan
-    for(var ii = 0 ; ii < pinfo.length ; ii++) {
-        if(pinfo[ii].timestamp == ts)
-            return ii;
-    }
-    return -1;
-}
-
-pictsdumppicinfo = function( pinfo ) {
-    for(var ii = 0 ; ii < pinfo.length ; ii++) {
-        console.log("pinfo[" + ii + "] == " + pinfo[ii].timestamp);
-    }
-}
-
-findtsinpicinfo = function(ts, pinfo) {
-    var x1 = findtsinpicinfolinear(ts, pinfo);
-    var x2 = findtsinpicinfobinary(ts, pinfo);
-
-    if(x1 !== x2) {
-        console.log("Error - linear search returns ix " + x1 + " binary returns ix " + x2);
-        dumppicinfo(pinfo);
-    }
-
-    return x1;
-}
-
 updateKeyPicInMongo = function(userid, mealts, picts, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
 
         // Find this meal
         mealinfo.find( { userid: userid, timestamp: mealts } ).toArray( function(err, results) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error updating key picture for userid " + userid + " mealts " + mealts + 
+                    " err " + err, true);
+                callback(err);
+                return;
+            }
             if(results.length > 1) {
-                throw new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
+                var error = new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
+                wrlog(log, "Error updating key picture: multiple mealpics found for userid " + 
+                    userid + " mealts " + mealts + " err " + err, true);
+                callback(err);
+                return;
             }
 
             var result = results[0];
@@ -1067,9 +1107,10 @@ updateKeyPicInMongo = function(userid, mealts, picts, callback) {
             var ii = findtsinpicinfo(picts, result.picInfo);
 
             if(ii < 0) {
-                console.log("Error - couldn't find picture with timestamp " + picts
-                    + " for user " + userid);
-                throw new Error("Couldn't find picture");
+                var err = new Error("Couldn't find picture");
+                wrlog(log, "Error updating key pic: couldn't find picture with timestamp " + picts + " for user "
+                        + userid + " mealts " + mealts, true);
+                callback(err);
                 return;
             }
 
@@ -1079,8 +1120,12 @@ updateKeyPicInMongo = function(userid, mealts, picts, callback) {
             // Update mongo
             mealinfo.update( { userid: userid, timestamp: mealts }, 
                 { $set: {keytimestamp: picts} }, {safe:true}, function(err) {
-                    if(err) throw(err);
+                    if(err) {
+                        wrlog(log, "Error updating key picture for userid " + userid + " mealts " + 
+                            mealts + " err " + err, true);
+                    }
                     callback(err);
+                    return;
                 }
             );
         });
@@ -1091,9 +1136,15 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
     getCollection('mealInfo', function(error, mealinfo) {
         if(error) throw(error);
         mealinfo.find( { userid: userid, timestamp: mealts } ).toArray( function(err, results) {
-            if(err) throw(err);
+            if(err) {
+                wrlog(log, "Error deleting picture for userid " + userid + " mealts " + mealts + 
+                    " picts " + picts + " err " + err, true);
+                callback(err);
+                return;
+            }
             if(results.length > 1) {
                 var err = new Error(results.length + ' mealInfo records in mongo for ' + userid + ' timestamp ' + mealts);
+                wrlog(log, "Error deleting picture multiple meal records for userid " + userid + " mealts " + mealts, true );
                 callback(err);
                 return;
             }
@@ -1102,8 +1153,9 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
             var ii;
 
             if(!result || !result.picInfo) {
-                console.log("Null result.picInfo for user=" + userid + " timestamp=" + picts);
+                // console.log("Null result.picInfo for user=" + userid + " timestamp=" + picts);
                 var err = new Error("Null result.picInfo");
+                wrlog(log, "Null picinfo for user " + userid + " mealts " + mealts, true);
                 callback(err);
                 return;
             }
@@ -1112,10 +1164,9 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
 
             // This will change to a binary search 
             if(ii < 0) {
-                console.log("Error - couldn't find picture with timestamp=" + picts
-                    + " mealts=" + mealts + " user=" + userid + " result.picinfo.length=" +
-                    result.picInfo.length + " index=" + ii);
                 var err = new Error("Couldn't find picture");
+                wrlog(log, "Delete picture couldn't find picture for userid " + userid + " mealts " + 
+                        mealts + " picts " + picts, true);
                 callback(err);
                 return;
             }
@@ -1139,32 +1190,48 @@ deletePicFromMongo = function(userid, mealts, picts, callback) {
     });
 }
 
-
-
 setMealInfoInMongo = function(mymealinfo, callback) {
     getCollection('mealInfo', function(error, mealInfo) {
         if(error) throw (error);
 
         // Some sanity checks
         if(mymealinfo.userid == undefined) {
-            throw new Error('setMealInfoInMongo called with undefined userid');
+            var err = new Error('setMealInfoInMongo called with undefined userid');
+            wrlog(log, "err " + err, true);
+            callback(err);
+            return;
         }
         if(mymealinfo.timestamp == undefined) {
-            throw new Error('setMealInfoInMongo called with undefined timestamp');
+            var err = new Error('setMealInfoInMongo called with undefined timestamp');
+            wrlog(log, "err " + err, true);
+            callback(err);
+            return;
         }
         if(mymealinfo.timestamp <= 0) {
-            throw new Error('setMealInfoInMongo called with invalid timestamp');
+            var err = new Error('setMealInfoInMongo called with invalid timestamp');
+            wrlog(log, "err " + err, true);
+            callback(err);
+            return;
         }
 
         // Insert the meal information
         mealInfo.insert(mymealinfo, {safe:true}, function(err, object) {
-            if(err) throw (err);
+            if(err) {
+                wrlog(log, "Error inserting meal in mongo for userid " + mymealinfo.userid + 
+                    " err " + err, true);
+                callback(err);
+                return;
+            }
 
             // Keeping with my clever hack
             var newmealdir = basedirectory + '/' + mymealinfo.userid + '/images/' + mymealinfo.timestamp;
 
             fs.mkdir(newmealdir, directorymode, function(err) {
-                if(err) throw (err);
+                if(err) {
+                    wrlog(log, "Error making directory for new meal " + err, true);
+                    callback(err);
+                    return;
+                }
                 callback(null, object);
             });
         });
@@ -1216,7 +1283,10 @@ getMealIconFromMongo = function(userid, timestamp, callback) {
         // Unified complete function
         function getmealiconcb( err, res, rep ) {
 
-            if(err) throw( err );
+            if(err) {
+                callback(err);
+                return;
+            }
 
             // Filled by mongo find
             if(res) results = res;
@@ -1229,7 +1299,7 @@ getMealIconFromMongo = function(userid, timestamp, callback) {
 
                 // Sanity check mongo 
                 if(results.length > 1) {
-                    throw new Error(results.length + ' icons in Mongo for ' + userid + ' timestamp ' + timestamp);
+                    var err = new Error(results.length + ' icons in Mongo for ' + userid + ' timestamp ' + timestamp);
                 }
 
                 // No records
@@ -1811,33 +1881,6 @@ getRestaurantInfoById = function(restaurantId, callback) {
     });
 }
 
-// Callback with a 'true' if the userid exists, false otherwise
-// I can't call this in a loop, but I can call it recursively ..
-// I can generate completely unique from a single machine .. 
-// I can bake the machine-name into the uniquid
-//
-// Maybe a database could keep track of machines?
-//
-// This has to be synchronous ..
-/*
-useridExistsInMongo = function(userid, callback) {
-
-    var projection = { 'userid' : 1 };
-    getCollection('users', function(error, userTable) {
-        if(error) throw (error);
-        userTable.find({userid: userid}, projection).toArray(function( err, results ) {
-            if(err) throw(err);
-            if(results.length > 1 || results.length < 0) {
-                throw new Error(results.length + ' records for unique index on userid ' + userid);
-            }
-
-            var found = (results.length == 1);
-            callback(found);
-        });
-    }
-}
-*/
-
 // Retrieve a user from mongodb
 getUserFromMongo = function(username, callback) {
     getCollection('users', function(error, userTable) {
@@ -2008,7 +2051,7 @@ function showMealPicture( req, res, userid, timestamp ) {
             return;
         }
         // Display the image if we got it
-        if(mealpic.worldViewable || mealpic.userid == req.session.user.userid) {
+        if(mealpic.published || mealpic.userid == req.session.user.userid) {
             res.contentType(mealpic.imageType);
             res.end(mealpic.image, 'binary');
         } 
@@ -2138,7 +2181,7 @@ app.get('/icon/:userid/:timestamp', function(req, res) {
             return;
         }
 
-        if(mealicon.worldViewable || mealicon.userid == userid) {
+        if(mealicon.published || mealicon.userid == userid) {
             res.contentType(mealicon.imageType);
             res.end(mealicon.image, 'binary');
             return;
@@ -2175,8 +2218,7 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
         }
 
         // Display the image if we got it
-        if(mealthumb.worldViewable || mealthumb.userid == userid) {
-              res.contentType(mealthumb.imageType);
+        if(mealthumb.published || mealthumb.userid == userid) { res.contentType(mealthumb.imageType);
               res.end(mealthumb.image, 'binary');
               return ;
         } 
@@ -2262,22 +2304,6 @@ app.get('/attributes/:username/:timestamp', function(req, res) {
         }
     });
 });
-
-function deletePicFromAttributesPage(req, res, user, timestamp) {
-
-    setDeleteFlagInMongo(user.username, timestamp, function(err, record, updated) {
-        if(err) throw(err);
-
-        user.numPics -= record.picInfo.length;
-        updateCurrentNumPicsInMongo(user.username, user.numPics, function(err) {
-            if(err) throw(err);
-            // TODO 
-            res.redirect('/upload');
-            return;
-        });
-    });
-    return;
-}
 
 function overlayUserInfo(req, userInfo) {
 
@@ -2672,8 +2698,8 @@ function mealInfo(user) {
 
     this.title = "";
 
-    // Whether this is world viewable
-    this.worldViewable = user.defaultWorldViewable;
+    // Whether this has been published
+    this.published = false;
 
     // Whether this has been verified for public consumption
     // This is prolly not the way to go with this.
@@ -3834,6 +3860,11 @@ app.get('/deletemeal', function(req, res, next) {
         if(err) throw(err);
         if(record && record.picInfo) {
             req.session.user.numPics -= record.picInfo.length;
+            if(req.session.user.numPics < 0) {
+                wrlog(log, "Error!  Numpics is " + req.session.user.numPics + " for userid " + 
+                    userid + ", resetting to 0", true);
+                req.session.user.numPics = 0;
+            }
         }
         updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) {
             if(err) throw(err);
@@ -3841,7 +3872,6 @@ app.get('/deletemeal', function(req, res, next) {
             // I could probably run this code asynchronous to the delete to 
             // gain a little performance- the risk is that the user will 
             // page around a bit, and see the deleted record. 
-
             if(prevts > 0) {
                 getMealInfoFromMongoFwdMenu(
                     userid,
@@ -4652,122 +4682,10 @@ var editmealsPage = function(req, res, next, timestamp, isprev, viewDeleted) {
     }
 };
 
-// Check the form data from the editmeals page
-function editmealsPostDeleteMeals(req, res, next, isprev) {
-    
-    var sendCount = 0;
-    var rcvCount = 0;
-    var pollTime = 0;
-    var diskSpace = 0;
-
-    // Count everything that you are going to send
-    for(var i = 0 ; i < req.session.user.showMealsPerPage ; i++) {
-
-        var property = "delchk" + i;
-
-        if(undefined != req.body[property]) {
-            sendCount++;
-        }
-    }
-
-    for(var i = 0 ; i < req.session.user.showMealsPerPage ; i++) {
-
-        var property = "delchk" + i;
-
-        if(undefined != req.body[property]){
-
-            var varray = req.body[property].split('/');
-            var uname = varray[0];
-            var tstamp = parseInt(varray[1], 10);
-
-            // Set the 'deleted' flag - we'll actually delete this some time later
-            setDeleteFlagInMongo(uname, tstamp, function(err, updated) {
-
-                if(err) throw(err);
-
-                // updated will be 'true' if something was actually updated.
-                if(updated == false) {
-                    sendCount--;
-                }
-                else {
-                    rcvCount++;
-                }
-
-                // Last complete
-                if(rcvCount == sendCount) {
-
-                    req.session.user.numPics -= sendCount;
-
-                    // This shouldn't happen ..
-                    if(req.session.user.numPics < 0) {
-                        console.log("session numPics is less than 0?  " + req.session.user.numPics);
-                        req.session.user.numPics = 0;
-                    }
-
-                    updateCurrentNumPicsInMongo(req.session.user.username, req.session.user.numPics, function(err) { 
-                        if(err) throw(err);
-                    });
-
-                    // Continue here
-                    if(req.params.timestamp == undefined) {
-                        res.redirect('/editmeals');
-                    }
-                    else { 
-                        res.redirect('/editmeals/' + req.params.timestamp);
-                    }
-
-                    return;
-                }
-            });
-        }
-    }
-}
-
 app.post('/editmealsuploadfail', function(req, res, next) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.write('Failure');
     res.end();
-});
-
-function editmealsPost(req, res, next, isprev) {
-
-    // Sanity check - verify this user
-    if(req.session.user == undefined) {
-        req.session.nextpage = '/editmeals';
-        res.redirect('/signin');
-        return;
-    }
-
-    // Check to see if this user is requesting that some of their meals be deleted
-    if(undefined == req.files || undefined == req.files.upload || undefined == req.files.upload.path) {
-        editmealsPostDeleteMeals(req, res, next, isprev);
-        return;
-    }
-
-}
-
-app.post('/editmeals', function(req, res, next) {
-    editmealsPost(req, res, next, false);
-});
-
-app.post('/editmeals/:timestamp', function(req, res, next) {
-    editmealsPost(req, res, next, false);
-});
-
-app.post('/editmealsprev/:timestamp', function(req, res, next) {
-    editmealsPost(req, res, next, true);
-});
-
-app.post('/editmeals_change_pics/:newpics/:timestamp', function(req, res, next) {
-    editmealsPost(req, res, next, false);
-});
-
-app.post('/editmeals_change_pics/:newpics', function(req, res, next) {
-    editmealsPost(req, res, next, false);
-});
-
-app.get('/editmealsprev/:timestamp', function(req, res, next) {
-    editmealsPage(req, res, next, parseInt(req.params.timestamp, 10), true, false);
 });
 
 app.get('/editmeals/:timestamp', function(req, res, next) {
@@ -5293,6 +5211,15 @@ app.post('/editmealsupload', function(req, res, next) {
         return;
     }
 
+    // Check if this user has exceeded the maximum number of pictures
+    if(req.session.user.maxPics > 0 && req.session.user.numPics >= 
+            req.session.user.maxPics) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write("HAVE MAXIMUM PICS FOR THIS USER " + req.session.user.maxPics);
+        res.end();
+        return;
+    }
+
     getOneMealInfoFromMongo(parseInt(req.body.username), parseInt(req.body.mealInfo, 10), function(err, mealInfo) {
         if(err) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -5306,7 +5233,6 @@ app.post('/editmealsupload', function(req, res, next) {
         if(req.session.user.maxPicsPerMeal) {
             maxpics = req.session.user.maxPicsPerMeal;
         }
-
 
         // Verify that we're allowed to upload another picture
         // This should be part of the user attributes, not the meal's attributes
@@ -5515,7 +5441,6 @@ app.get('/restaurantinfo/:restaurantId', function(req, res, next) {
     });
 });
 
-
 // If this person is an admin continue - if not, we'll redirect
 function verifyAdmin(req, res, next) {
 
@@ -5549,82 +5474,6 @@ app.get('/admin_set_rotating', function(req, res, next) {
     }
 });
 
-// Display the verify meals page
-function verifyMeals(req, res, next, timestamp) {
-    if(!verifyAdmin(req,res,next)) {
-        return;
-    }
-
-    getMealInfoFromMongoVerifyRev(timestamp, req.session.user.showMealsPerPage + 1, function(err, mealinfo) {
-        res.render('verify_meals.ejs', {
-            picsperpage: req.session.user.showMealsPerPage,
-            mealinfo: mealinfo,
-            timestamp: timestamp
-        });
-    });
-
-}
-
-function verifyMealsPost(req, res, next) {
-    if(!verifyAdmin(req,res,next)) {
-        return;
-    }
-
-    // Go through all of the elements of req.body
-    for( var i = 0 ; i < req.session.user.showMealsPerPage ; i++) {
-
-        var property = "verchk" + i;
-
-        if(undefined != req.body[property]) {
-
-            // Found a verified picture
-            var vfy = "verify" + i;
-
-            // Grab the username, timestamp, and judgement
-            var varray = req.body[vfy].split('/');
-            var uname = varray[0];
-            var tstamp = varray[1];
-
-            var allow;
-            if (varray[2] == "Allow") {
-                allow = true;
-            } 
-            else if (varray[2] == "Disallow") {
-                allow = false;
-            }
-            else {
-                throw new Error("Unexpected value for varray[2]:" + varray[2]);
-            }
-            getOneMealInfoFromMongo(uname, parseInt(tstamp, 10), function(err, mealInfo){
-
-                if(undefined == mealInfo) {
-                    throw new Error("Null mealinfo for username " + uname + " timestamp " + tstamp);
-                }
-
-                mealInfo.verifiedByAdmin = true;
-                mealInfo.adminAllow = allow;
-
-                updateVerifyMealInfoInMongo(mealInfo, function(err) {
-                    if(err) throw(err);
-                });
-
-            });
-        }
-    }
-}
-
-app.post('/admin_verify_meals/:timestamp', function(req,res,next, timestamp) {
-    verifyMealsPost(req, res, next);
-});
-
-app.get('/admin_verify_meals/:timestamp', function(req, res, next) {
-    verifyMeals(req, res, next, parseInt(req.params.timestamp, 10));
-});
-
-// Page for an administrator to verify that the meal are okay for public display
-app.get('/admin_verify_meals', function(req, res, next) {
-    res.redirect('/admin_verify_meals/' + Date.now());
-});
 
 // This user is an admin
 app.get('/yesreallyanadmin', function(req, res, next) {
