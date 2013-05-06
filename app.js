@@ -185,14 +185,14 @@ db.open(function(error, client){
     });
 
     // Create indexes for mealThumbs
-    db.collection('mealThumbs', function(error, collection) {
-        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
-    });
+//    db.collection('mealThumbs', function(error, collection) {
+//        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
+//    });
 
     // Create indexes for mealIcons
-    db.collection('mealIcons', function(error, collection) {
-        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
-    });
+//    db.collection('mealIcons', function(error, collection) {
+//        collection.ensureIndex({userid:1, timestamp:1},{unique:true});
+//    });
 
     // Create indexes for restaurants table
     db.collection('restaurants', function(error, collection) {
@@ -329,19 +329,29 @@ addNewUserToTable = function(userTable, username, password, callback, count, max
                 // Gerenate log message and trace
                 wrlog(log, "Error: failed to mkdir " + useriddir + " err " + err, true);
 
-                // Callback
-                callback( err );
+                // Throw this one
+                throw(err);
+
+                // Return control
+                return;
 
             }
 
             // Make images directory
             fs.mkdir(imagedir, directorymode, function(err) {
 
-                // Gerenate log message and trace
-                wrlog(log, "Error: failed to mkdir " + imagedir + " err " + err, true);
+                if(err) {
+
+                    // Gerenate log message and trace
+                    wrlog(log, "Error: failed to mkdir " + imagedir + " err " + err, true);
+
+                    // Throw this one
+                    throw(err);
+                
+                }
 
                 // Callback
-                callback( err );
+                callback( err, user );
 
             });
         });
@@ -1262,347 +1272,89 @@ function rediskey_for_icon(userid, picts) {
     return userid + '.' + '.ico.' + picts;
 }
 
-// Get an icon image from mongodb
-getMealIconFromMongo = function(userid, timestamp, callback) {
+setMealFsRedis = function(mealinfo, fname_f, rkey_f, callback) {
 
-     // Grab the collection
-    getCollection('mealIcons', function(error, mealThumbs) {
+    // Redis key
+    var rediskey = rkey_f(mealinfo.userid, mealinfo.timestamp);
 
-        // Throw an error if you got one
-        if(error) throw (error);
+    // Write to redis
+    redisClient.set(rediskey, mealinfo.image, function(err, reply) {
 
-        // Count completions
-        var count = 0;
+        // Throw any errors
+        if(err) throw (err);
 
-        // Declare reply
-        var reply = null;
+        // Invoke callback
+        callback( err, mealinfo );
 
-        // Declare results
-        var results = null;
-
-        // Unified complete function
-        function getmealiconcb( err, res, rep ) {
-
-            if(err) {
-                callback(err);
-                return;
-            }
-
-            // Filled by mongo find
-            if(res) results = res;
-
-            // Filled by redis find
-            if(rep) reply = rep;
-
-            // Continue if we have responses from both
-            if(++count == 2) {
-
-                // Sanity check mongo 
-                if(results.length > 1) {
-                    var err = new Error(results.length + ' icons in Mongo for ' + userid + ' timestamp ' + timestamp);
-                }
-
-                // No records
-                if(results.length <= 0) {
-                    callback(err);
-                }
-
-                // Check reply from redis
-                if(reply) {
-
-                    // Found image in redis
-                    results[0].image = reply;
-
-                    // Invoke callback
-                    callback(err, results[0]);
-
-                }
-                // Cache miss 
-                else {
-
-                    // Form filename for image
-                    var fsname = filename_for_icon( userid, results[0].mitimestamp, timestamp);
-
-                    // Read file
-                    fs.readFile(fsname, "binary", function(err, image) {
-
-                        // Throw error if I got it
-                        if(err) throw(err);
-
-                        // Set image
-                        results[0].image = image;
-
-                        // Races but we'll hit the fs cache on a miss
-                        redisClient.set(rediskey, image, function( err, reply ) {
-                            if(err) throw(err);
-                        });
-
-                        // Invoke callback
-                        callback( null, results[0] );
-
-                    });
-                }
-            }
-        }
-
-        mealIcons.find( {userid:userid, timestamp: timestamp}).toArray( function(err, results) {
-            getmealiconcb( null, results, null );
-        });
-
-        // Form redis key
-        var rediskey = rediskey_for_icon(userid, timestamp);
-
-        if(redispiccache) {
-            redisClient.get(rediskey, function( err, reply ) {
-                getmealiconcb( err, null, reply );
-            });
-        }
-        else {
-            getmealiconcb( null, null, null );
-        }
     });
-}
 
-// Get a thumbnail image from mongodb
-getMealThumbFromMongo = function(userid, timestamp, callback) {
+    // File name
+    var picname = fname_f(mealinfo.userid, mealinfo.mitimestamp, mealinfo.timestamp);
 
-    // Grab the collection
-    getCollection('mealThumbs', function(error, mealThumbs) {
+    // Write file asynchronously
+    fs.writeFile(picname, mealinfo.image, "binary", function(err) {
 
-        // Throw an error if you got one
-        if(error) throw (error);
+        if(err) {
 
-        // Count completions
-        var count = 0;
+            // Print error trace
+            wrlog(log, "Error writing " + picname + ": " + err, true);
 
-        // Declare reply
-        var reply = null;
+            // Can't write to the filesystem - better throw this
+            throw (err);
 
-        // Declare results
-        var results = null;
-
-        // Unified complete function
-        function getmealthumbcb( err, res, rep ) {
-
-            // Throw any errors
-            if(err) throw( err );
-
-            // Filled by mongo find
-            if(res) results = res;
-
-            // Filled by redis find
-            if(rep) reply = rep;
-
-            // Continue if we have responses from both
-            if(++count == 2) {
-
-                // Sanity check mongo 
-                if(results.length > 1) {
-                    var err = new Error(results.length + ' thumbs in Mongo for ' + userid + ' timestamp ' + timestamp);
-                    callback(err);
-                    return;
-                }
-
-                // No records
-                if(!results || !results[0] || results.length <= 0) {
-                    callback(err);
-                    return;
-                }
-
-                // Check reply from redis
-                if(reply) {
-
-                    // Found image in redis
-                    results[0].image = reply;
-
-                    // Invoke callback
-                    callback(err, results[0]);
-
-                }
-
-                // Cache miss 
-                else {
-
-                    // Form filename for image
-                    var fsname = filename_for_thumb( userid, results[0].mitimestamp, timestamp);
-
-                    // Read file
-                    fs.readFile(fsname, "binary", function(err, image) {
-
-                        // Throw error if I got it
-                        if(err) throw(err);
-
-                        // Set image
-                        results[0].image = image;
-
-                        // Races but we'll hit the fs cache on a miss
-                        redisClient.set(rediskey, image, function( err, reply ) {
-                            if(err) throw(err);
-                        });
-
-                        // Invoke callback
-                        callback( null, results[0] );
-
-                    });
-                }
-            }
         }
 
-
-        // TODO: If I knew the mitimestamp ahead of time, I could shoot off the 
-        // mongo-find and the redis-find in parallel rather than serially - to do
-        // this, I would have to include the meal-timestap in the client-side
-        // request.
-
-        mealThumbs.find( {userid:userid, timestamp: timestamp}).toArray( function( err, results) {
-            getmealthumbcb( null, results, null );
-
-        });
-
-        // Form redis-key
-        var rediskey = rediskey_for_thumb(userid, timestamp);
-
-        // Send asynchronous search to redis
-        if(redispiccache) {
-            redisClient.get(rediskey, function( err, reply ) {
-                getmealthumbcb( err, null, reply);
-            });
-        }
-        else {
-            getmealthumbcb( null, null, null );
-        }
     });
 }
 
 // Set a meal-icon
-setMealIconInMongo = function(mealicon, callback) {
-
-    // Get mealIcon collection
-    getCollection('mealIcons', function(error, mealIcons) {
-
-        // Throw error
-        if(error) throw (error);
-
-        // Create a reference
-        var image = mealicon.image;
-
-        // Delete this attribute
-        delete mealicon.image;
-
-        // Initialize count
-        var count = 0;
-
-        // Serialize the mongo and redis writes
-        function writemealcb(err) {
-
-            // Throw any errors
-            if(err) throw (err);
-
-            // Both are finished
-            if(++count == 2) {
-
-                // Invoke callback
-                callback( err, mealicon );
-            }
-        }
-
-        // Insert into mongo
-        mealIcons.insert(mealicon, {safe:true}, function(err, object) {
-
-            // File name
-            var picname = filename_for_icon(mealicon.userid, mealicon.mitimestamp, mealicon.timestamp);
-
-            // Write file asynchronously
-            fs.writeFile(picname, image, "binary", function(err) {
-
-                if(err) throw (err);
-
-            });
-
-            // Put attribute back
-            mealicon.image = image;
-
-            // Invoke callback
-            writemealcb(err);
-
-        });
-
-        // Redis key
-        var rediskey = rediskey_for_icon(mealicon.userid, mealicon.timestamp);
-
-        // Write to redis
-        redisClient.set(rediskey, image, function(err, reply) {
-
-            // Invoke callback
-            writemealcb(err);
-
-        });
-    });
+setMealIcon = function(mealicon, callback) {
+    return setMealFsRedis(mealicon, filename_for_icon, rediskey_for_icon, callback);
 }
 
 // Set a meal-thumb
-setMealThumbInMongo = function(mealthumb, callback) {
+setMealThumb = function(mealthumb, callback) {
+    return setMealFsRedis(mealthumb, filename_for_thumb, rediskey_for_thumb, callback);
+}
 
-    // Get mealthumb collection
-    getCollection('mealThumbs', function(error, mealThumbs) {
+// Set a meal-thumb
+setMealPic = function(mealpic, callback) {
+    return setMealFsRedis(mealpic, filename_for_image, rediskey_for_image, callback);
+}
 
-        // Throw error
-        if(error) throw (error);
 
-        // Create a reference to the thmub
-        var image = mealthumb.image;
+// Set a meal-thumb
+setMealThumb = function(mealthumb, callback) {
 
-        // Delete this attribute
-        delete mealthumb.image;
+    // Redis key
+    var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.timestamp);
 
-        // Initialize count
-        var count = 0;
+    // Write to redis
+    redisClient.set(rediskey, mealthumb.image, function(err, reply) {
 
-        // Serialize the mongo and redis writes
-        function writemealcb(err) {
+        // Throw any errors
+        if(err) throw (err);
 
-            // Throw any errors
-            if(err) throw (err);
+        // Invoke callback
+        callback(err, mealthumb);
 
-            // Both are finished
-            if(++count == 2) {
+    });
 
-                // Invoke callback
-                callback( err, mealthumb );
-            }
+    // Write to the file asynchronously
+    var picname = filename_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
+
+    // Write file asynchronously
+    fs.writeFile(picname, mealthumb.image, "binary", function(err) {
+
+        // If there's an error, throw it
+        if(err) {
+            // Print error trace
+            wrlog(log, "Error writing " + picname + ": " + err, true);
+
+            // Can't write to the filesystem - throw this 
+            throw(err);
         }
 
-        // Insert into mongo
-        mealThumbs.insert(mealthumb, {safe:true}, function(err, object) {
-
-            // File name
-            var picname = filename_for_thumb(mealthumb.userid, mealthumb.mitimestamp, mealthumb.timestamp);
-
-            // Write file asynchronously
-            fs.writeFile(picname, image, "binary", function(err) {
-
-                if(err) throw (err);
-
-            });
-
-            // Put attribute back
-            mealthumb.image = image;
-
-            // Invoke callback
-            writemealcb(err);
-
-        });
-
-        // Redis key
-        var rediskey = rediskey_for_thumb(mealthumb.userid, mealthumb.timestamp);
-
-        // Write to redis
-        redisClient.set(rediskey, image, function(err, reply) {
-
-            // Invoke callback
-            writemealcb(err);
-
-        });
     });
 }
 
@@ -1701,14 +1453,8 @@ deleteMealPicInMongo = function(userid, mealts, timestamp, callback) {
     });
 }
 
-// Set a meal picture
-setMealPicInMongo = function(mealpic, callback) {
-
-    var count = 0;
-    // Here's a really low hack:
-    //
-    // I'm going to create a new object which doesn't have the image: 
-    // the image will be stored on disk.  
+// Set the record in mongo
+setMealRecordInMongo = function(mealrec, callback) {
 
     // Get collection
     getCollection('mealPics', function(error, mealPics) {
@@ -1716,52 +1462,23 @@ setMealPicInMongo = function(mealpic, callback) {
         // Throw any errors
         if(error) throw (error);
 
-        // Create a reference to image
-        var image = mealpic.image;
-
-        // Delete the property
-        delete mealpic.image;
-
         // Insert
-        mealPics.insert(mealpic, {safe:true}, function(err, object) {
-
-            // Replace image attribute
-            mealpic.image = image;
+        mealPics.insert(mealrec, {safe:true}, function(err, object) {
 
             // Throw any errors
             if(err) throw (err);
 
-            // Redis-key
-            var rediskey = rediskey_for_image(mealpic.userid, mealpic.timestamp);
+            // Callback
+            callback(err, mealrec);
 
-            // Filename 
-            var picname = filename_for_image(mealpic.userid, mealpic.mitimestamp, mealpic.timestamp);
-
-            // Write to fs
-            fs.writeFile(picname, mealpic.image, "binary", function(err) { 
-
-                if(err) throw (err);
-
-            });
-
-            // Callback after redis-write is complete
-            // I know this exposes a race, but seriously?
-            redisClient.set(rediskey, mealpic.image, function(err, reply) {
-
-                // Punt on error
-                if(err) throw (err);
-
-                // Return control to the caller
-                callback( err, mealpic );
-
-            }); 
         });
     });
 }
 
 
+
 // Retrieve a meal picture from mongodb
-getMealPicFromMongo = function(userid, timestamp, callback) {
+getMealPicFromMongoInt = function(userid, timestamp, fname_f, rkey_f, callback) {
     getCollection('mealPics', function(error, mealPics) {
 
         // Throw an error if you got one
@@ -1780,7 +1497,14 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
         function getmealpiccb( err, res, rep) {
 
             // Throw any errors
-            if(err) throw( err );
+            if(err) {
+
+                // Print a log message
+                wrlog(log, "Error getting mealpic for userid " + userid + " timestamp " + timestamp, true );
+
+                // Throw this error
+                throw( err );
+            }
 
             // Filled by mongo find
             if(res) results = res;
@@ -1819,7 +1543,7 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
                 else {
 
                     // Form filename for image
-                    var fsname = filename_for_image( userid, results[0].mitimestamp, timestamp);
+                    var fsname = fname_f( userid, results[0].mitimestamp, timestamp);
 
                     // Read file
                     fs.readFile(fsname, "binary", function(err, image) {
@@ -1849,7 +1573,7 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
         });
 
         // Form redis-key
-        var rediskey = rediskey_for_image(userid, timestamp);
+        var rediskey = rkey_f(userid, timestamp);
 
         // Send asynchronous search to redis
         if(redispiccache) {
@@ -1861,6 +1585,18 @@ getMealPicFromMongo = function(userid, timestamp, callback) {
             getmealpiccb( null, null, null);
         }
     });
+}
+
+getMealPicFromMongo = function(userid, timestamp, callback) {
+    return getMealPicFromMongoInt(userid, timestamp, filename_for_image, rediskey_for_image, callback );
+}
+
+getMealThumbFromMongo = function(userid, timestamp, callback) {
+    return getMealPicFromMongoInt(userid, timestamp, filename_for_thumb, rediskey_for_thumb, callback );
+}
+
+getMealIconFromMongo = function(userid, timestamp, callback) {
+    return getMealPicFromMongoInt(userid, timestamp, filename_for_icon, rediskey_for_icon, callback );
 }
 
 getRestaurantInfoById = function(restaurantId, callback) {
@@ -2727,30 +2463,34 @@ function mealInfo(user) {
     this.tmpReview = "";
 }
 
+// These are all the same
+function mealrecord(newobj, userid, picInfo, imageType) {
+    newobj.userid = userid;
+    newobj.timestamp = picInfo.timestamp;
+    newobj.mitimestamp = picInfo.mitimestamp;
+    newobj.imageType = imageType;
+    newobj.published = false;
+}
+
+function mealRecord(userid, picInfo, imageType) {
+    mealrecord(this, userid, picInfo, imageType);
+}
+
 // Create a mealicon object for mongo.
 function mealIcon(userid, picInfo, image, imageType) {
-    this.userid = userid;
-    this.timestamp = picInfo.timestamp;
-    this.mitimestamp = picInfo.mitimestamp;
-    this.imageType = imageType;
+    mealrecord(this, userid, picInfo, imageType);
     this.image = image;
 }
 
 // Create a thumbnail object for mongo.
 function mealThumb(userid, picInfo, image, imageType) {
-    this.userid = userid;
-    this.timestamp = picInfo.timestamp;
-    this.mitimestamp = picInfo.mitimestamp;
-    this.imageType = imageType;
+    mealrecord(this, userid, picInfo, imageType);
     this.image = image;
 }
 
 // Create a pic object for mongo
 function mealPic(userid, picInfo, image, imageType) {
-    this.userid = userid;
-    this.mitimestamp = picInfo.mitimestamp;
-    this.timestamp = picInfo.timestamp;
-    this.imageType = imageType;
+    mealrecord(this, userid, picInfo, imageType);
     this.image = image;
 }
 
@@ -2808,7 +2548,7 @@ function authenticate_resignin_post(req, res, next) {
             }
 
             // Generate a logfile message
-            wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + user.userid);
+            wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + tmpuser.userid);
 
             // Delete the key
             redisClient.del(req.params.id, function(err, reply) {} );
@@ -4290,7 +4030,7 @@ app.get('/authenticate/:id', function(req, res, next) {
             if(key == req.params.id) {
 
                 // Get a new user object
-                //var user = new User(tmpuser.username, tmpuser.password);
+                // var user = new User(tmpuser.username, tmpuser.password);
 
                 // Add to mongo user's table
                 setNewUserInMongo(tmpuser.username, tmpuser.password, function(err, user) {
@@ -4308,7 +4048,7 @@ app.get('/authenticate/:id', function(req, res, next) {
                     req.session.user = user;
 
                     // Generate a logfile message
-                    wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + user.userid);
+                    wrlog(log, "Authenticated new user " + tmpuser.username + " as userid " + tmpuser.userid);
 
                     // Send to nextpage if needed
                     if (req.session.nextpage) {
@@ -4756,7 +4496,7 @@ function edit_upload_internal_2(req, res, next, picinfo, thumbimage, iconimage) 
 
     var mealicon = new mealIcon(id, picinfo, iconimage, req.files.inputupload.type);
 
-    setMealThumbInMongo(mealthumb, function(mterr, object) {
+    setMealThumb(mealthumb, function(mterr, object) {
 
         if(mterr) throw (mterr);
 
@@ -4769,7 +4509,7 @@ function edit_upload_internal_2(req, res, next, picinfo, thumbimage, iconimage) 
         */
     });
 
-    setMealIconInMongo(mealicon, function(mterr, object) {
+    setMealIcon(mealicon, function(mterr, object) {
         if(mterr) throw (mterr);
     });
 }
@@ -4857,80 +4597,90 @@ function edit_upload_internal_1(req, res, next, image, mealinfo, picinfo) {
     // Write the picture to disk (and maybe to redis).  
     // Instead of setMealPicInMongo, just write the picture
 
-    var mealpic = new mealPic(parseInt(req.session.user.userid), picinfo, image, req.files.inputupload.type);
-    setMealPicInMongo(mealpic, function(err, object) {
+    // XXX
+    var mealpic = new mealRecord(parseInt(req.session.user.userid), picinfo, req.files.inputupload.type);
+
+    // Write this record
+    setMealRecordInMongo(mealpic, function(err, object) {
 
         if(err) throw(err);
 
-        // Push the new picture onto the mealinfo's picinfo array
-        mealinfo.picInfo.push(picinfo);
-        
-        // Update the picinfo array in the mealInfo object
-        updateMealInfoPicInfoInMongo(mealinfo, function(merror, object) {
+        // Set the image
+        mealpic.image = image;
 
-            if(merror) throw(merror);
+        // Write to redis & fs 
+        setMealPic(mealpic, function(err, object) {
 
-            var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + 
-                    " " + picinfo.thumbheight + " " + picinfo.thumbwidth;
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(successResp);
-            res.end();
+            // Push the new picture onto the mealinfo's picinfo array
+            mealinfo.picInfo.push(picinfo);
 
-            // Have to resize either both, only the icon, or neither
-            var resizeIcon = ( picinfo.width > maxIconWidth || picinfo.height >= maxIconHeight );
-            var resizeThumb = ( picinfo.width > maxThumbWidth || picinfo.height >= maxThumbHeight );
+            // Update the picinfo array in the mealInfo object
+            updateMealInfoPicInfoInMongo(mealinfo, function(merror, object) {
 
-            var target = resizeIcon + resizeThumb;
-            var count = 0;
+                if(merror) throw(merror);
 
-            if(0 == target) {
-                edit_upload_internal_2( req, res, next, picinfo, image, image );
-                return;
-            }
+                var successResp = "SUCCESS " + picinfo.timestamp + " " + picinfo.height + 
+                        " " + picinfo.thumbheight + " " + picinfo.thumbwidth;
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.write(successResp);
+                res.end();
 
-            var thumbimage = (resizeThumb == 0 ? image : null );
-            var iconimage = (resizeIcon == 0 ? image : null );
-
-            function callback(thumb, icon) {
-
-                if(thumb) thumbimage = thumb;
-                if(icon) iconimage = icon;
-
-                if(++count >= target) {
-                    edit_upload_internal_2( req, res, next, picinfo, thumbimage, iconimage );
+                // Have to resize either both, only the icon, or neither
+                var resizeIcon = ( picinfo.width > maxIconWidth || picinfo.height >= maxIconHeight );
+                var resizeThumb = ( picinfo.width > maxThumbWidth || picinfo.height >= maxThumbHeight );
+    
+                var target = resizeIcon + resizeThumb;
+                var count = 0;
+    
+                if(0 == target) {
+                    edit_upload_internal_2( req, res, next, picinfo, image, image );
+                    return;
                 }
-            }
-
-            // The thumbnail is last.  An earlier version used to return control to the 
-            // user here.  This was to do the thumbnail creation-processing out-of-band:
-            // If the user requests the thumbnail and it hasn't made it to mongo, I can 
-            // always send the full picture.
-            if(resizeThumb) {
-                im.resize( { 
-                    srcData: image,
-                    width: scaleThumbWidth,
-                    height: scaleThumbHeight
-                }, // The resized image is stdout.
-                function(err, thumb, stderr) {
-                    if(err) throw (err);
-                    callback(thumb, null);
-                    return;
-                });
-            }
-
-            if(resizeIcon) {
-                im.resize( { 
-                    srcData: image,
-                    width: scaleIconWidth,
-                    height: scaleIconHeight
-                }, // The resized image is stdout.
-                function(err, icon, stderr) {
-                    if(err) throw (err);
-                    callback(null, icon);
-                    return;
-                });
-            }
-        }, 0);
+    
+                var thumbimage = (resizeThumb == 0 ? image : null );
+                var iconimage = (resizeIcon == 0 ? image : null );
+    
+                function callback(thumb, icon) {
+    
+                    if(thumb) thumbimage = thumb;
+                    if(icon) iconimage = icon;
+    
+                    if(++count >= target) {
+                        edit_upload_internal_2( req, res, next, picinfo, thumbimage, iconimage );
+                    }
+                }
+    
+                // The thumbnail is last.  An earlier version used to return control to the 
+                // user here.  This was to do the thumbnail creation-processing out-of-band:
+                // If the user requests the thumbnail and it hasn't made it to mongo, I can 
+                // always send the full picture.
+                if(resizeThumb) {
+                    im.resize( { 
+                        srcData: image,
+                        width: scaleThumbWidth,
+                        height: scaleThumbHeight
+                    }, // The resized image is stdout.
+                    function(err, thumb, stderr) {
+                        if(err) throw (err);
+                        callback(thumb, null);
+                        return;
+                    });
+                }
+    
+                if(resizeIcon) {
+                    im.resize( { 
+                        srcData: image,
+                        width: scaleIconWidth,
+                        height: scaleIconHeight
+                    }, // The resized image is stdout.
+                    function(err, icon, stderr) {
+                        if(err) throw (err);
+                        callback(null, icon);
+                        return;
+                    });
+                }
+            }, 0);
+        });
     });
 }
 
@@ -5044,6 +4794,7 @@ function thumbpath( userid, mealts, picts )
 }
 
 // Massage a mealpic that the user has just uploaded
+// Refactor this: I want a resized meal, thumb, and icon.
 function editMealsUploadPost(req, res, mealinfo, next) {
 
     imageFeatures(req.files.inputupload.path, function(err, features) {

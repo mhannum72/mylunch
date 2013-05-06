@@ -5,6 +5,11 @@ mylunch
 todo
 ====
 
+* I want to create my own image-load-or-complete api which will CORRECTLY wait 
+  until an image has loaded before proceeding.  It looks like you just need to 
+  check the 'complete' attribute of the 'img' tag.  This doesn't seem too 
+  difficult.
+
 * There's a clear advantage when I write, as this will only be a single database
   access.  I can make this happen in a clever way I think..
 
