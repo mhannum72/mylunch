@@ -20,6 +20,7 @@
         </center>
         <div id='enddiv'></div>
     <script src="/jquery.js"></script>
+    <script src="/lutil.js"></script>
     <script src="/date.js"></script>
     <script src="/jquery.datePicker.js"></script>
     <script src="/findpicidx.js"></script>
@@ -84,6 +85,7 @@ showattributes.init(
             // Showattributes could or should create hiddenElements?
             fadeheightelement   : $('#enddiv')[0],
             hiddenframe         : $('#hiddenElements')[0],
+            imageready          : lutil.imageready,
             usesimpleprompt     : false,                            // Use modal rather than simple-prompts
             popupbuttonwidth    : 100,
             buttonmargin        : 20,
@@ -110,8 +112,7 @@ picturegrid.init(
             animatenextprev     : true,
             mealsperrow         : 3,
             rowsperpage         : 2,
-//            deletebehavior      : "shiftmeals",
-//            addbehavior         : "shiftmeals",
+            imageready          : lutil.imageready,
             shrinkimgenable     : true,
             shrinkboxenable     : true,
             shrinkfadeenable    : false,

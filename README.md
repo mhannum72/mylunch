@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* Wait for carousel pictures to load before displaying popup.
+
+* Wait for picture to completely load before rotating to it in carousel.
+
 * I want to create my own image-load-or-complete api which will CORRECTLY wait 
   until an image has loaded before proceeding.  It looks like you just need to 
   check the 'complete' attribute of the 'img' tag.  This doesn't seem too 

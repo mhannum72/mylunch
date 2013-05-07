@@ -127,6 +127,9 @@ showattributes = (function($jq) {
     // Maximum pictures per meal
     var maxpicspermeal;
 
+    // Our 'image-is-ready' function passed through to the carousel
+    var imgready = null;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -1346,7 +1349,7 @@ showattributes = (function($jq) {
         // Create a carousel
         elm = createcarousel(username, 'pics', 
                 meal.picInfo, findpicidx, meal.keytimestamp, adjustmaskfade,
-                maxpicspermeal);
+                maxpicspermeal, imgready);
     
         // Append it to the div
         elm.appendTo(carouselDivContainer);
@@ -2161,6 +2164,8 @@ showattributes = (function($jq) {
         
         maxpicspermeal = cfg.hp("maxpicspermeal") ? 
             cfg.maxpicspermeal : 64;
+
+        imgready = cfg.hp("imageready") ? cfg.imageready : null;
 
         // We are not showing
         isshowing = false;

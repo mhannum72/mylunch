@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html lang="en" class="ie8"><![endif]-->
+<!--[if IE 9]><html lang="en" class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html class=" js no-touch localstorage sessionstorage contenteditable" lang="en"><!--<![endif]--><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Disqus Comments</title>
+        <script src="a_data/beacon.js" async=""></script><script src="Hardening%20node.js%20for%20production%20part%203:%20zero%20downtime%20deployments%20with%20nginx%20%7C%20Arg%21%20Team%20Blog_files/ga.js" async="" type="text/javascript"></script><script src="a_data/lib.js" charset="utf-8" type="text/javascript"></script><script src="a_data/client.js" charset="utf-8" type="text/javascript"></script><script src="a_data/theme.js" async="" charset="utf-8" type="text/javascript"></script><script src="a_data/max.js" async="" charset="utf-8" type="text/javascript"></script><!-- base href="http://blog.argteam.com/coding/hardening-node-js-for-production-part-3-zero-downtime-deployments-with-nginx/" -->
+
+        <!--
+        
+        -->
+        <script type="text/json" id="disqus-jsonData">{"cursor": {"hasPrev": false, "prev": null, "total": 9, "hasNext": false, "next": "1:0:0"}, "code": 0, "response": {"thread": {"feed": "http://argteamblog.disqus.com/hardening_nodejs_for_production_part_3_zero_downtime_deployments_with_nginx/latest.rss", "reactions": 0, "uploadAdd": "http://argteamblog.disqus.com/thread/hardening_nodejs_for_production_part_3_zero_downtime_deployments_with_nginx/async_media_upload/", "dislikes": 0, "likes": 1, "message": "", "id": "853611247", "createdAt": "2012-09-21T18:17:26", "category": "1065868", "author": "8996235", "userScore": 0, "moderators": [8996235], "isDeleted": false, "hasStreaming": false, "uploadRemove": "http://argteamblog.disqus.com/thread/hardening_nodejs_for_production_part_3_zero_downtime_deployments_with_nginx/async_media_remove/", "isClosed": false, "link": "http://blog.argteam.com/coding/hardening-node-js-for-production-part-3-zero-downtime-deployments-with-nginx/", "slug": "hardening_nodejs_for_production_part_3_zero_downtime_deployments_with_nginx", "forum": "argteamblog", "identifiers": ["374 http://blog.argteam.com/?p=374"], "posts": 9, "userSubscription": false, "title": "Hardening node.js for production part 3: zero downtime deployments with nginx"}, "forum": {"name": "Arg! Team Blog", "language": "en", "settings": {"allowAnonPost": true, "allowMedia": true, "moderatorText": "", "typeface": "auto", "hasReactions": false, "showNewMedia": true, "audienceSyncEnabled": false, "ssoRequired": false, "backplaneEnabled": false, "useHandlebars": true, "showNewLogin": false, "colorScheme": "auto", "linkAffiliationEnabled": true}, "url": "http://blog.argteam.com", "favicon": {"permalink": "http://disqus.com/api/forums/favicons/argteamblog.jpg", "cache": "http://mediacdn.disqus.com/1367873877/images/favicon-default.png"}, "pk": 1045687, "founder": "8996235", "id": "argteamblog"}, "lastModified": 1367060595, "posts": [{"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"name": "tony", "url": "", "profileUrl": "http://disqus.com/guest/78fb34318ed8c8ae0a2d9bbb6108ac45/", "emailHash": "78fb34318ed8c8ae0a2d9bbb6108ac45", "avatar": {"small": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45"}, "large": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45"}, "permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45"}, "isAnonymous": true}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "why coffeescript...", "createdAt": "2012-11-06T19:14:08", "id": "701982940", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 6, "isEdited": false, "message": "\u003cp>why coffeescript...\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 6}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": 701982940, "author": {"username": "pavelnikolov", "about": "", "name": "pavelnikolov", "url": "", "joinedAt": "2012-10-31T21:47:17", "rep": 1.248008, "profileUrl": "http://disqus.com/pavelnikolov/", "emailHash": "057dba7b6fe7b933e5ee23f7dc64dcb5", "reputation": 1.248008, "location": "", "isPrimary": true, "isAnonymous": false, "id": "35533356", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar32.jpg?1351721174"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174", "large": {"permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "why not?", "createdAt": "2012-11-13T04:31:48", "id": "708797910", "thread": "853611247", "depth": 1, "numReports": 0, "likes": 2, "isEdited": false, "message": "\u003cp>why not?\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 2}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": 708797910, "author": {"username": "chovysblog", "about": "", "name": "chovysblog", "url": "", "joinedAt": "2012-11-27T06:15:25", "rep": 1.244318, "profileUrl": "http://disqus.com/chovysblog/", "emailHash": "30f245e21b682c3c8708e41fffbe7124", "reputation": 1.244318, "location": "", "isPrimary": true, "isAnonymous": false, "id": "37402966", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/chovysblog.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3740/2966/avatar32.jpg?1356040824"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/chovysblog.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3740/2966/avatar92.jpg?1356040824", "large": {"permalink": "http://disqus.com/api/users/avatars/chovysblog.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3740/2966/avatar92.jpg?1356040824"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "...oh boy...here we go again....", "createdAt": "2012-12-20T22:00:23", "id": "744119967", "thread": "853611247", "depth": 2, "numReports": 0, "likes": 3, "isEdited": false, "message": "\u003cp>...oh boy...here we go again....\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 3}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"username": "pavelnikolov", "about": "", "name": "pavelnikolov", "url": "", "joinedAt": "2012-10-31T21:47:17", "rep": 1.248008, "profileUrl": "http://disqus.com/pavelnikolov/", "emailHash": "057dba7b6fe7b933e5ee23f7dc64dcb5", "reputation": 1.248008, "location": "", "isPrimary": true, "isAnonymous": false, "id": "35533356", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar32.jpg?1351721174"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174", "large": {"permalink": "http://disqus.com/api/users/avatars/pavelnikolov.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "I would use 503 status code instead of 502 during maintenance. This would tell the client (nginx) that the server (node process) is temporary unavailable.", "createdAt": "2012-12-13T19:16:16", "id": "735160779", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 1, "isEdited": true, "message": "\u003cp>I would use 503 status code instead of 502 during maintenance. This would tell the client (nginx) that the server (node process) is temporary unavailable.\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 1}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"name": "Tom", "url": "", "profileUrl": "http://disqus.com/guest/c58c8abd3bb9458e3a298f4856dd96ed/", "emailHash": "c58c8abd3bb9458e3a298f4856dd96ed", "avatar": {"small": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed"}, "large": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed"}, "permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed"}, "isAnonymous": true}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "Pretty cool.  I wish you guys had a webapp so I could try it.", "createdAt": "2013-04-27T11:03:15", "id": "877771553", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 0, "isEdited": false, "message": "\u003cp>Pretty cool.  I wish you guys had a webapp so I could try it.\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 0}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"username": "twitter-115861122", "about": "", "name": "m heuberger", "url": "http://twitter.com/binarykitchen", "joinedAt": "2010-03-05T01:43:16", "rep": 1.2324929999999998, "profileUrl": "http://disqus.com/twitter-115861122/", "emailHash": "d41d8cd98f00b204e9800998ecf8427e", "reputation": 1.2324929999999998, "location": "", "isPrimary": true, "isAnonymous": false, "id": "2134914", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/twitter-115861122.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/213/4914/avatar32.jpg?1363407753"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/twitter-115861122.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/213/4914/avatar92.jpg?1363407753", "large": {"permalink": "http://disqus.com/api/users/avatars/twitter-115861122.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/213/4914/avatar92.jpg?1363407753"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "I doubt your code really works. When a node process is about to exit, the main event loop won't accept any new events, in your case the setTimeout. See http://nodejs.org/api/process.html#process_event_exit", "createdAt": "2013-03-16T04:22:30", "id": "830844132", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 0, "isEdited": false, "message": "\u003cp>I doubt your code really works. When a node process is about to exit, the main event loop won't accept any new events, in your case the setTimeout. See \u003ca href=\"http://nodejs.org/api/process.html#process_event_exit\" rel=\"nofollow\">http://nodejs.org/api/process....\u003c/a>\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 0}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": 830844132, "author": {"username": "twitter-21522682", "about": "", "name": "Thomas Dimson", "url": "http://twitter.com/cosbynator", "joinedAt": "2011-09-25T22:18:53", "rep": 1.209906, "profileUrl": "http://disqus.com/twitter-21522682/", "emailHash": "d41d8cd98f00b204e9800998ecf8427e", "reputation": 1.209906, "location": "", "isPrimary": false, "isAnonymous": false, "id": "17228311", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/twitter-21522682.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/1722/8311/avatar32.jpg?1363813294"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/twitter-21522682.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/1722/8311/avatar92.jpg?1363813294", "large": {"permalink": "http://disqus.com/api/users/avatars/twitter-21522682.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/1722/8311/avatar92.jpg?1363813294"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "While it is possible my code has bugs, I'm not listening to process exit events - I'm listing to SIGTERM.", "createdAt": "2013-03-16T08:21:25", "id": "831001218", "thread": "853611247", "depth": 1, "numReports": 0, "likes": 0, "isEdited": false, "message": "\u003cp>While it is possible my code has bugs, I'm not listening to process exit events - I'm listing to SIGTERM.\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 0}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"name": "aqarynet", "url": "", "profileUrl": "http://disqus.com/guest/198a0d3f65ab4b364369d92d51850137/", "emailHash": "198a0d3f65ab4b364369d92d51850137", "avatar": {"small": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=198a0d3f65ab4b364369d92d51850137", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar32.png&size=32&gravatar_id=198a0d3f65ab4b364369d92d51850137"}, "large": {"permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=198a0d3f65ab4b364369d92d51850137", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=198a0d3f65ab4b364369d92d51850137"}, "permalink": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=198a0d3f65ab4b364369d92d51850137", "cache": "http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&size=92&gravatar_id=198a0d3f65ab4b364369d92d51850137"}, "isAnonymous": true}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "GREAT ARTICLE,,,,,i really like d it", "createdAt": "2012-09-29T22:16:39", "id": "666539089", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 0, "isEdited": false, "message": "\u003cp>GREAT ARTICLE,,,,,i really like d it\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 0}, {"isJuliaFlagged": true, "isFlagged": false, "forum": "argteamblog", "parent": null, "author": {"username": "twitter-8163462", "about": "", "name": "daniel", "url": "http://twitter.com/dlerner", "joinedAt": "2012-09-21T22:28:56", "rep": 1.232124, "profileUrl": "http://disqus.com/twitter-8163462/", "emailHash": "d41d8cd98f00b204e9800998ecf8427e", "reputation": 1.232124, "location": "", "isPrimary": true, "isAnonymous": false, "id": "32683547", "avatar": {"small": {"permalink": "http://disqus.com/api/users/avatars/twitter-8163462.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3268/3547/avatar32.jpg?1348266773"}, "isCustom": false, "permalink": "http://disqus.com/api/users/avatars/twitter-8163462.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3268/3547/avatar92.jpg?1348266773", "large": {"permalink": "http://disqus.com/api/users/avatars/twitter-8163462.jpg", "cache": "http://mediacdn.disqus.com/uploads/users/3268/3547/avatar92.jpg?1348266773"}}}, "media": [], "isDeleted": false, "isApproved": true, "dislikes": 0, "raw_message": "Super nice!\nI'll reuse the next stream part, I thought it was the default behavior for nginx's upstreams.\n\n\nWhat are you using for monitor/alerts/restart? I've installed a combination of upstart & monit.\nGood luck with the launch!", "createdAt": "2012-09-21T22:32:52", "id": "658338728", "thread": "853611247", "depth": 0, "numReports": 0, "likes": 0, "isEdited": false, "message": "\u003cp>Super nice!\u003cbr>I'll reuse the next stream part, I thought it was the default behavior for nginx's upstreams.\u003c/p>\n\n\u003cp>What are you using for monitor/alerts/restart? I've installed a combination of upstart &amp; monit.\u003cbr>Good luck with the launch!\u003c/p>", "isSpam": false, "isHighlighted": false, "points": 0}], "theme": {"base": {"name": "Disqus 2012", "css": "http://mediacdn.disqus.com/1367873877/build/next/lounge/theme.css", "js": "http://mediacdn.disqus.com/1367873877/build/next/lounge/theme.js"}}, "session": {"canModerate": false, "isReadOnly": null, "audienceSyncVerified": false, "canReply": true, "notificationCount": null, "mustVerifyEmail": false}, "features": {}}, "order": "popular"}</script>
+
+        
+        <style>
+            html { overflow: hidden; }
+
+            #postCompatContainer {
+                position: absolute;
+                left: -10000px;
+                width: 1000px;
+            }
+        </style>
+        
+    <style id="css_1367965648813"></style><link href="a_data/theme.css" type="text/css" rel="stylesheet"><link href="a_data/max.css" type="text/css" rel="stylesheet"><script charset="UTF-8" async="" src="a_data/event.js"></script><script charset="UTF-8" async="" src="a_data/event_002.js"></script><script charset="UTF-8" async="" src="a_data/event_003.js"></script><script charset="UTF-8" async="" src="a_data/event_004.js"></script></head>
+
+    <body>
+        
+        <div id="postCompatContainer">
+            <ul>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/guest/78fb34318ed8c8ae0a2d9bbb6108ac45/">tony</a>
+                    </h4>
+
+                    <div>
+                        <p>why coffeescript...</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/pavelnikolov/">pavelnikolov</a>
+                    </h4>
+
+                    <div>
+                        <p>why not?</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/chovysblog/">chovysblog</a>
+                    </h4>
+
+                    <div>
+                        <p>...oh boy...here we go again....</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/pavelnikolov/">pavelnikolov</a>
+                    </h4>
+
+                    <div>
+                        <p>I would use 503 status code instead of 502 
+during maintenance. This would tell the client (nginx) that the server 
+(node process) is temporary unavailable.</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/guest/c58c8abd3bb9458e3a298f4856dd96ed/">Tom</a>
+                    </h4>
+
+                    <div>
+                        <p>Pretty cool.  I wish you guys had a webapp so I could try it.</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/twitter-115861122/">m heuberger</a>
+                    </h4>
+
+                    <div>
+                        <p>I doubt your code really works. When a node 
+process is about to exit, the main event loop won't accept any new 
+events, in your case the setTimeout. See <a href="http://nodejs.org/api/process.html#process_event_exit" rel="nofollow">http://nodejs.org/api/process....</a></p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/twitter-21522682/">Thomas Dimson</a>
+                    </h4>
+
+                    <div>
+                        <p>While it is possible my code has bugs, I'm not listening to process exit events - I'm listing to SIGTERM.</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/guest/198a0d3f65ab4b364369d92d51850137/">aqarynet</a>
+                    </h4>
+
+                    <div>
+                        <p>GREAT ARTICLE,,,,,i really like d it</p>
+                    </div>
+                </li>
+            
+                <li>
+                    <h4>
+                        <a href="http://disqus.com/twitter-8163462/">daniel</a>
+                    </h4>
+
+                    <div>
+                        <p>Super nice!<br>I'll reuse the next stream part, I thought it was the default behavior for nginx's upstreams.</p>
+
+<p>What are you using for monitor/alerts/restart? I've installed a combination of upstart &amp; monit.<br>Good luck with the launch!</p>
+                    </div>
+                </li>
+            
+            </ul>
+        </div>
+
+        <div id="notFound" style="display:none;">
+            <p>We were unable to load Disqus. If you are a moderator please see our <a href="http://docs.disqus.com/help/83/"> troubleshooting guide</a>. </p>
+        </div>
+
+        
+            
+
+            
+
+
+<!--[if lte IE 8]>
+<script src="http://mediacdn.disqus.com/1367873877/build/next/ie8.js"></script>
+<![endif]-->
+<!--[if IE 9]>
+<script src="http://mediacdn.disqus.com/1367873877/build/next/ie9.js"></script>
+<![endif]-->
+
+
+            
+            <script src="a_data/load.js"></script>
+            
+        
+    
+
+<div id="layout">
+    <div style="position: static; visibility: visible; display: block;" id="discovery-top">
+<div id="discovery-main-c114" class="discovery-main">
+    <div id="discovery-note" style="display:none;">
+        <div class="alert">
+        <a href="#" class="close" data-action="discovery-help-close" title="Close this box">×</a>
+        Disqus helps you find new and interesting content, discussions 
+and products. Some sponsors and ecommerce sites may pay us for these 
+recommendations and links. 
+    <a href="http://help.disqus.com/customer/portal/articles/666278-introducing-promoted-discovery-and-f-a-q-" target="_blank">Learn more</a>
+ or 
+    <a href="https://www.surveymonkey.com/s/GHK872T" target="_blank">
+        give us feedback</a>
+.
+        </div>
+    </div>
+
+    
+        <section id="col-organic-c114" class="col-organic">
+            <header class="discovery-col-header">
+
+                
+                    
+                    <div class="discovery-options">
+                        <span class="publisher-anchor-color"><a href="#" class="discovery-help" data-action="discovery-help">What's this?</a></span>
+                    </div>
+                
+
+                
+                
+                    <h2>Around The Web</h2>
+                
+
+            </header>
+            <ul class="discovery-posts">
+    
+        <li style="clear: left;" class="discovery-post" id="discovery-link-p64080">
+            <header class="discovery-post-header">
+                <h3 title="Economist: Say Goodbye To Your Life Savings">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fmoneymorning.com%2Fob-article%2Fschiff-us-will-win-currency-war.php%3Fcode%3D118408%3AIZMrVslhgrPG1-lNNX3iwoKupm8&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=63476&amp;body_id=64080" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        Economist: Say Goodbye To Your Life Savings
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                Money Morning
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="margin-bottom: 14.5px;" class="discovery-post" id="discovery-link-p65116">
+            <header class="discovery-post-header">
+                <h3 title="5 Worst-Selling Cars Of All Time">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fwww.investopedia.com%2Fslide-show%2Fworst-selling-cars%3Fpartner%3Dvcb%3Futm_campaign%3Dinv-dsq-pfs-012813%26utm_source%3Ddsq%26utm_medium%3Dcpc%26utm_content%3Dadg-na_adv-na_mtp-na_adc-con_adf-mix_ptp-cp_geo-na%3A3VhKjbhJEakUdzUpKq2AEdkQUfk&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=64496&amp;body_id=65116" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        5 Worst-Selling Cars Of All Time
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                Investopedia
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="clear: left;" class="discovery-post" id="discovery-link-p62548">
+            <header class="discovery-post-header">
+                <h3 title="Samsung Unveils Its $39,999 Secret, Plus Some 2013 TV Availability">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Ftelevisioninfo.com%2Fnews%2Fsamsung-unveils-its-39-999-secret-2013-tv-availability%3F%3Futm_source%3DDisqus%26utm_medium%3DCPC%3AXAepoqxddmOzBMNJjhPN59kddhE&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=61974&amp;body_id=62548" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        Samsung Unveils Its $39,999 Secret, Plus Some 2013 TV Availability
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                Reviewed
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="margin-bottom: 14.5px;" class="discovery-post" id="discovery-link-p56361">
+            <header class="discovery-post-header">
+                <h3 title="About Iredale Mineral Makeup">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fwww.ehow.com%2Ffacts_4777322_iredale-mineral-makeup.html%3Futm_source%3Dsm-disqusarticlelor%26utm_medium%3Dtest83%3AGBGbtCaXND8mb2hq3rlctINMQEw&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=55800&amp;body_id=56361" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        About Iredale Mineral Makeup
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                eHow Style
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="clear: left;" class="discovery-post" id="discovery-link-p53735">
+            <header class="discovery-post-header">
+                <h3 title="3 Restaurant Foods That Are Killing You">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fdailyhealthpost.com%2F3-restaurant-foods-that-are-killing-you%2F%3ASgyfdV9NrgVcnS1R-7-dPPLJDdo&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=53191&amp;body_id=53735" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        3 Restaurant Foods That Are Killing You
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                Daily Health Post
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="margin-bottom: 14.5px;" class="discovery-post" id="discovery-link-p64811">
+            <header class="discovery-post-header">
+                <h3 title="3 Things To Never Do For Your Kids">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fwww.mydailymoment.com%2Fmoms%2Fparenting%2F3_things_you_should_never_do_for_your_kids.php%3Futm_source%3DDHTMLdisqusapril13%26utm_medium%3Ddisqusapril13%26utm_term%3D%26utm_content%3Dstyle%26utm_campaign%3DMOMSdisqusapril13%3AUkJ_znE4PA86f6UZOE2CUSn2rqM&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=64192&amp;body_id=64811" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        3 Things To Never Do For Your Kids
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                MyDailyMoment
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="clear: left;" class="discovery-post" id="discovery-link-p57208">
+            <header class="discovery-post-header">
+                <h3 title="Divorce Files: Which Notorious Mistress Comments on Kimora Lee Simmons and Djimon's Split?!">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fmommynoire.com%2F11092%2Fdivorce-files-which-notorious-mistress-comments-on-kimora-lee-simmons-and-djimons-split%2F%3Futm_source%3Ddisqus%26utm_medium%3Dcpc%26utm_content%3Dwidget%26utm_campaign%3Dmom.desktop.usa%3ApwLkGvhvpgPINfqRt-BEJfXr6D4&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=56647&amp;body_id=57208" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        Divorce Files: Which Notorious Mistress Comments on Kimora Lee Simmons and Djimon's Split?!
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                MommyNoire
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+        <li style="margin-bottom: 14.5px;" class="discovery-post" id="discovery-link-p65476">
+            <header class="discovery-post-header">
+                <h3 title="Is Miranda Kerr's Bikini Too Skimpy?">
+                    <a href="http://redirect.disqus.com/url?url=http%3A%2F%2Fwww.zimbio.com%2FMiranda%2BKerr%2BBikini%2BPics%3Futm_source%3Ddisq%26utm_medium%3Dcpc%26utm_campaign%3Ddisq-Z-Specials-1%3A3L72u5KsaaG8_1FjO3oICDYITfQ&amp;imp=1367965648753929841&amp;forum_id=1045687&amp;forum=argteamblog&amp;thread_id=853611247&amp;major_version=midway&amp;zone=promoted_discovery&amp;advertisement_id=64856&amp;body_id=65476" target="_blank" rel="nofollow" data-role="discovery-thread-title" class="title publisher-anchor-color line-truncate" data-line-truncate="2">
+                        Is Miranda Kerr's Bikini Too Skimpy?
+                    </a>
+
+                    
+                        
+                            
+                        
+                        
+                            <span class="inline-meta">
+                                Zimbio
+                            </span>
+                        
+                    
+
+                </h3>
+
+                
+
+            </header>
+
+            
+
+        </li>
+    
+</ul>
+        </section>
+    
+
+</div>
+</div>
+
+    <div style="clear:both"></div>
+
+    <div id="thread-votes" class="pull-right"><div class="thread-likes " data-role="vote-button">
+        <a href="#" data-action="upvote" title="Star this discussion">
+            <span class="notch"></span>
+            <span class="icon-star"></span>
+            <span class="counter"><span data-role="like-count">1</span></span>
+            <img src="a_data/checkx2.png" class="check-mark" alt="Voted" height="8" width="10">
+        </a>
+    </div></div>
+
+    <div id="realtime-toggle"></div>
+
+    <nav id="global-nav">
+        <ul class="publisher-anchor-hover">
+            <li class="active" data-role="global-nav">
+                <a href="#" id="post-count" data-nav="conversation">
+    <h4>
+            9 comments
+        </h4>
+</a>
+            </li>
+
+            
+        </ul>
+    </nav>
+
+    <div id="form"><div class="reply  ">
+    <div class="alert error" style="display:none" role="alert">
+        <a class="close" data-action="dismiss-alert" title="Dismiss">×</a>
+        <span><!-- error goes here --></span>
+    </div>
+
+    <div class="postbox">
+        <div class="avatar">
+            
+                <span class="user">
+                    <img data-role="user-avatar" src="a_data/noavatar92.png">
+                </span>
+            
+        </div>
+        <form action="">
+            <div class="textarea-wrapper" data-role="textarea">
+                <div style="overflow: auto; max-height: 350px;" aria-multiline="true" role="textbox" tabindex="0" class="textarea" contenteditable="true"><span class="placeholder">Leave a message...</span></div>
+                <div data-role="drag-drop-placeholder" class="media-drag-hover" style="display: none">
+                    <div class="drag-text">
+                        ⬇ Drag and drop your images here to upload them.
+                    </div>
+                </div>
+                
+                    <div class="media-preview empty" data-role="media-preview">
+                        <ul data-role="media-preview-list">
+                        
+                        </ul>
+                        <div class="media-expanded empty" data-role="media-preview-expanded">
+                            
+                            <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-role="media-preview-expanded-image">
+                        </div>
+                    </div>
+                
+                <div class="post-actions">
+                    <ul class="wysiwyg">
+                        
+                            <li>
+                                <a href="#" tabindex="-1" data-action="attach" class="attach" title="Upload Images"><span>Attach</span></a>
+                                <input data-role="media-upload" tabindex="-1" class="regular" accept="image/*" type="file">
+                            </li>
+                        
+                        
+                    </ul>
+                    
+                    
+                </div>
+            <div></div></div>
+            
+                
+<div class="logged-out auth-section">
+    <section data-tab="auth-external">
+        <div class="connect">
+            <h6>Sign in with</h6>
+            <ul class="services">
+                
+                    
+                
+                 <li class="auth-disqus">
+                    <a data-action="auth:disqus" href="#" title="Disqus">Disqus</a>
+                </li>
+                <li class="auth-facebook">
+                    <a data-action="auth:facebook" href="#" title="Facebook">Facebook</a>
+                </li>
+                <li class="auth-twitter">
+                    <a data-action="auth:twitter" href="#" title="Twitter">Twitter</a>
+                </li>
+                <li class="auth-google">
+                    <a data-action="auth:google" href="#" title="Google">Google</a>
+                </li>
+            </ul>
+        </div>
+
+        
+    <div class="guest">
+        <h6 class="guest-form-title">
+            
+                or pick a name
+            
+        </h6>
+
+        <div href="#" class="what-is-disqus">What's Disqus?
+            <div id="rules" class="tooltip show">
+                <h3>DISQUS is a conversation network</h3>
+                <ul>
+                    <li><span>Disqus never moderates or censors. The rules on this community are its own.</span></li>
+                    <li><span>Your email is safe with us. It's only used for moderation and optional notifications.</span></li>
+                    <li><span>Don't be a jerk or do anything illegal. Everything is easier that way.</span></li>
+                    </ul>
+                <p class="clearfix"><a href="http://docs.disqus.com/kb/terms-and-policies/" class="btn btn-small" target="_blank">Read full terms and conditions</a></p>
+            </div>
+        </div>
+
+        <p class="input-wrapper">
+            <input placeholder="Name" name="author-name" maxlength="30" type="text">
+        </p>
+
+        <div class="guest-details " data-role="guest-details">
+            <p class="input-wrapper">
+                <input placeholder="Email" name="author-email" type="text">
+            </p>
+
+            
+                
+                    <div>
+                        <label>
+                            <input name="author-register" type="checkbox">
+                            Register with Disqus
+                        </label>
+                    </div>
+                
+            
+
+        </div>
+    </div>
+    <div class="proceed">
+        
+             <button type="submit" class="btn submit" aria-label="Post"><span class="icon-proceed"></span></button>
+            <button type="submit" class="btn next" aria-label="Next"><span class="icon-proceed"></span></button>
+        
+    </div>
+
+
+    </section>
+</div>
+
+            
+            
+        </form>
+    </div>
+</div></div>
+
+    <div id="main-nav" class="nav">
+        <ul>
+            
+<li data-role="post-sort" class="active dropdown">
+    <a href="#" data-nav="conversation" class="dropdown-toggle publisher-nav-color" data-toggle="dropdown">
+        Best
+        
+        
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li class="selected">
+            <a href="#" data-action="sort" data-sort="popular">Best</a>
+        </li>
+
+        <li>
+            <a href="#" data-action="sort" data-sort="desc">Newest</a>
+        </li>
+
+        <li>
+            <a href="#" data-action="sort" data-sort="asc">Oldest</a>
+        </li>
+    </ul>
+</li>
+
+
+            <li><a href="#" data-nav="community" class="publisher-nav-color" id="community-tab">Community</a></li>
+            <li><a href="#" data-nav="dashboard" style="display:none" class="publisher-nav-color">My Disqus <span class="notification-count" data-role="notification-count" style="display:none"></span></a></li>
+
+            <li class="user-menu dropdown" data-role="logout">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span class="cog"><i aria-hidden="true" class="icon-cog"></i></span> <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        
+        
+			
+            	<li>
+                	<a href="#" data-action="auth:disqus">Login</a>
+            	</li>
+        	
+        
+
+        
+
+        
+        <li>
+            <a href="https://www.surveymonkey.com/s/5RBPTTZ?c=http%3A%2F%2Fblog.argteam.com%2Fcoding%2Fhardening-node-js-for-production-part-3-zero-downtime-deployments-with-nginx%2F" target="_blank">Send Feedback</a>
+        </li>
+        
+
+        
+
+        
+    </ul>
+</li>
+
+            <li id="thread-share-menu" class="share-menu dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Share">
+                    <span class="label">Share</span> <span class="icon-export"></span>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li class="share">Share this discussion on
+                        <ul>
+                            <li class="twitter">
+                                <a data-action="share:twitter" href="#">Twitter</a>
+                            </li>
+                            <li class="facebook">
+                                <a data-action="share:facebook" href="#">Facebook</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+
+    <section id="conversation" data-role="main">
+        <div id="posts">
+            <button class="alert realtime" style="display: none" data-action="load-queued-posts" data-role="realtime-notification">
+                <!-- Show 2 new posts. -->
+            </button>
+
+            <!-- This message appears when there are no comments -->
+            <div id="no-posts" style="display:none">No one has commented yet.</div>
+
+            <ul id="post-list" class="post-list"><li class="post
+    " id="post-701982940">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar">
+                        <div class="user"><img data-src="http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&amp;size=92&amp;gravatar_id=78fb34318ed8c8ae0a2d9bbb6108ac45" class="user" alt="Avatar"></div>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="name">tony</span>
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-701982940" data-role="relative-time" class="time-ago" title="Tuesday, November 6 2012 2:14 PM">
+                                6 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>why coffeescript...</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:701982940">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-6" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">6</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-701982940">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+<li class="post
+    " id="post-708797910">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="35533356">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="35533356">pavelnikolov</a></span>
+                            
+                        
+
+                        
+                            <span><a href="#comment-701982940" class="parent-link" data-role="parent-link"><i aria-hidden="true" class="icon-forward" title="in reply to"></i> tony</a></span>
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-708797910" data-role="relative-time" class="time-ago" title="Monday, November 12 2012 11:31 PM">
+                                6 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>why not?</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:708797910">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-2" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">2</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-708797910">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+<li class="post
+    " id="post-744119967">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="37402966">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/3740/2966/avatar92.jpg?1356040824" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="37402966">chovysblog</a></span>
+                            
+                        
+
+                        
+                            <span><a href="#comment-708797910" class="parent-link" data-role="parent-link"><i aria-hidden="true" class="icon-forward" title="in reply to"></i> pavelnikolov</a></span>
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-744119967" data-role="relative-time" class="time-ago" title="Thursday, December 20 2012 5:00 PM">
+                                5 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>...oh boy...here we go again....</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:744119967">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-3" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">3</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-744119967">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li></ul></li></ul></li><li class="post
+    " id="post-735160779">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="35533356">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/3553/3356/avatar92.jpg?1351721174" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="35533356">pavelnikolov</a></span>
+                            
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-735160779" data-role="relative-time" class="time-ago" title="Thursday, December 13 2012 2:16 PM">
+                                5 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>I would use 503 status code 
+instead of 502 during maintenance. This would tell the client (nginx) 
+that the server (node process) is temporary unavailable.</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:735160779">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-1" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">1</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-735160779">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li><li class="post
+    " id="post-877771553">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar">
+                        <div class="user"><img data-src="http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&amp;size=92&amp;gravatar_id=c58c8abd3bb9458e3a298f4856dd96ed" class="user" alt="Avatar"></div>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="name">Tom</span>
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-877771553" data-role="relative-time" class="time-ago" title="Saturday, April 27 2013 7:03 AM">
+                                10 days ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>Pretty cool.  I wish you guys had a webapp so I could try it.</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:877771553">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-0" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-877771553">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li><li class="post
+    " id="post-830844132">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="2134914">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/213/4914/avatar92.jpg?1363407753" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="2134914">m heuberger</a></span>
+                            
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-830844132" data-role="relative-time" class="time-ago" title="Saturday, March 16 2013 12:22 AM">
+                                2 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>I doubt your code really works. 
+When a node process is about to exit, the main event loop won't accept 
+any new events, in your case the setTimeout. See <a href="http://nodejs.org/api/process.html#process_event_exit" rel="nofollow">http://nodejs.org/api/process....</a></p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:830844132">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-0" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-830844132">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+<li class="post
+    " id="post-831001218">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="17228311">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/1722/8311/avatar92.jpg?1363813294" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="17228311">Thomas Dimson</a></span>
+                            
+                        
+
+                        
+                            <span><a href="#comment-830844132" class="parent-link" data-role="parent-link"><i aria-hidden="true" class="icon-forward" title="in reply to"></i> m heuberger</a></span>
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-831001218" data-role="relative-time" class="time-ago" title="Saturday, March 16 2013 4:21 AM">
+                                2 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>While it is possible my code has bugs, I'm not listening to process exit events - I'm listing to SIGTERM.</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:831001218">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-0" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-831001218">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li></ul></li><li class="post
+    " id="post-666539089">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar">
+                        <div class="user"><img data-src="http://www.gravatar.com/avatar.php?default=http%3A%2F%2Fmediacdn.disqus.com%2F1367873877%2Fimages%2Fnoavatar92.png&amp;size=92&amp;gravatar_id=198a0d3f65ab4b364369d92d51850137" class="user" alt="Avatar"></div>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="name">aqarynet</span>
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-666539089" data-role="relative-time" class="time-ago" title="Saturday, September 29 2012 6:16 PM">
+                                7 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>GREAT ARTICLE,,,,,i really like d it</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:666539089">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-0" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-666539089">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li><li class="post
+    " id="post-658338728">
+
+    <div data-role="post-content" class="post-content ">
+        <div class="indicator"></div>
+
+        
+            
+
+                
+                    <div class="avatar hovercard">
+                        <a href="#" class="user" data-action="profile" data-user="32683547">
+                            <img data-src="http://mediacdn.disqus.com/uploads/users/3268/3547/avatar92.jpg?1348266773" alt="Avatar">
+                        </a>
+                    </div>
+                
+
+                <div class="post-body">
+                    <header>
+                        
+                            <span class="publisher-anchor-color"><a href="#" data-action="profile" data-user="32683547">daniel</a></span>
+                            
+                        
+
+                        
+
+                        <span class="bullet" aria-hidden="true">•</span>
+
+                        
+                            <a href="#comment-658338728" data-role="relative-time" class="time-ago" title="Friday, September 21 2012 6:32 PM">
+                                8 months ago
+                            </a>
+                        
+
+                        <ul class="post-menu">
+
+                            <li class="collapse"><a href="#" data-action="collapse" title="Collapse">−</a></li>
+                            <li class="expand" style="display:none"><a href="#" data-action="collapse" title="Expand">+</a></li>
+
+                            <li class="dropdown" data-role="menu" role="menu">
+                                
+    
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret"></b></a>
+        <ul class="dropdown-menu invisible">
+            
+                
+                <li><a href="#" data-action="flag">Flag as inappropriate</a></li>
+            
+        </ul>
+    
+
+                            </li>
+                        </ul>
+                    </header>
+
+                    <!-- Use message-container to manage visible height of the post message (including media) -->
+                    <div class="post-message-container" data-role="message-container">
+                        <!-- Use message-content to measure post content (including media) -->
+                        <div data-role="message-content">
+                            <div class="post-message publisher-anchor-color " data-role="message">
+                                
+                                    <p>Super nice!<br>I'll reuse the next stream part, I thought it was the default behavior for nginx's upstreams.</p>
+
+<p>What are you using for monitor/alerts/restart? I've installed a combination of upstart &amp; monit.<br>Good luck with the launch!</p>
+                                
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div class="message-shadow hidden" data-role="message-shadow"></div>
+                    <a href="#" class="more-button hidden" title="see more" data-action="post-expand">see more</a>
+
+                    <footer>
+                        
+    
+        <menu>
+            <li class="realtime" data-role="realtime-notification:658338728">
+                <span style="display:none;" class="realtime-replies"></span>
+                <a style="display:none;" href="#" class="btn small" data-action="load-queued-posts"></a>
+                 <!-- Realtime notification about new replies -->
+            </li>
+
+            <li class="voting" data-role="voting">
+                
+    <a href="#" class="vote-up  count-0" data-action="upvote" title="Vote up">
+        <span class="updatable count" data-role="likes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow-2"></i></span>
+    </a>
+    <a class="vote-down  count-0" title="Vote down">
+        <span class="updatable count" data-role="dislikes">0</span>
+        <span class="control"><i aria-hidden="true" class="icon-arrow"></i></span>
+        <span class="tooltip">You must sign in to down-vote this post.</span>
+    </a>
+
+            </li>
+            <li class="bullet" aria-hidden="true">•</li>
+
+            
+                
+
+                
+                    <li class="reply"><a href="#" data-action="reply">Reply</a></li>
+                    <li class="bullet" aria-hidden="true">•</li>
+                
+            
+
+            <li class="share">
+                <a class="toggle">Share ›</a>
+                <ul>
+                    <li class="twitter"><a href="#" data-action="share:twitter">Twitter</a></li>
+                    <li class="facebook"><a href="#" data-action="share:facebook">Facebook</a></li>
+                    <li class="link"><a href="#comment-658338728">Link</a></li>
+                </ul>
+            </li>
+        </menu>
+    
+
+                    </footer>
+                </div>
+
+             
+         
+
+        <div data-role="blacklist-form"></div>
+    </div>
+
+    <!-- Child comments are appended here -->
+    <ul data-role="children" class="children">
+
+</ul></li></ul>
+
+            <div class="load-more" data-role="more" style="display:none">
+                <a href="#" data-action="more-posts" class="btn">Load more comments</a>
+            </div>
+        </div>
+
+        
+            
+                
+    
+        <section id="reactions" style="display:none;" data-role="main">
+
+            <ul id="reaction-list" class="post-list loading">
+            </ul>
+
+            <div class="load-more" data-role="more" style="display:none">
+                <a href="#" data-action="more-reactions" class="btn">Load more reactions</a>
+            </div>
+        </section>
+    
+
+            
+        
+    </section>
+
+    <section id="community" style="display:none" data-role="main">
+<div>
+    <div class="primary">
+        <h3>Top Discussions on 
+    <strong>Arg! Team Blog</strong>
+</h3>
+        <div data-role="top-threads"><ol class="loading" id="top-threads"></ol></div>
+    </div>
+
+    <div class="secondary">
+        <h3>Top Commenters</h3>
+
+        <div data-role="top-users"><ol class="loading" id="top-users"></ol></div>
+    </div>
+</div>
+
+</section>
+
+    <section id="dashboard" style="display:none" data-role="main">
+        <!-- Dashboard goes here -->
+        <!-- Default message if there are no notifications or activity to show -->
+        <p style="line-height: 1.4">Nothing for you here ... yet. But as you comment with Disqus and follow
+        other Disqus users, you will start to receive notifications here, as well as a personalized
+        feed of activity by you and the people you follow. So get out there and participate in
+        some discussions!</p>
+    </section>
+
+    <section id="profile" style="display:none" data-role="main">
+    </section>
+
+    
+
+    <div id="discovery"></div>
+
+    <div id="footer">
+        <ul>
+            <li class="logo"><a href="http://disqus.com/" title="Powered by Disqus">Powered by Disqus</a></li>
+            <li class="rss"><a href="http://argteamblog.disqus.com/hardening_nodejs_for_production_part_3_zero_downtime_deployments_with_nginx/latest.rss"><i aria-hidden="true" class="icon-feed" title="in reply to"></i><span class="clip">Comment feed</span></a></li>
+            <li id="thread-subscribe-button" class="email"> <!-- Three options: nothing, show-form, subscribed -->
+                <div class="default">
+                    <a href="#" data-action="subscribe"><i aria-hidden="true" class="icon-mail" title="Get email updates"></i><span class="clip">Subscribe via email</span> <i aria-hidden="true" class="icon-checkmark" title="Subscribe via email"></i></a>
+                </div>
+                <div class="form">
+                    <div class="input-wrapper"><input id="thread-subscribe-email" placeholder="yourname@email.com" type="text"></div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div></body></html>

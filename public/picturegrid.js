@@ -250,10 +250,30 @@ var picturegrid = (function ($jq) {
     // Toggle to true to coerce an img width and height
     var setimgsize;
 
+    // Image ready function
+    var imgready=null;
+
     // Create element wrapper
     var dc = function(a)
     {
         return document.createElement(a);
+    }
+
+    // Call image-ready function if provided
+    function imageready(image, callback, tag) {
+
+        // Invoke callback immediately if there's no imgready function is registered
+        if(!imgready) {
+
+            callback();
+            return;
+
+        }
+
+        // Otherwise call passed in function
+        imgready(image, callback, tag);
+
+
     }
 
     // Return the number of meals per grid
@@ -1418,7 +1438,8 @@ var picturegrid = (function ($jq) {
                                 // If there's a callback, invoke it now
                                 if(loadcb) {
                                     var image = $(gridpic).find('.gridimage');
-                                    loadcb(gridpic);
+                                    imageready(image, function() { loadcb(gridpic); });
+                                    //loadcb(gridpic);
                                 }
 
                             });
@@ -1478,7 +1499,9 @@ var picturegrid = (function ($jq) {
             // Invoke 'pic-is-loaded' callback
             if(loadcb) {
                 var image = $(gridpic).find('.gridimage');
-                loadcb(gridpic);
+
+                imageready(image, function() { loadcb(griddiv); }, 'picdivinternal');
+                //loadcb(gridpic);
                 /*
                 image.on('load.picdivinternal', function() {
                     image.off('load.picdivinternal');
@@ -2614,6 +2637,9 @@ var picturegrid = (function ($jq) {
 
         // If there are no thumbs, the server will send the full sized image.  
         setimgsize = cfg.hp("setimgsize") ? cfg.setimgsize : true;
+
+        // Use passed-in image ready function
+        imgready = cfg.hp("imageready") ? cfg.imageready : null;
 
         // Set the easing function in jQuery
         if(!$.easing[grideasing]) {

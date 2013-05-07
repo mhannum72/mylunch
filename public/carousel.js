@@ -4,8 +4,28 @@ var picturecarousel = (function ($jq) {
     // Cache jquery
     var $ = $jq;
 
+    var imgready = null;
+
+    function imageready(image, callback, tag) {
+
+        // Invoke callback immediately if there's no imgready function is registered
+        if(!imgready) {
+
+            callback();
+            return;
+
+        }
+
+        // Otherwise call passed in function
+        imgready(image, callback, tag);
+    }
+
+
     function create(username, sourcedir, picinfo, findpicix, keytimestamp, 
-        adjustfadecb, maxpics) {
+        adjustfadecb, maxpics, iready) {
+
+        // Grab image ready function
+        imgready = iready;
 
         // Create element wrapper
         var dc = function(a)
@@ -948,11 +968,14 @@ var picturecarousel = (function ($jq) {
     
                 // Wait for image to load
                 var $img = $dv.find('img');
-                $img.on('load.rotate', function(e) {
-                    $img.off('load.rotate');
+
+                imageready($img, function() {
+
                     if(adjustfadecb) adjustfadecb();
                     rotatetopicture(pinfo.timestamp);
-                });
+
+                }, "rotate");
+
             }
             else {
     
@@ -1354,14 +1377,11 @@ var picturecarousel = (function ($jq) {
             var $img = $dv.find('img');
     
             // Find the first and only picture
-            $img.on('load.first', function() {
-    
-                // Cancel event trigger
-                $img.off('load.first');
-    
-                // It's loaded, so callback
+            imageready($img, function() {
+
                 callback($dv.length);
-            });
+
+            }, "first");
                 
             // Add this picture
             var ii = elm.startindex;

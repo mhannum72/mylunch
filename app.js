@@ -43,6 +43,13 @@ var im = require('imagemagick');
 // Maximum pictures per meal
 var defaultMaxPicsPerMeal = 128;
 
+// Pause artificially before returning pictures 
+var clientpiclatencytest = true;
+var clientpiclatencyms = 5000;
+
+// Print a message for returning pictures
+var clientpictrace = true;
+
 // Scale variables
 var maxMealWidth = 780;
 var maxMealHeight = 780;
@@ -1493,6 +1500,23 @@ getMealPicFromMongoInt = function(userid, timestamp, fname_f, rkey_f, callback) 
         // Declare results
         var results = null;
 
+        // Call callback wrapper
+        function invokecallback(err, results) {
+
+            // Callback immediately on error
+            if(err || !clientpiclatencytest) {
+                callback(err, results);
+                return;
+            }
+
+            // Set a timeout here
+            setTimeout( 
+                    function() { 
+                        // wrlog(log, "Writing userid " + userid + " ts " + timestamp + " latency " + clientpiclatencyms, true);
+                        callback(err, results); 
+                    }, clientpiclatencyms );
+        }
+
         // Unified complete function
         function getmealpiccb( err, res, rep) {
 
@@ -1518,13 +1542,13 @@ getMealPicFromMongoInt = function(userid, timestamp, fname_f, rkey_f, callback) 
                 // Sanity check mongo 
                 if(results.length > 1) {
                     var err = new Error(results.length + ' pics in Mongo for ' + userid + ' timestamp ' + timestamp);
-                    callback(err);
+                    invokecallback(err);
                     return;
                 }
 
                 // No records
                 if(!results || results.length <= 0) {
-                    callback(err);
+                    invokecallback(err);
                     return;
                 }
 
@@ -1535,7 +1559,7 @@ getMealPicFromMongoInt = function(userid, timestamp, fname_f, rkey_f, callback) 
                     results[0].image = reply;
 
                     // Invoke callback
-                    callback(err, results[0]);
+                    invokecallback(err, results[0]);
 
                 }
 
@@ -1560,7 +1584,7 @@ getMealPicFromMongoInt = function(userid, timestamp, fname_f, rkey_f, callback) 
                         });
 
                         // Invoke callback
-                        callback( null, results[0] );
+                        invokecallback( null, results[0] );
 
                     });
                 }
@@ -1788,6 +1812,12 @@ function showMealPicture( req, res, userid, timestamp ) {
         }
         // Display the image if we got it
         if(mealpic.published || mealpic.userid == req.session.user.userid) {
+
+            if(clientpictrace) {
+                wrlog(log, "Send mealpic for mealuserid " + mealpic.userid + " timestamp " + 
+                    timestamp + " to userid " + userid, true);
+            }
+
             res.contentType(mealpic.imageType);
             res.end(mealpic.image, 'binary');
         } 
@@ -1918,6 +1948,12 @@ app.get('/icon/:userid/:timestamp', function(req, res) {
         }
 
         if(mealicon.published || mealicon.userid == userid) {
+
+            if(clientpictrace) {
+                wrlog(log, "Send mealicon for mealuserid " + mealicon.userid + " timestamp " + 
+                    timestamp + " to userid " + userid, true);
+            }
+
             res.contentType(mealicon.imageType);
             res.end(mealicon.image, 'binary');
             return;
@@ -1954,9 +1990,14 @@ app.get('/thumbs/:userid/:timestamp', function(req, res) {
         }
 
         // Display the image if we got it
-        if(mealthumb.published || mealthumb.userid == userid) { res.contentType(mealthumb.imageType);
-              res.end(mealthumb.image, 'binary');
-              return ;
+        if(mealthumb.published || mealthumb.userid == userid) { 
+            if(clientpictrace) {
+                wrlog(log, "Send mealthumb for mealuserid " + mealthumb.userid + " timestamp " + 
+                    timestamp + " to userid " + userid, true);
+            }
+            res.contentType(mealthumb.imageType);
+            res.end(mealthumb.image, 'binary');
+            return ;
         } 
         // This user isn't privledged to see this
         else {
