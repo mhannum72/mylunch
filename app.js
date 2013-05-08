@@ -48,7 +48,7 @@ var clientpiclatencytest = true;
 var clientpiclatencyms = 5000;
 
 // Print a message for returning pictures
-var clientpictrace = true;
+var clientpictrace = false;
 
 // Scale variables
 var maxMealWidth = 780;

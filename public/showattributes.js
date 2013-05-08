@@ -127,6 +127,9 @@ showattributes = (function($jq) {
     // Maximum pictures per meal
     var maxpicspermeal;
 
+    // Precache carousel images before creating
+    var precache;
+
     // Our 'image-is-ready' function passed through to the carousel
     var imgready = null;
 
@@ -1324,13 +1327,41 @@ showattributes = (function($jq) {
 
         return grid_date;
     }
-    
+
+    // Precache all of the pictures in this array
+    function precache_all(picinfo, callback) {
+
+        var div = $(dc('div'));
+        var cnt = 0;
+
+        // Append to the hidden frame
+        div.appendTo(hiddenframe);
+
+        // Callback for precache 
+        function pcachecb() {
+            if(++cnt == picinfo.length) {
+                callback();
+            }
+        }
+
+        // Create an image div for each
+        for(var ii = 0 ; ii < picinfo.length ; ii++) {
+
+            var img_source = '/' + 'pics' + '/' + username + '/' + picinfo[ii].timestamp;
+            var img = $(dc('img'))
+                .attr('src', img_source);
+
+            img.appendTo(div);
+            imageready(img, pcachecb, ".showaprecache");
+        }
+    }
+
     // Meal attributes / edit modal
-    function showattributesmealinfo(username, meal, restaurant, restaurantId) {
+    function showattributesmealinfo_int(username, meal, restaurant, restaurantId) {
     
         var username = meal.userid;
         var timestamp = meal.timestamp;
-    
+
         // Create the popup div
         popup = $(dc('div'))
             .attr('id', 'mealAttributes')
@@ -2013,6 +2044,28 @@ showattributes = (function($jq) {
         });
     }
 
+    function showattributesmealinfo(username, meal, restaurant, restaurantId) {
+
+        // Precache callback
+        function cb() {
+            showattributesmealinfo(username, meal, restaurant, restaurantId);
+        }
+
+        // Add precache logic
+        if(precache) {
+            if("all" == precache) {
+                precache_all(meal.picInfo, cb);
+            }
+            else if("key" == precache) {
+                precache_key(meal.picInfo, meal.keytimestamp, cb);
+            }
+        }
+        else {
+            showattributesmealinfo_int(username, meal, restaurant, restaurantId);
+        }
+
+    }
+
     // Getter for the showattributes gridobject
     function getgridobj() {
 
@@ -2157,6 +2210,27 @@ showattributes = (function($jq) {
         // Popup button width
         popupbuttonwidth = cfg.hp("popupbuttonwidth") ? 
             cfg.popupbuttonwidth : 100;
+
+        // Precache functionality
+        precache = "key";
+        if(cfg.hp("precache")) {
+            switch(cfg.precache)
+            {
+                case "key":
+                case "all":
+                case false:
+                    precache = cfg.precache;
+                    break;
+
+                case true:
+                    precache = "all";
+                    break;
+
+                default:
+                    console.log("Invalid precache setting:" + cfg.precache);
+                    break;
+            }
+        }
 
         // Button margins
         buttonmargin = cfg.hp("buttonmargin") ? 
