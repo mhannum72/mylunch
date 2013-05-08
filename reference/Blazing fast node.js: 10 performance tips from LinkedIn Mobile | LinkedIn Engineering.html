@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html class="js" dir="ltr" xmlns:og="http://opengraphprotocol.org/schema/" lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+<meta about="/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile" property="sioc:num_replies" content="43" datatype="xsd:integer">
+<link rel="shortcut icon" href="http://engineering.linkedin.com/favicon.ico" type="image/vnd.microsoft.icon">
+<meta content="Blazing fast node.js: 10 performance tips from LinkedIn Mobile" about="/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile" property="dc:title">
+<meta name="google-site-verification" content="ZMXb0n5g5qH5ZrFk_z5ix-IpH5cF65l8KG76p4ZTg5g">
+<link rel="canonical" href="http://engineering.linkedin.com/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile">
+<link rel="shortlink" href="http://engineering.linkedin.com/node/69">
+        <meta property="og:title" content="Blazing fast node.js: 10 performance tips from LinkedIn Mobile | LinkedIn Engineering ">
+    <meta property="og:url" content="http://engineering.linkedin.com/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="http://it.talent2.linkedinlabs.com/sites/all/themes/linkedin/images/logo.png">
+    <meta property="og:description" content="We're seeking intelligent problem solvers who are inspired and motivated to change the world.">
+    <title>Blazing fast node.js: 10 performance tips from LinkedIn Mobile | LinkedIn Engineering</title>
+    <style type="text/css" media="all">@import url("http://engineering.linkedin.com/modules/system/system.base.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/system/system.menus.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/system/system.messages.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/system/system.theme.css?mi4s9c");</style>
+<style type="text/css" media="all">@import url("http://engineering.linkedin.com/modules/aggregator/aggregator.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/comment/comment.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/field/theme/field.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/node/node.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/search/search.css?mi4s9c");
+@import url("http://engineering.linkedin.com/modules/user/user.css?mi4s9c");</style>
+<style type="text/css" media="all">@import url("http://engineering.linkedin.com/sites/all/themes/linkedin/css/reset-min.css?mi4s9c");
+@import url("http://engineering.linkedin.com/sites/all/themes/linkedin/css/engineering.css?mi4s9c");
+@import url("http://engineering.linkedin.com/sites/all/themes/linkedin/css/forms.css?mi4s9c");
+@import url("http://engineering.linkedin.com/sites/all/themes/linkedin/css/nuevo.css?mi4s9c");</style>
+<style type="text/css" media="screen and (max-device-width: 480px)">@import url("http://engineering.linkedin.com/sites/all/themes/linkedin/css/smartphone.css?mi4s9c");</style>
+
+<!--[if lte IE 7]>
+<link type="text/css" rel="stylesheet" href="http://engineering.linkedin.com/sites/all/themes/linkedin/css/ie.css?mi4s9c" media="all" />
+<![endif]-->
+
+<!--[if IE 7]>
+<link type="text/css" rel="stylesheet" href="http://engineering.linkedin.com/sites/all/themes/linkedin/css/ie7.css?mi4s9c" media="all" />
+<![endif]-->
+
+<!--[if IE 8]>
+<link type="text/css" rel="stylesheet" href="http://engineering.linkedin.com/sites/all/themes/linkedin/css/ie8.css?mi4s9c" media="all" />
+<![endif]-->
+
+<!--[if IE 6]>
+<link type="text/css" rel="stylesheet" href="http://engineering.linkedin.com/sites/all/themes/linkedin/css/ie6.css?mi4s9c" media="all" />
+<![endif]-->
+    <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/ga.js" async="" type="text/javascript"></script><script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/jquery_002.js"></script>
+<script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/jquery.js"></script>
+<script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/drupal.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"linkedin","theme_token":"VXKxpJW3BIRqFaurW0bZf6wMcgc4ejyB_YfepnmlLn0","js":{"sites\/all\/themes\/linkedin\/js\/location-selector.js":1,"sites\/all\/themes\/linkedin\/js\/external-links.js":1,"sites\/all\/themes\/linkedin\/js\/image-border-radius.js":1,"misc\/jquery.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"modules\/aggregator\/aggregator.css":1,"modules\/comment\/comment.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"modules\/search\/search.css":1,"modules\/user\/user.css":1,"sites\/all\/themes\/linkedin\/css\/reset-min.css":1,"sites\/all\/themes\/linkedin\/css\/engineering.css":1,"sites\/all\/themes\/linkedin\/css\/forms.css":1,"sites\/all\/themes\/linkedin\/css\/nuevo.css":1,"sites\/all\/themes\/linkedin\/css\/smartphone.css":1,"sites\/all\/themes\/linkedin\/css\/ie.css":1,"sites\/all\/themes\/linkedin\/css\/ie7.css":1,"sites\/all\/themes\/linkedin\/css\/ie8.css":1,"sites\/all\/themes\/linkedin\/css\/ie6.css":1}},"fp":"\/"});
+//--><!]]>
+</script>
+        <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/nonSecureAnonymousFramework"></script><style type="text/css">* html #li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link{height:1% !important;}#li_ui_li_gen_1368051520227_0{position:relative !important;overflow:visible !important;display:block !important;}#li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link{border:0 !important;height:20px !important;text-decoration:none !important;padding:0 !important;margin:0 !important;display:inline-block !important;}#li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link:link, #li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link:visited, #li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link:hover, #li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link:active{border:0 !important;text-decoration:none !important;}#li_ui_li_gen_1368051520227_0 a#li_ui_li_gen_1368051520227_0-link:after{content:"." !important;display:block !important;clear:both !important;visibility:hidden !important;line-height:0 !important;height:0 !important;}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-logo{background:url(http://static.licdn.com/scds/common/u/img/sprite/sprite_connect_v13.png) 0px -276px no-repeat !important;cursor:pointer !important;border:0 !important;text-indent:-9999em !important;overflow:hidden !important;padding:0 !important;margin:0 !important;position:absolute !important;left:0px !important;top:0px !important;display:block !important;width:20px !important;height:20px !important;float:right !important;}#li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-logo{background-position:-20px -276px !important;}#li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-logo, #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-logo{background-position:-40px -276px !important;}.IN-shadowed #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-logo{}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title{color:#333 !important;cursor:pointer !important;display:block !important;white-space:nowrap !important;float:left !important;margin-left:1px !important;vertical-align:top !important;overflow:hidden !important;text-align:center !important;height:18px !important;padding:0 4px 0 23px !important;border:1px solid #000 !important;border-top-color:#E2E2E2 !important;border-right-color:#BFBFBF !important;border-bottom-color:#B9B9B9 !important;border-left-color:#E2E2E2 !important;border-left:0 !important;text-shadow:#FFFFFF -1px 1px 0 !important;line-height:20px !important;border-radius:0 !important;-moz-border-radius:0 !important;border-top-right-radius:2px !important;border-bottom-right-radius:2px !important;-moz-border-radius-topright:2px !important;-moz-border-radius-bottomright:2px !important;background-color:#ECECEC !important;background-image:-moz-linear-gradient(top, #FEFEFE 0%, #ECECEC 100%) !important;}#li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title{border:1px solid #000 !important;border-top-color:#ABABAB !important;border-right-color:#9A9A9A !important;border-bottom-color:#787878 !important;border-left-color:#04568B !important;border-left:0 !important;background-color:#EDEDED !important;background-image:-moz-linear-gradient(top, #EDEDED 0%, #DEDEDE 100%) !important;}#li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title, #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title{color:#666 !important;border:1px solid #000 !important;border-top-color:#B6B6B6 !important;border-right-color:#B3B3B3 !important;border-bottom-color:#9D9D9D !important;border-left-color:#49627B !important;border-left:0 !important;background-color:#DEDEDE !important;background-image:-moz-linear-gradient(top, #E3E3E3 0%, #EDEDED 100%) !important;}.IN-shadowed #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title{}.IN-shadowed #li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title{}.IN-shadowed #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title, .IN-shadowed #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title{}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text, #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text *{color:#333 !important;font-size:11px !important;font-family:Arial, sans-serif !important;font-weight:bold !important;font-style:normal !important;display:inline-block !important;background:transparent none !important;vertical-align:baseline !important;height:18px !important;line-height:20px !important;float:none !important;}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text strong{font-weight:bold !important;}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text em{font-style:italic !important;}#li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title-text, #li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title-text *{color:#000 !important;}#li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title-text, #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title-text, #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title-text *, #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title-text *{color:#666 !important;}#li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title #li_ui_li_gen_1368051520227_0-mark{display:inline-block !important;width:0px !important;overflow:hidden !important;}.success #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title{color:#333 !important;border-top-color:#E2E2E2 !important;border-right-color:#BFBFBF !important;border-bottom-color:#B9B9B9 !important;border-left-color:#E2E2E2 !important;background-color:#ECECEC !important;background-image:-moz-linear-gradient(top, #FEFEFE 0%, #ECECEC 100%) !important;}.success #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text, .success #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title-text *{color:#333 !important;}.IN-shadowed .success #li_ui_li_gen_1368051520227_0 #li_ui_li_gen_1368051520227_0-title{}.success #li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title{color:#000 !important;border-top-color:#ABABAB !important;border-right-color:#9A9A9A !important;border-bottom-color:#787878 !important;border-left-color:#04568B !important;background-color:#EDEDED !important;background-image:-moz-linear-gradient(top, #EDEDED 0%, #DEDEDE 100%) !important;}.success #li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title-text, .success #li_ui_li_gen_1368051520227_0.hovered #li_ui_li_gen_1368051520227_0-title-text *{color:#000 !important;}.success #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title, .success #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title{color:#666 !important;border-top-color:#B6B6B6 !important;border-right-color:#B3B3B3 !important;border-bottom-color:#9D9D9D !important;border-left-color:#49627B !important;background-color:#DEDEDE !important;background-image:-moz-linear-gradient(top, #E3E3E3 0%, #EDEDED 100%) !important;}.success #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title-text, .success #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title-text, .success #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title-text *, .success #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title-text *{color:#666 !important;}.IN-shadowed .success #li_ui_li_gen_1368051520227_0.clicked #li_ui_li_gen_1368051520227_0-title, .IN-shadowed .success #li_ui_li_gen_1368051520227_0.down #li_ui_li_gen_1368051520227_0-title{}#li_ui_li_gen_1368051520247_1-container.IN-top {display:inline-block !important;overflow:visible !important;position:relative !important;height:42px !important;line-height:1px !important;cursor:pointer !important;}#li_ui_li_gen_1368051520247_1.IN-top {display:inline-block !important;height:42px !important;width:57px !important;text-align:center !important;background:url(http://static.licdn.com/scds/common/u/img/sprite/sprite_connect_v13.png) -150px top no-repeat !important;}#li_ui_li_gen_1368051520247_1-content.IN-top {display:inline !important;font-size:16px !important;color:#04558B !important;font-weight:bold !important;font-family:Arial, sans-serif !important;line-height:34px !important;}#li_ui_li_gen_1368051520247_1-container.IN-hovered #li_ui_li_gen_1368051520247_1.IN-top, #li_ui_li_gen_1368051520247_1-container.IN-clicked #li_ui_li_gen_1368051520247_1.IN-top, #li_ui_li_gen_1368051520247_1-container.IN-down #li_ui_li_gen_1368051520247_1.IN-top {background-position-x:-210px !important;}#li_ui_li_gen_1368051520247_1-container.IN-empty #li_ui_li_gen_1368051520247_1-inner.IN-top {background:url(http://static.licdn.com/scds/common/u/img/sprite/sprite_connect_v13.png) 0px -20px no-repeat !important;overflow:hidden !important;margin:5px auto 0 auto !important;width:26px !important;height:26px !important;display:block !important;}#li_ui_li_gen_1368051520247_1-container.IN-empty #li_ui_li_gen_1368051520247_1-content.IN-top {text-indent:-999px !important;display:inline-block !important;}#li_ui_li_gen_1368051520247_1-container.IN-hidden #li_ui_li_gen_1368051520247_1 {display:none !important;}</style><style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}
+.fb_invisible{display:none}
+.fb_reset{background:none;border-spacing:0;border:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}
+.fb_link img{border:none}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}
+.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}
+.fb_dialog_content{background:#fff;color:#333}
+.fb_dialog_close_icon{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px;top:8px\9;right:7px\9}
+.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}
+.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}
+.fb_dialog_close_icon:hover{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}
+.fb_dialog_close_icon:active{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}
+.fb_dialog_loader{background-color:#f2f2f2;border:1px solid #606060;font-size:24px;padding:20px}
+.fb_dialog_top_left,
+.fb_dialog_top_right,
+.fb_dialog_bottom_left,
+.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}
+/* @noflip */
+.fb_dialog_top_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}
+/* @noflip */
+.fb_dialog_top_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}
+/* @noflip */
+.fb_dialog_bottom_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}
+/* @noflip */
+.fb_dialog_bottom_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}
+.fb_dialog_vert_left,
+.fb_dialog_vert_right,
+.fb_dialog_horiz_top,
+.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}
+.fb_dialog_vert_left,
+.fb_dialog_vert_right{width:10px;height:100%}
+.fb_dialog_vert_left{margin-left:-10px}
+.fb_dialog_vert_right{right:0;margin-right:-10px}
+.fb_dialog_horiz_top,
+.fb_dialog_horiz_bottom{width:100%;height:10px}
+.fb_dialog_horiz_top{margin-top:-10px}
+.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}
+.fb_dialog_iframe{line-height:0}
+.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #3b5998;color:#fff;font-size:14px;font-weight:bold;margin:0}
+.fb_dialog_content .dialog_title > span{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yd/r/Cou7n-nqK52.gif)
+no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}
+body.fb_hidden{-webkit-transform:none;height:100%;margin:0;left:-10000px;overflow:visible;position:absolute;top:-10000px;width:100%
+}
+.fb_dialog.fb_dialog_mobile.loading{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ya/r/3rhSv5V8j3o.gif)
+white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}
+.fb_dialog.fb_dialog_mobile.loading.centered{max-height:590px;min-height:590px;max-width:500px;min-width:500px}
+#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;left:0;top:0;width:100%;min-height:100%;z-index:10000}
+#fb-root #fb_dialog_ipad_overlay.hidden{display:none}
+.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}
+.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0 0, 0 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}
+.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%
+}
+.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px
+}
+.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px
+}
+.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0 0, 0 100%, from(#4966A6),
+color-stop(0.5, #355492), to(#2A4887));border:1px solid #29447e;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset,
+rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}
+.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}
+.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}
+.fb_dialog_content .dialog_content{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}
+.fb_dialog_content .dialog_footer{background:#f2f2f2;border:1px solid #555;border-top-color:#ccc;height:40px}
+#fb_dialog_loader_close{float:left}
+.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}
+.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}
+.fb_iframe_widget{display:inline-block;position:relative}
+.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}
+.fb_iframe_widget iframe{position:absolute}
+.fb_iframe_widget_lift{z-index:1}
+.fb_hide_iframes iframe{position:relative;left:-10000px}
+.fb_iframe_widget_loader{position:relative;display:inline-block}
+.fb_iframe_widget_fluid{display:inline}
+.fb_iframe_widget_fluid span{width:100%}
+.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}
+.fb_iframe_widget_loader .FB_Loader{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}
+.fb_connect_bar_container div,
+.fb_connect_bar_container span,
+.fb_connect_bar_container a,
+.fb_connect_bar_container img,
+.fb_connect_bar_container strong{background:none;border-spacing:0;border:0;direction:ltr;font-style:normal;font-variant:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal;vertical-align:baseline}
+.fb_connect_bar_container{position:fixed;left:0 !important;right:0 !important;height:42px !important;padding:0 25px !important;margin:0 !important;vertical-align:middle !important;border-bottom:1px solid #333 !important;background:#3b5998 !important;z-index:99999999 !important;overflow:hidden !important}
+.fb_connect_bar_container_ie6{position:absolute;top:expression(document.compatMode=="CSS1Compat"? document.documentElement.scrollTop+"px":body.scrollTop+"px")}
+.fb_connect_bar{position:relative;margin:auto;height:100%;width:100%;padding:6px 0 0 0 !important;background:none;color:#fff !important;font-family:"lucida grande", tahoma, verdana, arial, sans-serif !important;font-size:13px !important;font-style:normal !important;font-variant:normal !important;font-weight:normal !important;letter-spacing:normal !important;line-height:1 !important;text-decoration:none !important;text-indent:0 !important;text-shadow:none !important;text-transform:none !important;white-space:normal !important;word-spacing:normal !important}
+.fb_connect_bar a:hover{color:#fff}
+.fb_connect_bar .fb_profile img{height:30px;width:30px;vertical-align:middle;margin:0 6px 5px 0}
+.fb_connect_bar div a,
+.fb_connect_bar span,
+.fb_connect_bar span a{color:#bac6da;font-size:11px;text-decoration:none}
+.fb_connect_bar .fb_buttons{float:right;margin-top:7px}
+.fb_edge_widget_with_comment{position:relative;*z-index:1000}
+.fb_edge_widget_with_comment span.fb_edge_comment_widget{position:absolute}
+.fb_edge_widget_with_comment span.fb_send_button_form_widget{z-index:1}
+.fb_edge_widget_with_comment span.fb_send_button_form_widget .FB_Loader{left:0;top:1px;margin-top:6px;margin-left:0;background-position:50% 50%;background-color:#fff;height:150px;width:394px;border:1px #666 solid;border-bottom:2px solid #283e6c;z-index:1}
+.fb_edge_widget_with_comment span.fb_send_button_form_widget.dark .FB_Loader{background-color:#000;border-bottom:2px solid #ccc}
+.fb_edge_widget_with_comment span.fb_send_button_form_widget.siderender
+.FB_Loader{margin-top:0}
+.fbpluginrecommendationsbarleft,
+.fbpluginrecommendationsbarright{position:fixed !important;bottom:0;z-index:999}
+/* @noflip */
+.fbpluginrecommendationsbarleft{left:10px}
+/* @noflip */
+.fbpluginrecommendationsbarright{right:10px}</style></head>
+  <body data-twttr-rendered="true" class="html not-front not-logged-in one-sidebar sidebar-second page-node page-node- page-node-69 node-type-article ff ff20 linux desktop">
+    <div id="skip-link">
+      <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+    </div>
+        <div class="reset">
+  <header id="header" class="global-nav" role="banner">
+
+          <a id="logo" href="http://engineering.linkedin.com/" title="Home" rel="home">
+        <img src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/logo.png" alt="LinkedIn">
+        Engineering      </a>
+    
+      <div class="region region-header">
+    <section id="block-block-25" class="block block-block">
+
+      
+  <div>
+    <div id="header-twitter" style="width: 150px; position: absolute; right: 15px; top: 10px;">
+<iframe data-twttr-rendered="true" title="Twitter Follow Button" style="width: 141px; height: 20px;" class="twitter-follow-button twitter-follow-button" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/follow_button.html" allowtransparency="true" frameborder="0" scrolling="no"></iframe>
+<script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/widgets.js" type="text/javascript"></script>
+</div>  </div>
+
+</section>
+  </div>
+
+    <div class="util">
+      <div class="wrapper">
+        <ul class="menu"><li class="first last leaf"><a target="_blank" href="http://linkedin.com/" title="">LinkedIn.com</a></li>
+</ul>              </div>
+    </div>
+  
+    <div class="bar">
+      <div class="wrapper">
+        <ul class="menu"><li class="first leaf"><a href="http://engineering.linkedin.com/">Home</a></li>
+<li class="leaf"><a href="http://engineering.linkedin.com/projects">Projects</a></li>
+<li class="leaf"><a href="http://engineering.linkedin.com/technology" title="">Technology</a></li>
+<li class="leaf"><a href="http://engineering.linkedin.com/team">Team</a></li>
+<li class="leaf"><a href="http://engineering.linkedin.com/blog" title="">Blog</a></li>
+<li class="leaf"><a target="_blank" href="http://www.linkedinlabs.com/" title="">Linkedin Labs</a></li>
+<li class="leaf"><a target="_blank" href="http://www.linkedin.com/techtalks" title="">Tech Talks</a></li>
+<li class="last leaf"><a target="_blank" href="http://www.linkedin.com/company/linkedin/jobs" title="">Jobs</a></li>
+</ul>      </div>
+    </div>
+  </header>
+</div>
+<div id="body" class="with-sidebar">
+  <div class="wrapper">
+    <div id="main">
+          
+                      
+      
+      <div id="content-article" class="page-main">
+                
+          <div class="region region-content">
+    <section id="block-system-main" class="block block-system">
+
+      
+  <div>
+    <article id="article-69" class="node node-article en clearfix" role="article" about="/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile" typeof="sioc:Item foaf:Document">
+    
+    <section>
+
+  
+    <div class="content article-content">
+      <h1 id="page-title" class="article-title">Blazing fast node.js: 10 performance tips from LinkedIn Mobile</h1>      <div class="article-info">
+        <div class="user-info">
+          <div class="avatar-wrapper">
+            <a target="_blank" href="http://www.linkedin.com/in/shravs" class="avatar">
+              <img src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/3ba4084.jpg" height="100" width="100">
+            </a>
+          </div>
+          <div class="user-details">
+            <p><a target="_blank" class="username" href="http://www.linkedin.com/in/shravs">Shravya Garlapati</a></p>
+            <p>Software Engineer</p>
+            <p>LinkedIn since 10.10</p>
+          </div>
+          <div class="clear"></div>
+        </div>
+        <div class="share-buttons">
+          <ul class="share-buttons">
+  <li class="linkedin">
+		<span class="IN-widget" style="line-height: 1; vertical-align: baseline; display: inline-block; text-align: center;"><span style="padding: 0px ! important; margin: 0px ! important; text-indent: 0px ! important; display: inline-block ! important; vertical-align: baseline ! important; font-size: 1px ! important;"><span id="li_ui_li_gen_1368051520247_1-container" class="IN-top"><span id="li_ui_li_gen_1368051520247_1" class="IN-top"><span id="li_ui_li_gen_1368051520247_1-inner" class="IN-top"><span id="li_ui_li_gen_1368051520247_1-content" class="IN-top">275</span></span></span></span></span><br><span style="padding: 0px ! important; margin: 0px ! important; text-indent: 0px ! important; display: inline-block ! important; vertical-align: baseline ! important; font-size: 1px ! important;"><span id="li_ui_li_gen_1368051520227_0"><a id="li_ui_li_gen_1368051520227_0-link" href="javascript:void(0);"><span id="li_ui_li_gen_1368051520227_0-logo">in</span><span id="li_ui_li_gen_1368051520227_0-title"><span id="li_ui_li_gen_1368051520227_0-mark"></span><span id="li_ui_li_gen_1368051520227_0-title-text">Share</span></span></a></span></span></span><script type="IN/Share+init" data-url="" data-counter="top"></script>
+    <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/in.js" type="text/javascript"></script>
+	</li>
+	<li class="twitter">
+		<iframe data-twttr-rendered="true" title="Twitter Tweet Button" style="width: 55px; height: 62px;" class="twitter-share-button twitter-count-vertical" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/tweet_button.html" allowtransparency="true" frameborder="0" scrolling="no"></iframe>
+		<script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/widgets.js"></script>
+	</li>
+	<li class="facebook">
+    <div class=" fb_reset" id="fb-root"><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/xd_arbiter.html" style="border: medium none;" tab-index="-1" title="Facebook Cross Domain Communication Frame" aria-hidden="true" id="fb_xdm_frame_http" allowtransparency="true" name="fb_xdm_frame_http" frameborder="0" scrolling="no"></iframe><iframe src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/xd_arbiter_002.html" style="border: medium none;" tab-index="-1" title="Facebook Cross Domain Communication Frame" aria-hidden="true" id="fb_xdm_frame_https" allowtransparency="true" name="fb_xdm_frame_https" frameborder="0" scrolling="no"></iframe></div></div><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div></div></div></div>
+    <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/all.js"></script>
+    <fb:like class="fb_edge_widget_with_comment fb_iframe_widget" fb-xfbml-state="rendered" href="" send="false" layout="box_count" width="55" show_faces="false" action="like" font=""><span style="height: 62px; width: 46px;"><iframe src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/like.html" class="fb_ltr" title="Like this content on Facebook." style="border: medium none; overflow: hidden; height: 62px; width: 46px;" name="fca22bc478ed78" id="f3a84ab3c2fbb0c" scrolling="no"></iframe></span></fb:like>
+  </li>
+</ul>
+         </div>
+      </div>
+      <div>
+        <style type="text/css">
+  .centered { text-align: center; }
+  .code { background-color: #fff; border: 1px solid #DEDEDE; padding: 2px 5px; }
+  .gist { margin-bottom: 25px; }
+</style>
+<div class="post">
+<p>
+  In a <a href="http://engineering.linkedin.com/testing/continuous-integration-mobile">previous post</a>, we discussed how we test LinkedIn's mobile stack, including our <a target="_blank" href="http://nodejs.org/">Node.js</a> mobile server. Today, we’ll tell you how we make this mobile server <i>fast</i>. Here are our top 10 performance takeaways for working with Node.js:
+</p>
+<a name="synchronous"></a>
+<h2>1. Avoid synchronous code</h2>
+<p>
+  By design, Node.js is single threaded. To allow a single thread to 
+handle many concurrent requests, you can never allow the thread to wait 
+on a blocking, synchronous, or long running operation. A distinguishing 
+feature of Node.js is that it was designed and implemented from top to 
+bottom to be asynchronous. This makes it an excellent fit for evented 
+applications. 
+</p>
+<p>
+  Unfortunately, it <i>is</i> still possible to make 
+synchronous/blocking calls. For example, many file system operations 
+have both asynchronous and synchronous versions, such as <a target="_blank" href="http://nodejs.org/docs/v0.6.3/api/fs.html#fs.writeFile">writeFile</a> and <a target="_blank" href="http://nodejs.org/docs/v0.6.3/api/fs.html#fs.writeFileSync">writeFileSync</a>.
+ Even if you avoid synchronous methods in your own code, it's still 
+possible to inadvertently use an external library that has a blocking 
+call. When you do, the impact on performance is <i>dramatic</i>. 
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_002.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-synchronous-js-L1" rel="file-synchronous-js-L1">1</span>
+          <span class="line-number" id="file-synchronous-js-L2" rel="file-synchronous-js-L2">2</span>
+          <span class="line-number" id="file-synchronous-js-L3" rel="file-synchronous-js-L3">3</span>
+          <span class="line-number" id="file-synchronous-js-L4" rel="file-synchronous-js-L4">4</span>
+          <span class="line-number" id="file-synchronous-js-L5" rel="file-synchronous-js-L5">5</span>
+          <span class="line-number" id="file-synchronous-js-L6" rel="file-synchronous-js-L6">6</span>
+          <span class="line-number" id="file-synchronous-js-L7" rel="file-synchronous-js-L7">7</span>
+          <span class="line-number" id="file-synchronous-js-L8" rel="file-synchronous-js-L8">8</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-synchronous-js-LC1"><span class="c1">// Good: write files asynchronously</span></div><div class="line" id="file-synchronous-js-LC2"><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span><span class="p">(</span><span class="s1">'message.txt'</span><span class="p">,</span> <span class="s1">'Hello Node'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span></div><div class="line" id="file-synchronous-js-LC3">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"It's saved and the server remains responsive!"</span><span class="p">);</span></div><div class="line" id="file-synchronous-js-LC4"><span class="p">});</span></div><div class="line" id="file-synchronous-js-LC5">&nbsp;</div><div class="line" id="file-synchronous-js-LC6"><span class="c1">// BAD: write files synchronously</span></div><div class="line" id="file-synchronous-js-LC7"><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span><span class="s1">'message.txt'</span><span class="p">,</span> <span class="s1">'Hello Node'</span><span class="p">);</span></div><div class="line" id="file-synchronous-js-LC8"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"It's saved, but you just blocked ALL requests!"</span><span class="p">);</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/04bdfd5e123b02a4245885fd187712ce7b79a809/Synchronous.js" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-synchronous-js" style="float:right; margin-right:10px; color:#666;">Synchronous.js</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<p>
+  Our initial logging implementation accidentally included a synchronous
+ call to write to disc. This went unnoticed until we did performance 
+testing. When benchmarking a single instance of Node.js on a developer 
+box, this one synchronous call caused a performance drop from <i>thousands</i> of requests per second to just <i>a few dozen</i>! 
+</p>
+<a name="socket-pooling"></a>
+<h2>2. Turn off socket pooling</h2>
+<p>
+The Node.js <a target="_blank" href="http://nodejs.org/docs/v0.6.3/api/http.html#http.request">http client</a> automatically uses socket pooling: by default, <a target="_blank" href="http://nodejs.org/docs/v0.6.3/api/http.html#agent.maxSockets">this limits you to 5 sockets per host</a>.
+ While the socket reuse may keep resource growth under control, it will 
+be a serious bottleneck if you need to handle many concurrent requests 
+that all need data from the same host. In these scenarios, it's a good 
+idea to increase <span class="code">maxSockets</span> or entirely disable socket pooling: 
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_007.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-disablesocketpooling-js-L1" rel="file-disablesocketpooling-js-L1">1</span>
+          <span class="line-number" id="file-disablesocketpooling-js-L2" rel="file-disablesocketpooling-js-L2">2</span>
+          <span class="line-number" id="file-disablesocketpooling-js-L3" rel="file-disablesocketpooling-js-L3">3</span>
+          <span class="line-number" id="file-disablesocketpooling-js-L4" rel="file-disablesocketpooling-js-L4">4</span>
+          <span class="line-number" id="file-disablesocketpooling-js-L5" rel="file-disablesocketpooling-js-L5">5</span>
+          <span class="line-number" id="file-disablesocketpooling-js-L6" rel="file-disablesocketpooling-js-L6">6</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-disablesocketpooling-js-LC1"><span class="c1">// Disable socket pooling</span></div><div class="line" id="file-disablesocketpooling-js-LC2">&nbsp;</div><div class="line" id="file-disablesocketpooling-js-LC3"><span class="kd">var</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">);</span></div><div class="line" id="file-disablesocketpooling-js-LC4"><span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{.....};</span></div><div class="line" id="file-disablesocketpooling-js-LC5"><span class="nx">options</span><span class="p">.</span><span class="nx">agent</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span></div><div class="line" id="file-disablesocketpooling-js-LC6"><span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/63942d88bb773c517ba49da0a5e6a123cfb753ff/DisableSocketPooling.js" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-disablesocketpooling-js" style="float:right; margin-right:10px; color:#666;">DisableSocketPooling.js</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<a name="static-assets"></a>
+<h2>3. Don't use Node.js for static assets</h2>
+<p>
+ For static assets, such as CSS and images, use a standard webserver instead of Node.js. For example, LinkedIn mobile uses <a target="_blank" href="http://nginx.org/">nginx</a>.
+ We also take advantage of Content Delivery Networks (CDNs), which copy 
+the static assets to servers around the world. This has two benefits: 
+(1) we reduce load on our Node.js servers and (2) CDNs allow static 
+content to be delivered from a server close to the user, which reduces 
+latency.
+</p>
+<a name="client-side"></a>
+<h2>4. Render on the client-side</h2>
+<p>
+  Let's quickly compare rendering a page server-side vs. client-side. If
+ we have Node.js render server-side, we'll send back an HTML page like 
+this for every request:
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_004.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-serversiderenderedhtml-html-L1" rel="file-serversiderenderedhtml-html-L1">1</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L2" rel="file-serversiderenderedhtml-html-L2">2</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L3" rel="file-serversiderenderedhtml-html-L3">3</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L4" rel="file-serversiderenderedhtml-html-L4">4</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L5" rel="file-serversiderenderedhtml-html-L5">5</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L6" rel="file-serversiderenderedhtml-html-L6">6</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L7" rel="file-serversiderenderedhtml-html-L7">7</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L8" rel="file-serversiderenderedhtml-html-L8">8</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L9" rel="file-serversiderenderedhtml-html-L9">9</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L10" rel="file-serversiderenderedhtml-html-L10">10</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L11" rel="file-serversiderenderedhtml-html-L11">11</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L12" rel="file-serversiderenderedhtml-html-L12">12</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L13" rel="file-serversiderenderedhtml-html-L13">13</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L14" rel="file-serversiderenderedhtml-html-L14">14</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L15" rel="file-serversiderenderedhtml-html-L15">15</span>
+          <span class="line-number" id="file-serversiderenderedhtml-html-L16" rel="file-serversiderenderedhtml-html-L16">16</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-serversiderenderedhtml-html-LC1"><span class="c">&lt;!-- An example of a simple webpage rendered entirely server side --&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC2">&nbsp;</div><div class="line" id="file-serversiderenderedhtml-html-LC3"><span class="cp">&lt;!DOCTYPE html&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC4"><span class="nt">&lt;html&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC5">  <span class="nt">&lt;head&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC6">    <span class="nt">&lt;title&gt;</span>LinkedIn Mobile<span class="nt">&lt;/title&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC7">  <span class="nt">&lt;/head&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC8">  <span class="nt">&lt;body&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC9">    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header"</span><span class="nt">&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC10">      <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"http://mobile-cdn.linkedin.com/images/linkedin.png"</span> <span class="na">alt=</span><span class="s">"LinkedIn"</span><span class="nt">/&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC11">    <span class="nt">&lt;/div&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC12">    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"body"</span><span class="nt">&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC13">      Hello John!</div><div class="line" id="file-serversiderenderedhtml-html-LC14">    <span class="nt">&lt;/div&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC15">  <span class="nt">&lt;/body&gt;</span></div><div class="line" id="file-serversiderenderedhtml-html-LC16"><span class="nt">&lt;/html&gt;</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/d51fc1546481d8418477f8b43e4bf2ffa4b85000/ServerSideRenderedHTML.html" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-serversiderenderedhtml-html" style="float:right; margin-right:10px; color:#666;">ServerSideRenderedHTML.html</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<p>
+  Note that everything on this page, except for the user's name, is 
+static: that is, it's identical for every user and page reload. So a 
+much more efficient approach is to have Node.js return just the <i>dynamic data</i> needed for the page as JSON:
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_003.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-returnjustjson-js-L1" rel="file-returnjustjson-js-L1">1</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-returnjustjson-js-LC1"><span class="p">{</span><span class="s2">"name"</span><span class="o">:</span> <span class="s2">"John"</span><span class="p">}</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/3bdf2d44d57b505afcebbec1f1ff360f46961137/ReturnJustJson.js" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-returnjustjson-js" style="float:right; margin-right:10px; color:#666;">ReturnJustJson.js</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<p>
+  The rest of the page - all the static HTML markup - can be put into a JavaScript template (such as an <a target="_blank" href="http://documentcloud.github.com/underscore/#template">underscore.js template</a>):
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-javascripttemplate-html-L1" rel="file-javascripttemplate-html-L1">1</span>
+          <span class="line-number" id="file-javascripttemplate-html-L2" rel="file-javascripttemplate-html-L2">2</span>
+          <span class="line-number" id="file-javascripttemplate-html-L3" rel="file-javascripttemplate-html-L3">3</span>
+          <span class="line-number" id="file-javascripttemplate-html-L4" rel="file-javascripttemplate-html-L4">4</span>
+          <span class="line-number" id="file-javascripttemplate-html-L5" rel="file-javascripttemplate-html-L5">5</span>
+          <span class="line-number" id="file-javascripttemplate-html-L6" rel="file-javascripttemplate-html-L6">6</span>
+          <span class="line-number" id="file-javascripttemplate-html-L7" rel="file-javascripttemplate-html-L7">7</span>
+          <span class="line-number" id="file-javascripttemplate-html-L8" rel="file-javascripttemplate-html-L8">8</span>
+          <span class="line-number" id="file-javascripttemplate-html-L9" rel="file-javascripttemplate-html-L9">9</span>
+          <span class="line-number" id="file-javascripttemplate-html-L10" rel="file-javascripttemplate-html-L10">10</span>
+          <span class="line-number" id="file-javascripttemplate-html-L11" rel="file-javascripttemplate-html-L11">11</span>
+          <span class="line-number" id="file-javascripttemplate-html-L12" rel="file-javascripttemplate-html-L12">12</span>
+          <span class="line-number" id="file-javascripttemplate-html-L13" rel="file-javascripttemplate-html-L13">13</span>
+          <span class="line-number" id="file-javascripttemplate-html-L14" rel="file-javascripttemplate-html-L14">14</span>
+          <span class="line-number" id="file-javascripttemplate-html-L15" rel="file-javascripttemplate-html-L15">15</span>
+          <span class="line-number" id="file-javascripttemplate-html-L16" rel="file-javascripttemplate-html-L16">16</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-javascripttemplate-html-LC1"><span class="c">&lt;!-- An example of a JavaScript template that can be rendered client side --&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC2">&nbsp;</div><div class="line" id="file-javascripttemplate-html-LC3"><span class="cp">&lt;!DOCTYPE html&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC4"><span class="nt">&lt;html&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC5">  <span class="nt">&lt;head&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC6">    <span class="nt">&lt;title&gt;</span>LinkedIn Mobile<span class="nt">&lt;/title&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC7">  <span class="nt">&lt;/head&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC8">  <span class="nt">&lt;body&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC9">    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header"</span><span class="nt">&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC10">      <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"http://mobile-cdn.linkedin.com/images/linkedin.png"</span> <span class="na">alt=</span><span class="s">"LinkedIn"</span><span class="nt">/&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC11">    <span class="nt">&lt;/div&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC12">    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"body"</span><span class="nt">&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC13">      Hello <span class="err">&lt;</span>%= name %&gt;!</div><div class="line" id="file-javascripttemplate-html-LC14">    <span class="nt">&lt;/div&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC15">  <span class="nt">&lt;/body&gt;</span></div><div class="line" id="file-javascripttemplate-html-LC16"><span class="nt">&lt;/html&gt;</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/6a701b22775bdf738522341994fcabe248e0dc2a/JavaScriptTemplate.html" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-javascripttemplate-html" style="float:right; margin-right:10px; color:#666;">JavaScriptTemplate.html</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<p>
+  Here's where the performance benefit comes in: as per <a href="#static-assets">tip #3</a>,
+ the static JavaScript template can be served from your webserver (e.g. 
+nginx) and, even better, from a CDN. Moreover, JavaScript templates can 
+be cached in the browser or saved in LocalStorage, so after the initial 
+page load, the <i>only</i> data sent to the client is the dynamic JSON, 
+which is maximally efficient. This approach dramatically reduces the 
+CPU, IO, and load on Node.js.
+</p>
+<a name="gzip"></a>
+<h2>5. Use gzip</h2>
+<p>
+  Most servers and clients support <a target="_blank" href="http://www.gzip.org/">gzip</a>
+ to compress requests and responses. Make sure you take advantage of it,
+ both when responding to clients and when making requests to remote 
+servers:
+</p>
+<p class="centered">
+  <img src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/gzip.png" alt="Use gzip">
+</p>
+<a name="parallel"></a>
+<h2>6. Go parallel</h2>
+<p>
+  Try to do all your blocking operations - that is, requests to remote 
+services, DB calls, and file system access - in parallel. This will 
+reduce latency to the slowest of the blocking operations rather than the
+ sum of each one in sequence. To keep the callbacks and error handling 
+clean, we use <a href="https://github.com/creationix/step">Step</a> for flow control. 
+</p>
+<p class="centered">
+  <img src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/parallel.png" alt="Make blocking calls in parallel">
+</p>
+<a name="sessions"></a>
+<h2>7. Go session-free</h2>
+<p>
+  LinkedIn mobile uses the <a target="_blank" href="http://expressjs.com/">Express framework</a> to manage the request/response cycle. Most express examples include the following configuration:
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_006.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-expresssession-js-L1" rel="file-expresssession-js-L1">1</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-expresssession-js-LC1"><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">session</span><span class="p">({</span> <span class="nx">secret</span><span class="o">:</span> <span class="s2">"keyboard cat"</span> <span class="p">}));</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/67cf6b3ce0112efabf84afde729f249455b18bec/ExpressSession.js" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-expresssession-js" style="float:right; margin-right:10px; color:#666;">ExpressSession.js</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<p>
+  By default, <a target="_blank" href="http://expressjs.com/guide.html#session-support">session data is stored in memory</a>,
+ which can add significant overhead to the server, especially as the 
+number of users grows. You could switch to an external session store, 
+such as MongoDB or Redis, but then each request incurs the overhead of a
+ remote call to fetch session data. Where possible, the best option is 
+to store no state on the server-side at all. Go session free by NOT 
+including the express config above and you'll see better performance. 
+</p>
+<a name="binary"></a>
+<h2>8. Use binary modules</h2>
+<p>
+  When available, use binary modules instead of JavaScript modules. For 
+example, when we switched from a SHA module written in JavaScript to the
+ compiled version that comes with Node.js, we saw a big performance 
+bump:
+</p>
+<div class="gist">
+  <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/1412326_005.js"></script><link href="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/embed-17ab34a51711628d8f5449c4663a9318.css" media="screen" rel="stylesheet"><div id="gist1412326" class="gist">
+      <div class="gist-file">
+        <div class="gist-data gist-syntax">
+
+
+
+  <div class="file-data">
+    <table class="lines highlight" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="line-numbers">
+          <span class="line-number" id="file-binarymodules-js-L1" rel="file-binarymodules-js-L1">1</span>
+          <span class="line-number" id="file-binarymodules-js-L2" rel="file-binarymodules-js-L2">2</span>
+          <span class="line-number" id="file-binarymodules-js-L3" rel="file-binarymodules-js-L3">3</span>
+        </td>
+        <td class="line-data">
+          <pre class="line-pre"><div class="line" id="file-binarymodules-js-LC1"><span class="c1">// Use built in or binary modules</span></div><div class="line" id="file-binarymodules-js-LC2"><span class="kd">var</span> <span class="nx">crypto</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'crypto'</span><span class="p">);</span></div><div class="line" id="file-binarymodules-js-LC3"><span class="kd">var</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHmac</span><span class="p">(</span><span class="s2">"sha1"</span><span class="p">,</span><span class="nx">key</span><span class="p">).</span><span class="nx">update</span><span class="p">(</span><span class="nx">signatureBase</span><span class="p">).</span><span class="nx">digest</span><span class="p">(</span><span class="s2">"base64"</span><span class="p">);</span></div></pre>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+        </div>
+
+        <div class="gist-meta">
+          <a href="https://gist.github.com/brikis98/1412326/raw/7e428c1b6eb64ffdabe32b8eef028661101690fd/BinaryModules.js" style="float:right">view raw</a>
+          <a href="https://gist.github.com/brikis98/1412326#file-binarymodules-js" style="float:right; margin-right:10px; color:#666;">BinaryModules.js</a>
+          <a href="https://gist.github.com/brikis98/1412326">This Gist</a> brought to you by <a target="_blank" href="http://github.com/">GitHub</a>.
+        </div>
+      </div>
+</div>
+
+</div>
+<a name="standard-v8"></a>
+<h2>9. Use standard V8 JavaScript instead of client-side libraries</h2>
+<p>
+  Most JavaScript libraries are built for use in a web browser, where 
+the JavaScript environment is inconsistent: for example, one browser may
+ support functions like <span class="code">forEach</span>, <span class="code">map</span> and <span class="code">reduce</span>,
+ but other browsers don't. As a result, client-side libraries usually 
+have a lot of inefficient code to overcome browser differences. On the 
+other hand, in Node.js, you know <i>exactly</i> what JavaScript functions are available: the <a target="_blank" href="http://code.google.com/p/v8/">V8 JavaScript engine</a> that powers Node.js implements ECMAScript as specified in <a target="_blank" href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf">ECMA-262, 5th edition</a>. By directly using the standard V8 functions instead of client libraries, you may see significant performance gains.
+</p>
+<a name="small-light"></a>
+<h2>10. Keep your code small and light</h2>
+<p>
+  Working with mobile, where devices are slower and latencies are 
+higher, teaches you to keep your code small and light. Apply this same 
+idea to your server code as well. Revisit your decisions from time to 
+time and ask yourself questions like: “Do we really need this module?”, 
+“Why are we using this framework? Is it worth the overhead?”, “Can we do
+ this in a simpler way?”. Smaller, lighter code is usually more 
+efficient and faster.
+</p>
+<h2>Try it out</h2>
+<p>
+  We worked hard to make our mobile apps fast. Try them out and let us know how we did: we have an <a target="_blank" href="http://itunes.apple.com/us/app/linkedin/id288429040?mt=8">iPhone app</a>, <a href="https://market.android.com/details?id=com.linkedin.android">Android app</a> and an <a target="_blank" href="http://touch.www.linkedin.com/">HTML5 mobile version</a>.
+</p>
+</div>      </div>
+      <div class="tags">
+  <h3>Tags:</h3>
+  <span class="tag"><a href="http://engineering.linkedin.com/tags/nodejs" rel="tag">Node.js</a></span>  <span class="tag"><a href="http://engineering.linkedin.com/mobile" rel="tag">Mobile</a></span><span class="tag"><a href="http://engineering.linkedin.com/performance" rel="tag">Performance</a></span></div>    </div>
+
+  
+	<div class="clear"></div>
+  </section>
+</article>
+  </div>
+
+</section>
+  </div>
+      </div>
+      <div id="extra">
+          
+  <div class="grid_6 region region-sidebar-second">
+    
+    <section id="block-block-3" class="block block-block">
+
+      <h2>LinkedIn Labs: Experimental &amp; Hackday Projects</h2>
+    
+  <div>
+    <ul class="labs-list block-details">
+	<li>
+		<div class="thumbnail">
+			<a target="_blank" href="http://swarm.linkedinlabs.com/">
+				<img class="shadow" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/icon_shadow_126x126.png">
+				<img alt="Labsicon_swarm1" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/LabsIcon_swarm1.jpg">
+			</a>
+		</div>
+		<div class="details">
+			<h3>
+				<a target="_blank" href="http://swarm.linkedinlabs.com/">Swarm</a>
+			</h3>
+			<p class="author">Hackday Winner, November 2010</p>
+			<p>
+				<a target="_blank" href="http://swarm.linkedinlabs.com/">http://swarm.linkedinlabs.com</a>
+			</p>
+			<p style="margin-top: 3px;">
+				<script type="IN/Share+init" data-counter="right" data-url="http://swarm.linkedinlabs.com"></script>
+			</p>
+		</div>
+	</li>
+	<li>
+		<div class="thumbnail">
+			<a target="_blank" href="http://infinity.linkedinlabs.com/">
+				<img class="shadow" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/icon_shadow_126x126.png">
+				<img alt="Labicons_infinity_120px" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/labicons_inFinity_120px.jpg">
+			</a>
+		</div>
+		<div class="details">
+			<h3>
+				<a target="_blank" href="http://infinity.linkedinlabs.com/">Infinity</a>
+			</h3>
+			<p class="author">Hackday Winner, October 2010</p>
+			<p>
+				<a target="_blank" href="http://infinity.linkedinlabs.com/">http://infinity.linkedinlabs.com</a>
+			</p>
+			<p style="margin-top: 3px;">
+				<script type="IN/Share+init" data-counter="right" data-url="//infinity.linkedinlabs.com"></script>
+			</p>
+		</div>
+	</li>
+	<li class="last">
+		<div class="thumbnail">
+			<a target="_blank" href="http://inmaps.linkedinlabs.com/">
+				<img class="shadow" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/icon_shadow_126x126.png">
+				<img alt="Labicons_120px_inmap_2" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/labicons_120px_inmap_2.jpg">
+			</a>
+		</div>
+		<div class="details">
+			<h3>
+				<a target="_blank" href="http://inmaps.linkedinlabs.com/">InMaps</a>
+			</h3>
+			<p class="author">LinkedIn Analytics</p>
+			<p>
+				<a target="_blank" href="http://inmaps.linkedinlabs.com/">http://inmaps.linkedinlabs.com</a> <br>
+			</p>
+			<p style="margin-top: 3px;">
+				<script type="IN/Share+init" data-counter="right" data-url="//inmaps.linkedinlabs.com"></script>
+			</p>
+		</div>
+	</li>
+</ul>
+<div style="text-align: right; margin-right: 10px; margin-bottom: 10px;"><a target="_blank" href="http://www.linkedinlabs.com/">See More »</a></div>
+  </div>
+
+</section>
+<section id="block-block-4" class="block block-block">
+
+      <h2>Work With Us at LinkedIn</h2>
+    
+  <div>
+    <style type="text/css">
+#jobs-at-linkedin-container {
+   margin-left: 5px;
+}
+#jobs-at-linkedin {
+   padding-left: 0px;
+   margin-bottom: 0;
+}
+#jobs-at-linkedin li {
+   list-style: none;
+   padding-bottom: 5px;
+}</style>
+<p>
+	&nbsp;</p>
+<div class="block-details" id="jobs-at-linkedin-container" style="/*background: url(&quot;/sites/default/files/embedded-images/linkedin75.png&quot;) no-repeat scroll 0% 0% transparent;*/">
+	<ul id="jobs-at-linkedin">
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5080591&amp;viewJob=&amp;trk=job_capjs">Software Engineer - Applications</a></li>
+		<li>
+			<a href="http://www.linkedin.com/jobs?jobId=4861300&amp;viewJob=&amp;trk=job_capjs">Software Engineer - Systems and Infrastructure</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5081014&amp;viewJob=&amp;trk=job_capjs">Software Engineer - Mobile</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5080864&amp;viewJob=&amp;trk=job_capjs">Software Engineer - Tools</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?trk=job_capjs&amp;jobId=5170816&amp;viewJob=">Software Engineer - Performance</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5080941&amp;viewJob=&amp;trk=job_capjs">Software Engineer - Test</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5081042&amp;viewJob=&amp;trk=job_capjs">Front End Engineer - Applications</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?jobId=5080777&amp;viewJob=&amp;trk=job_capjs">Applied Research Engineer</a></li>
+		<li>
+			<a target="_blank" href="http://www.linkedin.com/jobs?trk=job_capjs&amp;jobId=5170669&amp;viewJob=">Release QA</a></li>
+	</ul>
+</div>
+<div style="text-align: right; margin-right: 10px; margin-bottom: 10px;">
+	<a target="_blank" href="http://www.linkedin.com/jsearch?facet_COMPANY=1337&amp;facet_FUNCTION=eng&amp;keepFacets=">See More »</a></div>  </div>
+
+</section>
+<section id="block-block-23" class="block block-block">
+
+      <h2>Follow us on Twitter!</h2>
+    
+  <div>
+    <p>
+	&nbsp;</p>
+<div style="width: 150px; margin: 0 auto;">
+	<iframe data-twttr-rendered="true" title="Twitter Follow Button" style="width: 141px; height: 20px;" class="twitter-follow-button twitter-follow-button" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/follow_button_002.html" allowtransparency="true" frameborder="0" scrolling="no"></iframe> <script src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/widgets.js" type="text/javascript"></script></div>
+<p>
+	&nbsp;</p>
+  </div>
+
+</section>
+  </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="footer">  <div class="region region-footer">
+    <section id="block-block-8" class="block block-block">
+
+      
+  <div>
+    <div id="engineering-footer">
+	<p>
+		<strong><a href="https://help.linkedin.com/">Help Center</a></strong>&nbsp;|&nbsp;<a target="_blank" href="http://press.linkedin.com/about/">About</a>&nbsp;|&nbsp;<a target="_blank" href="http://blog.linkedin.com/">Blog</a>&nbsp;|&nbsp;<a target="_blank" href="http://www.linkedin.com/careers">Careers</a>&nbsp;|&nbsp;<a target="_blank" href="http://www.linkedin.com/advertising">Advertising</a>&nbsp;|&nbsp;<a target="_blank" href="http://talent.linkedin.com/">Recruting Solutions</a> &nbsp;|&nbsp;<a target="_blank" href="http://www.linkedin.com/static?key=tools">Tools</a>&nbsp;|&nbsp;<a target="_blank" href="http://www.linkedin.com/static?key=mobile">Mobile</a>&nbsp;|&nbsp;<a target="_blank" href="http://developer.linkedin.com/">Developers</a>&nbsp;|&nbsp;<a target="_blank" href="http://www.linkedin.com/publishers">Publishers</a>&nbsp;|&nbsp;<a target="_blank" href="http://linkedin.com/">LinkedIn.com</a></p>
+</div>
+<p>
+	&nbsp;</p>
+<p class="links" style="margin: 3px 0px 0px; font-size: 11px;">
+	LinkedIn Corporation © 2012 &nbsp;|&nbsp;&nbsp;<a href="http://www.linkedin.com/static?key=user_agreement&amp;trk=hb_ft_userag" target="_blank">User Agreement</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="http://www.linkedin.com/static?key=privacy_policy&amp;trk=hb_ft_priv" target="_blank">Privacy Policy</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="http://www.linkedin.com/static?key=copyright_policy&amp;trk=hb_ft_copy" target="_blank">Copyright Policy</a></p>
+  </div>
+
+</section>
+  </div>
+</div>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23312791-1']);
+  _gaq.push(['_setDomainName', '.linkedin.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>    <script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/location-selector.js"></script>
+<script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/external-links.js"></script>
+<script type="text/javascript" src="Blazing%20fast%20node.js:%2010%20performance%20tips%20from%20LinkedIn%20Mobile%20%7C%20LinkedIn%20Engineering_files/image-border-radius.js"></script>
+  
+
+</body></html>
