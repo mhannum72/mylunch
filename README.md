@@ -5,6 +5,14 @@ mylunch
 todo
 ====
 
+* Ok .. no hacking nginx.  I just need to create a picture and/or thumb server.
+  The 99 cent solution for this is to symlink a 'published' directory for 
+  images .. the 'published' photos would be handled by nginx, and the 
+  unpublished photos will be handled by node.js still .. 
+
+* Hack nginx to serve up my photos the way that I want to.  This is difficult
+  because nginx should be aware of the user that is making the request ..
+
 * If I detect that the network connection is slow for either the picturegrid 
   thumbnail case, or the showattributes case, print a message telling the user 
   'waiting for pictures to load'.
