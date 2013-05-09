@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* If I detect that the network connection is slow for either the picturegrid 
+  thumbnail case, or the showattributes case, print a message telling the user 
+  'waiting for pictures to load'.
+
 * Wait for carousel pictures to load before displaying popup.
 
 * Wait for picture to completely load before rotating to it in carousel.

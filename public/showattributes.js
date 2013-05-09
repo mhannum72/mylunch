@@ -130,6 +130,9 @@ showattributes = (function($jq) {
     // Precache carousel images before creating
     var precache;
 
+    // Div containing the precached objects
+    var precache_div;
+
     // Our 'image-is-ready' function passed through to the carousel
     var imgready = null;
 
@@ -1328,10 +1331,46 @@ showattributes = (function($jq) {
         return grid_date;
     }
 
-    // Precache all of the pictures in this array
-    function precache_all(picinfo, callback) {
+    // Precache the key photo
+    function precache_key(username, picinfo, inkeyts, callback) {
 
+        // Create a div to contain this
         var div = $(dc('div'));
+
+        // Use the key-timestamp, or the ts of the first picture
+        var keyts = inkeyts > 0 ? inkeyts : picinfo[0].timestamp;
+
+        // Image source string
+        var img_source = '/' + 'pics' + '/' + username + '/' + picinfo[ii].timestamp;
+
+        // Image tag
+        var img = $(dc('img')).attr('src', img_source);
+
+        // Append to the hidden frame
+        div.appendTo(hiddenframe);
+
+        // Append to the div
+        img.appendTo(div);
+        
+        // Invoke callback when it's loaded
+        imgready(img, function() { 
+
+            // Stash away
+            precache_div = div;
+
+            // Invoke callback 
+            callback(); 
+        }, ".showaprecache");
+
+    }
+
+    // Precache all of the pictures in this array
+    function precache_all(username, picinfo, callback) {
+
+        // Create a div to contain this
+        var div = $(dc('div'));
+
+        // Init counter to 0
         var cnt = 0;
 
         // Append to the hidden frame
@@ -1339,7 +1378,14 @@ showattributes = (function($jq) {
 
         // Callback for precache 
         function pcachecb() {
-            if(++cnt == picinfo.length) {
+
+            // Take action when all images are ready
+            if(++cnt >= picinfo.length) {
+
+                // Stash away: I'll remove it when the carousel is loaded
+                precache_div = div;
+
+                // Invoke callback
                 callback();
             }
         }
@@ -1347,12 +1393,17 @@ showattributes = (function($jq) {
         // Create an image div for each
         for(var ii = 0 ; ii < picinfo.length ; ii++) {
 
+            // Create image source string from username & timestamp
             var img_source = '/' + 'pics' + '/' + username + '/' + picinfo[ii].timestamp;
-            var img = $(dc('img'))
-                .attr('src', img_source);
 
+            // Create img tag
+            var img = $(dc('img')).attr('src', img_source);
+
+            // Append to div
             img.appendTo(div);
-            imageready(img, pcachecb, ".showaprecache");
+
+            // Invoke callback when it's loaded
+            imgready(img, pcachecb, ".showaprecache");
         }
     }
 
@@ -2027,7 +2078,6 @@ showattributes = (function($jq) {
 
             positionmodal();
 
-
             if(appendpop) {
                 popup.appendTo(appendpop);
             }
@@ -2035,8 +2085,19 @@ showattributes = (function($jq) {
                 popup.appendTo('body');
             }
 
-
+            // Fade in my popup
             popup.fadeIn({ queue: true, duration: 500 });
+
+            // Cleanup precached images
+            if(precache_div) {
+
+                // Remove the div
+                precache_div.remove();
+
+                // Reset to null
+                precache_div=null;
+
+            }
 
             // Display background
             showmaskfade();
@@ -2044,26 +2105,36 @@ showattributes = (function($jq) {
         });
     }
 
+    // Precache 
+    function precache_images(username, picinfo, keyts, callback) {
+
+        if("all" == precache) {
+            precache_all(username, picinfo, callback);
+        }
+        else if("key" == precache) {
+            precache_key(username, picinfo, keyts, callback);
+        }
+    }
+
+    // Wrapper for showattributes
     function showattributesmealinfo(username, meal, restaurant, restaurantId) {
 
         // Precache callback
         function cb() {
-            showattributesmealinfo(username, meal, restaurant, restaurantId);
+            showattributesmealinfo_int(username, meal, restaurant, restaurantId);
         }
 
         // Add precache logic
         if(precache) {
-            if("all" == precache) {
-                precache_all(meal.picInfo, cb);
-            }
-            else if("key" == precache) {
-                precache_key(meal.picInfo, meal.keytimestamp, cb);
-            }
+
+            precache_images(username, meal.picInfo, meal.keytimestamp, cb);
+
         }
         else {
-            showattributesmealinfo_int(username, meal, restaurant, restaurantId);
-        }
 
+            showattributesmealinfo_int(username, meal, restaurant, restaurantId);
+
+        }
     }
 
     // Getter for the showattributes gridobject
@@ -2212,7 +2283,7 @@ showattributes = (function($jq) {
             cfg.popupbuttonwidth : 100;
 
         // Precache functionality
-        precache = "key";
+        precache = "all";
         if(cfg.hp("precache")) {
             switch(cfg.precache)
             {
