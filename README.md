@@ -5,6 +5,9 @@ mylunch
 todo
 ====
 
+* Another clever scheme .. nginx has a module that allows you to access memcache
+  directly.
+
 * Ok .. no hacking nginx.  I just need to create a picture and/or thumb server.
   The 99 cent solution for this is to symlink a 'published' directory for 
   images .. the 'published' photos would be handled by nginx, and the 

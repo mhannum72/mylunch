@@ -136,6 +136,9 @@ showattributes = (function($jq) {
     // Our 'image-is-ready' function passed through to the carousel
     var imgready = null;
 
+    // Precache tag
+    var precachetag;
+
     // Update the rating
     function updateRatingAjax(meal, rating) {
         $.ajax({
@@ -1331,6 +1334,40 @@ showattributes = (function($jq) {
         return grid_date;
     }
 
+    // Precache the nomeal photo
+    function precache_nomeal(username, picinfo, callback) {
+
+        // Create a div to contain this
+        var div = $(dc('div'));
+
+        // Create nomeal png
+        var img_source = '/images/nomeal.png';
+
+        // Create img tag
+        var img = $(dc('img')).attr('src', img_source);
+
+        // Append to the hidden frame
+        div.appendTo(hiddenframe);
+
+        // Callback for precache 
+        function pcachecb() {
+
+            // Stash away: I'll remove it when the carousel is loaded
+            precache_div = div;
+
+            // Invoke callback
+            callback();
+        }
+
+        // Append to div
+        img.appendTo(div);
+
+        // Invoke callback when it's loaded
+        imgready(img, pcachecb, precachetag);
+
+        return;
+    }
+
     // Precache the key photo
     function precache_key(username, picinfo, inkeyts, callback) {
 
@@ -1341,7 +1378,7 @@ showattributes = (function($jq) {
         var keyts = inkeyts > 0 ? inkeyts : picinfo[0].timestamp;
 
         // Image source string
-        var img_source = '/' + 'pics' + '/' + username + '/' + picinfo[ii].timestamp;
+        var img_source = '/' + 'pics' + '/' + username + '/' + keyts;
 
         // Image tag
         var img = $(dc('img')).attr('src', img_source);
@@ -1360,7 +1397,7 @@ showattributes = (function($jq) {
 
             // Invoke callback 
             callback(); 
-        }, ".showaprecache");
+        }, precachetag);
 
     }
 
@@ -1370,7 +1407,7 @@ showattributes = (function($jq) {
         // Create a div to contain this
         var div = $(dc('div'));
 
-        // Init counter to 0
+        // Init counter and target to 0
         var cnt = 0;
 
         // Append to the hidden frame
@@ -1403,7 +1440,7 @@ showattributes = (function($jq) {
             img.appendTo(div);
 
             // Invoke callback when it's loaded
-            imgready(img, pcachecb, ".showaprecache");
+            imgready(img, pcachecb, precachetag);
         }
     }
 
@@ -2108,7 +2145,10 @@ showattributes = (function($jq) {
     // Precache 
     function precache_images(username, picinfo, keyts, callback) {
 
-        if("all" == precache) {
+        if(picinfo.length == 0) {
+            precache_nomeal(username, picinfo, callback);
+        }
+        else if("all" == precache) {
             precache_all(username, picinfo, callback);
         }
         else if("key" == precache) {
@@ -2281,6 +2321,9 @@ showattributes = (function($jq) {
         // Popup button width
         popupbuttonwidth = cfg.hp("popupbuttonwidth") ? 
             cfg.popupbuttonwidth : 100;
+
+        // Precache tag
+        precachetag = cfg.hp("precachetag") ? cfg.precachetag : ".showaprecache";
 
         // Precache functionality
         precache = "all";

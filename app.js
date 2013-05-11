@@ -44,7 +44,7 @@ var im = require('imagemagick');
 var defaultMaxPicsPerMeal = 128;
 
 // Pause artificially before returning pictures 
-var clientpiclatencytest = true;
+var clientpiclatencytest = false;
 var clientpiclatencyms = 5000;
 
 // Print a message for returning pictures
@@ -1745,6 +1745,7 @@ app.configure(function(){
     app.use(express.session( {
         secret: 'sexbomb-bastic',
         store: new RedisStore,
+        key: 'APP',
         cookie: {
             maxAge: maxCookieAge
         }
