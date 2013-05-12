@@ -5,6 +5,10 @@ mylunch
 todo
 ====
 
+* I wonder if I could setup the popup .. but set the display to 0 until it's
+  ready to display .. it seems like you can see the showattributes popup being
+  built ..
+
 * Another clever scheme .. nginx has a module that allows you to access memcache
   directly.
 

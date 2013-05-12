@@ -1745,7 +1745,7 @@ app.configure(function(){
     app.use(express.session( {
         secret: 'sexbomb-bastic',
         store: new RedisStore,
-        key: 'APP',
+        // key: 'APP', /* This will be set to APP when I deploy */
         cookie: {
             maxAge: maxCookieAge
         }
