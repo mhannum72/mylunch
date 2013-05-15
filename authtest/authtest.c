@@ -5,10 +5,23 @@
 #include <stdlib.h>
 #include "hiredis.h"
 #include "async.h"
+#include "bson.h"
+#include "mongo.h"
 #include "adapters/libevent.h"
 
+/* Arrrrrrg-v */
 static char *argv0;
 
+/* Hold the request state */
+typedef struct req_state
+{
+    char cookie[120];
+    char path[120];
+    int64_t path_userid;
+}
+req_state_t;
+
+/* Usage */
 int usage(FILE *f)
 {
     fprintf(f, "Usage: %s <args>\n", argv0);
@@ -17,60 +30,101 @@ int usage(FILE *f)
     exit(1);
 }
 
-void getCallback(redisAsyncContext *c, void *r, void *privdata) 
+/* Extract the userid from the path */
+static inline int useridfrompath(const char *path, int64_t *userid)
+{
+    /* The path looks like this: <type>/<userid>/<pictureid> */
+    char *p;
+    
+    /* Find first slash */
+    if( ! ( p = strchr(path, '/') ) )
+    {
+        return -1;
+    }
+
+    /* Convert to long long */
+    *userid = atoll(&p[1]);
+
+    return 0;
+}
+
+/* Extract the userid from the session */
+static inline int useridfromsession(const char *sess, int64_t *userid)
 {
     char *useridstr;
-    int64_t userid = 0;
-    redisReply *reply = r;
-    if (reply == NULL) 
-    {
-        /* Do something intellegent .. send a can't find picture maybe */
-        return;
-    }
 
-    /* Dumb way to find userid */
-    useridstr = strstr(reply->str, "\"userid\":");
+    /* No json parsing - just do a strstr */
+    useridstr = strstr(sess, "\"userid\":");
 
+    /* Convert and return */
     if(useridstr)
     {
-        userid = atoll(useridstr + 9);
-        printf("%s -> %lld\n", (char*)privdata, userid);
+        *userid = atoll(useridstr + 9);
+        return 0;
     }
-    else
+    return -1;
+}
+
+
+/* Found the cookie */
+void redis_find_cookie_callback(redisAsyncContext *c, void *r, void *privdata) 
+{
+    int64_t session_userid = -1;
+    int showpic = 0;
+    int public = 0;
+
+    /* My redis reply */
+    redisReply *reply = r;
+
+    /* Working rstate */
+    req_state_t *rstate = (req_state_t *)privdata;
+
+    /* Get the userid from the path */
+    if (reply != NULL && 0 == useridfromsession(reply->str, &session_userid) &&
+            session_userid == rstate->path_userid) 
     {
-        printf("%s -> %s\n", (char*)privdata, reply->str);
+        showpic = 1;
     }
+
+    /* We can show the picture */
+    fprintf(stderr, "Session user %lld is %s to see %s public = %d\n", 
+            session_userid, (showpic ? "allowed" : "not-allowed"), rstate->path,
+            public);
 
     /* Disconnect after receiving the reply to GET */
     redisAsyncDisconnect(c);
 }
 
-void connectCallback(const redisAsyncContext *c, int status) 
+/* Boilerplace connect callback for redis */
+void redis_connect_callback(const redisAsyncContext *c, int status) 
 {
     if (status != REDIS_OK) 
     {
-//        printf("Error: %s\n", c->errstr);
+        fprintf(stderr, "%s line %d: error connecting to redis: %s\n", 
+                __func__, __LINE__, c->errstr);
         return;
     }
-    //printf("Connected...\n");
 }
 
-void disconnectCallback(const redisAsyncContext *c, int status) 
+/* Boilerplace disconnect callback for redis */
+void redis_disconnect_callback(const redisAsyncContext *c, int status) 
 {
     if (status != REDIS_OK) 
     {
-        printf("Error: %s\n", c->errstr);
+        fprintf(stderr, "%s line %d: error disconnecting from redis: %s\n", 
+                __func__, __LINE__, c->errstr);
         return;
     }
-    //printf("Disconnected...\n");
 }
 
 int main(int argc, char *argv[])
 {
     int c, err=0;
+    int64_t path_userid;
     char *cookie=NULL;
     char *path=NULL;
     char rediscmd[80];
+    req_state_t *rstate;
     struct event_base *base;
     redisAsyncContext *ctxt;
 
@@ -88,9 +142,11 @@ int main(int argc, char *argv[])
             case 'c':
                 cookie=optarg;
                 break;
+
             case 'p':
                 path=optarg;
                 break;
+
             default:
                 fprintf(stderr, "Unknown argument, '%c'.\n", c);
                 err++;
@@ -127,11 +183,44 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    /* Attach redis to libevent */
     redisLibeventAttach(ctxt, base);
-    redisAsyncSetConnectCallback(ctxt,connectCallback);
-    redisAsyncSetDisconnectCallback(ctxt,disconnectCallback);
-    snprintf(rediscmd, sizeof(rediscmd), "GET %s", cookie);
-    redisAsyncCommand(ctxt, getCallback, (char*)cookie, rediscmd);
-    event_base_dispatch(base);
+    
+    /* Invoke this when redis connects */
+    redisAsyncSetConnectCallback(ctxt, redis_connect_callback);
+
+    /* Invoke this when redis disconnects */
+    redisAsyncSetDisconnectCallback(ctxt, redis_disconnect_callback);
+
+    /* Allocate a req_state */
+    rstate = (req_state_t *)malloc(sizeof(*rstate));
+
+    /* Copy in cookie */
+    strncpy(rstate->cookie, cookie, sizeof(rstate->cookie));
+
+    /* Copy in path */
+    strncpy(rstate->path, path, sizeof(rstate->path));
+
+    /* Get the userid from the path */
+    if(0 == useridfrompath(rstate->path, &path_userid))
+    {
+        /* Set the path userid */
+        rstate->path_userid = path_userid;
+
+        /* Redis command */
+        snprintf(rediscmd, sizeof(rediscmd), "GET %s", rstate->cookie);
+
+        /* Get this from redis */
+        redisAsyncCommand(ctxt, redis_find_cookie_callback, (char*)rstate, rediscmd);
+
+        /* Libevent event handler */
+        event_base_dispatch(base);
+    }
+
+    /* Error - this needs to go somewhere else */
+    else
+    {
+    }
+
     return 0;
 }

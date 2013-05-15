@@ -1,0 +1,19 @@
+# Location of redis
+REDISDIR=hiredis
+REDISLIBS=$(REDISDIR)/libhiredis.a
+REDISHEADERS=$(REDISDIR)
+REDISFLAGS=
+USER_CFLAGS+=$(REDISFLAGS) -I$(REDISHEADERS) $(REDISLIBS)
+
+# Location of mongo
+MONGODIR=mongo-c-driver
+MONGOLIBS=$(MONGODIR)/libmongoc.a $(MONGODIR)/libbson.a
+MONGOHEADERS=$(MONGODIR)/src
+MONGOFLAGS=-DMONGO_HAVE_STDINT -DMONGO_HAVE_UNISTD -DMONGO_USE__INT64
+USER_CFLAGS+=$(MONGOFLAGS) -I$(MONGOHEADERS) $(MONGOLIBS)
+
+authtest:	authtest.c
+	gcc -g $< -o $@ $(USER_CFLAGS) -levent
+
+clean:
+	-rm authtest
