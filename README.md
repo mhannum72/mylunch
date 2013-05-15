@@ -5,6 +5,13 @@ mylunch
 todo
 ====
 
+* The demo is going kindof well .. I need to parse out the userid.  For a 
+  userid that requests his or her own picture this is always going to work.
+  Otherwise, I have to get the picinfo.
+
+* Write a test program that takes a cookie name & picname as an argument, and
+  does the calculations I need.
+
 * I wonder if I could setup the popup .. but set the display to 0 until it's
   ready to display .. it seems like you can see the showattributes popup being
   built ..

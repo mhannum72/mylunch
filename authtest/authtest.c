@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "hiredis.h"
@@ -13,14 +14,32 @@ int usage(FILE *f)
     fprintf(f, "Usage: %s <args>\n", argv0);
     fprintf(f, "    -c <cookie>             - set cookie\n");
     fprintf(f, "    -p <path>               - set path\n");
+    exit(1);
 }
 
 void getCallback(redisAsyncContext *c, void *r, void *privdata) 
 {
+    char *useridstr;
+    int64_t userid = 0;
     redisReply *reply = r;
-    fprintf(stderr, "In redis getCallback.\n");
-    if (reply == NULL) return;
-    printf("argv[%s]: %s\n", (char*)privdata, reply->str);
+    if (reply == NULL) 
+    {
+        /* Do something intellegent .. send a can't find picture maybe */
+        return;
+    }
+
+    /* Dumb way to find userid */
+    useridstr = strstr(reply->str, "\"userid\":");
+
+    if(useridstr)
+    {
+        userid = atoll(useridstr + 9);
+        printf("%s -> %lld\n", (char*)privdata, userid);
+    }
+    else
+    {
+        printf("%s -> %s\n", (char*)privdata, reply->str);
+    }
 
     /* Disconnect after receiving the reply to GET */
     redisAsyncDisconnect(c);
@@ -30,10 +49,10 @@ void connectCallback(const redisAsyncContext *c, int status)
 {
     if (status != REDIS_OK) 
     {
-        printf("Error: %s\n", c->errstr);
+//        printf("Error: %s\n", c->errstr);
         return;
     }
-    printf("Connected...\n");
+    //printf("Connected...\n");
 }
 
 void disconnectCallback(const redisAsyncContext *c, int status) 
@@ -43,7 +62,7 @@ void disconnectCallback(const redisAsyncContext *c, int status)
         printf("Error: %s\n", c->errstr);
         return;
     }
-    printf("Disconnected...\n");
+    //printf("Disconnected...\n");
 }
 
 int main(int argc, char *argv[])
@@ -51,6 +70,7 @@ int main(int argc, char *argv[])
     int c, err=0;
     char *cookie=NULL;
     char *path=NULL;
+    char rediscmd[80];
     struct event_base *base;
     redisAsyncContext *ctxt;
 
@@ -93,10 +113,10 @@ int main(int argc, char *argv[])
     }
 
     /* Exit on err */
-    if(err) exit(1);
+    if(err) usage(stderr);
 
     /* Lib event */
-    // base = event_base_new();
+    base = event_base_new();
 
     /* Connect to local redis server */
     ctxt = redisAsyncConnect("127.0.0.1", 6379);
@@ -107,10 +127,11 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    redisLibeventAttach(ctxt,base);
+    redisLibeventAttach(ctxt, base);
     redisAsyncSetConnectCallback(ctxt,connectCallback);
     redisAsyncSetDisconnectCallback(ctxt,disconnectCallback);
-    redisAsyncCommand(ctxt, getCallback, (char*)"end-1", "GET key");
+    snprintf(rediscmd, sizeof(rediscmd), "GET %s", cookie);
+    redisAsyncCommand(ctxt, getCallback, (char*)cookie, rediscmd);
     event_base_dispatch(base);
     return 0;
 }
