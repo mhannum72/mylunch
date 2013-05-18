@@ -5,6 +5,19 @@ mylunch
 todo
 ====
 
+* Couple of things I'm deciding as a result of this demo: the way the scheme
+  is set up, there's no easy way to determine if a given picture is published.
+  To get to that now, I would have to do a hit to mongo to get the meal number,
+  and then another hit to mongo to look up that meal.  I can resolve this by
+  always having the requests for pictures include the meal number in the path.
+  Furthermore I can replace the mongo hit with a read of a simple file in the
+  file system (xml or json maybe?) which contains the information that nginx 
+  needs to check permissioning information and render the picture.
+
+  What's more interesting about this approach is that it should give me a way 
+  to start shifting load from node to nginx: I might be able to handle a simple
+  'mealinfo' request without it making it to node.js at all..
+
 * The demo is going kindof well .. I need to parse out the userid.  For a 
   userid that requests his or her own picture this is always going to work.
   Otherwise, I have to get the picinfo.
