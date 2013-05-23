@@ -1,4 +1,4 @@
-#define NGX_CONFIGURE " --add-module=/home/mhannum/mylunch/nginxtest"
+#define NGX_CONFIGURE " --add-module=/home/mhannum/mylunch/nginx/nginxtest"
 
 #ifndef NGX_COMPILER
 #define NGX_COMPILER  "gcc 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) "

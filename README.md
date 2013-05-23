@@ -5,6 +5,35 @@ mylunch
 todo
 ====
 
+* I think I can write a very basic nginx extension at this point.  I don't know
+  how to add an async redis quickly, but I think I can glue this together with
+  shared memory and a little c code.  I will also revamp my code for two 
+  different cases:
+
+  1) Thumbs and images for public meals will request against 
+
+  /published/<userid>/<mealid>/<picid>
+
+  Nginx would only need to check the permission for this meal from mealid.
+  Right now I'm thinking that mealid should be a simple descriptor file, and
+  that nginx could cache it, periodically 'stat' it and re-read it only if 
+  the mtime has changed.  The recheck time here could be configurable.  If a
+  signed-in user attempts to get a mealid which is not public (or does not
+  exist) then this won't work.  Another idea is that 'publishing' might be
+  merely a touch-file.  If the file doesn't exist, then a 'pic-not-found'
+  picture is served.
+
+  2) Images served while a user is building a slideshow will request against
+  something different:
+
+  /images/<userid>/<picid>
+
+  This requires only session authentication.  It will be a separate nginx module
+  which keeps a hash of the session keys in shared memory.  When a session is 
+  created by node.js, it will call into a special c/c++ module.  This module is
+  attached read/write to the shared memory, and is responsible for putting new
+  session-to-userid mappings there.
+
 * Couple of things I'm deciding as a result of this demo: the way the scheme
   is set up, there's no easy way to determine if a given picture is published.
   To get to that now, I would have to do a hit to mongo to get the meal number,

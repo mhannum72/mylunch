@@ -1,6 +1,7 @@
 
 CC =	cc
-CFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g 
+#CFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g 
+CFLAGS =  -pipe  -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g 
 CPP =	cc -E
 LINK =	$(CC)
 
@@ -1081,10 +1082,10 @@ objs/src/http/modules/ngx_http_upstream_keepalive_module.o:	$(CORE_DEPS) $(HTTP_
 
 
 objs/addon/nginxtest/ngx_http_hello_world_module.o:	$(ADDON_DEPS) \
-	/home/mhannum/mylunch/nginxtest/ngx_http_hello_world_module.c
+	/home/mhannum/mylunch/nginx/nginxtest/ngx_http_hello_world_module.c
 	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
 		-o objs/addon/nginxtest/ngx_http_hello_world_module.o \
-		/home/mhannum/mylunch/nginxtest/ngx_http_hello_world_module.c
+		/home/mhannum/mylunch/nginx/nginxtest/ngx_http_hello_world_module.c
 
 
 manpage:	objs/nginx.8
