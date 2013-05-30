@@ -24,7 +24,7 @@ void sessionhash_destroy(shash_t *s);
 /* Retrieve user for this session */
 long long sessionhash_find(shash_t *s, char key[80]);
 
-/* Retrieve user for this session */
+/* Add user for this session */
 int sessionhash_add(shash_t *s, char key[80], long long userid);
 
 
