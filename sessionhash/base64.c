@@ -24,13 +24,18 @@ static void build_decoding_table()
 
 char *base64_encode(const unsigned char *data,
                     size_t input_length,
-                    size_t *output_length) 
+                    size_t *in_output_length) 
 {
-    int i, j;
+    int i, j, olen, *output_length = &olen;
+    char *encoded_data;
+
+    if (in_output_length)
+        output_length = in_output_length;
 
     *output_length = 4 * ((input_length + 2) / 3);
 
-    char *encoded_data = malloc(*output_length);
+    encoded_data = (char *)calloc(1, *output_length + 1);
+
     if (encoded_data == NULL) return NULL;
 
     for (i = 0, j = 0; i < input_length;) {
@@ -56,9 +61,12 @@ char *base64_encode(const unsigned char *data,
 
 unsigned char *base64_decode(const char *data,
                              size_t input_length,
-                             size_t *output_length) 
+                             size_t *in_output_length) 
 {
-    int i, j;
+    int i, j, olen, *output_length = &olen;
+
+    if (in_output_length)
+        output_length = in_output_length;
 
     if (decoding_table == NULL) build_decoding_table();
 
@@ -68,7 +76,7 @@ unsigned char *base64_decode(const char *data,
     if (data[input_length - 1] == '=') (*output_length)--;
     if (data[input_length - 2] == '=') (*output_length)--;
 
-    unsigned char *decoded_data = malloc(*output_length);
+    unsigned char *decoded_data = calloc(1, 1 + *output_length);
     if (decoded_data == NULL) return NULL;
 
     for (i = 0, j = 0; i < input_length;) {

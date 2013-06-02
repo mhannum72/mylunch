@@ -12,7 +12,7 @@ shash_t;
 #endif
 
 /* Create and return a sessionhash object */
-shash_t *sessionhash_create(int shmkey, int nelements);
+shash_t *sessionhash_create(int shmkey, int keysz, int nelements);
 
 /* Attach to a sessionhash object */
 shash_t *sessionhash_attach(int shmkey);
@@ -24,10 +24,10 @@ shash_t *sessionhash_attach_readonly(int shmkey);
 void sessionhash_destroy(shash_t *s);
 
 /* Retrieve user for this session */
-long long sessionhash_find(shash_t *s, const char key[80]);
+long long sessionhash_find(shash_t *s, const char *key);
 
 /* Add user for this session */
-int sessionhash_add(shash_t *s, char key[80], long long userid);
+int sessionhash_add(shash_t *s, const char *key, long long userid);
 
 /* Stats definition */
 typedef struct shash_stats
@@ -40,6 +40,7 @@ typedef struct shash_stats
     uint64_t                wcoll;
     uint64_t                steps[10];
     int                     count;
+    int                     keysize;
     int                     maxelements;
 }
 shash_stats_t;
@@ -73,6 +74,9 @@ enum stats_request
 
     /* Replaced userids */
    ,SHASH_STATS_WCOLLISIONS = 0x00000100
+
+    /* Key size */
+   ,SHASH_STATS_KEYSIZE     = 0x00000200
 };
 
 /* Get stats */
