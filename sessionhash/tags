@@ -1,0 +1,67 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ELEMENT_IN_USE	sessionhash.c	/^    ELEMENT_IN_USE  = 0x00000001$/;"	e	enum:sh_flags	file:
+ITER	test.c	6;"	d	file:
+MAGIC	sessionhash.c	24;"	d	file:
+MAXSLEEP	test.c	8;"	d	file:
+SHKEY	test.c	9;"	d	file:
+THDS	test.c	7;"	d	file:
+_BASE64_H	base64.h	2;"	d
+_SESSIONHASH_H	sessionhash.h	2;"	d
+_SESSIONHASH_INTERNAL	sessionhash.c	37;"	d	file:
+_x	sessionhash.h	/^    int             _x[1];$/;"	m	struct:sessionhash
+allocate_shash	sessionhash.c	/^static shash_t *allocate_shash(int shmid, int shmkey, sh_shared_t *shared)$/;"	f	file:
+argv0	b64test.c	/^static char *argv0;$/;"	v	file:
+b64tobinary	b64test.c	/^static inline void b64tobinary(char *base64, int sz, char *out, int outsz, FILE *f)$/;"	f	file:
+base64_decode	base64.c	/^unsigned char *base64_decode(const char *data,$/;"	f
+base64_encode	base64.c	/^char *base64_encode(const unsigned char *data,$/;"	f
+build_decoding_table	base64.c	/^static void build_decoding_table() $/;"	f	file:
+decoding_table	base64.c	/^static char *decoding_table = NULL;$/;"	v	file:
+element	sessionhash.c	/^    char                    element[1];$/;"	m	struct:sessionhash_shared	file:
+elementsize	sessionhash.c	/^    int                     elementsize;$/;"	m	struct:sessionhash_shared	file:
+encoding_table	base64.c	/^static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',$/;"	v	file:
+firsthits	sessionhash.c	/^    uint64_t                firsthits;$/;"	m	struct:sessionhash_shared	file:
+flags	sessionhash.c	/^    unsigned int            flags;$/;"	m	struct:sesssionhash_element	file:
+hash	sessionhash.c	/^static uint32_t hash(char *sessionid, int sz)$/;"	f	file:
+headersz	sessionhash.c	/^    int                     headersz;$/;"	m	struct:sessionhash_shared	file:
+lk	test.c	/^    pthread_mutex_t         lk;$/;"	m	struct:lkstruct	file:
+lkstruct	test.c	/^typedef struct lkstruct$/;"	s	file:
+lock	sessionhash.c	/^    pthread_mutex_t         lock;$/;"	m	struct:sessionhash_shared	file:
+locks_t	test.c	/^locks_t;$/;"	t	typeref:struct:lkstruct	file:
+magic	sessionhash.c	/^    int                     magic;$/;"	m	struct:sessionhash_shared	file:
+main	b64test.c	/^int main(int argc, char *argv[])$/;"	f
+main	test.c	/^int main()$/;"	f
+maxelements	sessionhash.c	/^    int                     maxelements;$/;"	m	struct:sessionhash_shared	file:
+maxtsteps	sessionhash.c	/^    uint64_t                maxtsteps;$/;"	m	struct:sessionhash_shared	file:
+mod_table	base64.c	/^static int mod_table[] = {0, 2, 1};$/;"	v	file:
+nreads	sessionhash.c	/^    uint64_t                nreads;$/;"	m	struct:sessionhash_shared	file:
+nreads	sessionhash.c	/^    uint64_t        nreads;$/;"	m	struct:sessionhash	file:
+numelements	sessionhash.c	/^    int                     numelements;$/;"	m	struct:sessionhash_shared	file:
+nwrites	sessionhash.c	/^    uint64_t        nwrites;$/;"	m	struct:sessionhash	file:
+sdata	sessionhash.c	/^    void            *sdata;$/;"	m	struct:sessionhash	file:
+sessionhash	sessionhash.c	/^typedef struct sessionhash$/;"	s	file:
+sessionhash	sessionhash.h	/^typedef struct sessionhash$/;"	s
+sessionhash_attach	sessionhash.c	/^shash_t *sessionhash_attach(int shmkey)$/;"	f
+sessionhash_attach_int	sessionhash.c	/^shash_t *sessionhash_attach_int(int shmkey, int readonly)$/;"	f
+sessionhash_attach_readonly	sessionhash.c	/^shash_t *sessionhash_attach_readonly(int shmkey)$/;"	f
+sessionhash_create	sessionhash.c	/^shash_t *sessionhash_create(int shmkey, int nelements)$/;"	f
+sessionhash_destroy	sessionhash.c	/^void sessionhash_destroy(shash_t *shash)$/;"	f
+sessionhash_shared	sessionhash.c	/^typedef struct sessionhash_shared$/;"	s	file:
+sessionid	sessionhash.c	/^    char                    sessionid[80];$/;"	m	struct:sesssionhash_element	file:
+sesssionhash_element	sessionhash.c	/^typedef struct sesssionhash_element$/;"	s	file:
+sh_element_t	sessionhash.c	/^sh_element_t;$/;"	t	typeref:struct:sesssionhash_element	file:
+sh_flags	sessionhash.c	/^enum sh_flags$/;"	g	file:
+sh_shared_t	sessionhash.c	/^sh_shared_t;$/;"	t	typeref:struct:sessionhash_shared	file:
+sharedlk	test.c	/^locks_t *sharedlk = NULL;$/;"	v
+shash_t	sessionhash.c	/^shash_t;$/;"	t	typeref:struct:sessionhash	file:
+shash_t	sessionhash.h	/^shash_t;$/;"	t	typeref:struct:sessionhash
+shmid	sessionhash.c	/^    int             shmid;$/;"	m	struct:sessionhash	file:
+shmkey	sessionhash.c	/^    int             shmkey;$/;"	m	struct:sessionhash	file:
+stepsize	sessionhash.c	/^    int                     stepsize;$/;"	m	struct:sessionhash_shared	file:
+thd	test.c	/^void *thd(void *a)$/;"	f
+usage	b64test.c	/^int usage(const char *a0)$/;"	f
+userid	sessionhash.c	/^    long long               userid;$/;"	m	struct:sesssionhash_element	file:

@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <pthread.h>
-#include <strings.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -58,7 +60,7 @@ typedef struct sessionhash_shared
     int                     magic;
 
     /* Define meta-informaion */
-    int                     headersz;
+    int                     headersize;
     int                     stepsize;
     int                     elementsize;
     int                     maxelements;
@@ -83,7 +85,7 @@ sh_shared_t;
 
 
 /* Hash function */
-static uint32_t s_hash(char *sessionid, int sz)
+static uint32_t s_hash(const char *sessionid, int sz)
 {
     int                     bsize;
     uint32_t                hval;
@@ -159,7 +161,7 @@ shash_t *sessionhash_create(int shmkey, int nelements)
     shared->magic = MAGIC;
 
     /* Setup */
-    shared->headersize = offsetof(shared, element);
+    shared->headersize = offsetof(sh_shared_t, element);
     shared->stepsize = 1;
     shared->elementsize = sizeof(sh_element_t);
     shared->maxelements = nelements;
@@ -168,7 +170,7 @@ shash_t *sessionhash_create(int shmkey, int nelements)
     /* Create shared mutex */
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-    pthread_mutex_init(&shared->lock, attr);
+    pthread_mutex_init(&shared->lock, &attr);
 
     /* Allocate handle from heap */
     shash = allocate_shash(shmid, shmkey, shared);
@@ -260,7 +262,7 @@ static inline sh_element_t *findelement(shash_t *shash, int idx)
 }
 
 /* Find this session and return the user */
-long long sessionhash_find(shash_t *shash, const char key[80])
+long long sessionhash_find(shash_t *shash, const char sessionid[80])
 {
     uint32_t                hidx;
     sh_shared_t             *shared;
@@ -274,14 +276,14 @@ long long sessionhash_find(shash_t *shash, const char key[80])
     shared = (sh_shared_t *)shash->sdata;
 
     /* Hash index */
-    hidx = s_hash(key, sizeof(key)) % shash->maxelements;
+    hidx = s_hash(sessionid, sizeof(sessionid)) % shared->maxelements;
 
     /* Element */
     element = findelement(shash, hidx);
 
     /* Iterate until match or miss */
     while(  (element->flags & ELEMENT_IN_USE) && 
-            (cmp = memcmp(key, element->key, 80)) &&
+            (cmp = memcmp(sessionid, element->sessionid, 80)) &&
             (++cnt < shared->maxelements))
         hidx = (hidx + shared->stepsize) % shared->maxelements;
 
@@ -320,7 +322,7 @@ long long sessionhash_find(shash_t *shash, const char key[80])
 }
 
 /* Add this key->userid mapping to sessionhash */
-int sessionhash_add(shash_t *shash, char key[80], long long userid)
+int sessionhash_add(shash_t *shash, char sessionid[80], long long userid)
 {
     uint32_t                hidx;
     sh_shared_t             *shared;
@@ -333,14 +335,14 @@ int sessionhash_add(shash_t *shash, char key[80], long long userid)
     shared = (sh_shared_t *)shash->sdata;
 
     /* Hash index */
-    hidx = s_hash(key, sizeof(key)) % shash->maxelements;
+    hidx = s_hash(sessionid, sizeof(sessionid)) % shared->maxelements;
 
     /* Element */
     element = findelement(shash, hidx);
 
     /* Iterate until match or miss */
     while(  (element->flags & ELEMENT_IN_USE) && 
-            (cmp = memcmp(key, element->key, 80)) &&
+            (cmp = memcmp(sessionid, element->sessionid, 80)) &&
             (++cnt < shared->maxelements))
         hidx = (hidx + shared->stepsize) % shared->maxelements;
 
@@ -350,7 +352,7 @@ int sessionhash_add(shash_t *shash, char key[80], long long userid)
     /* Continue under lock.  Add 'cmp' check to prevent another memcmp */
     while(  (cmp) && 
             (element->flags & ELEMENT_IN_USE) &&
-            (cmp = memcmp(key, element->key, 80)) &&
+            (cmp = memcmp(sessionid, element->sessionid, 80)) &&
             (++cnt < shared->maxelements))
         hidx = (hidx + shared->stepsize) % shared->maxelements;
 
@@ -359,14 +361,14 @@ int sessionhash_add(shash_t *shash, char key[80], long long userid)
     {
         /* Increment write colision */
         if( (element->flags & ELEMENT_IN_USE) && 
-            (memcmp(element->userid, userid, sizeof(element->userid))))
+            (memcmp(&element->userid, &userid, sizeof(element->userid))))
         {
             /* Increment write-collisions */
             shared->wcoll++;
 
             /* Maybe print some trace? */
             fprintf(stderr, "Shared-hash collision: replacing '%s' userid=%lld "
-                    "with userid='%lld'.\n", key, element->userid,  userid);
+                    "with userid='%lld'.\n", sessionid, element->userid,  userid);
 
             /* Copy element into place */
             memcpy(&element->userid, &userid, sizeof(element->userid));
@@ -398,5 +400,39 @@ int sessionhash_add(shash_t *shash, char key[80], long long userid)
     return rtn;
 }
 
+/* Stats */
+int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
+{
+    sh_shared_t             *shared;
+
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    if(flags & SHASH_STATS_NREADS)
+        memcpy(&stats->nreads, &shared->nreads, sizeof(stats->nreads));
+
+    if(flags & SHASH_STATS_NWRITES)
+        memcpy(&stats->nwrites, &shared->nwrites, sizeof(stats->nwrites));
+
+    if(flags & SHASH_STATS_NHITS)
+        memcpy(&stats->nhits, &shared->nhits, sizeof(stats->nhits));
+
+    if(flags & SHASH_STATS_NMISSES)
+        memcpy(&stats->nmisses, &shared->nmisses, sizeof(stats->nmisses));
+
+    if(flags & SHASH_STATS_MAXSTEPS)
+        memcpy(&stats->maxsteps, &shared->maxsteps, sizeof(stats->maxsteps));
+
+    if(flags & SHASH_STATS_HISTOGRAM)
+        memcpy(&stats->steps, &shared->steps, sizeof(stats->steps));
+
+    if(flags & SHASH_STATS_COUNT)
+        memcpy(&stats->count, &shared->numelements, sizeof(stats->count));
+
+    if(flags & SHASH_STATS_WCOLLISIONS)
+        memcpy(&stats->wcoll, &shared->wcoll, sizeof(stats->wcoll));
+
+    return 0;
+}
 
 
