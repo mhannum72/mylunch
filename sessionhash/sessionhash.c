@@ -67,6 +67,7 @@ typedef struct sessionhash_shared
     int                     elementsize;
     int                     maxelements;
     int                     numelements;
+    int                     maxlog10;
     pthread_mutex_t         lock;
 
     /* Lockless stats */
@@ -185,6 +186,14 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     shared->elementsize = elsz;
     shared->maxelements = nelements;
     shared->numelements = 0;
+    shared->maxlog10 = 1;
+
+    /* 0-based idx */
+    nelements--;
+
+    /* Index field width */
+    while(nelements /= 10) 
+        shared->maxlog10++;
 
     /* Create shared mutex */
     pthread_mutexattr_init(&attr);
@@ -296,9 +305,15 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
 
+    /* Update stats */
+    shared->nreads++;
+
     /* Check argument size */
     if((ln = strlen(insessionid)) > shared->keysize)
+    {
+        shared->nmisses++;
         return -1;
+    }
 
     /* Copy and pad smaller keys */
     if(ln < shared->keysize)
@@ -322,11 +337,7 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
             (++cnt < shared->maxelements))
     {
         hidx = (hidx + shared->stepsize) % shared->maxelements;
-        element = findelement(shash, hidx);
-    }
-
-    /* Update stats */
-    shared->nreads++;
+        element = findelement(shash, hidx); }
 
     /* Copy out user id if this is a hit */
     if(!cmp)
@@ -337,8 +348,9 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
         /* Update hits */
         shared->nhits++;
     }
+
+    /* Update misses */
     else
-        /* Update misses */
         shared->nmisses++;
 
     /* Update max steps */
@@ -375,7 +387,7 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     shared = (sh_shared_t *)shash->sdata;
 
     /* Check length */
-    if((ln = strlen(insessionid)) > shared->elementsize)
+    if((ln = strlen(insessionid)) > shared->keysize)
         return -1;
 
     /* Copy and pad smaller keys */
@@ -502,4 +514,35 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
     return 0;
 }
 
+/* Dump this element */
+static inline int sessionhash_dump_element(sh_element_t *element, int idx, 
+        int idxfw, int keysize, FILE *f)
+{
+    fprintf(f, "%*d: '%*s' -> %lld\n", idxfw, idx, keysize, element->sessionid,
+            element->userid);
+}
+
+/* Dump the sessionhash */
+int sessionhash_dump(shash_t *shash, FILE *f, int flags)
+{
+    sh_shared_t             *shared;
+    sh_element_t            *element;
+    int                     ii;
+
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    /* Loop */
+    for(ii = 0; ii < shared->maxelements; ii++)
+    {
+        /* Element */
+        element = findelement(shash, ii);
+
+        if((element->flags & ELEMENT_IN_USE) || (flags & SHASH_DUMP_UNUSED))
+        {
+            sessionhash_dump_element(element, ii, shared->maxlog10, 
+                    shared->keysize, f);
+        }
+    }
+}
 

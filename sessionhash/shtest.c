@@ -15,7 +15,7 @@ const char *argv0;
 void usage(const char *argv0, FILE *f)
 {
     fprintf(f,  "Usage: %s <opts>\n", argv0);
-    fprintf(f,  "-k <key>               - Set shmkey\n");
+    fprintf(f,  "-k <key>               - Set hex shmkey\n");
     fprintf(f,  "-s <sessionid>         - Set sessionid (base64)\n");
     fprintf(f,  "-S <sessionid>         - Set sessionid (convert to base64)\n");
     fprintf(f,  "-u <userid>            - Set userid\n");
@@ -23,6 +23,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-a                     - Add sessionid\n");
     fprintf(f,  "-f                     - Find sessionid\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
+    fprintf(f,  "-d                     - Dump sessionhash\n");
     fprintf(f,  "-h                     - This menu\n");
     exit(1);
 }
@@ -35,6 +36,7 @@ enum
    ,MODE_FIND               = 2
    ,MODE_ADD                = 3
    ,MODE_STATS              = 4
+   ,MODE_DUMP               = 5
 };
 
 /* Mode variable */
@@ -79,13 +81,13 @@ int main(int argc, char *argv[])
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:afth")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dafth")))
     {
         switch(c)
         {
             /* Set key */
             case 'k':
-                key = atoi(optarg);
+                key = strtol(optarg, NULL, 0);
                 break;
 
             /* Set the sessionid */
@@ -129,6 +131,10 @@ int main(int argc, char *argv[])
             /* Stats */
             case 't':
                 mode = MODE_STATS;
+                break;
+
+            case 'd':
+                mode = MODE_DUMP;
                 break;
 
             /* Usage menu */
@@ -255,6 +261,20 @@ int main(int argc, char *argv[])
 
             /* Print the stats */
             print_stats(&stats, stdout);
+            break;
+
+        case MODE_DUMP:
+
+            /* Attach shash */
+            shash = sessionhash_attach(key);
+            if(!shash) 
+            {
+                fprintf(stderr, "Error attaching to session_hash, key=0x%x.\n", key);
+                exit(1);
+            }
+
+            /* Dump the hash */
+            sessionhash_dump(shash, stdout, 0);
             break;
 
         default:

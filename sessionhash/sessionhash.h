@@ -82,4 +82,14 @@ enum stats_request
 /* Get stats */
 int sessionhash_stats(shash_t *s, shash_stats_t *stats, int flags);
 
+/* Dump flags enum */
+enum dump_flags
+{
+    /* Include unused entries in dump */
+    SHASH_DUMP_UNUSED       = 0x00000001
+};
+
+/* Dump the sessionhash */
+int sessionhash_dump(shash_t *s, FILE *f, int flags);
+
 #endif
