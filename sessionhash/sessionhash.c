@@ -87,7 +87,19 @@ sh_shared_t;
 
 
 /* Hash function */
-static uint32_t s_hash(const char *sessionid, int sz)
+static inline uint32_t hash_djb(const char *value, int len)
+{
+    uint32_t                hash = 5381;
+    uint32_t                i;
+
+    for(i = 0; i < len; value++, i++)
+        hash = ((hash << 5) + hash) + (*value);
+
+    return hash;
+}
+
+/* Decode function */
+static inline uint32_t s_hash(const char *sessionid, int sz)
 {
     int                     bsize;
     uint32_t                hval;
@@ -96,8 +108,8 @@ static uint32_t s_hash(const char *sessionid, int sz)
     /* Decode this */
     bdata = base64_decode(sessionid, sz, &bsize);
 
-    /* Grab first integer */
-    hval = ((uint32_t *)bdata)[0];
+    /* Use djb hash */
+    hval = hash_djb(bdata, bsize);
 
     /* Free */
     free(bdata);
@@ -363,7 +375,7 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     shared = (sh_shared_t *)shash->sdata;
 
     /* Check length */
-    if((ln = strlen(sessionid)) > shared->elementsize)
+    if((ln = strlen(insessionid)) > shared->elementsize)
         return -1;
 
     /* Copy and pad smaller keys */
@@ -459,6 +471,7 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
 
+    /* Stats */
     if(flags & SHASH_STATS_NREADS)
         memcpy(&stats->nreads, &shared->nreads, sizeof(stats->nreads));
 

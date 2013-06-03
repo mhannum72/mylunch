@@ -55,7 +55,7 @@ static int print_stats(shash_stats_t *stats, FILE *f)
     fprintf(f, "maxelements                 %d\n", stats->maxelements);
 
     for(i=0; i < 9; i++)
-        fprintf(f, "%d steps                    %lld\n", i, stats->steps[i]);
+        fprintf(f, "%d steps                     %lld\n", i, stats->steps[i]);
 
     fprintf(f, "9+ steps                    %lld\n", stats->steps[9]);
     fprintf(f, "\n");
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "Create argument is <keysize>:<elementcnt>.\n");
                     exit(1);
                 }
-                colon = '\0';
+                *colon = '\0';
                 keysz = atoi(optarg);
                 nelements = atoi(&colon[1]);
                 break;
