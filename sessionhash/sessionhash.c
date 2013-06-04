@@ -61,6 +61,7 @@ typedef struct sessionhash_shared
     int                     magic;
 
     /* Define meta-informaion */
+    int                     segsize;
     int                     headersize;
     int                     stepsize;
     int                     keysize;
@@ -182,6 +183,7 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     /* Setup */
     shared->headersize = offsetof(sh_shared_t, element);
     shared->stepsize = 1;
+    shared->segsize = sz;
     shared->keysize = keysz;
     shared->elementsize = elsz;
     shared->maxelements = nelements;
@@ -259,7 +261,7 @@ shash_t *sessionhash_attach(int shmkey)
 }
 
 /* Attach readonly to a sessionhash */
-shash_t *sessionhash_attach_readonly(int shmkey)
+static shash_t *sessionhash_attach_readonly(int shmkey)
 {
     return sessionhash_attach_int(shmkey, 1);
 }
@@ -337,7 +339,8 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
             (++cnt < shared->maxelements))
     {
         hidx = (hidx + shared->stepsize) % shared->maxelements;
-        element = findelement(shash, hidx); }
+        element = findelement(shash, hidx); 
+    }
 
     /* Copy out user id if this is a hit */
     if(!cmp)
@@ -455,11 +458,13 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
             /* Copy element into place */
             memcpy(&element->userid, &userid, sizeof(element->userid));
 
+            /* Increment element count */
+            if(!element->flags & ELEMENT_IN_USE) 
+                shared->numelements++;
+
             /* This is now in use */
             element->flags |= ELEMENT_IN_USE;
 
-            /* Increment element count */
-            shared->numelements++;
         }
 
         /* Good return code */
@@ -505,11 +510,18 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
     if(flags & SHASH_STATS_COUNT)
         memcpy(&stats->count, &shared->numelements, sizeof(stats->count));
 
+    if(flags & SHASH_STATS_MAXELEMENTS)
+        memcpy(&stats->maxelements, &shared->maxelements, 
+                sizeof(stats->maxelements));
+
     if(flags & SHASH_STATS_WCOLLISIONS)
         memcpy(&stats->wcoll, &shared->wcoll, sizeof(stats->wcoll));
 
     if(flags & SHASH_STATS_KEYSIZE)
         memcpy(&stats->keysize, &shared->keysize, sizeof(stats->keysize));
+
+    if(flags & SHASH_STATS_SEGSIZE)
+        memcpy(&stats->segsize, &shared->segsize, sizeof(stats->segsize));
 
     return 0;
 }

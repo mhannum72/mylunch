@@ -18,7 +18,8 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements);
 shash_t *sessionhash_attach(int shmkey);
 
 /* Attach readonly to a sessionhash object */
-shash_t *sessionhash_attach_readonly(int shmkey);
+/* Deprecated until stats are in a different segment */
+/* shash_t *sessionhash_attach_readonly(int shmkey); */
 
 /* Destroy sessionhash handle */
 void sessionhash_destroy(shash_t *s);
@@ -42,6 +43,7 @@ typedef struct shash_stats
     int                     count;
     int                     keysize;
     int                     maxelements;
+    int                     segsize;
 }
 shash_stats_t;
 
@@ -77,6 +79,9 @@ enum stats_request
 
     /* Key size */
    ,SHASH_STATS_KEYSIZE     = 0x00000200
+
+   /* Segment size */
+   ,SHASH_STATS_SEGSIZE     = 0x00000400
 };
 
 /* Get stats */

@@ -55,6 +55,7 @@ static int print_stats(shash_stats_t *stats, FILE *f)
     fprintf(f, "wcoll                       %lld\n", stats->wcoll);
     fprintf(f, "nelements                   %d\n", stats->count);
     fprintf(f, "maxelements                 %d\n", stats->maxelements);
+    fprintf(f, "segsize                     %d\n", stats->segsize);
 
     for(i=0; i < 9; i++)
         fprintf(f, "%d steps                     %lld\n", i, stats->steps[i]);
@@ -257,7 +258,7 @@ int main(int argc, char *argv[])
                 SHASH_STATS_NREADS|SHASH_STATS_NWRITES|SHASH_STATS_NHITS|
                 SHASH_STATS_NMISSES|SHASH_STATS_MAXSTEPS|SHASH_STATS_HISTOGRAM|
                 SHASH_STATS_COUNT|SHASH_STATS_MAXELEMENTS|
-                SHASH_STATS_WCOLLISIONS);
+                SHASH_STATS_WCOLLISIONS|SHASH_STATS_SEGSIZE);
 
             /* Print the stats */
             print_stats(&stats, stdout);

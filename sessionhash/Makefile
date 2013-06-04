@@ -1,12 +1,22 @@
 CFLAGS=-g
 
-LIBS=-lpthread
+LIBS=-L. -lshash -lpthread
+
+AR=/usr/bin/ar
+
+all: shashutil shashtest
+
+shashutil:	shashutil.o libshash.a
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+
+shashtest: shashtest.o libshash.a
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@ 
 
-shtest:	sessionhash.o base64.o shtest.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-	
+libshash.a: sessionhash.o base64.o
+	$(AR) rcs $@ $^ 
+
 clean:
-	-rm -f shtest *.o
+	-rm -f shashutil *.o *.a
