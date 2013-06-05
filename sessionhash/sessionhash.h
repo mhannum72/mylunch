@@ -39,9 +39,8 @@ typedef struct shash_stats
     uint64_t                maxsteps;
     uint64_t                nwrites;
     uint64_t                wcoll;
-    uint64_t                steps[10];
-    int                     count;
     int                     keysize;
+    int                     numelements;
     int                     maxelements;
     int                     segsize;
 }
@@ -65,27 +64,28 @@ enum stats_request
     /* Maximum steps taken for a find */
    ,SHASH_STATS_MAXSTEPS    = 0x00000010
 
-    /* Step histogram */
-   ,SHASH_STATS_HISTOGRAM   = 0x00000020
-
-    /* Element count */
-   ,SHASH_STATS_COUNT       = 0x00000040
-
-    /* Maximum size */
-   ,SHASH_STATS_MAXELEMENTS = 0x00000080
-
-    /* Replaced userids */
-   ,SHASH_STATS_WCOLLISIONS = 0x00000100
-
     /* Key size */
-   ,SHASH_STATS_KEYSIZE     = 0x00000200
+   ,SHASH_STATS_KEYSIZE     = 0x00000020
 
    /* Segment size */
-   ,SHASH_STATS_SEGSIZE     = 0x00000400
+   ,SHASH_STATS_SEGSIZE     = 0x00000040
+
+   /* Current number of elements */
+   ,SHASH_STATS_NUMELEMENTS = 0x00000080
+
+    /* Maximum size */
+   ,SHASH_STATS_MAXELEMENTS = 0x00000100
+
+    /* Replaced userids */
+   ,SHASH_STATS_WCOLLISIONS = 0x00000200
+
 };
 
 /* Get stats */
 int sessionhash_stats(shash_t *s, shash_stats_t *stats, int flags);
+
+/* Get count histogram.  Caller should free return */
+uint64_t *sessionhash_steps(shash_t *s, int *nelements);
 
 /* Dump flags enum */
 enum dump_flags

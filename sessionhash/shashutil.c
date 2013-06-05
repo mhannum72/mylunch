@@ -23,6 +23,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-a                     - Add sessionid\n");
     fprintf(f,  "-f                     - Find sessionid\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
+    fprintf(f,  "-T                     - Retrieve step histogram\n");
     fprintf(f,  "-d                     - Dump sessionhash\n");
     fprintf(f,  "-h                     - This menu\n");
     exit(1);
@@ -37,15 +38,44 @@ enum
    ,MODE_ADD                = 3
    ,MODE_STATS              = 4
    ,MODE_DUMP               = 5
+   ,MODE_STEPS              = 6
 };
 
 /* Mode variable */
 static int mode = MODE_UNSET;
 
+/* Print steps */
+static int print_steps(uint64_t *steps, int nelements, FILE *f)
+{
+    int                     i;
+    int                     cal = (nelements - 1);
+    int                     log10 = 1;
+
+    /* Find max output idx */
+    for(i = 0; i < nelements; i++)
+        if(steps[i] > 0) 
+            cal = i;
+
+    /* Calculate indentation */
+    while(cal /= 10)
+        log10++;
+
+    for(i = 0; i < nelements; i++)
+    {
+        if(steps[i] > 0)
+        {
+            fprintf(stderr, "%*d step hits              -> %lld\n", log10, i,
+                    steps[i]);
+        }
+    }
+
+    return 0;
+}
+
 /* Print stats */
 static int print_stats(shash_stats_t *stats, FILE *f)
 {
-    int i;
+    int                     i;
 
     fprintf(f, "nreads                      %lld\n", stats->nreads);
     fprintf(f, "nhits                       %lld\n", stats->nhits);
@@ -53,14 +83,9 @@ static int print_stats(shash_stats_t *stats, FILE *f)
     fprintf(f, "maxsteps                    %lld\n", stats->maxsteps);
     fprintf(f, "nwrites                     %lld\n", stats->nwrites);
     fprintf(f, "wcoll                       %lld\n", stats->wcoll);
-    fprintf(f, "nelements                   %d\n", stats->count);
+    fprintf(f, "numelements                 %d\n", stats->numelements);
     fprintf(f, "maxelements                 %d\n", stats->maxelements);
     fprintf(f, "segsize                     %d\n", stats->segsize);
-
-    for(i=0; i < 9; i++)
-        fprintf(f, "%d steps                     %lld\n", i, stats->steps[i]);
-
-    fprintf(f, "9+ steps                    %lld\n", stats->steps[9]);
     fprintf(f, "\n");
 }
 
@@ -78,11 +103,12 @@ int main(int argc, char *argv[])
     long long               userid = -1;
     shash_t                 *shash;
     shash_stats_t           stats = {0};
+    uint64_t                *steps;
 
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dafth")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:daftTh")))
     {
         switch(c)
         {
@@ -132,6 +158,10 @@ int main(int argc, char *argv[])
             /* Stats */
             case 't':
                 mode = MODE_STATS;
+                break;
+
+            case 'T':
+                mode = MODE_STEPS;
                 break;
 
             case 'd':
@@ -256,12 +286,30 @@ int main(int argc, char *argv[])
             /* Get stats */
             sessionhash_stats(shash, &stats, 
                 SHASH_STATS_NREADS|SHASH_STATS_NWRITES|SHASH_STATS_NHITS|
-                SHASH_STATS_NMISSES|SHASH_STATS_MAXSTEPS|SHASH_STATS_HISTOGRAM|
-                SHASH_STATS_COUNT|SHASH_STATS_MAXELEMENTS|
-                SHASH_STATS_WCOLLISIONS|SHASH_STATS_SEGSIZE);
+                SHASH_STATS_NMISSES|SHASH_STATS_MAXSTEPS|
+                SHASH_STATS_NUMELEMENTS|SHASH_STATS_MAXELEMENTS|
+                SHASH_STATS_WCOLLISIONS| SHASH_STATS_SEGSIZE);
 
             /* Print the stats */
             print_stats(&stats, stdout);
+            break;
+
+        case MODE_STEPS:
+
+            /* Attach shash */
+            shash = sessionhash_attach(key);
+            if(!shash)
+            {
+                fprintf(stderr, "Error attaching to session_hash, key=0x%x.\n", key);
+                exit(1);
+            }
+
+            /* Get steps */
+            steps = sessionhash_steps(shash, &nelements);
+            
+            /* Print steps */
+            print_steps(steps, nelements, stdout);
+
             break;
 
         case MODE_DUMP:

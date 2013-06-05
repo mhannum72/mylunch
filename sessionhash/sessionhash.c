@@ -80,7 +80,7 @@ typedef struct sessionhash_shared
     uint64_t                maxsteps;
 
     /* Histogram */
-    uint64_t                steps[10];
+    uint64_t                steps[1];
 
     /* Hash */
     char                    element[1];
@@ -145,12 +145,16 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     pthread_mutexattr_t     attr;
     size_t                  sz;
     size_t                  elsz;
+    size_t                  hsz;
 
     /* Calculate size of element */
     elsz = offsetof(sh_element_t, sessionid) + keysz;
 
+    /* Calculate size of histogram */
+    hsz = nelements * sizeof(uint64_t);
+
     /* Calculate size */
-    sz = offsetof(sh_shared_t, element) + (nelements * elsz);
+    sz = offsetof(sh_shared_t, steps) + hsz + (nelements * elsz);
 
     /* Get shmid for this segment */
     shmid = shmget(shmkey, sz, IPC_CREAT|IPC_EXCL|0666);
@@ -181,7 +185,7 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     shared->magic = MAGIC;
 
     /* Setup */
-    shared->headersize = offsetof(sh_shared_t, element);
+    shared->headersize = offsetof(sh_shared_t, steps) + hsz;
     shared->stepsize = 1;
     shared->segsize = sz;
     shared->keysize = keysz;
@@ -360,15 +364,9 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     if(cnt > shared->maxsteps)
         shared->maxsteps = cnt;
 
-    /* Count elements */
-    histcnt = sizeof(shared->steps) / sizeof(shared->steps[0]);
-
     /* Cap at last */
-    if(cnt >= histcnt)
-        cnt = histcnt - 1;
-
-    /* Update shared */
-    shared->steps[cnt]++;
+    if(cnt < shared->maxelements)
+        shared->steps[cnt]++;
 
     /* Return value */
     return rtn;
@@ -504,15 +502,13 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
     if(flags & SHASH_STATS_MAXSTEPS)
         memcpy(&stats->maxsteps, &shared->maxsteps, sizeof(stats->maxsteps));
 
-    if(flags & SHASH_STATS_HISTOGRAM)
-        memcpy(&stats->steps, &shared->steps, sizeof(stats->steps));
-
-    if(flags & SHASH_STATS_COUNT)
-        memcpy(&stats->count, &shared->numelements, sizeof(stats->count));
-
     if(flags & SHASH_STATS_MAXELEMENTS)
         memcpy(&stats->maxelements, &shared->maxelements, 
                 sizeof(stats->maxelements));
+
+    if(flags & SHASH_STATS_NUMELEMENTS)
+        memcpy(&stats->numelements, &shared->numelements, 
+                sizeof(stats->numelements));
 
     if(flags & SHASH_STATS_WCOLLISIONS)
         memcpy(&stats->wcoll, &shared->wcoll, sizeof(stats->wcoll));
@@ -556,5 +552,27 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
                     shared->keysize, f);
         }
     }
+}
+
+/* Copy out steps histogram */
+uint64_t *sessionhash_steps(shash_t *shash, int *nelements)
+{
+    sh_shared_t             *shared;
+    uint64_t                *steps;
+    
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    /* Grab memory */
+    steps = (uint64_t *)malloc(sizeof(uint64_t) * shared->maxelements);
+
+    /* Memcpy */
+    memcpy(steps, shared->steps, sizeof(uint64_t) * shared->maxelements);
+
+    /* Set nelements */
+    *nelements = shared->maxelements;
+
+    /* Return */
+    return steps;
 }
 
