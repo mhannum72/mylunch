@@ -5,9 +5,6 @@
 #include "sessionhash.h"
 #include "base64.h"
 
-/* Default key */
-#define DEFAULTKEY 0x12345678
-
 /* Arg0 */
 const char *argv0;
 
@@ -97,7 +94,7 @@ int main(int argc, char *argv[])
     int                     keysz;
     int                     err = 0;
     int                     rc;
-    int                     key = DEFAULTKEY;
+    int                     key = -1;
     char                    *sessionid = NULL;
     char                    *colon = NULL;
     long long               userid = -1;
@@ -185,6 +182,12 @@ int main(int argc, char *argv[])
     if(MODE_UNSET == mode)
     {
         fprintf(stderr, "Mode is not set.\n");
+        usage(argv0, stderr);
+    }
+
+    if(-1 == key)
+    {
+        fprintf(stderr, "Key is not set.\n");
         usage(argv0, stderr);
     }
 

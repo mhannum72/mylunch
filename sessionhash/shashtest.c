@@ -5,9 +5,6 @@
 #include "sessionhash.h"
 #include "base64.h"
 
-/* Default key */
-#define DEFAULTKEY 0x12345678
-
 /* Arg0 */
 const char *argv0;
 
@@ -54,7 +51,7 @@ static int threadcnt = 10;
 static int iterations = 32768;
 
 /* Key to attach to */
-static int key = DEFAULTKEY;
+static int key = -1;
 
 /* Generate & encode a random session string */
 static inline char *randsession(long long *userid)
@@ -247,6 +244,13 @@ int main(int argc, char *argv[])
     if(MODE_UNSET == mode)
     {
         fprintf(stderr, "Mode is not set.\n");
+        usage(argv0, stderr);
+    }
+
+    /* Exit if key isn't set */
+    if(-1 == key)
+    {
+        fprintf(stderr, "Key is not set.\n");
         usage(argv0, stderr);
     }
 
