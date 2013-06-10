@@ -16,12 +16,15 @@
  * type (given a key).  Maybe the 'sessionhash_open' call will take a shmkey as
  * it's argument, and return a structure to it. 
  *
- * I can do the read locklessly: a hash miss just goes to the next bucket by 
- * adding 'hash-step' (some number which is relatively prime to the size).  
- * Until I get to an empty bucket, or until I've searched the entire table.
+ * I'm revising the structure of this to allow for deletes, and more predictable
+ * behavior when the hash nears being full.  The downside is that I will no 
+ * longer be able to do things locklessly.
  *
- * I will assume that there are multiple writers, and that they should lock.
- * Once a session is written, it will not go away until a reboot.
+ * Now I'm going to initialize a set of 'head-pointers' that will contain the
+ * indexes of the first elements.  
+ *
+ * There's no more lockless access unfortunately.
+ *
  */
 
 #define MAGIC 0x5e551024
@@ -37,22 +40,36 @@ typedef struct sessionhash
 }
 shash_t;
 
+typedef struct headpointer
+
 #define _SESSIONHASH_INTERNAL
 #include "sessionhash.h"
 
 enum sh_flags
 {
-    ELEMENT_IN_USE  = 0x00000001
+    ELEMENT_IN_USE          = 0x00000001
+   ,ELEMENT_ON_FREELIST     = 0x00000002
 };
 
 /* Maps sessionid to userid */
 typedef struct sesssionhash_element
 {
     unsigned int            flags;
+    int                     next;
+    int                     prev;
     long long               userid;
     char                    sessionid[1];
 }
 sh_element_t;
+
+/* Hash-heads */
+typedef struct sessionhash_head
+{
+    pthread_wrlock_t        lock;
+    int                     head;
+    int                     count;
+}
+sh_head_t;
 
 /* This structure is in shared memory */
 typedef struct sessionhash_shared
@@ -386,6 +403,10 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
 
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
+
+    /* If this is half-full punt */
+    if(shared->numelements >= (shared->maxelements >> 1))
+        return -1;
 
     /* Check length */
     if((ln = strlen(insessionid)) > shared->keysize)
