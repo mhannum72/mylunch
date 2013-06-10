@@ -1,10 +1,15 @@
 CFLAGS=-g
 
-LIBS=-L. -lshash -lpthread
+PTHREADLIBS=-lpthread
+
+LIBS=-L. -lshash $(PTHREADLIBS)
 
 AR=/usr/bin/ar
 
-all: shashutil shashtest
+all: shashutil shashtest test
+
+test:	test.o
+	$(CC) $(CFLAGS) -o $@ $< $(PTHREADLIBS)
 
 shashutil:	shashutil.o libshash.a
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)

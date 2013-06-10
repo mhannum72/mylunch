@@ -65,7 +65,7 @@ sh_element_t;
 /* Hash-heads */
 typedef struct sessionhash_head
 {
-    pthread_wrlock_t        lock;
+    pthread_rwlock_t        lock;
     int                     head;
     int                     count;
 }
@@ -80,30 +80,54 @@ typedef struct sessionhash_shared
     /* Define meta-informaion */
     int                     segsize;
     int                     headersize;
-    int                     stepsize;
     int                     keysize;
+    int                     numbuckets;
     int                     elementsize;
     int                     maxelements;
     int                     numelements;
     int                     maxlog10;
-    pthread_mutex_t         lock;
 
     /* Lockless stats */
     uint64_t                nreads;
     uint64_t                nwrites;
-    uint64_t                wcoll;
     uint64_t                nhits;
     uint64_t                nmisses;
     uint64_t                maxsteps;
 
-    /* Histogram */
-    uint64_t                steps[1];
+    /* Freelist */
+    sh_head_t               freelist;
 
     /* Hash */
-    char                    element[1];
+    sh_head_t               buckets[1];
 }
 sh_shared_t;
 
+/* Given an index and a shared segment return this element */
+static inline sh_element_t *findelementsh(sh_shared_t *shared, int idx)
+{
+    char                    *ptr;
+
+    /* Beginning of data */
+    ptr = (char *)shared + shared->headersize;
+
+    /* Correct offset */
+    ptr += (idx * shared->elementsize);
+
+    /* Cast offset to sh_element_t */
+    return (sh_element_t *)ptr;
+}
+
+/* Given an index return an sh_element_t */
+static inline sh_element_t *findelement(shash_t *shash, int idx)
+{
+    sh_shared_t             *shared;
+
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    /* Find element shared */
+    return findelementsh(shared, idx);
+}
 
 /* Hash function */
 static inline uint32_t hash_djb(const char *value, int len)
@@ -157,21 +181,28 @@ static shash_t *allocate_shash(int shmid, int shmkey, sh_shared_t *shared)
 shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
 {
     int                     shmid;
+    int                     nel10;
+    int                     ii;
     shash_t                 *shash;
+    sh_element_t            *element;
     sh_shared_t             *shared;
-    pthread_mutexattr_t     attr;
+    pthread_rwlockattr_t    attr;
     size_t                  sz;
+    size_t                  nbuckets;
+    size_t                  barraysz;
     size_t                  elsz;
-    size_t                  hsz;
 
     /* Calculate size of element */
     elsz = offsetof(sh_element_t, sessionid) + keysz;
 
-    /* Calculate size of histogram */
-    hsz = nelements * sizeof(uint64_t);
+    /* Bucket list is 4 times the number of elements */
+    nbuckets = nelements << 2;
 
+    /* Bucketarray size */
+    barraysz = nbuckets * sizeof(sh_head_t);
+    
     /* Calculate size */
-    sz = offsetof(sh_shared_t, steps) + hsz + (nelements * elsz);
+    sz = offsetof(sh_shared_t, buckets) + barraysz + (nelements * elsz);
 
     /* Get shmid for this segment */
     shmid = shmget(shmkey, sz, IPC_CREAT|IPC_EXCL|0666);
@@ -202,26 +233,51 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     shared->magic = MAGIC;
 
     /* Setup */
-    shared->headersize = offsetof(sh_shared_t, steps) + hsz;
-    shared->stepsize = 1;
+    shared->headersize = offsetof(sh_shared_t, buckets) + barraysz;
     shared->segsize = sz;
     shared->keysize = keysz;
     shared->elementsize = elsz;
     shared->maxelements = nelements;
+    shared->numbuckets = nbuckets;
     shared->numelements = 0;
     shared->maxlog10 = 1;
 
     /* 0-based idx */
-    nelements--;
+    nel10 = nelements-1;
 
     /* Index field width */
-    while(nelements /= 10) 
+    while(nel10 /= 10) 
         shared->maxlog10++;
 
-    /* Create shared mutex */
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-    pthread_mutex_init(&shared->lock, &attr);
+    /* Rwlock attribute object */
+    pthread_rwlockattr_init(&attr);
+    pthread_rwlockattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+    pthread_rwlockattr_setkind_np(&attr, PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP);
+
+    /* Initialize head list */
+    for(ii = 0; ii < nbuckets; ii++)
+    {
+        shared->buckets[i].head = -1;
+        pthread_rwlock_init(&shared->buckets[i].lock, &attr);
+    }
+
+    /* All elements are on the free list */
+    for(ii = 0; ii < nelements; ii++)
+    {
+        element = findelementsh(shared, ii);
+
+        element->prev = ii-1;
+        element->next = ii+1;
+    }
+
+    /* Tweak last element next */
+    element->next = -1;
+
+    /* Initialize free list */
+    pthread_rwlock_init(&shared->freelist.lock, &attr);
+
+    /* Head is element 0 */
+    shared->freelist.head = 0;
 
     /* Allocate handle from heap */
     shash = allocate_shash(shmid, shmkey, shared);
@@ -293,30 +349,13 @@ void sessionhash_destroy(shash_t *shash)
     free(shash);
 }
 
-/* Given an index return an sh_element_t */
-static inline sh_element_t *findelement(shash_t *shash, int idx)
-{
-    sh_shared_t             *shared;
-    char                    *ptr;
-
-    /* Shared */
-    shared = (sh_shared_t *)shash->sdata;
-
-    /* Beginning of data */
-    ptr = (char *)shared + shared->headersize;
-
-    /* Correct offset */
-    ptr += (idx * shared->elementsize);
-
-    /* Cast offset to sh_element_t */
-    return (sh_element_t *)ptr;
-}
-
 /* Find this session and return the user */
 long long sessionhash_find(shash_t *shash, const char *insessionid)
 {
     char                    *sessionid;
     uint32_t                hidx;
+    uint32_t                hcnt;
+    sh_head_t               *bhead;
     sh_shared_t             *shared;
     sh_element_t            *element;
     long long               rtn = -1;
@@ -349,9 +388,31 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
         sessionid = (char *)insessionid;
 
     /* Hash index */
-    hidx = s_hash(sessionid, strlen(sessionid)) % shared->maxelements;
+    hidx = s_hash(sessionid, strlen(sessionid)) % shared->nbuckets;
 
-    /* Element */
+    /* Bucket-head */
+    bhead = &shared->buckets[hidx];
+
+    /* Readlock bucket head.  TODO maybe functionize this & use trylock */
+    pthread_rwlock_rdlock(&bhead->lock);
+
+    /* Punt if empty */
+    if(0 == bhead->count)
+    {
+        pthread_rwlock_unlock(&bhead->lock);
+        shared->nmisses++;
+        return -1;
+    }
+
+    /* Walk the chain */
+    for(hidx = bhead->head, hcnt = 0 ; hidx > 0 && hcnt < bhead->count ; 
+            hidx = element->next, hcnt++)
+    {
+        element = findelement(shash, hidx);
+        if(cmp = memcmp(sessionid, element->sessionid, shared->keysize))
+            break;
+    }
+
     element = findelement(shash, hidx);
 
     /* Iterate until match or miss */
@@ -458,7 +519,7 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
             (memcmp(&element->userid, &userid, sizeof(element->userid))))
         {
             /* Increment write-collisions */
-            shared->wcoll++;
+//            shared->wcoll++;
 
             /* Maybe print some trace? */
             fprintf(stderr, "Shared-hash collision: replacing '%s' userid=%lld "
@@ -531,8 +592,10 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
         memcpy(&stats->numelements, &shared->numelements, 
                 sizeof(stats->numelements));
 
+    /*
     if(flags & SHASH_STATS_WCOLLISIONS)
         memcpy(&stats->wcoll, &shared->wcoll, sizeof(stats->wcoll));
+        */
 
     if(flags & SHASH_STATS_KEYSIZE)
         memcpy(&stats->keysize, &shared->keysize, sizeof(stats->keysize));
