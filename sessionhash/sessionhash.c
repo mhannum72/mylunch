@@ -419,10 +419,12 @@ int sessionhash_delete(shash_t *shash, const char *insessionid)
     sh_element_t            *element;
     sh_element_t            *next = NULL;
     sh_element_t            *prev = NULL;
+    sh_element_t            *frel = NULL;
     int                     col = 0;
     int                     cnt = 0;
     int                     cmp = 1;
     int                     ln;
+    int                     rtn = SHASH_NOT_FOUND;
 
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
@@ -488,10 +490,32 @@ int sessionhash_delete(shash_t *shash, const char *insessionid)
 
     if(!cmp)
     {
+        /* Lock freelist */
+        pthread_rwlock_lock(&shared->freelist.lock);
+
+        /* Set prev of the head */
+        if(shared->freelist.head >= 0)
+        {
+            frel = findelementsh(shared, shared->freelist.head);
+            frel->prev = hidx;
+        }
+
+        /* Set my next to the freehead */
+        element->next = shared->freelist.head;
+
+        /* New free head */
+        shared->freelist.head = hidx;
+
+        /* Increment */
+        shared->freelist.count++;
+
+        /* Unlock */
+        pthread_rwlock_unlock(&shared->freelist.lock);
+
+        rtn = SHASH_OK;
     }
 
-
-
+    return rtn;;
 }
 
 /* Add this key->userid mapping to sessionhash */
