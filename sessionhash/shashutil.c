@@ -20,8 +20,8 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-a                     - Add sessionid\n");
     fprintf(f,  "-f                     - Find sessionid\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
-    fprintf(f,  "-T                     - Retrieve step histogram\n");
     fprintf(f,  "-d                     - Dump sessionhash\n");
+    fprintf(f,  "-D                     - Dump sessionhash and freelist\n");
     fprintf(f,  "-h                     - This menu\n");
     exit(1);
 }
@@ -35,39 +35,10 @@ enum
    ,MODE_ADD                = 3
    ,MODE_STATS              = 4
    ,MODE_DUMP               = 5
-   ,MODE_STEPS              = 6
 };
 
 /* Mode variable */
 static int mode = MODE_UNSET;
-
-/* Print steps */
-static int print_steps(uint64_t *steps, int nelements, FILE *f)
-{
-    int                     i;
-    int                     cal = (nelements - 1);
-    int                     log10 = 1;
-
-    /* Find max output idx */
-    for(i = 0; i < nelements; i++)
-        if(steps[i] > 0) 
-            cal = i;
-
-    /* Calculate indentation */
-    while(cal /= 10)
-        log10++;
-
-    for(i = 0; i < nelements; i++)
-    {
-        if(steps[i] > 0)
-        {
-            fprintf(stderr, "%*d step hits              -> %lld\n", log10, i,
-                    steps[i]);
-        }
-    }
-
-    return 0;
-}
 
 /* Print stats */
 static int print_stats(shash_stats_t *stats, FILE *f)
@@ -77,7 +48,6 @@ static int print_stats(shash_stats_t *stats, FILE *f)
     fprintf(f, "nreads                      %lld\n", stats->nreads);
     fprintf(f, "nhits                       %lld\n", stats->nhits);
     fprintf(f, "nmisses                     %lld\n", stats->nmisses);
-    fprintf(f, "maxsteps                    %lld\n", stats->maxsteps);
     fprintf(f, "nwrites                     %lld\n", stats->nwrites);
     fprintf(f, "wcoll                       %lld\n", stats->wcoll);
     fprintf(f, "numelements                 %d\n", stats->numelements);
@@ -90,6 +60,7 @@ static int print_stats(shash_stats_t *stats, FILE *f)
 int main(int argc, char *argv[])
 {
     int                     c;
+    int                     dflags = 0;
     int                     nelements;
     int                     keysz;
     int                     err = 0;
@@ -105,7 +76,7 @@ int main(int argc, char *argv[])
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:daftTh")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dDafth")))
     {
         switch(c)
         {
@@ -157,10 +128,11 @@ int main(int argc, char *argv[])
                 mode = MODE_STATS;
                 break;
 
-            case 'T':
-                mode = MODE_STEPS;
-                break;
+            /* Dump hash and freelist */
+            case 'D':
+                dflags = SHASH_DUMP_FREELIST;
 
+            /* Dump hash */
             case 'd':
                 mode = MODE_DUMP;
                 break;
@@ -297,24 +269,6 @@ int main(int argc, char *argv[])
             print_stats(&stats, stdout);
             break;
 
-        case MODE_STEPS:
-
-            /* Attach shash */
-            shash = sessionhash_attach(key);
-            if(!shash)
-            {
-                fprintf(stderr, "Error attaching to session_hash, key=0x%x.\n", key);
-                exit(1);
-            }
-
-            /* Get steps */
-            steps = sessionhash_steps(shash, &nelements);
-            
-            /* Print steps */
-            print_steps(steps, nelements, stdout);
-
-            break;
-
         case MODE_DUMP:
 
             /* Attach shash */
@@ -326,7 +280,7 @@ int main(int argc, char *argv[])
             }
 
             /* Dump the hash */
-            sessionhash_dump(shash, stdout, 0);
+            sessionhash_dump(shash, stdout, dflags);
             break;
 
         default:

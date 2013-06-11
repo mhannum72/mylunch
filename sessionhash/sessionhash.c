@@ -8,6 +8,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <alloca.h>
+#include <assert.h>
 #include "base64.h"
 
 /* This is written in C because it will be linked into nginx as well as node.js.  
@@ -40,16 +41,8 @@ typedef struct sessionhash
 }
 shash_t;
 
-typedef struct headpointer
-
 #define _SESSIONHASH_INTERNAL
 #include "sessionhash.h"
-
-enum sh_flags
-{
-    ELEMENT_IN_USE          = 0x00000001
-   ,ELEMENT_ON_FREELIST     = 0x00000002
-};
 
 /* Maps sessionid to userid */
 typedef struct sesssionhash_element
@@ -81,10 +74,9 @@ typedef struct sessionhash_shared
     int                     segsize;
     int                     headersize;
     int                     keysize;
-    int                     numbuckets;
+    int                     nbuckets;
     int                     elementsize;
     int                     maxelements;
-    int                     numelements;
     int                     maxlog10;
 
     /* Lockless stats */
@@ -92,7 +84,6 @@ typedef struct sessionhash_shared
     uint64_t                nwrites;
     uint64_t                nhits;
     uint64_t                nmisses;
-    uint64_t                maxsteps;
 
     /* Freelist */
     sh_head_t               freelist;
@@ -115,18 +106,6 @@ static inline sh_element_t *findelementsh(sh_shared_t *shared, int idx)
 
     /* Cast offset to sh_element_t */
     return (sh_element_t *)ptr;
-}
-
-/* Given an index return an sh_element_t */
-static inline sh_element_t *findelement(shash_t *shash, int idx)
-{
-    sh_shared_t             *shared;
-
-    /* Shared */
-    shared = (sh_shared_t *)shash->sdata;
-
-    /* Find element shared */
-    return findelementsh(shared, idx);
 }
 
 /* Hash function */
@@ -161,6 +140,7 @@ static inline uint32_t s_hash(const char *sessionid, int sz)
     return hval;
 }
 
+/* Allocate an shash object */
 static shash_t *allocate_shash(int shmid, int shmkey, sh_shared_t *shared)
 {
     shash_t                 *shash;
@@ -238,12 +218,11 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     shared->keysize = keysz;
     shared->elementsize = elsz;
     shared->maxelements = nelements;
-    shared->numbuckets = nbuckets;
-    shared->numelements = 0;
+    shared->nbuckets = nbuckets;
     shared->maxlog10 = 1;
 
     /* 0-based idx */
-    nel10 = nelements-1;
+    nel10 = nbuckets-1;
 
     /* Index field width */
     while(nel10 /= 10) 
@@ -257,8 +236,8 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
     /* Initialize head list */
     for(ii = 0; ii < nbuckets; ii++)
     {
-        shared->buckets[i].head = -1;
-        pthread_rwlock_init(&shared->buckets[i].lock, &attr);
+        shared->buckets[ii].head = -1;
+        pthread_rwlock_init(&shared->buckets[ii].lock, &attr);
     }
 
     /* All elements are on the free list */
@@ -278,6 +257,9 @@ shash_t *sessionhash_create(int shmkey, int keysz, int nelements)
 
     /* Head is element 0 */
     shared->freelist.head = 0;
+
+    /* All elements are on the freelist */
+    shared->freelist.count = nelements;
 
     /* Allocate handle from heap */
     shash = allocate_shash(shmid, shmkey, shared);
@@ -357,7 +339,7 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     uint32_t                hcnt;
     sh_head_t               *bhead;
     sh_shared_t             *shared;
-    sh_element_t            *element;
+    sh_element_t            *element = NULL;
     long long               rtn = -1;
     int                     cnt = 0;
     int                     cmp = 1;
@@ -374,7 +356,7 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     if((ln = strlen(insessionid)) > shared->keysize)
     {
         shared->nmisses++;
-        return -1;
+        return SHASH_KEY_TOO_BIG;
     }
 
     /* Copy and pad smaller keys */
@@ -396,32 +378,13 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     /* Readlock bucket head.  TODO maybe functionize this & use trylock */
     pthread_rwlock_rdlock(&bhead->lock);
 
-    /* Punt if empty */
-    if(0 == bhead->count)
-    {
-        pthread_rwlock_unlock(&bhead->lock);
-        shared->nmisses++;
-        return -1;
-    }
-
     /* Walk the chain */
-    for(hidx = bhead->head, hcnt = 0 ; hidx > 0 && hcnt < bhead->count ; 
+    for(hidx = bhead->head, hcnt = 0 ; hidx >= 0 && hcnt < bhead->count ; 
             hidx = element->next, hcnt++)
     {
-        element = findelement(shash, hidx);
-        if(cmp = memcmp(sessionid, element->sessionid, shared->keysize))
+        element = findelementsh(shared, hidx);
+        if(0 == (cmp = memcmp(sessionid, element->sessionid, shared->keysize)))
             break;
-    }
-
-    element = findelement(shash, hidx);
-
-    /* Iterate until match or miss */
-    while(  (element->flags & ELEMENT_IN_USE) && 
-            (cmp = memcmp(sessionid, element->sessionid, shared->keysize)) &&
-            (++cnt < shared->maxelements))
-    {
-        hidx = (hidx + shared->stepsize) % shared->maxelements;
-        element = findelement(shash, hidx); 
     }
 
     /* Copy out user id if this is a hit */
@@ -438,26 +401,25 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
     else
         shared->nmisses++;
 
-    /* Update max steps */
-    if(cnt > shared->maxsteps)
-        shared->maxsteps = cnt;
-
-    /* Cap at last */
-    if(cnt < shared->maxelements)
-        shared->steps[cnt]++;
+    /* Unlock */
+    pthread_rwlock_unlock(&bhead->lock);
 
     /* Return value */
     return rtn;
 }
 
-/* Add this key->userid mapping to sessionhash */
-int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
+/* Delete this sessionid */
+int sessionhash_delete(shash_t *shash, const char *insessionid)
 {
     char                    *sessionid;
     uint32_t                hidx;
+    uint32_t                hcnt;
+    sh_head_t               *bhead;
     sh_shared_t             *shared;
     sh_element_t            *element;
-    long long               rtn = -1;
+    sh_element_t            *next = NULL;
+    sh_element_t            *prev = NULL;
+    int                     col = 0;
     int                     cnt = 0;
     int                     cmp = 1;
     int                     ln;
@@ -465,13 +427,9 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
 
-    /* If this is half-full punt */
-    if(shared->numelements >= (shared->maxelements >> 1))
-        return -1;
-
     /* Check length */
     if((ln = strlen(insessionid)) > shared->keysize)
-        return -1;
+        return SHASH_KEY_TOO_BIG;
 
     /* Copy and pad smaller keys */
     if(ln < shared->keysize)
@@ -484,86 +442,198 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
         sessionid = (char *)insessionid;
 
     /* Hash index */
-    hidx = s_hash(sessionid, strlen(sessionid)) % shared->maxelements;
+    hidx = s_hash(sessionid, strlen(sessionid)) % shared->nbuckets;
 
-    /* Element */
-    element = findelement(shash, hidx);
+    /* Bucket-head */
+    bhead = &shared->buckets[hidx];
 
-    /* Iterate until match or miss */
-    while(  (element->flags & ELEMENT_IN_USE) && 
-            (cmp = memcmp(sessionid, element->sessionid, shared->keysize)) &&
-            (++cnt < shared->maxelements))
+    /* Write lock */
+    pthread_rwlock_wrlock(&bhead->lock);
+
+    /* Walk the chain */
+    for(hidx = bhead->head, hcnt = 0 ; hidx >= 0 && hcnt < bhead->count ; 
+            hidx = element->next, hcnt++)
     {
-        hidx = (hidx + shared->stepsize) % shared->maxelements;
-        element = findelement(shash, hidx);
+        element = findelementsh(shared, hidx);
+        if(0 == (cmp = memcmp(sessionid, element->sessionid, shared->keysize)))
+            break;
     }
 
-    /* Continue to iterate under lock */
-    pthread_mutex_lock(&shared->lock);
-
-    /* Continue under lock.  Add 'cmp' check to prevent another memcmp */
-    while(  (cmp) && 
-            (element->flags & ELEMENT_IN_USE) &&
-            (cmp = memcmp(sessionid, element->sessionid, shared->keysize)) &&
-            (++cnt < shared->maxelements))
+    /* Found it */
+    if(!cmp)
     {
-        hidx = (hidx + shared->stepsize) % shared->maxelements;
-        element = findelement(shash, hidx);
-    }
-
-    /* This scheme assumes that I can write 2 words atomically */
-    if(cnt < shared->maxelements)
-    {
-        /* Increment write colision */
-        if( (element->flags & ELEMENT_IN_USE) && 
-            (memcmp(&element->userid, &userid, sizeof(element->userid))))
+        /* Clip next element */
+        if(element->next >= 0)
         {
-            /* Increment write-collisions */
-//            shared->wcoll++;
-
-            /* Maybe print some trace? */
-            fprintf(stderr, "Shared-hash collision: replacing '%s' userid=%lld "
-                    "with userid='%lld'.\n", sessionid, element->userid,  userid);
-
-            /* Copy element into place */
-            memcpy(&element->userid, &userid, sizeof(element->userid));
+            next = findelementsh(shared, element->next);
+            next->prev = element->prev;
         }
 
-        /* Set in use */
-        else
+        /* Clip prev element */
+        if(element->prev >= 0)
         {
-            /* Copy sessionid into place */
-            memcpy(element->sessionid, sessionid, shared->keysize);
-
-            /* Copy element into place */
-            memcpy(&element->userid, &userid, sizeof(element->userid));
-
-            /* Increment element count */
-            if(!element->flags & ELEMENT_IN_USE) 
-                shared->numelements++;
-
-            /* This is now in use */
-            element->flags |= ELEMENT_IN_USE;
-
+            prev = findelementsh(shared, element->prev);
+            prev->next = element->next;
         }
 
-        /* Good return code */
-        rtn = 0;
-
-        /* This is a write */
-        shared->nwrites++;
+        /* Move head to next */
+        if(hidx == bhead->head)
+        {
+            bhead->head = element->next;
+        }
     }
 
-    /* Unlock this */
-    pthread_mutex_unlock(&shared->lock);
+    /* Unlock */
+    pthread_rwlock_unlock(&bhead->lock);
 
-    return rtn;
+    if(!cmp)
+    {
+    }
+
+
+
+}
+
+/* Add this key->userid mapping to sessionhash */
+int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
+{
+    char                    *sessionid;
+    uint32_t                hidx;
+    uint32_t                hcnt;
+    sh_head_t               *bhead;
+    sh_shared_t             *shared;
+    sh_element_t            *element;
+    sh_element_t            *next;
+    int                     col = 0;
+    int                     cnt = 0;
+    int                     cmp = 1;
+    int                     ln;
+
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    /* Check length */
+    if((ln = strlen(insessionid)) > shared->keysize)
+        return SHASH_KEY_TOO_BIG;
+
+    /* Copy and pad smaller keys */
+    if(ln < shared->keysize)
+    {
+        sessionid = (char *)alloca(shared->keysize);
+        memcpy(sessionid, insessionid, ln);
+        bzero(&sessionid[ln], shared->keysize - ln);
+    }
+    else
+        sessionid = (char *)insessionid;
+
+    /* Hash index */
+    hidx = s_hash(sessionid, strlen(sessionid)) % shared->nbuckets;
+
+    /* Bucket-head */
+    bhead = &shared->buckets[hidx];
+
+    /* Write lock */
+    pthread_rwlock_wrlock(&bhead->lock);
+
+    /* Walk the chain */
+    for(hidx = bhead->head, hcnt = 0 ; hidx >= 0 && hcnt < bhead->count ; 
+            hidx = element->next, hcnt++)
+    {
+        element = findelementsh(shared, hidx);
+        if(0 == (cmp = memcmp(sessionid, element->sessionid, shared->keysize)))
+        {
+            col = 1;
+            break;
+        }
+    }
+
+    /* Allocate from the freelist */
+    if(cmp)
+    {
+        /* Lock the freelist */
+        pthread_rwlock_wrlock(&shared->freelist.lock);
+
+        /* Empty */
+        if(-1 == shared->freelist.head)
+        {
+            /* Unlock freelist */
+            pthread_rwlock_unlock(&shared->freelist.lock);
+
+            /* Unlock bucket */
+            pthread_rwlock_unlock(&bhead->lock);
+
+            /* No space */
+            return SHASH_NO_SPACE;
+        }
+
+        /* Take index from the head */
+        hidx = shared->freelist.head; 
+
+        /* Resolve the element */
+        element = findelementsh(shared, hidx);
+
+        /* Head is the next in the chain */
+        shared->freelist.head = element->next;
+
+        /* Decrement */
+        shared->freelist.count--;
+
+        /* Reset next element's prev */
+        if(element->next >= 0)
+        {
+            next = findelementsh(shared, element->next);
+            next->prev = -1;
+        }
+
+        /* Finished with freelist */
+        pthread_rwlock_unlock(&shared->freelist.lock);
+
+        /* Add new element to the head of the bucket */
+        element->next = bhead->head;
+
+        /* This will be the first element */
+        element->prev = -1;
+
+        /* Reset next element's prev */
+        if(bhead->head >= 0)
+        {
+            next = findelementsh(shared, bhead->head);
+            next->prev = hidx;
+        }
+
+        /* New head */
+        bhead->head = hidx;
+
+        /* Copy element in place */
+        memcpy(element->sessionid, sessionid, shared->keysize);
+
+        /* Increment count */
+        bhead->count++;
+    }
+
+    /* Copy userid in place */
+    memcpy(&element->userid, &userid, sizeof(element->userid));
+
+    /* Maybe print some trace? */
+    if(col)
+        fprintf(stderr, "Shared-hash collision: replacing '%s' userid=%lld "
+                "with userid='%lld'.\n", sessionid, element->userid,  userid);
+
+    /* Unlock bucket */
+    pthread_rwlock_unlock(&bhead->lock);
+
+    /* This is a write */
+    shared->nwrites++;
+
+    /* Good rcode */
+    return SHASH_OK;
 }
 
 /* Stats */
 int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 {
     sh_shared_t             *shared;
+    int                     val;
 
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
@@ -581,21 +651,18 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
     if(flags & SHASH_STATS_NMISSES)
         memcpy(&stats->nmisses, &shared->nmisses, sizeof(stats->nmisses));
 
-    if(flags & SHASH_STATS_MAXSTEPS)
-        memcpy(&stats->maxsteps, &shared->maxsteps, sizeof(stats->maxsteps));
-
     if(flags & SHASH_STATS_MAXELEMENTS)
         memcpy(&stats->maxelements, &shared->maxelements, 
                 sizeof(stats->maxelements));
 
     if(flags & SHASH_STATS_NUMELEMENTS)
-        memcpy(&stats->numelements, &shared->numelements, 
+    {
+        pthread_rwlock_rdlock(&shared->freelist.lock);
+        val = shared->maxelements - shared->freelist.count;
+        pthread_rwlock_unlock(&shared->freelist.lock);
+        memcpy(&stats->numelements, &val, 
                 sizeof(stats->numelements));
-
-    /*
-    if(flags & SHASH_STATS_WCOLLISIONS)
-        memcpy(&stats->wcoll, &shared->wcoll, sizeof(stats->wcoll));
-        */
+    }
 
     if(flags & SHASH_STATS_KEYSIZE)
         memcpy(&stats->keysize, &shared->keysize, sizeof(stats->keysize));
@@ -607,10 +674,10 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 }
 
 /* Dump this element */
-static inline int sessionhash_dump_element(sh_element_t *element, int idx, 
-        int idxfw, int keysize, FILE *f)
+static inline int sessionhash_dump_element(sh_element_t *element, int keysize, 
+        FILE *f)
 {
-    fprintf(f, "%*d: '%*s' -> %lld\n", idxfw, idx, keysize, element->sessionid,
+    fprintf(f, "'%*s'->%lld ", keysize, element->sessionid,
             element->userid);
 }
 
@@ -619,44 +686,67 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
 {
     sh_shared_t             *shared;
     sh_element_t            *element;
-    int                     ii;
+    sh_head_t               *bhead;
+    uint32_t                hcnt;
+    uint32_t                ii;
+    uint32_t                hidx;
 
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
 
     /* Loop */
-    for(ii = 0; ii < shared->maxelements; ii++)
+    for(ii = 0; ii < shared->nbuckets; ii++)
     {
-        /* Element */
-        element = findelement(shash, ii);
+        /* Bucket head */
+        bhead = &shared->buckets[ii];
 
-        if((element->flags & ELEMENT_IN_USE) || (flags & SHASH_DUMP_UNUSED))
+        /* Print */
+        fprintf(f, "Bucket %*d ", shared->maxlog10, ii);
+
+        /* Lock */
+        pthread_rwlock_rdlock(&bhead->lock);
+
+        /* Print count */
+        fprintf(f, "%*d elements ", shared->maxlog10, bhead->count);
+
+        /* Walk the chain */
+        for(hidx = bhead->head, hcnt = 0 ; hidx >= 0 && hcnt < bhead->count ; 
+                hidx = element->next, hcnt++)
         {
-            sessionhash_dump_element(element, ii, shared->maxlog10, 
-                    shared->keysize, f);
+            /* Leading space */
+            fprintf(f, " ");
+
+            /* Resolve element */
+            element = findelementsh(shared, hidx);
+
+            /* Print */
+            sessionhash_dump_element(element, shared->keysize, f);
         }
+
+        /* Lock */
+        pthread_rwlock_unlock(&bhead->lock);
+
+        /* Trailing newline */
+        fprintf(f, "\n");
     }
-}
 
-/* Copy out steps histogram */
-uint64_t *sessionhash_steps(shash_t *shash, int *nelements)
-{
-    sh_shared_t             *shared;
-    uint64_t                *steps;
-    
-    /* Shared */
-    shared = (sh_shared_t *)shash->sdata;
+    /* Dump the freelist */
+    if(flags & SHASH_DUMP_FREELIST)
+    {
+        fprintf(f, "Freelist: ");
+        pthread_rwlock_rdlock(&shared->freelist.lock);
+        fprintf(f, "%*d elements ", shared->maxlog10, shared->freelist.count);
 
-    /* Grab memory */
-    steps = (uint64_t *)malloc(sizeof(uint64_t) * shared->maxelements);
+        for(hidx = shared->freelist.head, hcnt = 0 ; hidx >= 0 && hcnt < 
+                shared->freelist.count ; hidx = element->next, hcnt++)
+        {
+            /* Resolve element */
+            element = findelementsh(shared, hidx);
 
-    /* Memcpy */
-    memcpy(steps, shared->steps, sizeof(uint64_t) * shared->maxelements);
-
-    /* Set nelements */
-    *nelements = shared->maxelements;
-
-    /* Return */
-    return steps;
+            fprintf(f, "%d ", hidx);
+        }
+        fprintf(f, "\n");
+    }
+    return 0;
 }
 

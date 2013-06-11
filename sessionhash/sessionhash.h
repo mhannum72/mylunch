@@ -24,11 +24,30 @@ shash_t *sessionhash_attach(int shmkey);
 /* Destroy sessionhash handle */
 void sessionhash_destroy(shash_t *s);
 
+/* Rcodes for sessionhash */
+enum
+{
+    /* Successful add/find/delete */
+    SHASH_OK                = 0
+
+    /* Could not find */
+   ,SHASH_NOT_FOUND         = -1
+
+    /* No space left */
+   ,SHASH_NO_SPACE          = -2
+
+    /* Key too big */
+   ,SHASH_KEY_TOO_BIG       = -3
+};
+
 /* Retrieve user for this session */
 long long sessionhash_find(shash_t *s, const char *key);
 
 /* Add user for this session */
 int sessionhash_add(shash_t *s, const char *key, long long userid);
+
+/* Delete this session */
+int sessionhash_delete(shash_t *s, const char *key);
 
 /* Stats definition */
 typedef struct shash_stats
@@ -36,7 +55,6 @@ typedef struct shash_stats
     uint64_t                nreads;
     uint64_t                nhits;
     uint64_t                nmisses;
-    uint64_t                maxsteps;
     uint64_t                nwrites;
     uint64_t                wcoll;
     int                     keysize;
@@ -84,14 +102,11 @@ enum stats_request
 /* Get stats */
 int sessionhash_stats(shash_t *s, shash_stats_t *stats, int flags);
 
-/* Get count histogram.  Caller should free return */
-uint64_t *sessionhash_steps(shash_t *s, int *nelements);
-
 /* Dump flags enum */
 enum dump_flags
 {
     /* Include unused entries in dump */
-    SHASH_DUMP_UNUSED       = 0x00000001
+    SHASH_DUMP_FREELIST     = 0x00000001
 };
 
 /* Dump the sessionhash */
