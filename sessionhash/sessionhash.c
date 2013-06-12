@@ -645,11 +645,6 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     /* Copy userid in place */
     memcpy(&element->userid, &userid, sizeof(element->userid));
 
-    /* Maybe print some trace? */
-    if(col)
-        fprintf(stderr, "Shared-hash collision: replacing '%s' userid=%lld "
-                "with userid='%lld'.\n", sessionid, element->userid,  userid);
-
     /* Unlock bucket */
     pthread_rwlock_unlock(&bhead->lock);
 

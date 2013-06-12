@@ -194,8 +194,11 @@ static void *add_thd(void *arg)
         /* Add it */
         if(rc = sessionhash_add(shash, sessbase, userid))
         {
-            fprintf(stderr, "Error adding session-base '%s', rc=%d\n", 
-                    sessbase, rc);
+            if(rc != SHASH_NO_SPACE)
+            {
+                fprintf(stderr, "Error adding session-base '%s', rc=%d\n", 
+                        sessbase, rc);
+            }
         }
 
         /* Free */
@@ -230,7 +233,7 @@ int main(int argc, char *argv[])
     srand48( getpid() * time(NULL) );
 
     /* Getopt loop */
-    while(-1 != (c = getopt(argc, argv, "k:S:l:h:t:i:afh")))
+    while(-1 != (c = getopt(argc, argv, "k:S:l:h:t:i:afdh")))
     {
         switch(c)
         {
@@ -274,6 +277,10 @@ int main(int argc, char *argv[])
                 mode = MODE_FIND;
                 break;
 
+            case 'd':
+                mode = MODE_DELETE;
+                break;
+
             /* Usage */
             case 'h':
                 usage(argv0, stdout);
@@ -313,6 +320,10 @@ int main(int argc, char *argv[])
 
         case MODE_FIND:
             func = find_thd;
+            break;
+
+        case MODE_DELETE:
+            func = delete_thd;
             break;
 
         default:
