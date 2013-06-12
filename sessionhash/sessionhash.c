@@ -708,7 +708,7 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 static inline int sessionhash_dump_element(sh_element_t *element, int keysize, 
         FILE *f)
 {
-    fprintf(f, "'%*s'->%lld ", keysize, element->sessionid,
+    fprintf(f, "'%*s'->%lld", keysize, element->sessionid,
             element->userid);
 }
 
@@ -745,7 +745,10 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
                 hidx = element->next, hcnt++)
         {
             /* Leading space */
-            fprintf(f, " ");
+            if(hidx == bhead->head) fprintf(f, " ");
+
+            /* Separte elements by comma */
+            else fprintf(f, ", ");
 
             /* Resolve element */
             element = findelementsh(shared, hidx);
@@ -776,6 +779,8 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
 
             fprintf(f, "%d ", hidx);
         }
+
+        pthread_rwlock_unlock(&shared->freelist.lock);
         fprintf(f, "\n");
     }
     return 0;
