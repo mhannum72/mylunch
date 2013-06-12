@@ -483,6 +483,9 @@ int sessionhash_delete(shash_t *shash, const char *insessionid)
         {
             bhead->head = element->next;
         }
+        
+        /* Decrement number of elements */
+        bhead->count--;
     }
 
     /* Unlock */
@@ -491,7 +494,7 @@ int sessionhash_delete(shash_t *shash, const char *insessionid)
     if(!cmp)
     {
         /* Lock freelist */
-        pthread_rwlock_lock(&shared->freelist.lock);
+        pthread_rwlock_wrlock(&shared->freelist.lock);
 
         /* Set prev of the head */
         if(shared->freelist.head >= 0)
@@ -512,6 +515,10 @@ int sessionhash_delete(shash_t *shash, const char *insessionid)
         /* Unlock */
         pthread_rwlock_unlock(&shared->freelist.lock);
 
+        /* This is a write */
+        shared->nwrites++;
+
+        /* Valid return code */
         rtn = SHASH_OK;
     }
 

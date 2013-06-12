@@ -19,6 +19,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-C <keysz>:<count>     - Create sessionhash\n");
     fprintf(f,  "-a                     - Add sessionid\n");
     fprintf(f,  "-f                     - Find sessionid\n");
+    fprintf(f,  "-x                     - Delete sessionid\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
     fprintf(f,  "-d                     - Dump sessionhash\n");
     fprintf(f,  "-D                     - Dump sessionhash and freelist\n");
@@ -33,8 +34,9 @@ enum
    ,MODE_CREATE             = 1
    ,MODE_FIND               = 2
    ,MODE_ADD                = 3
-   ,MODE_STATS              = 4
-   ,MODE_DUMP               = 5
+   ,MODE_DELETE             = 4
+   ,MODE_STATS              = 5
+   ,MODE_DUMP               = 6
 };
 
 /* Mode variable */
@@ -76,7 +78,7 @@ int main(int argc, char *argv[])
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dDafth")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dDaftxh")))
     {
         switch(c)
         {
@@ -118,6 +120,11 @@ int main(int argc, char *argv[])
                 mode = MODE_ADD;
                 break;
 
+            /* Delete */
+            case 'x':
+                mode = MODE_DELETE;
+                break;
+
             /* Find */
             case 'f':
                 mode = MODE_FIND;
@@ -128,7 +135,7 @@ int main(int argc, char *argv[])
                 mode = MODE_STATS;
                 break;
 
-            /* Dump hash and freelist */
+           /* Dump hash and freelist */
             case 'D':
                 dflags = SHASH_DUMP_FREELIST;
 
@@ -213,6 +220,33 @@ int main(int argc, char *argv[])
 
             break;
             
+        case MODE_DELETE:
+            /* Verify sessionid args */
+            if(NULL == sessionid)
+            {
+                fprintf(stderr, "Sessionid must be set for delete.\n");
+                exit(1);
+            }
+
+            /* Attach shash */
+            shash = sessionhash_attach(key);
+            if(!shash) 
+            {
+                fprintf(stderr, "Error attaching to session_hash, key=0x%x.\n", key);
+                exit(1);
+            }
+
+            /* Delete */
+            rc = sessionhash_delete(shash, sessionid);
+            if(0 != rc)
+            {
+                fprintf(stderr, "Error deleting from sessionhash, rc=%d\n", rc);
+                exit(1);
+            }
+
+            /* Success */
+            break;
+
         case MODE_ADD:
 
             /* Verify sessionid args */
@@ -261,9 +295,8 @@ int main(int argc, char *argv[])
             /* Get stats */
             sessionhash_stats(shash, &stats, 
                 SHASH_STATS_NREADS|SHASH_STATS_NWRITES|SHASH_STATS_NHITS|
-                SHASH_STATS_NMISSES|SHASH_STATS_MAXSTEPS|
-                SHASH_STATS_NUMELEMENTS|SHASH_STATS_MAXELEMENTS|
-                SHASH_STATS_WCOLLISIONS| SHASH_STATS_SEGSIZE);
+                SHASH_STATS_NMISSES|SHASH_STATS_NUMELEMENTS|
+                SHASH_STATS_MAXELEMENTS| SHASH_STATS_SEGSIZE);
 
             /* Print the stats */
             print_stats(&stats, stdout);

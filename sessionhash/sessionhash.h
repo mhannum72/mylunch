@@ -79,24 +79,17 @@ enum stats_request
     /* Number of unsuccessful reads */
    ,SHASH_STATS_NMISSES     = 0x00000008
 
-    /* Maximum steps taken for a find */
-   ,SHASH_STATS_MAXSTEPS    = 0x00000010
-
     /* Key size */
-   ,SHASH_STATS_KEYSIZE     = 0x00000020
+   ,SHASH_STATS_KEYSIZE     = 0x00000010
 
    /* Segment size */
-   ,SHASH_STATS_SEGSIZE     = 0x00000040
+   ,SHASH_STATS_SEGSIZE     = 0x00000020
 
    /* Current number of elements */
-   ,SHASH_STATS_NUMELEMENTS = 0x00000080
+   ,SHASH_STATS_NUMELEMENTS = 0x00000040
 
     /* Maximum size */
-   ,SHASH_STATS_MAXELEMENTS = 0x00000100
-
-    /* Replaced userids */
-   ,SHASH_STATS_WCOLLISIONS = 0x00000200
-
+   ,SHASH_STATS_MAXELEMENTS = 0x00000080
 };
 
 /* Get stats */
