@@ -20,6 +20,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-i <iterations>        - Set number of iterations\n");
     fprintf(f,  "-a                     - Set add mode\n");
     fprintf(f,  "-f                     - Set find mode\n");
+    fprintf(f,  "-d                     - Set delete mode\n");
     fprintf(f,  "-h                     - This menu\n");
     exit(1);
 }
@@ -30,6 +31,7 @@ enum
     MODE_UNSET              = 0
    ,MODE_ADD                = 1
    ,MODE_FIND               = 2
+   ,MODE_DELETE             = 3
 };
 
 /* Mode variable */
@@ -70,6 +72,51 @@ static inline char *randsession(long long *userid)
 
     /* Convert to base64 */
     return base64_encode(workbase, strlen(workbase), NULL);
+}
+
+/* Delete thread */
+static void *delete_thd(void *arg)
+{
+    int                     i;
+    int                     rc;
+    char                    *sessbase;
+    shash_t                 *shash;
+    long long               userid;
+
+    /* Attach to session readonly */
+    shash = sessionhash_attach(key);
+
+    /* Punt if we can't attach */
+    if(!shash)
+    {
+        fprintf(stderr, "Thd %d cannot attach to shash.\n", pthread_self());
+        return NULL;
+    }
+
+    for(i = 0 ; (0 >= iterations) || (i < iterations) ; i++)
+    {
+        /* Get a random session */
+        sessbase = randsession(&userid);
+
+        /* Find it */
+        rc = sessionhash_delete(shash, sessbase);
+
+        /* Either not found or found and equal to userid */
+        if(rc != SHASH_NOT_FOUND && rc != SHASH_OK)
+        {
+            fprintf(stderr, "Error thd %d: delete rc is %d.\n", pthread_self(),
+                    rc);
+        }
+
+        /* Free */
+        free(sessbase);
+    }
+
+    /* Cleanup */
+    sessionhash_destroy(shash);
+
+    /* Return */
+    return NULL;
 }
 
 /* Find thread */

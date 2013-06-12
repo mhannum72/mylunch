@@ -20,6 +20,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-a                     - Add sessionid\n");
     fprintf(f,  "-f                     - Find sessionid\n");
     fprintf(f,  "-x                     - Delete sessionid\n");
+    fprintf(f,  "-L                     - Clear all locks\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
     fprintf(f,  "-d                     - Dump sessionhash\n");
     fprintf(f,  "-D                     - Dump sessionhash and freelist\n");
@@ -34,9 +35,10 @@ enum
    ,MODE_CREATE             = 1
    ,MODE_FIND               = 2
    ,MODE_ADD                = 3
-   ,MODE_DELETE             = 4
-   ,MODE_STATS              = 5
-   ,MODE_DUMP               = 6
+   ,MODE_CLEAR              = 4
+   ,MODE_DELETE             = 5
+   ,MODE_STATS              = 6
+   ,MODE_DUMP               = 7
 };
 
 /* Mode variable */
@@ -78,7 +80,7 @@ int main(int argc, char *argv[])
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:dDaftxh")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:LdDaftxh")))
     {
         switch(c)
         {
@@ -128,6 +130,11 @@ int main(int argc, char *argv[])
             /* Find */
             case 'f':
                 mode = MODE_FIND;
+                break;
+
+            /* Clear locks */
+            case 'L':
+                mode = MODE_CLEAR;
                 break;
 
             /* Stats */
@@ -280,6 +287,20 @@ int main(int argc, char *argv[])
             }
 
             /* Success */
+            break;
+
+        case MODE_CLEAR:
+            /* Attach shash */
+            shash = sessionhash_attach(key);
+            if(!shash) 
+            {
+                fprintf(stderr, "Error attaching to session_hash, key=0x%x.\n", key);
+                exit(1);
+            }
+
+            /* Clear */
+            sessionhash_clearlocks(shash);
+
             break;
 
         case MODE_STATS:

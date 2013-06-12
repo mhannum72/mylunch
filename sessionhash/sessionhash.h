@@ -49,6 +49,9 @@ int sessionhash_add(shash_t *s, const char *key, long long userid);
 /* Delete this session */
 int sessionhash_delete(shash_t *s, const char *key);
 
+/* Clear all locks */
+int sessionhash_clearlocks(shash_t *s);
+
 /* Stats definition */
 typedef struct shash_stats
 {

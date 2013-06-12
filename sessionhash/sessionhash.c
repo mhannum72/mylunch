@@ -660,6 +660,62 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     return SHASH_OK;
 }
 
+/* Clear all locks for this shash */
+int sessionhash_clearlocks(shash_t *shash)
+{
+    sh_shared_t             *shared;
+    sh_element_t            *element;
+    sh_head_t               *bhead;
+    uint32_t                hcnt;
+    uint32_t                ii;
+    int                     clrcnt;
+    int                     rc;
+    uint32_t                hidx;
+
+    /* Shared */
+    shared = (sh_shared_t *)shash->sdata;
+
+    /* Loop */
+    for(ii = 0; ii < shared->nbuckets; ii++)
+    {
+        /* Bucket head */
+        bhead = &shared->buckets[ii];
+
+        /* Try lock */
+        for(    clrcnt = 0 ; 
+                EBUSY == (rc = pthread_rwlock_trywrlock(&bhead->lock)); 
+                clrcnt++ )
+            pthread_rwlock_unlock(&bhead->lock);
+
+        /* Unlock */
+        if(0 == rc) 
+            pthread_rwlock_unlock(&bhead->lock);
+        else
+            fprintf(stderr, "Unhandled rc for trywrlock on bucket %d: %d\n", ii, rc);
+
+        /* Print a message */
+        if(clrcnt) fprintf(stderr, "Cleared lock for bucket %d\n", ii);
+    }
+
+    /* Freelist */
+    for(    clrcnt = 0 ; 
+            EBUSY == (rc = pthread_rwlock_trywrlock(&shared->freelist.lock)); 
+            clrcnt++ )
+        pthread_rwlock_unlock(&shared->freelist.lock);
+
+    /* Unlock */
+    if(0 == rc)
+        pthread_rwlock_unlock(&shared->freelist.lock);
+    else
+        fprintf(stderr, "Unhandled rc for trywrlock on freelist: %d\n", rc);
+
+    /* Freelist message */
+    if(clrcnt) fprintf(stderr, "Cleared freelist lock\n");
+
+    return 0;
+
+}
+
 /* Stats */
 int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 {
