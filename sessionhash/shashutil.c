@@ -23,7 +23,7 @@ void usage(const char *argv0, FILE *f)
     fprintf(f,  "-L                     - Clear all locks\n");
     fprintf(f,  "-t                     - Retrieve stats\n");
     fprintf(f,  "-d                     - Dump sessionhash\n");
-    fprintf(f,  "-D                     - Dump sessionhash and freelist\n");
+    fprintf(f,  "-D <time>              - Dump entries not accessed for <time> seconds\n");
     fprintf(f,  "-h                     - This menu\n");
     exit(1);
 }
@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     int                     nelements;
     int                     keysz;
     int                     err = 0;
+    int                     dtime = -1;
     int                     rc;
     int                     key = -1;
     char                    *sessionid = NULL;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
     /* Latch arg0 */
     argv0 = argv[0];
 
-    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:LdDaftxh")))
+    while(-1 != (c = getopt(argc, argv, "k:s:S:u:C:LdD:aftxh")))
     {
         switch(c)
         {
@@ -142,13 +143,15 @@ int main(int argc, char *argv[])
                 mode = MODE_STATS;
                 break;
 
-           /* Dump hash and freelist */
+           /* Dump old entries in the hash */
             case 'D':
                 dflags = SHASH_DUMP_FREELIST;
+                dtime = atoi(optarg);
 
             /* Dump hash */
             case 'd':
                 mode = MODE_DUMP;
+                dflags = SHASH_DUMP_FREELIST;
                 break;
 
             /* Usage menu */
@@ -334,7 +337,7 @@ int main(int argc, char *argv[])
             }
 
             /* Dump the hash */
-            sessionhash_dump(shash, stdout, dflags);
+            sessionhash_dump_old(shash, stdout, dtime, dflags);
             break;
 
         default:

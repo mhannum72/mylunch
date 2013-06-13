@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <errno.h>
+#include <time.h>
 #include <inttypes.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -50,6 +51,8 @@ typedef struct sesssionhash_element
     unsigned int            flags;
     int                     next;
     int                     prev;
+    time_t                  createtime;
+    time_t                  accesstime;
     long long               userid;
     char                    sessionid[1];
 }
@@ -395,6 +398,9 @@ long long sessionhash_find(shash_t *shash, const char *insessionid)
 
         /* Update hits */
         shared->nhits++;
+
+        /* Update access time */
+        element->accesstime = time(NULL);
     }
 
     /* Update misses */
@@ -645,6 +651,9 @@ int sessionhash_add(shash_t *shash, const char *insessionid, long long userid)
     /* Copy userid in place */
     memcpy(&element->userid, &userid, sizeof(element->userid));
 
+    /* Update create and access times */
+    element->createtime = element->accesstime = time(NULL);
+
     /* Unlock bucket */
     pthread_rwlock_unlock(&bhead->lock);
 
@@ -708,7 +717,6 @@ int sessionhash_clearlocks(shash_t *shash)
     if(clrcnt) fprintf(stderr, "Cleared freelist lock\n");
 
     return 0;
-
 }
 
 /* Stats */
@@ -759,19 +767,44 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 static inline int sessionhash_dump_element(sh_element_t *element, int keysize, 
         FILE *f)
 {
-    fprintf(f, "'%*s'->%lld", keysize, element->sessionid,
-            element->userid);
+    struct tm ctime, atime;
+    char ctimestr[32], atimestr[32];
+
+    /* Integer to a structure */
+    localtime_r(&element->createtime, &ctime);
+    localtime_r(&element->accesstime, &atime);
+
+    /* Create time to string */
+    snprintf(ctimestr, sizeof(ctimestr), "%04d.%02d.%02d.%02d.%02d.%02d",
+            ctime.tm_year + 1900, ctime.tm_mon + 1, ctime.tm_mday,
+            ctime.tm_hour, ctime.tm_min, ctime.tm_sec);
+
+    /* Access time to string */
+    snprintf(atimestr, sizeof(atimestr), "%04d.%02d.%02d.%02d.%02d.%02d",
+            atime.tm_year + 1900, atime.tm_mon + 1, atime.tm_mday,
+            atime.tm_hour, atime.tm_min, atime.tm_sec);
+
+    /* Print */
+    fprintf(f, "'%*s'->%10lld created %s last-accessed %s", keysize, 
+            element->sessionid, element->userid, ctimestr, atimestr);
 }
 
 /* Dump the sessionhash */
-int sessionhash_dump(shash_t *shash, FILE *f, int flags)
+int sessionhash_dump_old(shash_t *shash, FILE *f, int howold, int flags)
 {
     sh_shared_t             *shared;
     sh_element_t            *element;
     sh_head_t               *bhead;
+    int                     prhead;
     uint32_t                hcnt;
     uint32_t                ii;
     uint32_t                hidx;
+    time_t                  target = 0;
+
+    if(howold >= 0)
+    {
+        target = time(NULL) - howold;
+    }
 
     /* Shared */
     shared = (sh_shared_t *)shash->sdata;
@@ -782,37 +815,42 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
         /* Bucket head */
         bhead = &shared->buckets[ii];
 
-        /* Print */
-        fprintf(f, "Bucket %*d ", shared->maxlog10, ii);
+        /* Set the prhead flag */
+        prhead = 0;
 
         /* Lock */
         pthread_rwlock_rdlock(&bhead->lock);
-
-        /* Print count */
-        fprintf(f, "%*d elements ", shared->maxlog10, bhead->count);
 
         /* Walk the chain */
         for(hidx = bhead->head, hcnt = 0 ; hidx >= 0 && hcnt < bhead->count ; 
                 hidx = element->next, hcnt++)
         {
-            /* Leading space */
-            if(hidx == bhead->head) fprintf(f, " ");
-
-            /* Separte elements by comma */
-            else fprintf(f, ", ");
 
             /* Resolve element */
             element = findelementsh(shared, hidx);
 
             /* Print */
-            sessionhash_dump_element(element, shared->keysize, f);
+            if(!target || element->accesstime <= target)
+            {
+                if(!prhead)
+                {
+                    /* Newline now */
+                    fprintf(f, "\n");
+
+                    /* Print bucket information */
+                    fprintf(f, "Bucket %*d\n", shared->maxlog10, ii);
+
+                    prhead = 1;
+                }
+                sessionhash_dump_element(element, shared->keysize, f);
+            }
         }
 
         /* Lock */
         pthread_rwlock_unlock(&bhead->lock);
 
-        /* Trailing newline */
-        fprintf(f, "\n");
+        /* Newline if I printed anything */
+        if(prhead) fprintf(f, "\n");
     }
 
     /* Dump the freelist */
@@ -836,4 +874,11 @@ int sessionhash_dump(shash_t *shash, FILE *f, int flags)
     }
     return 0;
 }
+
+/* Dump the sessionhash */
+int sessionhash_dump(shash_t *shash, FILE *f, int flags)
+{
+    return sessionhash_dump_old(shash, f, -1, flags);
+}
+
 

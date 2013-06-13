@@ -108,4 +108,9 @@ enum dump_flags
 /* Dump the sessionhash */
 int sessionhash_dump(shash_t *s, FILE *f, int flags);
 
+
+/* Dump sessionhash entries older than now - howold */
+int sessionhash_dump_old(shash_t *s, FILE *f, int howold, int flags);
+
+
 #endif
