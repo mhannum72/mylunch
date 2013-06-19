@@ -1,0 +1,1 @@
+cmd_Release/obj.target/shashnode.node := flock ./Release/linker.lock g++ -shared -pthread -m32 -rdynamic  -Wl,-soname=shashnode.node -o Release/obj.target/shashnode.node -Wl,--start-group Release/obj.target/shashnode/shashnode.o Release/obj.target/shashnode/sessionhash.o Release/obj.target/shashnode/base64.o -Wl,--end-group 

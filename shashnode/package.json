@@ -1,5 +1,5 @@
 {
-    "name": "modulename",
+    "name": "shashnode",
     "version": "1.0.0",
-    "main": "./build/Release/modulename"
+    "main": "./build/Release/shashnode"
 }
