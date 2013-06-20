@@ -122,6 +122,9 @@ enum dump_flags
 {
     /* Include unused entries in dump */
     SHASH_DUMP_FREELIST     = 0x00000001
+   ,SHASH_DUMP_BUCKETS      = 0x00000002
+   ,SHASH_DUMP_CTIME        = 0x00000004
+   ,SHASH_DUMP_ATIME        = 0x00000008
 };
 
 /* Dump the sessionhash */

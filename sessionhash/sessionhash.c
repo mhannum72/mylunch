@@ -746,33 +746,36 @@ int sessionhash_stats(shash_t *shash, shash_stats_t *stats, int flags)
 }
 
 /* Dump this element */
-static inline int sessionhash_dump_element(sh_element_t *element, int keysize, 
-        FILE *f)
+static inline int sessionhash_dump_element(sh_element_t *element, int keysize,
+        int flags, FILE *f)
 {
     struct tm ctime, atime;
-    char ctimestr[32], atimestr[32];
+    char ctimestr[64] = {0}, atimestr[64] = {0};
 
-#if 0
     /* Integer to a structure */
-    localtime_r(&element->createtime, &ctime);
-    localtime_r(&element->accesstime, &atime);
+    if(flags & SHASH_DUMP_CTIME)
+    {
+        localtime_r(&element->createtime, &ctime);
 
-    /* Create time to string */
-    snprintf(ctimestr, sizeof(ctimestr), "%04d.%02d.%02d.%02d.%02d.%02d",
-            ctime.tm_year + 1900, ctime.tm_mon + 1, ctime.tm_mday,
-            ctime.tm_hour, ctime.tm_min, ctime.tm_sec);
+        /* Create time to string */
+        snprintf(ctimestr, sizeof(ctimestr), " Created %04d/%02d/%02d %02d:%02d:%02d",
+                ctime.tm_year + 1900, ctime.tm_mon + 1, ctime.tm_mday,
+                ctime.tm_hour, ctime.tm_min, ctime.tm_sec);
+    }
 
-    /* Access time to string */
-    snprintf(atimestr, sizeof(atimestr), "%04d.%02d.%02d.%02d.%02d.%02d",
-            atime.tm_year + 1900, atime.tm_mon + 1, atime.tm_mday,
-            atime.tm_hour, atime.tm_min, atime.tm_sec);
+    if(flags & SHASH_DUMP_ATIME)
+    {
+        localtime_r(&element->accesstime, &atime);
+
+        /* Access time to string */
+        snprintf(atimestr, sizeof(atimestr), " Accessed %04d/%02d/%02d %02d:%02d:%02d",
+                atime.tm_year + 1900, atime.tm_mon + 1, atime.tm_mday,
+                atime.tm_hour, atime.tm_min, atime.tm_sec);
+    }
 
     /* Print */
-    fprintf(f, "'%*s'->%10lld created %s last-accessed %s", keysize, 
-            element->sessionid, element->userid, ctimestr, atimestr);
-#endif
-    /* Print */
-    fprintf(f, "'%*s'->%10lld\n", keysize, element->sessionid, element->userid);
+    fprintf(f, "%*s -> %14lld%s%s\n", keysize, element->sessionid, 
+            element->userid, ctimestr, atimestr);
 }
 
 /* Dump the sessionhash */
@@ -820,15 +823,11 @@ int sessionhash_dump_old(shash_t *shash, FILE *f, int howold, int flags)
             {
                 if(!prhead)
                 {
-                    /* Newline now */
-                    fprintf(f, "\n");
-
                     /* Print bucket information */
-                    fprintf(f, "Bucket %*d\n", shared->maxlog10, ii);
-
-                    prhead = 1;
+                    if(flags & SHASH_DUMP_BUCKETS)
+                        fprintf(f, "Bucket %*d\n", shared->maxlog10, ii);
                 }
-                sessionhash_dump_element(element, shared->keysize, f);
+                sessionhash_dump_element(element, shared->keysize, flags, f);
             }
         }
 
