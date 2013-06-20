@@ -3,6 +3,30 @@
 
 using namespace v8;
 
+Handle<Value> SessionhashDelete(const Arguments& args) {
+    HandleScope scope;
+    int32_t jshandle;
+
+    if (args.Length() < 2) {
+        return ThrowException(
+            Exception::TypeError(String::New("Requires handle, key, and userid arguments"))
+        );
+    }
+
+    Local<Integer> integer = args[0]->ToInteger();
+    jshandle = integer->Value();
+
+    Local<String> st = args[1]->ToString();
+    char sessionkey[128] = {0};
+    st->WriteAscii(sessionkey, 0, sizeof(sessionkey), 0);
+
+    int rcode;
+    rcode = sessionhash_delete_handle(jshandle, sessionkey);
+
+    return scope.Close(Integer::New(rcode));
+}
+
+
 Handle<Value> SessionhashAdd(const Arguments& args) {
     HandleScope scope;
     int32_t jshandle;
@@ -31,9 +55,33 @@ Handle<Value> SessionhashAdd(const Arguments& args) {
 }
 
 
+Handle<Value> SessionhashFind(const Arguments& args) {
+    HandleScope scope;
+    int32_t jshandle;
+
+    if (args.Length() < 2) {
+        return ThrowException(
+            Exception::TypeError(String::New("Requires handle and key arguments"))
+        );
+    }
+
+    Local<Integer> integer = args[0]->ToInteger();
+    jshandle = integer->Value();
+
+    Local<String> st = args[1]->ToString();
+    char sessionkey[128] = {0};
+    st->WriteAscii(sessionkey, 0, sizeof(sessionkey), 0);
+
+    int64_t rcode;
+    rcode = sessionhash_find_handle(jshandle, sessionkey);
+
+    return scope.Close(Number::New(rcode));
+}
+
+
+
 Handle<Value> SessionhashAttach(const Arguments& args) {
     HandleScope scope;
-    shash_t *shash;
     int32_t shmkey, jshandle;
 
     if (args.Length() < 1) {
@@ -53,12 +101,17 @@ Handle<Value> SessionhashAttach(const Arguments& args) {
 
 void RegisterModule(Handle<Object> target) {
 
-    target->Set(String::NewSymbol("shashattach"),
+    target->Set(String::NewSymbol("attach"),
         FunctionTemplate::New(SessionhashAttach)->GetFunction());
 
-    target->Set(String::NewSymbol("shashadd"),
+    target->Set(String::NewSymbol("add"),
         FunctionTemplate::New(SessionhashAdd)->GetFunction());
 
+    target->Set(String::NewSymbol("delete"),
+        FunctionTemplate::New(SessionhashDelete)->GetFunction());
+
+    target->Set(String::NewSymbol("find"),
+        FunctionTemplate::New(SessionhashFind)->GetFunction());
 }
 
 NODE_MODULE(shashnode, RegisterModule)

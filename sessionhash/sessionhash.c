@@ -272,7 +272,7 @@ shash_t *sessionhash_attach_int(int shmkey, int readonly)
 
     if(-1 == shmid)
     {
-        fprintf(stderr, "%s error getting shmid: %s.\n", __func__,
+        fprintf(stderr, "%s error resolving sessionkey: %s.\n", __func__,
                 strerror(errno));
         return NULL;
     }
@@ -283,7 +283,7 @@ shash_t *sessionhash_attach_int(int shmkey, int readonly)
     /* Make sure this was successful */
     if(-1 == (int) shared)
     {
-        fprintf(stderr, "%s error attaching to segment shmid %d: %s.\n",
+        fprintf(stderr, "%s error attaching to segment %d: %s.\n",
                 __func__, shmid, strerror(errno));
         return NULL;
     }
@@ -292,7 +292,7 @@ shash_t *sessionhash_attach_int(int shmkey, int readonly)
     if(shared->magic != MAGIC)
     {
         shmdt(shared);
-        fprintf(stderr, "%s magic mismatch, bad shared memory segment.\n", 
+        fprintf(stderr, "%s magic mismatch, bad sessionhash segment.\n", 
                 __func__);
         return NULL;
     }
@@ -752,6 +752,7 @@ static inline int sessionhash_dump_element(sh_element_t *element, int keysize,
     struct tm ctime, atime;
     char ctimestr[32], atimestr[32];
 
+#if 0
     /* Integer to a structure */
     localtime_r(&element->createtime, &ctime);
     localtime_r(&element->accesstime, &atime);
@@ -769,6 +770,9 @@ static inline int sessionhash_dump_element(sh_element_t *element, int keysize,
     /* Print */
     fprintf(f, "'%*s'->%10lld created %s last-accessed %s", keysize, 
             element->sessionid, element->userid, ctimestr, atimestr);
+#endif
+    /* Print */
+    fprintf(f, "'%*s'->%10lld\n", keysize, element->sessionid, element->userid);
 }
 
 /* Dump the sessionhash */
@@ -872,11 +876,11 @@ static shash_t *handles[MAX_SHASH_HANDLE];
 /* Current shash handle */
 static int current = 0;
 
-/* Dumb handlemap code for javascript */
+/* Handlemap code for javascript */
 int sessionhash_attach_handle(int shmkey)
 {
-    int handle = -1;
-    shash_t *sh;
+    int                     handle = -1;
+    shash_t                 *sh;
 
     if(current >= MAX_SHASH_HANDLE)
     {
@@ -891,11 +895,23 @@ int sessionhash_attach_handle(int shmkey)
     return handle;
 }
 
-/* Add a handle */
+/* Find using a handle */
+long long sessionhash_find_handle(int handle, const char *sessionid)
+{
+    if(handle >= current || handle < 0)
+    {
+        fprintf(stderr, "%s invalid handle id, handle=%d current is %d\n", 
+                __func__, handle, current);
+        return -1;
+    }
+
+    return sessionhash_find(handles[handle], sessionid);
+}
+
+/* Add using a handle */
 int sessionhash_add_handle(int handle, const char *sessionid, long long userid)
 {
-
-    if(handle >= current)
+    if(handle >= current || handle < 0)
     {
         fprintf(stderr, "%s invalid handle id, handle=%d current is %d\n", 
                 __func__, handle, current);
@@ -903,4 +919,17 @@ int sessionhash_add_handle(int handle, const char *sessionid, long long userid)
     }
 
     return sessionhash_add(handles[handle], sessionid, userid);
+}
+
+/* Delete using a handle */
+int sessionhash_delete_handle(int handle, const char *sessionid)
+{
+    if(handle >= current || handle < 0)
+    {
+        fprintf(stderr, "%s invalid handle id, handle=%d current is %d\n", 
+                __func__, handle, current);
+        return -1;
+    }
+
+    return sessionhash_delete(handles[handle], sessionid);
 }

@@ -2,7 +2,9 @@
   "targets": [
     {
       "target_name": "shashnode",
-      "sources": [ "shashnode.cpp", "sessionhash.c", "base64.c" ]
+      "sources": [ "shashnode.cpp" ],
+      "include_dirs": [ "/home/mhannum/mylunch/sessionhash/" ],
+      "libraries": [ "-L/home/mhannum/mylunch/sessionhash", "-lsessionhash" ]
     }
   ]
 }

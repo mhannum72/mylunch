@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
             }
 
             /* Dump the hash */
-            sessionhash_dump_old(shash, stdout, dtime, dflags);
+            sessionhash_dump_old(shash, stdout, dtime, /* dflags */0);
             break;
 
         default:

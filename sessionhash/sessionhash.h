@@ -59,6 +59,12 @@ int sessionhash_add(shash_t *s, const char *key, long long userid);
 /* Javascript add user for this session */
 int sessionhash_add_handle(int handle, const char *key, long long userid);
 
+/* Javascript add user for this session */
+int sessionhash_delete_handle(int handle, const char *key);
+
+/* Javascript add user for this session */
+long long sessionhash_find_handle(int handle, const char *key);
+
 /* Delete this session */
 int sessionhash_delete(shash_t *s, const char *key);
 

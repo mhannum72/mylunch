@@ -28,7 +28,8 @@ CFLAGS_CC_Debug := \
 INCS_Debug := \
 	-I/home/mhannum/.node-gyp/0.6.16/src \
 	-I/home/mhannum/.node-gyp/0.6.16/deps/uv/include \
-	-I/home/mhannum/.node-gyp/0.6.16/deps/v8/include
+	-I/home/mhannum/.node-gyp/0.6.16/deps/v8/include \
+	-I/home/mhannum/mylunch/sessionhash
 
 DEFS_Release := \
 	'-D_LARGEFILE_SOURCE' \
@@ -56,12 +57,11 @@ CFLAGS_CC_Release := \
 INCS_Release := \
 	-I/home/mhannum/.node-gyp/0.6.16/src \
 	-I/home/mhannum/.node-gyp/0.6.16/deps/uv/include \
-	-I/home/mhannum/.node-gyp/0.6.16/deps/v8/include
+	-I/home/mhannum/.node-gyp/0.6.16/deps/v8/include \
+	-I/home/mhannum/mylunch/sessionhash
 
 OBJS := \
-	$(obj).target/$(TARGET)/shashnode.o \
-	$(obj).target/$(TARGET)/sessionhash.o \
-	$(obj).target/$(TARGET)/base64.o
+	$(obj).target/$(TARGET)/shashnode.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)
@@ -74,22 +74,13 @@ $(OBJS): GYP_CXXFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_$(B
 
 # Suffix rules, putting all outputs into $(obj).
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.c FORCE_DO_CMD
-	@$(call do_cmd,cc,1)
-
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(srcdir)/%.cpp FORCE_DO_CMD
 	@$(call do_cmd,cxx,1)
 
 # Try building from generated source, too.
 
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.c FORCE_DO_CMD
-	@$(call do_cmd,cc,1)
-
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj).$(TOOLSET)/%.cpp FORCE_DO_CMD
 	@$(call do_cmd,cxx,1)
-
-$(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.c FORCE_DO_CMD
-	@$(call do_cmd,cc,1)
 
 $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.cpp FORCE_DO_CMD
 	@$(call do_cmd,cxx,1)
@@ -106,7 +97,9 @@ LDFLAGS_Release := \
 	-m32 \
 	-rdynamic
 
-LIBS :=
+LIBS := \
+	-L/home/mhannum/mylunch/sessionhash \
+	-lsessionhash
 
 $(obj).target/shashnode.node: GYP_LDFLAGS := $(LDFLAGS_$(BUILDTYPE))
 $(obj).target/shashnode.node: LIBS := $(LIBS)
